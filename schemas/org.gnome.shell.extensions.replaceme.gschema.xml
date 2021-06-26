@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="org.gnome.shell.extensions.replaceme" path="/org/gnome/shell/extensions/replaceme/">
+        <key type="u" name="log-level">
+            <default>4</default>
+            <summary>
+                Provide log4j-like logging levels:
+                0 - OFF
+                1 - FATAL
+                2 - ERROR
+                3 - WARN
+                4 - INFO
+                5 - DEBUG
+                6 - TRACE
+                7 - ALL
+            </summary>
+        </key>
+    </schema>
+</schemalist>

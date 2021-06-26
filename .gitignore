@@ -1,0 +1,7 @@
+dist
+temp
+gschemas.compiled
+*.zip
+*.exe
+
+.vscode

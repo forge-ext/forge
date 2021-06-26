@@ -1,0 +1,43 @@
+*                 text=auto
+
+# Source code
+*.sh              text eol=lf
+*.bash            text eol=lf
+*.js              text
+*.ts              text
+
+# Documentation
+*.md              text
+AUTHORS           text
+CHANGELOG         text
+CHANGES           text
+CONTRIBUTING      text
+COPYING           text
+copyright         text
+*COPYRIGHT*       text
+INSTALL           text
+license           text
+LICENSE           text
+NEWS              text
+readme            text
+*README*          text
+TODO              text
+
+# Configs
+.editorconfig     text
+.gitattributes    text
+.gitconfig        text
+Makefile          text
+makefile          text
+
+# Graphics
+*.gif             binary
+*.ico             binary
+*.jpg             binary
+*.jpeg            binary
+*.png             binary
+*.svg             text
+*.webp            binary
+
+# Ignore files (like .npmignore or .gitignore)
+*.*ignore         text

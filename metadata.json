@@ -1,0 +1,9 @@
+{
+    "name": "REPLACEME",
+    "description": "TODO: Replace me",
+    "uuid": "replaceme@todo.replace.me",
+    "settings-schema": "org.gnome.shell.extensions.replaceme",
+    "shell-version": ["3.36"],
+    "version": 1,
+    "url": "https://github.com/replaceme-with-your-profile/replaceme"
+}
