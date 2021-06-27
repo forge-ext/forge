@@ -8,7 +8,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const app = Me.imports.app;
 const logger = Me.imports.logger;
 
-var appInstance;
+var forgeApp;
 
 function init() {
     logger.info("init");
@@ -16,13 +16,13 @@ function init() {
 
 function enable() {
     logger.info("enable");
-    appInstance = new app.ReplaceMe();
+    forgeApp = new app.ForgeWindowManager();
 }
 
 function disable() {
     logger.info("disable");
 
-    if (appInstance) {
-        // do something
+    if (forgeApp) {
+        forgeApp.disable();
     }
 }

@@ -1,7 +1,7 @@
 // Gnome imports
 
 imports.gi.versions.Gtk = "3.0";
-const { Gtk } = imports.gi;
+const Gtk = imports.gi.Gtk;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -42,7 +42,6 @@ function createLoggingCombo(grid) {
     grid.attach(logLabel, 0, 0, 1, 1);
 
     let logCombo = new Gtk.ComboBoxText();
-    let itemId = 0;
 
     for (const key in logging.LOG_LEVELS) {
         logCombo.append(`${logging.LOG_LEVELS[key]}`, key);

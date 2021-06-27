@@ -12,7 +12,7 @@ const LOG_LEVELS = {
 };
 
 function logContext(msg) {
-    log(`replaceme ${msg}`);
+    log(`Forge: ${msg}`);
 }
 
 function getLogLevel() {

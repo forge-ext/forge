@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-    <schema id="org.gnome.shell.extensions.replaceme" path="/org/gnome/shell/extensions/replaceme/">
+    <schema id="org.gnome.shell.extensions.forge" path="/org/gnome/shell/extensions/forge/">
         <key type="u" name="log-level">
             <default>4</default>
             <summary>

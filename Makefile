@@ -1,10 +1,11 @@
-
-UUID = "replaceme@todo.replace.me"
+UUID = "forge@jmmaranan.com"
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 
-.PHONY: all clean install schemas uninstall enable disable
+.PHONY: all clean install schemas uninstall enable disable log
 
-all: build
+all: build install enable restart
+
+dev: build install enable restart log
 
 schemas: schemas/gschemas.compiled
 	touch $@
@@ -25,10 +26,10 @@ clean:
 	rm -rf temp schemas/gschemas.compiled
 
 enable:
-	gnome-extensions enable $(UUID)
+	gnome-extensions enable "$(UUID)"
 
 disable:
-	gnome-extensions disable $(UUID)
+	gnome-extensions disable "$(UUID)"
 
 install:
 	mkdir -p $(INSTALL_PATH)

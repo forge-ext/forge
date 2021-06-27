@@ -1,9 +1,9 @@
 {
-    "name": "REPLACEME",
-    "description": "TODO: Replace me",
-    "uuid": "replaceme@todo.replace.me",
-    "settings-schema": "org.gnome.shell.extensions.replaceme",
-    "shell-version": ["3.36"],
+    "name": "Forge",
+    "description": "A window manager for GNOME 3",
+    "uuid": "forge@jmmaranan.com",
+    "settings-schema": "org.gnome.shell.extensions.forge",
+    "shell-version": ["3.38"],
     "version": 1,
-    "url": "https://github.com/replaceme-with-your-profile/replaceme"
+    "url": "https://github.com/jmmaranan/forge"
 }
