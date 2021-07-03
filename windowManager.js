@@ -165,8 +165,10 @@ var Tree = GObject.registerClass(
             let criteriaFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW']) {
                     logger.debug(` window: ${node._data.get_wm_class()}`);
+
                     let parentNode = node._parent;
                     let parentRect;
+
                     if (parentNode) {
                         if (parentNode._type === NODE_TYPES['ROOT']) {
                             parentRect = {
@@ -192,13 +194,13 @@ var Tree = GObject.registerClass(
                             nodeHeight = parentRect.height;
                             nodeX = parentRect.x + (childIndex * nodeWidth);
                             nodeY = parentRect.y;
-                            logger.debug(` h-split `);
+                            logger.debug(`  direction: h-split`);
                         } else {
                             nodeWidth = parentRect.width;
                             nodeHeight = Math.floor(parentRect.height / numChild);
                             nodeX = parentRect.x;
                             nodeY = parentRect.y + (childIndex * nodeHeight);
-                            logger.debug(` v-split `);
+                            logger.debug(` direction: v-split`);
                         }
 
                         logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
@@ -217,7 +219,7 @@ var Tree = GObject.registerClass(
                             );
                         };
 
-                        GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                        GLib.timeout_add(GLib.PRIORITY_LOW, 50, () => {
                             move();
                             return false;
                         });
@@ -275,13 +277,22 @@ var ForgeWindowManager = GObject.registerClass(
     class ForgeWindowManager extends GObject.Object {
         _init() {
             super._init();
-            this._bindSignals();
             this._tree = new Tree();
-
             logger.info("Forge initialized");
         }
 
-        _bindSignals() {
+        enable() {
+            this.bindSignals();
+        }
+
+
+        /**
+         * This is the central place to bind all the non-window signals.
+         */
+        bindSignals() {
+            if (this.boundSignals)
+                return;
+
             const display = global.display;
             const shellWm = global.window_manager;
 
@@ -292,14 +303,32 @@ var ForgeWindowManager = GObject.registerClass(
                     this._tree.render();
                 }),
             ];
+
+            this.boundSignals = true;
         }
 
-        _removeSignals() {
+        disable() {
+            logger.debug(`Disable is called`);
+            this.removeSignals();
+        }
+
+        get windows() {
+            let wsManager = global.workspace_manager;
+            // TODO: make it configurable
+            return global.display.get_tabs_list(Meta.TabList.NORMAL_ALL,
+                wsManager.get_active_workspace());
+        }
+
+        removeSignals() {
+            if (!this.boundSignals)
+                return;
+
             if (this._displaySignals) {
                 for (const displaySignal of this._displaySignals) {
                     global.display.disconnect(displaySignal);
                 }
             }
+            this.boundSignals = false;
         }
 
         _windowCreate(_display, metaWindow) {
@@ -327,17 +356,6 @@ var ForgeWindowManager = GObject.registerClass(
             }                
         }
 
-        get windows() {
-            let wsManager = global.workspace_manager;
-            // TODO: make it configurable
-            return global.display.get_tabs_list(Meta.TabList.NORMAL_ALL,
-                wsManager.get_active_workspace());
-        }
-
-        disable() {
-            logger.debug(`Disable is called`);
-            this._removeSignals();
-        }
     }
 );
 

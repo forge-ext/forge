@@ -19,6 +19,8 @@ function enable() {
 
     if (!forgeWm)
         forgeWm = new Window.ForgeWindowManager();
+
+    forgeWm.bindSignals();
 }
 
 function disable() {
