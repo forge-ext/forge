@@ -1,8 +1,10 @@
 // Gnome imports
+const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
 const Shell = imports.gi.Shell;
 const St = imports.gi.St;
+
 
 // Gnome Shell imports
 const DND = imports.ui.dnd;
@@ -43,9 +45,25 @@ var Node = GObject.registerClass(
             this._children = [];
 
             if (this._type === NODE_TYPES['WINDOW']) {
-                logger.debug(`storing actor`);
                 this._actor = this._data.get_compositor_private();
             }
+        }
+    }
+);
+
+var Queue = GObject.registerClass(
+    class Queue extends GObject.Object {
+        _init() {
+            super._init();
+            this._elements = [];
+        }
+
+        enqueue(item) {
+            this._elements.push(item);
+        }
+
+        dequeue() {
+            return this._elements.shift();
         }
     }
 );
@@ -59,18 +77,18 @@ var Tree = GObject.registerClass(
             let currentMonitor = global.display.get_current_monitor();
             let workspaceArea = activeWorkspace.get_work_area_for_monitor(currentMonitor);
 
-            this._rootBin = new St.Bin({style_class: 'window-clone-border'});
-            global.window_group.add_child(this._rootBin);
+            this._rootBin = new St.Bin();
             this._rootBin.set_position(workspaceArea.x, workspaceArea.y);
             this._rootBin.set_size(workspaceArea.width, workspaceArea.height);
             this._rootBin.show();
 
+            global.window_group.add_child(this._rootBin);
+
             this._root = new Node(NODE_TYPES['ROOT'], this._rootBin);
         }
 
-        // Insert on the root or an existing node
-        add(toData, type, data) {
-            let parentNode = this.find(toData);
+        addNode(toNode, type, data) {
+            let parentNode = this.findNode(toNode);
             let child;
 
             if (parentNode) {
@@ -81,77 +99,174 @@ var Tree = GObject.registerClass(
             return child;
         }
 
-        _contains(callback, traversal) {
-            traversal.call(this, callback);
+
+        findNode(data) {
+            let searchNode;
+            let criteriaMatchFn = (node) => {
+                if (node._data === data) {
+                    searchNode = node;
+                }
+            };
+
+            this._walk(criteriaMatchFn, this._traverseBreadthFirst);
+
+            return searchNode;
         }
 
-        _findIndex(items, data) {
+        findNodeByActor(dataActor) {
+            let searchNode;
+            let criteriaMatchFn = (node) => {
+                if (node._type === NODE_TYPES['WINDOW'] && 
+                    node._actor === dataActor) {
+                    searchNode = node;
+                }
+            };
+
+            this._walk(criteriaMatchFn, this._traverseDepthFirst);
+
+            return searchNode;
+        }
+
+        _findNodeIndex(items, node) {
             let index;
 
             for (let i = 0; i < items.length; i++) {
-                if (items[i]._data === data) {
+                let nodeItem = items[i];
+                if (nodeItem._data === node._data) {
                     index = i;
+                    break;
                 }
             }
 
             return index;
         }
 
-        find(data) {
-            let searchNode;
-            let criteriaMatchFn = (node) => {
-                if (node._data === data) {
-                    logger.debug(`found node ${data}`);
-                    searchNode = node;
-                }
-            };
-
-            this._contains(criteriaMatchFn, this._traverseDepthFirst);
-
-            return searchNode;
-        }
-
-        findByActor(dataActor) {
-            let searchNode;
-            let criteriaMatchFn = (node) => {
-                if (node._type === NODE_TYPES['WINDOW'] && 
-                    node._actor === dataActor) {
-                    logger.debug(`found actor ${dataActor}`);
-                    searchNode = node;
-                }
-            };
-
-            this._contains(criteriaMatchFn, this._traverseDepthFirst);
-
-            return searchNode;
-        }
-
-        remove(fromData, data) {
-            let parentNode = this.find(fromData);
+        removeNode(fromNode, node) {
+            let parentNode = this.findNode(fromNode);
             let nodeToRemove = null;
             let nodeIndex;
 
             if (parentNode) {
-                nodeIndex = this._findIndex(parentNode._children, data);
+                nodeIndex = this._findNodeIndex(parentNode._children, node);
 
                 if (nodeIndex === undefined) {
                     // do nothing
                 } else {
-                    // re-adjust the children to the next sibling
-                    nodeToRemove = parentNode._children[nodeIndex];
+                    // TODO re-adjust the children to the next sibling
+                    nodeToRemove = parentNode._children.splice(nodeIndex, 1);
                 }
+            }
+
+            return nodeToRemove;
+        }
+
+        render() {
+            logger.debug(`render tree`);
+            let criteriaFn = (node) => {
+                if (node._type === NODE_TYPES['WINDOW']) {
+                    logger.debug(` window: ${node._data.get_wm_class()}`);
+                    let parentNode = node._parent;
+                    let parentRect;
+                    if (parentNode) {
+                        if (parentNode._type === NODE_TYPES['ROOT']) {
+                            parentRect = {
+                                x: parentNode._data.get_x(), 
+                                y: parentNode._data.get_y(),
+                                height: parentNode._data.get_height(),
+                                width: parentNode._data.get_width()
+                            };
+                        }
+
+                        let numChild = parentNode._children.length;
+                        let childIndex = this._findNodeIndex(
+                            parentNode._children, node);
+                        let splitDirection = SPLIT_ORIENTATION['HSPLIT'];
+                        let splitHorizontally = splitDirection === SPLIT_ORIENTATION['HSPLIT'];
+                        let nodeWidth;
+                        let nodeHeight;
+                        let nodeX;
+                        let nodeY;
+
+                        if (splitHorizontally) {
+                            nodeWidth = Math.floor(parentRect.width / numChild);
+                            nodeHeight = parentRect.height;
+                            nodeX = parentRect.x + (childIndex * nodeWidth);
+                            nodeY = parentRect.y;
+                            logger.debug(` h-split `);
+                        } else {
+                            nodeWidth = parentRect.width;
+                            nodeHeight = Math.floor(parentRect.height / numChild);
+                            nodeX = parentRect.x;
+                            nodeY = parentRect.y + (childIndex * nodeHeight);
+                            logger.debug(` v-split `);
+                        }
+
+                        logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
+
+                        let move = () => {
+                            let metaWindow = node._data;
+                            metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
+                            metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
+                            metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
+                            metaWindow.move_frame(false, nodeX, nodeY);
+                            metaWindow.move_resize_frame(false, 
+                                nodeX,
+                                nodeY,
+                                nodeWidth,
+                                nodeHeight
+                            );
+                        };
+
+                        GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                            move();
+                            return false;
+                        });
+
+                    }
+
+                } else if (node._type === NODE_TYPES['ROOT']) {
+                    logger.debug(` root`);
+                } else if (node._type === NODE_TYPES['SPLIT']) {
+                    logger.debug(` split`);
+                }
+            };
+
+            this._walk(criteriaFn, this._traverseBreadthFirst);
+            logger.debug(`render end`);
+            logger.debug(`--------------------------`);
+        }
+
+        // start walking from root and all child nodes
+        _traverseBreadthFirst(callback) {
+            let queue = new Queue();
+            queue.enqueue(this._root);
+
+            let currentNode = queue.dequeue();
+
+            while(currentNode) {
+                for (let i = 0, length = currentNode._children.length; i < length; i++) {
+                    queue.enqueue(currentNode._children[i]);
+                }
+
+                callback(currentNode);
+                currentNode = queue.dequeue();
             }
         }
 
-        _traverseDepthFirst(criteriaFn) {
-            (function recurse(currentNode) {
+        // start walking from bottom to root
+        _traverseDepthFirst(callback) {
+            let recurse = (currentNode) => {
                 for (let i = 0, length = currentNode._children.length; i < length; i++) {
                     recurse(currentNode._children[i]);
                 }
 
-                criteriaFn(currentNode);
+                callback(currentNode);
+            };
+            recurse(this._root);
+        }
 
-            })(this._root);
+        _walk(callback, traversal) {
+            traversal.call(this, callback);
         }
     }
 );
@@ -168,9 +283,14 @@ var ForgeWindowManager = GObject.registerClass(
 
         _bindSignals() {
             const display = global.display;
+            const shellWm = global.window_manager;
+
             this._displaySignals = [
                 display.connect("window-created", this._windowCreate.
                     bind(this)),
+                display.connect("grab-op-end", (_display, _metaWindow, _grabOp) => {
+                    this._tree.render();
+                }),
             ];
         }
 
@@ -183,24 +303,28 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _windowCreate(_display, metaWindow) {
+            // Make window types configurable
             if (metaWindow.get_window_type() == Meta.WindowType.NORMAL) {
-                logger.debug(`window tracked: ${metaWindow.get_title()}`);
+                logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
 
-                this._tree.add(this._tree._rootBin, NODE_TYPES['WINDOW'], 
+                // Add to the root split for now
+                this._tree.addNode(this._tree._rootBin, NODE_TYPES['WINDOW'], 
                     metaWindow);
 
                 let windowActor = metaWindow.get_compositor_private();
                 windowActor.connect("destroy", this._windowDestroy.bind(this));
-
-                logger.debug(`root children ${this._tree._root._children.length}`);
+                this._tree.render();
             }
         }
 
         _windowDestroy(actor) {
             // Release any resources on the window
-            let nodeWindow = this._tree.findByActor(actor);
-            if (nodeWindow)
-                logger.debug(`window destroyed ${nodeWindow._data.get_title()}`);
+            let nodeWindow = this._tree.findNodeByActor(actor);
+            if (nodeWindow) {
+                logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
+                this._tree.removeNode(this._tree._rootBin, nodeWindow);
+                this._tree.render();
+            }                
         }
 
         get windows() {
