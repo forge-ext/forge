@@ -2,6 +2,7 @@
 const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
 const Shell = imports.gi.Shell;
+const St = imports.gi.St;
 
 // Gnome Shell imports
 const DND = imports.ui.dnd;
@@ -53,12 +54,23 @@ var Tree = GObject.registerClass(
     class Tree extends GObject.Object {
         _init() {
             super._init();
-            this._root = new Node(NODE_TYPES['ROOT'], NODE_TYPES['ROOT']);
+            let workspaceManager = global.workspace_manager; 
+            let activeWorkspace = workspaceManager.get_active_workspace();
+            let currentMonitor = global.display.get_current_monitor();
+            let workspaceArea = activeWorkspace.get_work_area_for_monitor(currentMonitor);
+
+            this._rootBin = new St.Bin({style_class: 'window-clone-border'});
+            global.window_group.add_child(this._rootBin);
+            this._rootBin.set_position(workspaceArea.x, workspaceArea.y);
+            this._rootBin.set_size(workspaceArea.width, workspaceArea.height);
+            this._rootBin.show();
+
+            this._root = new Node(NODE_TYPES['ROOT'], this._rootBin);
         }
 
         // Insert on the root or an existing node
         add(toData, type, data) {
-            let parentNode = this.findByWindow(toData);
+            let parentNode = this.find(toData);
             let child;
 
             if (parentNode) {
@@ -85,12 +97,12 @@ var Tree = GObject.registerClass(
             return index;
         }
 
-        findByWindow(data) {
+        find(data) {
             let searchNode;
             let criteriaMatchFn = (node) => {
                 if (node._data === data) {
+                    logger.debug(`found node ${data}`);
                     searchNode = node;
-                    logger.debug(`found node ${node._data.get_title()}`);
                 }
             };
 
@@ -104,8 +116,8 @@ var Tree = GObject.registerClass(
             let criteriaMatchFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW'] && 
                     node._actor === dataActor) {
+                    logger.debug(`found actor ${dataActor}`);
                     searchNode = node;
-                    logger.debug(`found node ${node._data.get_title()}`);
                 }
             };
 
@@ -115,10 +127,10 @@ var Tree = GObject.registerClass(
         }
 
         remove(fromData, data) {
-            let parentNode = this.findByWindow(fromData);
+            let parentNode = this.find(fromData);
             let nodeToRemove = null;
             let nodeIndex;
-            
+
             if (parentNode) {
                 nodeIndex = this._findIndex(parentNode._children, data);
 
@@ -150,6 +162,7 @@ var ForgeWindowManager = GObject.registerClass(
             super._init();
             this._bindSignals();
             this._tree = new Tree();
+
             logger.info("Forge initialized");
         }
 
@@ -173,7 +186,9 @@ var ForgeWindowManager = GObject.registerClass(
             if (metaWindow.get_window_type() == Meta.WindowType.NORMAL) {
                 logger.debug(`window tracked: ${metaWindow.get_title()}`);
 
-                this._tree.add(NODE_TYPES['ROOT'], NODE_TYPES['WINDOW'], metaWindow);
+                this._tree.add(this._tree._rootBin, NODE_TYPES['WINDOW'], 
+                    metaWindow);
+
                 let windowActor = metaWindow.get_compositor_private();
                 windowActor.connect("destroy", this._windowDestroy.bind(this));
 
