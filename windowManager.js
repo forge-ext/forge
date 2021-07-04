@@ -281,6 +281,10 @@ var ForgeWindowManager = GObject.registerClass(
             logger.info("Forge initialized");
         }
 
+        command(action) {
+
+        }
+
         enable() {
             this.bindSignals();
         }
@@ -355,7 +359,6 @@ var ForgeWindowManager = GObject.registerClass(
                 this._tree.render();
             }                
         }
-
     }
 );
 
