@@ -1,10 +1,27 @@
+/*
+ * This file is part of the Forge Window Manager extension for Gnome 3
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 // Gnome imports
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
 const Shell = imports.gi.Shell;
 const St = imports.gi.St;
-
 
 // Gnome Shell imports
 const DND = imports.ui.dnd;
@@ -14,7 +31,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
-const logger = Me.imports.logger;
+const Logger = Me.imports.logger;
 const createEnum = Me.imports.utils.createEnum;
 
 const NODE_TYPES = createEnum([
@@ -30,7 +47,6 @@ const SPLIT_ORIENTATION = createEnum([
     'HSPLIT',
     'VSPLIT',
 ]);
-
 
 var Node = GObject.registerClass(
     class Node extends GObject.Object {
@@ -161,10 +177,10 @@ var Tree = GObject.registerClass(
         }
 
         render() {
-            logger.debug(`render tree`);
+            Logger.debug(`render tree`);
             let criteriaFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW']) {
-                    logger.debug(` window: ${node._data.get_wm_class()}`);
+                    Logger.debug(` window: ${node._data.get_wm_class()}`);
 
                     let parentNode = node._parent;
                     let parentRect;
@@ -194,16 +210,16 @@ var Tree = GObject.registerClass(
                             nodeHeight = parentRect.height;
                             nodeX = parentRect.x + (childIndex * nodeWidth);
                             nodeY = parentRect.y;
-                            logger.debug(`  direction: h-split`);
+                            Logger.debug(`  direction: h-split`);
                         } else {
                             nodeWidth = parentRect.width;
                             nodeHeight = Math.floor(parentRect.height / numChild);
                             nodeX = parentRect.x;
                             nodeY = parentRect.y + (childIndex * nodeHeight);
-                            logger.debug(` direction: v-split`);
+                            Logger.debug(` direction: v-split`);
                         }
 
-                        logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
+                        Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
                         let move = () => {
                             let metaWindow = node._data;
@@ -227,15 +243,15 @@ var Tree = GObject.registerClass(
                     }
 
                 } else if (node._type === NODE_TYPES['ROOT']) {
-                    logger.debug(` root`);
+                    Logger.debug(` root`);
                 } else if (node._type === NODE_TYPES['SPLIT']) {
-                    logger.debug(` split`);
+                    Logger.debug(` split`);
                 }
             };
 
             this._walk(criteriaFn, this._traverseBreadthFirst);
-            logger.debug(`render end`);
-            logger.debug(`--------------------------`);
+            Logger.debug(`render end`);
+            Logger.debug(`--------------------------`);
         }
 
         // start walking from root and all child nodes
@@ -278,7 +294,7 @@ var ForgeWindowManager = GObject.registerClass(
         _init() {
             super._init();
             this._tree = new Tree();
-            logger.info("Forge initialized");
+            Logger.info("Forge initialized");
         }
 
         command(action) {
@@ -312,7 +328,7 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         disable() {
-            logger.debug(`Disable is called`);
+            Logger.debug(`Disable is called`);
             this.removeSignals();
         }
 
@@ -338,7 +354,7 @@ var ForgeWindowManager = GObject.registerClass(
         _windowCreate(_display, metaWindow) {
             // Make window types configurable
             if (metaWindow.get_window_type() == Meta.WindowType.NORMAL) {
-                logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
+                Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
 
                 // Add to the root split for now
                 this._tree.addNode(this._tree._rootBin, NODE_TYPES['WINDOW'], 
@@ -354,12 +370,11 @@ var ForgeWindowManager = GObject.registerClass(
             // Release any resources on the window
             let nodeWindow = this._tree.findNodeByActor(actor);
             if (nodeWindow) {
-                logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
+                Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
                 this._tree.removeNode(this._tree._rootBin, nodeWindow);
                 this._tree.render();
             }                
         }
     }
 );
-
 

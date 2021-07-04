@@ -1,5 +1,22 @@
-// Gnome imports
+/*
+ * This file is part of the Forge Window Manager extension for Gnome 3
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
+// Gnome imports
 imports.gi.versions.Gtk = "3.0";
 const Gtk = imports.gi.Gtk;
 
@@ -8,7 +25,8 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // Application imports
-const logging = Me.imports.logger;
+const Logger = Me.imports.logger;
+const Utils = Me.imports.utils;
 
 function init() {
 
@@ -30,7 +48,7 @@ function buildPrefsWidget() {
 }
 
 /**
- * Create logging level changer in preferences
+ * Create Logger level changer in preferences
  * @param {grid} grid 
  */
 function createLoggingCombo(grid) {
@@ -43,15 +61,15 @@ function createLoggingCombo(grid) {
 
     let logCombo = new Gtk.ComboBoxText();
 
-    for (const key in logging.LOG_LEVELS) {
-        logCombo.append(`${logging.LOG_LEVELS[key]}`, key);
+    for (const key in Logger.LOG_LEVELS) {
+        logCombo.append(`${Logger.LOG_LEVELS[key]}`, key);
     }
 
-    let currentLogLevelVal = logging.getLogLevel();
+    let currentLogLevelVal = Logger.getLogLevel();
 
     logCombo.set_active_id(`${currentLogLevelVal}`);
     logCombo.connect("changed", () => {
-        let settings = ExtensionUtils.getSettings();
+        let settings = Utils.getSettings();
         let activeId = logCombo.get_active_id();
         settings.set_uint("log-level", activeId);
     });
