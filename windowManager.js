@@ -91,8 +91,11 @@ var Tree = GObject.registerClass(
             let workspaceManager = global.workspace_manager; 
             let activeWorkspace = workspaceManager.get_active_workspace();
             let currentMonitor = global.display.get_current_monitor();
+            // Note, this is the workarea disregarding any visible panels
+            // Use Meta.Window.get_work_area_current_monitor() to calculate panel adjustments
             let workspaceArea = activeWorkspace.get_work_area_for_monitor(currentMonitor);
 
+            // TODO, this will be useful later on as an overlay
             this._rootBin = new St.Bin();
             this._rootBin.set_position(workspaceArea.x, workspaceArea.y);
             this._rootBin.set_size(workspaceArea.width, workspaceArea.height);
@@ -185,34 +188,45 @@ var Tree = GObject.registerClass(
                     let parentNode = node._parent;
                     let parentRect;
 
+                    // It is possible that the node might be detached from the tree
+                    // TODO: if there is no parent, use the current window's workspace?
+                    // Or the window can be considered as floating?
                     if (parentNode) {
                         if (parentNode._type === NODE_TYPES['ROOT']) {
-                            parentRect = {
-                                x: parentNode._data.get_x(), 
-                                y: parentNode._data.get_y(),
-                                height: parentNode._data.get_height(),
-                                width: parentNode._data.get_width()
-                            };
+                            // Meta.Window.get_work_area_current_monitor() 
+                            // works well with panels
+                            parentRect = node._data.
+                                get_work_area_current_monitor();
                         }
 
                         let numChild = parentNode._children.length;
+                        if (numChild === 0) return; // prevent noop
+
                         let childIndex = this._findNodeIndex(
                             parentNode._children, node);
+                        // TODO: obtain the split direction from the parent
                         let splitDirection = SPLIT_ORIENTATION['HSPLIT'];
-                        let splitHorizontally = splitDirection === SPLIT_ORIENTATION['HSPLIT'];
+                        let splitHorizontally = splitDirection === 
+                             SPLIT_ORIENTATION['HSPLIT'];
                         let nodeWidth;
                         let nodeHeight;
                         let nodeX;
                         let nodeY;
 
                         if (splitHorizontally) {
+                            // Divide the parent container's width 
+                            // depending on number of children. And use this
+                            // to setup each child window's width.
                             nodeWidth = Math.floor(parentRect.width / numChild);
                             nodeHeight = parentRect.height;
                             nodeX = parentRect.x + (childIndex * nodeWidth);
                             nodeY = parentRect.y;
                             Logger.debug(`  direction: h-split`);
-                        } else {
+                        } else { // split vertically
                             nodeWidth = parentRect.width;
+                            // Conversely, divide the parent container's height 
+                            // depending on number of children. And use this
+                            // to setup each child window's height.
                             nodeHeight = Math.floor(parentRect.height / numChild);
                             nodeX = parentRect.x;
                             nodeY = parentRect.y + (childIndex * nodeHeight);
@@ -221,13 +235,21 @@ var Tree = GObject.registerClass(
 
                         Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
+                        // TODO: move this move() function to the WindowManager
                         let move = () => {
                             let metaWindow = node._data;
+
+                            if (!metaWindow) return;
                             metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
                             metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
                             metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
-                            metaWindow.move_frame(false, nodeX, nodeY);
-                            metaWindow.move_resize_frame(false, 
+
+                            let windowActor = metaWindow.get_compositor_private();
+                            if (!windowActor) return;
+                            windowActor.remove_all_transitions();
+
+                            metaWindow.move_frame(true, nodeX, nodeY);
+                            metaWindow.move_resize_frame(true, 
                                 nodeX,
                                 nodeY,
                                 nodeWidth,
@@ -235,7 +257,9 @@ var Tree = GObject.registerClass(
                             );
                         };
 
-                        GLib.timeout_add(GLib.PRIORITY_LOW, 50, () => {
+                        // TODO: GLib.idle_add() can be used too. Make this
+                        // configurable.
+                        GLib.timeout_add(GLib.PRIORITY_LOW, 60, () => {
                             move();
                             return false;
                         });
