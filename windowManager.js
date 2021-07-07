@@ -86,14 +86,13 @@ var Queue = GObject.registerClass(
 
 var Tree = GObject.registerClass(
     class Tree extends GObject.Object {
-        _init() {
+        _init(workspace, forgeWm) {
             super._init();
-            let workspaceManager = global.workspace_manager; 
-            let activeWorkspace = workspaceManager.get_active_workspace();
-            let currentMonitor = global.display.get_current_monitor();
-            // Note, this is the workarea disregarding any visible panels
-            // Use Meta.Window.get_work_area_current_monitor() to calculate panel adjustments
-            let workspaceArea = activeWorkspace.get_work_area_for_monitor(currentMonitor);
+            this._workspace = workspace;
+            this._forgeWm = forgeWm;
+            this._currentMonitor = workspace.get_display().get_current_monitor();
+            let workspaceArea = this._workspace.
+                get_work_area_for_monitor(this._currentMonitor);
 
             // TODO, this will be useful later on as an overlay
             this._rootBin = new St.Bin();
@@ -297,8 +296,15 @@ var ForgeWindowManager = GObject.registerClass(
         _init() {
             super._init();
             // TODO, create trees per workspace
-            this._tree = new Tree();
-            this._tree._forgeWm = this;
+            this._trees = [];
+            let workspaceManager = global.workspace_manager;
+            let numWorkspace = workspaceManager.get_n_workspaces() - 1; 
+            for (let i = 0; i < numWorkspace; i++) {
+                let workspace = workspaceManager.get_workspace_by_index(i);
+                let tree = new Tree(workspace, this);
+                this._trees.push(tree);
+            }
+
             Logger.info("Forge initialized");
         }
 
@@ -325,7 +331,9 @@ var ForgeWindowManager = GObject.registerClass(
                 display.connect("window-created", this._windowCreate.
                     bind(this)),
                 display.connect("grab-op-end", (_display, _metaWindow, _grabOp) => {
-                    this._tree.render();
+                    this._trees.forEach((tree) => {
+                        tree.render();
+                    });
                 }),
             ];
 
@@ -377,28 +385,42 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _windowCreate(_display, metaWindow) {
+            let tree;
+
+            for (let i = 0; i < this._trees.length; i++) {
+                if (metaWindow.get_workspace() === this._trees[i]._workspace) {
+                    tree = this._trees[i];
+                    break;
+                }
+            }
+
             // Make window types configurable
             if (metaWindow.get_window_type() == Meta.WindowType.NORMAL) {
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
 
                 // Add to the root split for now
-                this._tree.addNode(this._tree._rootBin, NODE_TYPES['WINDOW'], 
+                tree.addNode(tree._rootBin, NODE_TYPES['WINDOW'], 
                     metaWindow);
 
                 let windowActor = metaWindow.get_compositor_private();
                 windowActor.connect("destroy", this._windowDestroy.bind(this));
-                this._tree.render();
+                tree.render();
             }
         }
 
         _windowDestroy(actor) {
             // Release any resources on the window
-            let nodeWindow = this._tree.findNodeByActor(actor);
-            if (nodeWindow) {
-                Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
-                this._tree.removeNode(this._tree._rootBin, nodeWindow);
-                this._tree.render();
-            }                
+            let nodeWindow;
+            for (let i = 0; i < this._trees.length; i++) {
+                let tree = this._trees[i];
+                nodeWindow = tree.findNodeByActor(actor);
+                if (nodeWindow) {
+                    tree.removeNode(tree._rootBin, nodeWindow);
+                    Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
+                    tree.render();
+                    break;
+                }                
+            }
         }
     }
 );
