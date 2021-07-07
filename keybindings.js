@@ -39,8 +39,8 @@ var Keybindings = GObject.registerClass(
     class Keybindings extends GObject.Object {
         _init() {
             Logger.debug(`created keybindings`);
-            this.grabbers = new Map();
-            this.bindSignals();
+            this._grabbers = new Map();
+            this._bindSignals();
 
             this._bindings = {
                 'kbd-window-border': () => {
@@ -50,7 +50,7 @@ var Keybindings = GObject.registerClass(
         }
 
         _acceleratorActivate (action) {
-            let grabber = this.grabbers.get(action);
+            let grabber = this._grabbers.get(action);
             if(grabber) {
                 Logger.debug(`Firing accelerator ${grabber.accelerator} : ${grabber.name}`);
                 grabber.callback();
@@ -59,15 +59,18 @@ var Keybindings = GObject.registerClass(
             }
         }
 
-        bindSignals() {
+        _bindSignals() {
             global.display.connect('accelerator-activated', (_display, action, 
                 _deviceId, _timestamp) => {
                 this._acceleratorActivate(action);
             });
         }
 
-        enable(keybindings) {
+        enable() {
             Logger.info(`Enable gsetting keybindings`);
+
+            let keybindings = this._bindings;
+
             for (const key in keybindings) {
                 Main.wm.addKeybinding(
                     key,
@@ -78,7 +81,7 @@ var Keybindings = GObject.registerClass(
                 );
             }
 
-            Logger.info('Enable forge keybindings');
+            Logger.info('Enable JSON keybindings');
             windowConfig.forEach((config) => {
                 this.listenFor(config.shortcut, () => {
                     config.actions.forEach((action) => {
@@ -88,22 +91,25 @@ var Keybindings = GObject.registerClass(
             });
         }
 
-        disable(keybindings) {
+        disable() {
             Logger.info(`Disable gsetting keybindings`);
+
+            let keybindings = this._bindings;
+
             for (const key in keybindings) {
                 Main.wm.removeKeybinding(key);
             }
 
-            Logger.info(`Disable any forge keybindings`);
+            Logger.info(`Disable JSON keybindings`);
 
             // The existing grabber items are from the custom config by 
             // this extension.
-            this.grabbers.forEach((grabber) => {
+            this._grabbers.forEach((grabber) => {
                 global.display.ungrab_accelerator(grabber.action)
                 Main.wm.allowKeybinding(grabber.name, Shell.ActionMode.NONE);
             });
 
-            this.grabbers.clear();
+            this._grabbers.clear();
         }
 
         /**
@@ -128,7 +134,7 @@ var Keybindings = GObject.registerClass(
                 Logger.debug(`Requesting WM to allow binding [name={${name}}]`);
                 Main.wm.allowKeybinding(name, Shell.ActionMode.ALL)
 
-                this.grabbers.set(action, {
+                this._grabbers.set(action, {
                     name: name,
                     accelerator: accelerator,
                     callback: callback,

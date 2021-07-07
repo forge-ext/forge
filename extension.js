@@ -23,10 +23,12 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // Application imports
-const Window = Me.imports.windowManager;
+const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
+const Window = Me.imports.windowManager;
 
 var forgeWm;
+var keybindings;
 
 function init() {
     Logger.info("init");
@@ -35,15 +37,23 @@ function init() {
 function enable() {
     Logger.info("enable");
 
-    if (!forgeWm)
+    if (!forgeWm) {
         forgeWm = new Window.ForgeWindowManager();
-
-    forgeWm.enable();
+        forgeWm.enable();
+    }
+    
+    if (!keybindings) {
+        keybindings = new Keybindings.Keybindings(forgeWm);
+        keybindings.enable();
+    }
 }
 
 function disable() {
     Logger.info("disable");
 
-    if (forgeWm) 
+    if (forgeWm)
         forgeWm.disable();
+
+    if (keybindings)
+        keybindings.disable();
 }

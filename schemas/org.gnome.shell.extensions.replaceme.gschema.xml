@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
     <schema id="org.gnome.shell.extensions.forge" path="/org/gnome/shell/extensions/forge/">
+        <!-- Keyboard bindings (kbd) -->
+        <key type="as" name="kbd-window-border">
+            <default><![CDATA[['<Super>x']]]></default>
+            <summary>Toggle the window border</summary>
+        </key>
         <key type="u" name="log-level">
             <default>4</default>
             <summary>

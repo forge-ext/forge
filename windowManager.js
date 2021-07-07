@@ -181,6 +181,7 @@ var Tree = GObject.registerClass(
 
         render() {
             Logger.debug(`render tree`);
+            let fwm = this._forgeWm;
             let criteriaFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW']) {
                     Logger.debug(` window: ${node._data.get_wm_class()}`);
@@ -235,32 +236,10 @@ var Tree = GObject.registerClass(
 
                         Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                        // TODO: move this move() function to the WindowManager
-                        let move = () => {
-                            let metaWindow = node._data;
-
-                            if (!metaWindow) return;
-                            metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
-                            metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
-                            metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
-
-                            let windowActor = metaWindow.get_compositor_private();
-                            if (!windowActor) return;
-                            windowActor.remove_all_transitions();
-
-                            metaWindow.move_frame(true, nodeX, nodeY);
-                            metaWindow.move_resize_frame(true, 
-                                nodeX,
-                                nodeY,
-                                nodeWidth,
-                                nodeHeight
-                            );
-                        };
-
                         // TODO: GLib.idle_add() can be used too. Make this
                         // configurable.
                         GLib.timeout_add(GLib.PRIORITY_LOW, 60, () => {
-                            move();
+                            fwm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
                             return false;
                         });
 
@@ -317,7 +296,9 @@ var ForgeWindowManager = GObject.registerClass(
     class ForgeWindowManager extends GObject.Object {
         _init() {
             super._init();
+            // TODO, create trees per workspace
             this._tree = new Tree();
+            this._tree._forgeWm = this;
             Logger.info("Forge initialized");
         }
 
@@ -326,15 +307,15 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         enable() {
-            this.bindSignals();
+            this._bindSignals();
         }
 
 
         /**
          * This is the central place to bind all the non-window signals.
          */
-        bindSignals() {
-            if (this.boundSignals)
+        _bindSignals() {
+            if (this._signalsBound)
                 return;
 
             const display = global.display;
@@ -348,12 +329,12 @@ var ForgeWindowManager = GObject.registerClass(
                 }),
             ];
 
-            this.boundSignals = true;
+            this._signalsBound = true;
         }
 
         disable() {
             Logger.debug(`Disable is called`);
-            this.removeSignals();
+            this._removeSignals();
         }
 
         get windows() {
@@ -363,8 +344,28 @@ var ForgeWindowManager = GObject.registerClass(
                 wsManager.get_active_workspace());
         }
 
-        removeSignals() {
-            if (!this.boundSignals)
+        // Window movement API
+        move(metaWindow, rect) {
+            if (!metaWindow) return;
+            metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
+            metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
+            metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
+
+            let windowActor = metaWindow.get_compositor_private();
+            if (!windowActor) return;
+            windowActor.remove_all_transitions();
+
+            metaWindow.move_frame(true, rect.x, rect.y);
+            metaWindow.move_resize_frame(true, 
+                rect.x,
+                rect.y,
+                rect.width,
+                rect.height
+            );
+        };
+
+        _removeSignals() {
+            if (!this._signalsBound)
                 return;
 
             if (this._displaySignals) {
@@ -372,7 +373,7 @@ var ForgeWindowManager = GObject.registerClass(
                     global.display.disconnect(displaySignal);
                 }
             }
-            this.boundSignals = false;
+            this._signalsBound = false;
         }
 
         _windowCreate(_display, metaWindow) {
