@@ -159,6 +159,19 @@ var Tree = GObject.registerClass(
             return index;
         }
 
+        _getShownChildren(items) {
+            let filterFn = (nodeWindow) => {
+                if (nodeWindow._type === NODE_TYPES['WINDOW']) {
+                    if (!nodeWindow._data.minimized) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            return items.filter(filterFn);
+        }
+
         removeNode(fromNode, node) {
             let parentNode = this.findNode(fromNode);
             let nodeToRemove = null;
@@ -199,11 +212,13 @@ var Tree = GObject.registerClass(
                                 get_work_area_current_monitor();
                         }
 
-                        let numChild = parentNode._children.length;
+                        let shownChildren = this._getShownChildren(parentNode._children);
+                        let numChild = shownChildren.length;
                         if (numChild === 0) return; // prevent noop
-
+                        
                         let childIndex = this._findNodeIndex(
-                            parentNode._children, node);
+                            shownChildren, node);
+                        
                         // TODO: obtain the split direction from the parent
                         let splitDirection = SPLIT_ORIENTATION['HSPLIT'];
                         let splitHorizontally = splitDirection === 
@@ -233,15 +248,19 @@ var Tree = GObject.registerClass(
                             Logger.debug(` direction: v-split`);
                         }
 
+                        let gap = 8;
+
+                        nodeX += gap;
+                        nodeY += gap;
+                        nodeWidth -= gap * 2;
+                        nodeHeight -= gap * 2;
+
                         Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                        // TODO: GLib.idle_add() can be used too. Make this
-                        // configurable.
-                        GLib.timeout_add(GLib.PRIORITY_LOW, 60, () => {
+                        GLib.timeout_add(GLib.PRIORITY_LOW, 30, () => {
                             fwm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
                             return false;
                         });
-
                     }
 
                 } else if (node._type === NODE_TYPES['ROOT']) {
@@ -330,7 +349,36 @@ var ForgeWindowManager = GObject.registerClass(
             this._displaySignals = [
                 display.connect("window-created", this._windowCreate.
                     bind(this)),
-                display.connect("grab-op-end", (_display, _metaWindow, _grabOp) => {
+                display.connect("grab-op-end", (_display, metaWindow, _grabOp) => {
+                    Logger.debug(`grab op end`);
+                    this._trees.forEach((tree) => {
+                        tree.render();
+                    });
+                }),
+                display.connect("grab-op-begin", (_display, metaWindow, _grabOp) => {
+                    Logger.debug(`grab op begin`);
+                }),
+                display.connect("showing-desktop-changed", (_display) => {
+                    Logger.debug(`showing desktop changed`);
+                    this._trees.forEach((tree) => {
+                        tree.render();
+                    });
+                }),
+                display.connect("workareas-changed", (_display) => {
+                    Logger.debug(`workareas changed`);
+                    this._trees.forEach((tree) => {
+                        tree.render();
+                    });
+                }),
+            ];
+
+            this._windowManagerSignals = [
+                shellWm.connect("minimize", () => {
+                    this._trees.forEach((tree) => {
+                        tree.render();
+                    });
+                }),
+                shellWm.connect("unminimize", () => {
                     this._trees.forEach((tree) => {
                         tree.render();
                     });
@@ -355,6 +403,7 @@ var ForgeWindowManager = GObject.registerClass(
         // Window movement API
         move(metaWindow, rect) {
             if (!metaWindow) return;
+            if (metaWindow.grabbed) return;
             metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
             metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
             metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
@@ -381,6 +430,13 @@ var ForgeWindowManager = GObject.registerClass(
                     global.display.disconnect(displaySignal);
                 }
             }
+
+            if (this._windowManagerSignals) {
+                for (const windowManagerSignal of this._windowManagerSignals) {
+                    global.window_manager.disconnect(windowManagerSignal);
+                }
+            }
+
             this._signalsBound = false;
         }
 

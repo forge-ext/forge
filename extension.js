@@ -39,13 +39,14 @@ function enable() {
 
     if (!forgeWm) {
         forgeWm = new Window.ForgeWindowManager();
-        forgeWm.enable();
     }
-    
+
     if (!keybindings) {
         keybindings = new Keybindings.Keybindings(forgeWm);
-        keybindings.enable();
     }
+
+    forgeWm.enable();
+    keybindings.enable();
 }
 
 function disable() {
