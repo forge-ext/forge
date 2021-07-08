@@ -84,3 +84,103 @@ function getSettings(schema) {
         settings_schema: schemaObj
     });
 }
+
+function resolveX(action, metaWindow) {
+    let metaRect = metaWindow.get_frame_rect();
+    let monitorRect = metaWindow.get_work_area_current_monitor();
+    let val = metaRect.x;
+    let x = action.x;
+    switch (typeof x) {
+        case 'string': //center,
+            switch (x) {
+                case 'center':
+                    val = (monitorRect.width * 0.5) - (this.resolveWidth(action, metaWindow) * 0.5);
+                    break;
+                case 'left':
+                    val = 0;
+                    break;
+                case 'right':
+                    val = monitorRect.width - this.resolveWidth(action, metaWindow);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 'number':
+            val = x;
+            break;
+        default:
+            break;
+    }
+    return val;
+}
+
+function resolveY(action, metaWindow) {
+    let metaRect = metaWindow.get_frame_rect();
+    let monitorRect = metaWindow.get_work_area_current_monitor();
+    let val = metaRect.y;
+    let y = action.y;
+    switch (typeof y) {
+        case 'string': //center,
+            switch (y) {
+                case 'center':
+                    val = (monitorRect.height * 0.5) - (this.resolveHeight(action, metaWindow) * 0.5);
+                    break;
+                case 'top':
+                    val = 0;
+                    break;
+                case 'bottom': // inverse of y=0
+                    val = monitorRect.height - this.resolveHeight(action, metaWindow);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case 'number':
+            val = y;
+            break;
+        default:
+            break;
+    }
+    return val;
+}
+
+function resolveWidth(action, metaWindow) {
+    let metaRect = metaWindow.get_frame_rect();
+    let monitorRect = metaWindow.get_work_area_current_monitor();
+    let val = metaRect.width;
+    let width = action.width;
+    switch (typeof width) {
+        case 'number':
+            if (Number.isInteger(width) && width != 1) {
+                val = width;
+            } else {
+                let monitorWidth = monitorRect.width;
+                val = monitorWidth * width;
+            }
+            break;
+        default:
+            break;
+    }
+    return val;
+}
+
+function resolveHeight(action, metaWindow) {
+    let metaRect = metaWindow.get_frame_rect();
+    let monitorRect = metaWindow.get_work_area_current_monitor();
+    let val = metaRect.height;
+    let height = action.height;
+    switch (typeof height) {
+        case 'number':
+            if (Number.isInteger(height) && height != 1) {
+                val = height;
+            } else {
+                let monitorHeight = monitorRect.height;
+                val = monitorHeight * height;
+            }
+            break;
+        default:
+            break;
+    }
+    return val;
+}

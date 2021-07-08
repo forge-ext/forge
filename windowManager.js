@@ -33,6 +33,13 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Logger = Me.imports.logger;
 const Tree = Me.imports.tree;
+const Utils = Me.imports.utils;
+
+const WINDOW_MODES = Utils.createEnum([
+    "FLOAT",
+    "TILE",
+    "LAYOUT",
+]);
 
 var ForgeWindowManager = GObject.registerClass(
     class ForgeWindowManager extends GObject.Object {
@@ -49,6 +56,25 @@ var ForgeWindowManager = GObject.registerClass(
             }
 
             Logger.info("Forge initialized");
+        }
+
+        _applyNodeWindowMode(action, metaWindow) {
+            let nodeWindow = this._findNodeWindow(metaWindow);
+            if (!nodeWindow || !(action || action.mode)) return;
+            if (nodeWindow._type !== Tree.NODE_TYPES['WINDOW']) return;
+
+            let floatFlag = action.mode === WINDOW_MODES['FLOAT'];
+
+            if (floatFlag) {
+                let floating = nodeWindow.mode === WINDOW_MODES['FLOAT'];
+                if (!floating) {
+                    nodeWindow.mode = WINDOW_MODES['FLOAT'];
+                } else {
+                    nodeWindow.mode = undefined;
+                }
+            } else {
+                nodeWindow.mode = undefined;
+            }
         }
 
         /**
@@ -77,37 +103,29 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                     }
                 }),
-                display.connect("grab-op-begin", (_display, metaWindow, _grabOp) => {
+                display.connect("grab-op-begin", (_display, _metaWindow, _grabOp) => {
                     Logger.debug(`grab op begin`);
                 }),
                 display.connect("showing-desktop-changed", (_display) => {
                     Logger.debug(`showing desktop changed`);
-                    this._trees.forEach((tree) => {
-                        tree.render();
-                    });
+                    this.renderTrees();
                 }),
                 display.connect("workareas-changed", (_display) => {
                     Logger.debug(`workareas changed`);
-                    this._trees.forEach((tree) => {
-                        tree.render();
-                    });
+                    this.renderTrees();
                 }),
             ];
 
             this._windowManagerSignals = [
                 shellWm.connect("minimize", () => {
                     Logger.debug(`minimize`);
-                    this._trees.forEach((tree) => {
-                        tree.render();
-                    });
+                    this.renderTrees();
                 }),
                 shellWm.connect("unminimize", () => {
                     Logger.debug(`unminimize`);
-                    this._trees.forEach((tree) => {
-                        tree.render();
-                    });
+                    this.renderTrees();
                 }),
-                shellWm.connect("show-tile-preview", (_, metaWindow, rect, num) => {
+                shellWm.connect("show-tile-preview", (_, metaWindow, _rect, _num) => {
                     // Triggered when dragging window on edges
                     Logger.debug(`show-tile-preview`);
                     let nodeWindow = this._findNodeWindow(metaWindow);
@@ -119,7 +137,26 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         command(action) {
+            let focusWindow = this.focusMetaWindow;
 
+            switch(action.name) {
+                case "MoveResize":
+                    // TODO validate the parameters for MoveResize
+                    
+                    this._applyNodeWindowMode(action, focusWindow)
+
+                    let moveRect = {
+                        x: Utils.resolveX(action, focusWindow),
+                        y: Utils.resolveY(action, focusWindow),
+                        width: Utils.resolveWidth(action, focusWindow),
+                        height: Utils.resolveHeight(action, focusWindow),
+                    };
+                    this.move(focusWindow, moveRect);
+                    this.renderTrees();
+                    break;
+                default:
+                    break;
+            }
         }
 
         disable() {
@@ -148,6 +185,14 @@ var ForgeWindowManager = GObject.registerClass(
                 let nodeWindow = tree.findNode(metaWindow);
                 if (nodeWindow) return tree;
             }
+        }
+
+        get focusMetaWindow() {
+            return global.display.get_focus_window();
+        }
+
+        get focusNodeWindow() {
+            return this._findNodeWindow(this.focusMetaWindow);
         }
 
         get windows() {
@@ -219,8 +264,10 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
 
                 // Add to the root split for now
-                tree.addNode(tree._rootBin, Tree.NODE_TYPES['WINDOW'], 
+                let nodeWindow = tree.addNode(tree._rootBin, Tree.NODE_TYPES['WINDOW'], 
                     metaWindow);
+                // default to tile mode
+                nodeWindow.mode = WINDOW_MODES['TILE'];
 
                 let windowActor = metaWindow.get_compositor_private();
                 windowActor.connect("destroy", this._windowDestroy.bind(this));

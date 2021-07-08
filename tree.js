@@ -32,9 +32,10 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
 const Logger = Me.imports.logger;
-const createEnum = Me.imports.utils.createEnum;
+const Utils = Me.imports.utils;
+const WindowManager = Me.imports.windowManager;
 
-const NODE_TYPES = createEnum([
+const NODE_TYPES = Utils.createEnum([
     'MONITOR',
     'NONE',
     'ROOT',
@@ -43,7 +44,7 @@ const NODE_TYPES = createEnum([
     'WORKSPACE',
 ]);
 
-const SPLIT_ORIENTATION = createEnum([
+const SPLIT_ORIENTATION = Utils.createEnum([
     'HSPLIT',
     'VSPLIT',
 ]);
@@ -162,7 +163,8 @@ var Tree = GObject.registerClass(
         _getShownChildren(items) {
             let filterFn = (nodeWindow) => {
                 if (nodeWindow._type === NODE_TYPES['WINDOW']) {
-                    if (!nodeWindow._data.minimized) {
+                    let floating = nodeWindow.mode === WindowManager.WINDOW_MODES['FLOAT'];
+                    if (!nodeWindow._data.minimized && !floating) {
                         return true;
                     }
                 }
@@ -214,7 +216,9 @@ var Tree = GObject.registerClass(
 
                         let shownChildren = this._getShownChildren(parentNode._children);
                         let numChild = shownChildren.length;
-                        if (numChild === 0) return; // prevent noop
+                        let floating = node.mode === WindowManager.WINDOW_MODES['FLOAT'];
+                        Logger.debug(`  mode: ${node.mode}`);
+                        if (numChild === 0 || floating) return;
                         
                         let childIndex = this._findNodeIndex(
                             shownChildren, node);

@@ -34,13 +34,15 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Utils = Me.imports.utils;
 const Logger = Me.imports.logger;
+const WindowManager = Me.imports.windowManager;
 
 var Keybindings = GObject.registerClass(
     class Keybindings extends GObject.Object {
-        _init() {
+        _init(forgeWm) {
             Logger.debug(`created keybindings`);
             this._grabbers = new Map();
             this._bindSignals();
+            this._forgeWm = forgeWm;
 
             this._bindings = {
                 'kbd-window-border': () => {
@@ -85,7 +87,7 @@ var Keybindings = GObject.registerClass(
             windowConfig.forEach((config) => {
                 this.listenFor(config.shortcut, () => {
                     config.actions.forEach((action) => {
-                        // this._app.extWindowManager.resolveAction(action);
+                        this._forgeWm.command(action);
                     });
                 });
             });
@@ -146,23 +148,19 @@ var Keybindings = GObject.registerClass(
     }
 );
 
-
-// Example window config
 var windowConfig = [
     {
-        name: 'center',
+        name: 'float',
         shortcut : '<Super>c',
         actions: [
             {
-                name : 'Unmaximize'
-            },
-            {
                 name : 'MoveResize',
+                mode: WindowManager.WINDOW_MODES['FLOAT'],
                 x : 'center',
                 y : 'center',
-                width: 0.75,
-                height: 0.8
-            }
+                width: 0.65,
+                height: 0.75
+            },
         ],
     },
 ];
