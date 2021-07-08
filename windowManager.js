@@ -51,13 +51,6 @@ var ForgeWindowManager = GObject.registerClass(
             Logger.info("Forge initialized");
         }
 
-        command(action) {
-
-        }
-
-        enable() {
-            this._bindSignals();
-        }
 
 
         /**
@@ -73,11 +66,18 @@ var ForgeWindowManager = GObject.registerClass(
             this._displaySignals = [
                 display.connect("window-created", this._windowCreate.
                     bind(this)),
-                display.connect("grab-op-end", (_display, metaWindow, _grabOp) => {
+                display.connect("grab-op-end", (_, _display, metaWindow, _grabOp) => {
                     Logger.debug(`grab op end`);
-                    this._trees.forEach((tree) => {
-                        tree.render();
-                    });
+                    let nodeWindow = this._findNodeWindow(metaWindow);
+                    if (nodeWindow) {
+                        let renderGrabEvent = !nodeWindow._dragEdgeTiled;
+                        if (renderGrabEvent) {
+                            let tree = this._findTreeForMetaWindow(metaWindow);
+                            if (tree) tree.render();
+                        } else {
+                            nodeWindow._dragEdgeTiled = null;
+                        }
+                    }
                 }),
                 display.connect("grab-op-begin", (_display, metaWindow, _grabOp) => {
                     Logger.debug(`grab op begin`);
@@ -98,23 +98,57 @@ var ForgeWindowManager = GObject.registerClass(
 
             this._windowManagerSignals = [
                 shellWm.connect("minimize", () => {
+                    Logger.debug(`minimize`);
                     this._trees.forEach((tree) => {
                         tree.render();
                     });
                 }),
                 shellWm.connect("unminimize", () => {
+                    Logger.debug(`unminimize`);
                     this._trees.forEach((tree) => {
                         tree.render();
                     });
+                }),
+                shellWm.connect("show-tile-preview", (_, metaWindow, rect, num) => {
+                    // Triggered when dragging window on edges
+                    Logger.debug(`show-tile-preview`);
+                    let nodeWindow = this._findNodeWindow(metaWindow);
+                    if (nodeWindow) nodeWindow._dragEdgeTiled = true;
                 }),
             ];
 
             this._signalsBound = true;
         }
 
+        command(action) {
+
+        }
+
         disable() {
             Logger.debug(`Disable is called`);
             this._removeSignals();
+        }
+
+        enable() {
+            this._bindSignals();
+        }
+
+        _findNodeWindow(metaWindow) {
+            let nodeWindow;
+
+            for (let i = 0, length = this._trees.length; i < length; i++) {
+                let tree = this._trees[i];
+                nodeWindow = tree.findNode(metaWindow);
+                if (nodeWindow) return nodeWindow;
+            }
+        }
+
+        _findTreeForMetaWindow(metaWindow) {
+            for (let i = 0, length = this._trees.length; i < length; i++) {
+                let tree = this._trees[i];
+                let nodeWindow = tree.findNode(metaWindow);
+                if (nodeWindow) return tree;
+            }
         }
 
         get windows() {
@@ -165,6 +199,7 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _windowCreate(_display, metaWindow) {
+            Logger.debug(`window-created`);
             let tree;
 
             for (let i = 0; i < this._trees.length; i++) {
@@ -189,6 +224,7 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _windowDestroy(actor) {
+            Logger.debug(`destroy`);
             // Release any resources on the window
             let nodeWindow;
             for (let i = 0; i < this._trees.length; i++) {
