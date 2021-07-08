@@ -51,8 +51,6 @@ var ForgeWindowManager = GObject.registerClass(
             Logger.info("Forge initialized");
         }
 
-
-
         /**
          * This is the central place to bind all the non-window signals.
          */
@@ -131,6 +129,7 @@ var ForgeWindowManager = GObject.registerClass(
 
         enable() {
             this._bindSignals();
+            this.renderTrees();
         }
 
         _findNodeWindow(metaWindow) {
@@ -196,6 +195,12 @@ var ForgeWindowManager = GObject.registerClass(
             }
 
             this._signalsBound = false;
+        }
+
+        renderTrees() {
+            this._trees.forEach((tree) => {
+                tree.render();
+            });
         }
 
         _windowCreate(_display, metaWindow) {
