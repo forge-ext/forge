@@ -17,6 +17,7 @@
  */
 
 // Gnome imports
+const Clutter = imports.gi.Clutter;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
@@ -35,10 +36,10 @@ const Logger = Me.imports.logger;
 const Tree = Me.imports.tree;
 const Utils = Me.imports.utils;
 
-const WINDOW_MODES = Utils.createEnum([
-    "FLOAT",
-    "TILE",
-    "LAYOUT",
+var WINDOW_MODES = Utils.createEnum([
+    'FLOAT',
+    'TILE',
+    'LAYOUT',
 ]);
 
 var ForgeWindowManager = GObject.registerClass(
@@ -48,7 +49,8 @@ var ForgeWindowManager = GObject.registerClass(
             // TODO, create trees per workspace
             this._trees = [];
             let workspaceManager = global.workspace_manager;
-            let numWorkspace = workspaceManager.get_n_workspaces() - 1; 
+            let numWorkspace = workspaceManager.get_n_workspaces();
+            Logger.debug(`workspaces : ${numWorkspace}`);
             for (let i = 0; i < numWorkspace; i++) {
                 let workspace = workspaceManager.get_workspace_by_index(i);
                 let tree = new Tree.Tree(workspace, this);
@@ -94,6 +96,8 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug(`grab op end`);
                     let nodeWindow = this._findNodeWindow(metaWindow);
                     if (nodeWindow) {
+                        // Handle the Show-Tile-Preview placement and
+                        // do not render the tree.
                         let renderGrabEvent = !nodeWindow._dragEdgeTiled;
                         if (renderGrabEvent) {
                             let tree = this._findTreeForMetaWindow(metaWindow);
@@ -103,8 +107,10 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                     }
                 }),
-                display.connect("grab-op-begin", (_display, _metaWindow, _grabOp) => {
-                    Logger.debug(`grab op begin`);
+                display.connect("grab-op-begin", (_, _display, metaWindow, grabOp) => {
+                    Logger.debug(`grab op begin ${grabOp}`);
+                    let nodeWindow = this._findNodeWindow(metaWindow);
+                    if (nodeWindow) nodeWindow._grabOp = grabOp;
                 }),
                 display.connect("showing-desktop-changed", (_display) => {
                     Logger.debug(`showing desktop changed`);

@@ -35,7 +35,7 @@ const Logger = Me.imports.logger;
 const Utils = Me.imports.utils;
 const WindowManager = Me.imports.windowManager;
 
-const NODE_TYPES = Utils.createEnum([
+var NODE_TYPES = Utils.createEnum([
     'MONITOR',
     'NONE',
     'ROOT',
@@ -44,7 +44,7 @@ const NODE_TYPES = Utils.createEnum([
     'WORKSPACE',
 ]);
 
-const SPLIT_ORIENTATION = Utils.createEnum([
+var SPLIT_ORIENTATION = Utils.createEnum([
     'HSPLIT',
     'VSPLIT',
 ]);
@@ -119,7 +119,6 @@ var Tree = GObject.registerClass(
             return child;
         }
 
-
         findNode(data) {
             let searchNode;
             let criteriaMatchFn = (node) => {
@@ -161,6 +160,18 @@ var Tree = GObject.registerClass(
             return index;
         }
 
+        // The depth of a node is the number of edges
+        // from the root to the node.
+        getDepthOf(node) {
+            // TODO get the depth of a node
+        }
+
+        // The height of a node is the number of edges
+        // from the node to the deepest leaf.
+        getHeightOf(node) {
+            // TODO get the height of a node
+        }
+
         _getShownChildren(items) {
             let filterFn = (nodeWindow) => {
                 if (nodeWindow._type === NODE_TYPES['WINDOW']) {
@@ -195,7 +206,7 @@ var Tree = GObject.registerClass(
         }
 
         render() {
-            Logger.debug(`render tree`);
+            Logger.debug(`render tree # ${this._workspace.index()}`);
             let fwm = this._forgeWm;
             let criteriaFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW']) {
@@ -218,13 +229,12 @@ var Tree = GObject.registerClass(
                         let shownChildren = this._getShownChildren(parentNode._children);
                         let numChild = shownChildren.length;
                         let floating = node.mode === WindowManager.WINDOW_MODES['FLOAT'];
-                        Logger.debug(`  mode: ${node.mode}`);
+                        Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
                         if (numChild === 0 || floating) return;
                         
                         let childIndex = this._findNodeIndex(
                             shownChildren, node);
                         
-                        // TODO: obtain the split direction from the parent
                         let splitDirection = parentNode._splitOrientation;
                         let splitHorizontally = splitDirection === 
                              SPLIT_ORIENTATION['HSPLIT'];
@@ -281,9 +291,10 @@ var Tree = GObject.registerClass(
         }
 
         // start walking from root and all child nodes
-        _traverseBreadthFirst(callback) {
+        _traverseBreadthFirst(callback, startNode) {
             let queue = new Queue();
-            queue.enqueue(this._root);
+            let beginNode = startNode ? startNode : this._root;
+            queue.enqueue(beginNode);
 
             let currentNode = queue.dequeue();
 
@@ -298,7 +309,7 @@ var Tree = GObject.registerClass(
         }
 
         // start walking from bottom to root
-        _traverseDepthFirst(callback) {
+        _traverseDepthFirst(callback, startNode) {
             let recurse = (currentNode) => {
                 for (let i = 0, length = currentNode._children.length; i < length; i++) {
                     recurse(currentNode._children[i]);
@@ -306,11 +317,16 @@ var Tree = GObject.registerClass(
 
                 callback(currentNode);
             };
-            recurse(this._root);
+            let beginNode = startNode ? startNode : this._root;
+            recurse(beginNode);
         }
 
         _walk(callback, traversal) {
             traversal.call(this, callback);
+        }
+
+        _walkFrom(node, callback, traversal) {
+            traversal.call(this, callback, node);
         }
     }
 );
