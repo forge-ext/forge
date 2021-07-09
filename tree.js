@@ -104,6 +104,7 @@ var Tree = GObject.registerClass(
             global.window_group.add_child(this._rootBin);
 
             this._root = new Node(NODE_TYPES['ROOT'], this._rootBin);
+            this._root._splitOrientation = SPLIT_ORIENTATION['HSPLIT'];
         }
 
         addNode(toNode, type, data) {
@@ -224,7 +225,7 @@ var Tree = GObject.registerClass(
                             shownChildren, node);
                         
                         // TODO: obtain the split direction from the parent
-                        let splitDirection = SPLIT_ORIENTATION['HSPLIT'];
+                        let splitDirection = parentNode._splitOrientation;
                         let splitHorizontally = splitDirection === 
                              SPLIT_ORIENTATION['HSPLIT'];
                         let nodeWidth;
