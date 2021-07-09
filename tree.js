@@ -261,7 +261,7 @@ var Tree = GObject.registerClass(
 
                         Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                        GLib.timeout_add(GLib.PRIORITY_LOW, 30, () => {
+                        GLib.timeout_add(GLib.PRIORITY_LOW, 60, () => {
                             fwm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
                             return false;
                         });

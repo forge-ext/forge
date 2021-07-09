@@ -70,10 +70,10 @@ var ForgeWindowManager = GObject.registerClass(
                 if (!floating) {
                     nodeWindow.mode = WINDOW_MODES['FLOAT'];
                 } else {
-                    nodeWindow.mode = undefined;
+                    nodeWindow.mode = WINDOW_MODES['TILE'];
                 }
             } else {
-                nodeWindow.mode = undefined;
+                nodeWindow.mode = WINDOW_MODES['TILE'];
             }
         }
 
