@@ -92,6 +92,9 @@ var ForgeWindowManager = GObject.registerClass(
             this._displaySignals = [
                 display.connect("window-created", this._windowCreate.
                     bind(this)),
+                display.connect("window-entered-monitor", (_, monitor, metaWindow) => {
+                    Logger.debug(`window-entered-monitor`);
+                }),
                 display.connect("grab-op-end", (_, _display, metaWindow, _grabOp) => {
                     Logger.debug(`grab op end`);
                     let nodeWindow = this._findNodeWindow(metaWindow);
@@ -103,7 +106,7 @@ var ForgeWindowManager = GObject.registerClass(
                             let tree = this._findTreeForMetaWindow(metaWindow);
                             if (tree) tree.render();
                         } else {
-                            nodeWindow._dragEdgeTiled = null;
+                            nodeWindow._dragEdgeTiled = undefined;
                         }
                     }
                 }),
@@ -112,13 +115,11 @@ var ForgeWindowManager = GObject.registerClass(
                     let nodeWindow = this._findNodeWindow(metaWindow);
                     if (nodeWindow) nodeWindow._grabOp = grabOp;
                 }),
-                display.connect("showing-desktop-changed", (_display) => {
-                    Logger.debug(`showing desktop changed`);
-                    this.renderTrees();
-                }),
                 display.connect("workareas-changed", (_display) => {
                     Logger.debug(`workareas changed`);
-                    this.renderTrees();
+                    GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                        this.renderTrees();
+                    });
                 }),
             ];
 
@@ -138,6 +139,36 @@ var ForgeWindowManager = GObject.registerClass(
                     if (nodeWindow) nodeWindow._dragEdgeTiled = true;
                 }),
             ];
+
+            this._workspaceSignals = [];
+
+            this._trees.forEach((tree) => {
+                // Handle when a window changes workspace
+                let signalId = tree._workspace.connect("window-added", (workspace, metaWindow) => {
+                    // Move it to another tree
+                    let currentTree = this._findTreeForMetaWindow(metaWindow);
+                    let currentNodeWindow = this._findNodeWindow(metaWindow);
+
+                    if (currentTree && currentNodeWindow) {
+                        // TODO: handle always visible to workspace
+                        currentTree.removeNode(currentTree._rootBin, currentNodeWindow);
+                        Logger.debug(`removed wm class : ${currentNodeWindow._data.get_wm_class()}`);
+
+                        for (let i = 0; i < this._trees.length; i++) {
+                            let targetTree = this._trees[i];
+                            if (targetTree._workspace.index() === workspace.index()) {
+                                let addedNode = targetTree.addNode(targetTree._rootBin,
+                                    currentNodeWindow._type, currentNodeWindow._data);
+                                addedNode.mode = currentNodeWindow.mode;
+                                Logger.debug(`window-added : ${addedNode._data.get_wm_class()} on ws: ${workspace.index()}`);
+                                break;
+                            }
+                        }
+                        this.renderTrees();
+                    }
+                });
+                this._workspaceSignals.push(signalId);
+            });
 
             this._signalsBound = true;
         }
@@ -256,18 +287,25 @@ var ForgeWindowManager = GObject.registerClass(
 
         _windowCreate(_display, metaWindow) {
             Logger.debug(`window-created`);
-            let tree;
-
-            for (let i = 0; i < this._trees.length; i++) {
-                if (metaWindow.get_workspace() === this._trees[i]._workspace) {
-                    tree = this._trees[i];
-                    break;
-                }
-            }
 
             // Make window types configurable
             if (metaWindow.get_window_type() == Meta.WindowType.NORMAL) {
+                let tree;
+
+                for (let i = 0; i < this._trees.length; i++) {
+                    if (metaWindow.get_workspace().index() === this._trees[i]._workspace.index()) {
+                        tree = this._trees[i];
+                        break;
+                    }
+                }
+
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
+                Logger.debug(` on workspace : ${metaWindow.get_workspace().index()}`);
+                Logger.debug(` on tree : ${tree._workspace.index()}`);
+
+                metaWindow.connect("workspace-changed", (metaWindowWs) => {
+                    Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
+                });
 
                 // Add to the root split for now
                 let nodeWindow = tree.addNode(tree._rootBin, Tree.NODE_TYPES['WINDOW'], 

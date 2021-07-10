@@ -107,8 +107,8 @@ var Tree = GObject.registerClass(
             this._root._splitOrientation = SPLIT_ORIENTATION['HSPLIT'];
         }
 
-        addNode(toNode, type, data) {
-            let parentNode = this.findNode(toNode);
+        addNode(toData, type, data) {
+            let parentNode = this.findNode(toData);
             let child;
 
             if (parentNode) {
@@ -186,8 +186,8 @@ var Tree = GObject.registerClass(
             return items.filter(filterFn);
         }
 
-        removeNode(fromNode, node) {
-            let parentNode = this.findNode(fromNode);
+        removeNode(fromData, node) {
+            let parentNode = this.findNode(fromData);
             let nodeToRemove = null;
             let nodeIndex;
 
@@ -230,6 +230,7 @@ var Tree = GObject.registerClass(
                         let numChild = shownChildren.length;
                         let floating = node.mode === WindowManager.WINDOW_MODES['FLOAT'];
                         Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
+                        Logger.debug(`  window workspace: ${node._data.get_workspace().index()}`);
                         if (numChild === 0 || floating) return;
                         
                         let childIndex = this._findNodeIndex(
