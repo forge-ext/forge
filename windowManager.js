@@ -117,9 +117,7 @@ var ForgeWindowManager = GObject.registerClass(
                 }),
                 display.connect("workareas-changed", (_display) => {
                     Logger.debug(`workareas changed`);
-                    GLib.idle_add(GLib.PRIORITY_LOW, () => {
-                        this.renderTrees();
-                    });
+                    this.renderTrees();
                 }),
             ];
 
@@ -280,8 +278,10 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         renderTrees() {
-            this._trees.forEach((tree) => {
-                tree.render();
+            GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                this._trees.forEach((tree) => {
+                    tree.render();
+                });
             });
         }
 
