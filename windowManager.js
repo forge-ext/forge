@@ -92,28 +92,17 @@ var ForgeWindowManager = GObject.registerClass(
             this._displaySignals = [
                 display.connect("window-created", this._windowCreate.
                     bind(this)),
-                display.connect("window-entered-monitor", (_, monitor, metaWindow) => {
-                    Logger.debug(`window-entered-monitor`);
-                }),
+                display.connect("window-entered-monitor", this._windowEnteredMonitor.bind(this)),
                 display.connect("grab-op-end", (_, _display, metaWindow, _grabOp) => {
+                    this.unfreezeRender();
+                    this.renderTrees();
                     Logger.debug(`grab op end`);
-                    let nodeWindow = this._findNodeWindow(metaWindow);
-                    if (nodeWindow) {
-                        // Handle the Show-Tile-Preview placement and
-                        // do not render the tree.
-                        let renderGrabEvent = !nodeWindow._dragEdgeTiled;
-                        if (renderGrabEvent) {
-                            let tree = this._findTreeForMetaWindow(metaWindow);
-                            if (tree) tree.render();
-                        } else {
-                            nodeWindow._dragEdgeTiled = undefined;
-                        }
-                    }
                 }),
                 display.connect("grab-op-begin", (_, _display, metaWindow, grabOp) => {
-                    Logger.debug(`grab op begin ${grabOp}`);
+                    this.freezeRender();
                     let nodeWindow = this._findNodeWindow(metaWindow);
                     if (nodeWindow) nodeWindow._grabOp = grabOp;
+                    Logger.debug(`grab op begin ${grabOp}`);
                 }),
                 display.connect("workareas-changed", (_display) => {
                     Logger.debug(`workareas changed`);
@@ -123,18 +112,15 @@ var ForgeWindowManager = GObject.registerClass(
 
             this._windowManagerSignals = [
                 shellWm.connect("minimize", () => {
-                    Logger.debug(`minimize`);
                     this.renderTrees();
+                    Logger.debug(`minimize`);
                 }),
                 shellWm.connect("unminimize", () => {
-                    Logger.debug(`unminimize`);
                     this.renderTrees();
+                    Logger.debug(`unminimize`);
                 }),
-                shellWm.connect("show-tile-preview", (_, metaWindow, _rect, _num) => {
-                    // Triggered when dragging window on edges
+                shellWm.connect("show-tile-preview", (_, _metaWindow, _rect, _num) => {
                     Logger.debug(`show-tile-preview`);
-                    let nodeWindow = this._findNodeWindow(metaWindow);
-                    if (nodeWindow) nodeWindow._dragEdgeTiled = true;
                 }),
             ];
 
@@ -278,6 +264,7 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         renderTrees() {
+            if (this._freezeRender) return;
             GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
                 this._trees.forEach((tree) => {
                     tree.render();
@@ -286,7 +273,7 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _windowCreate(_display, metaWindow) {
-            Logger.debug(`window-created`);
+            Logger.debug(`window-created ${metaWindow.get_wm_class()}`);
 
             // Make window types configurable
             if (metaWindow.get_window_type() == Meta.WindowType.NORMAL) {
@@ -320,7 +307,6 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _windowDestroy(actor) {
-            Logger.debug(`destroy`);
             // Release any resources on the window
             let nodeWindow;
             for (let i = 0; i < this._trees.length; i++) {
@@ -333,6 +319,19 @@ var ForgeWindowManager = GObject.registerClass(
                     break;
                 }                
             }
+            Logger.debug(`window-destroy`);
+        }
+
+        _windowEnteredMonitor(_, monitor, metaWindow) {
+            Logger.debug(`window-entered-monitor m: ${monitor}, w: ${metaWindow.get_wm_class()}`);
+        }
+
+        freezeRender() {
+            this._freezeRender = true;
+        }
+
+        unfreezeRender() {
+            this._freezeRender = false;
         }
     }
 );

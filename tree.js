@@ -230,7 +230,7 @@ var Tree = GObject.registerClass(
                         let numChild = shownChildren.length;
                         let floating = node.mode === WindowManager.WINDOW_MODES['FLOAT'];
                         Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
-                        Logger.debug(`  window workspace: ${node._data.get_workspace().index()}`);
+                        Logger.debug(`  workspace: ${node._data.get_workspace().index()}`);
                         if (numChild === 0 || floating) return;
                         
                         let childIndex = this._findNodeIndex(
