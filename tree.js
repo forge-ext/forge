@@ -36,30 +36,33 @@ const Utils = Me.imports.utils;
 const WindowManager = Me.imports.windowManager;
 
 var NODE_TYPES = Utils.createEnum([
-    'MONITOR',
-    'NONE',
     'ROOT',
+    'MONITOR',
     'SPLIT',
     'WINDOW',
     'WORKSPACE',
 ]);
 
-var SPLIT_ORIENTATION = Utils.createEnum([
+var LAYOUT_TYPES = Utils.createEnum([
+    'STACK',
+    'TABBED',
+    'ROOT',
     'HSPLIT',
     'VSPLIT',
 ]);
 
+/**
+ * The container node to represent Forge
+ */
 var Node = GObject.registerClass(
     class Node extends GObject.Object {
-        /**
-         * data: GObject.Object
-         */
         _init(type, data) {
             super._init();
             this._type = type;
             this._data = data;
             this._parent = null;
-            this._children = [];
+            this._nodes = [];
+            this._floats = []; // handle the floating windows
 
             if (this._type === NODE_TYPES['WINDOW']) {
                 this._actor = this._data.get_compositor_private();
@@ -87,24 +90,62 @@ var Queue = GObject.registerClass(
 
 var Tree = GObject.registerClass(
     class Tree extends GObject.Object {
-        _init(workspace, forgeWm) {
+        _init(forgeWm) {
             super._init();
-            this._workspace = workspace;
             this._forgeWm = forgeWm;
-            this._currentMonitor = workspace.get_display().get_current_monitor();
-            let workspaceArea = this._workspace.
-                get_work_area_for_monitor(this._currentMonitor);
 
-            // TODO, this will be useful later on as an overlay
-            this._rootBin = new St.Bin();
-            this._rootBin.set_position(workspaceArea.x, workspaceArea.y);
-            this._rootBin.set_size(workspaceArea.width, workspaceArea.height);
-            this._rootBin.show();
+            // Attach the root node
+            let rootBin = new St.Bin();
+            rootBin.show();
+            this._root = new Node(NODE_TYPES['ROOT'], rootBin);
+            this._root.layout = LAYOUT_TYPES['ROOT'];
+            global.window_group.add_child(rootBin);
 
-            global.window_group.add_child(this._rootBin);
+            this._initWorkspaces();
+            this._initMonitors();
+        }
 
-            this._root = new Node(NODE_TYPES['ROOT'], this._rootBin);
-            this._root._splitOrientation = SPLIT_ORIENTATION['HSPLIT'];
+        _initMonitors() {
+            let monitors = global.display.get_n_monitors();
+            let nodeWorkspaces = this.nodeWorkpaces;
+
+            for (let i = 0; i < nodeWorkspaces.length; i++) {
+                let nodeWs = nodeWorkspaces[i];
+                for (let mi = 0; mi < monitors; mi++) {
+                    let monitorWsNode = this.addNode(nodeWs._data, NODE_TYPES['MONITOR'], `mo${mi}ws${nodeWs._data.index()}`);
+                    monitorWsNode.layout = LAYOUT_TYPES['HSPLIT'];
+                }
+            }
+
+            Logger.debug(`initial monitors: ${monitors}`);
+        }
+
+        /**
+         * Handles new and existing workspaces in the tree
+         */
+        _initWorkspaces() {
+            let wsManager = global.display.get_workspace_manager();
+            let workspaces = wsManager.get_n_workspaces();
+            for(let i = 0; i < workspaces; i++) {
+                let workspace = wsManager.get_workspace_by_index(i); 
+                let existWsNode = this.findNode(workspace);
+                if (existWsNode) continue;
+                let newWsNode = this.addNode(this._root._data, NODE_TYPES['WORKSPACE'], workspace);
+                newWsNode.layout = LAYOUT_TYPES['HSPLIT'];
+            }
+            Logger.debug(`initial workspaces: ${workspaces}`);
+        }
+
+        get nodeWorkpaces() {
+            let _nodeWs = [];
+            let criteriaMatchFn = (node) => {
+                if (node._type === NODE_TYPES['WORKSPACE']) {
+                    _nodeWs.push(node);
+                }
+            }
+
+            this._walkFrom(this._root, criteriaMatchFn, this._traverseBreadthFirst);
+            return _nodeWs;
         }
 
         addNode(toData, type, data) {
@@ -113,7 +154,7 @@ var Tree = GObject.registerClass(
 
             if (parentNode) {
                 child = new Node(type, data);
-                parentNode._children.push(child);
+                parentNode._nodes.push(child);
                 child._parent = parentNode;
             }
             return child;
@@ -192,13 +233,13 @@ var Tree = GObject.registerClass(
             let nodeIndex;
 
             if (parentNode) {
-                nodeIndex = this._findNodeIndex(parentNode._children, node);
+                nodeIndex = this._findNodeIndex(parentNode._nodes, node);
 
                 if (nodeIndex === undefined) {
                     // do nothing
                 } else {
                     // TODO re-adjust the children to the next sibling
-                    nodeToRemove = parentNode._children.splice(nodeIndex, 1);
+                    nodeToRemove = parentNode._nodes.splice(nodeIndex, 1);
                 }
             }
 
@@ -206,39 +247,38 @@ var Tree = GObject.registerClass(
         }
 
         render() {
-            Logger.debug(`render tree # ${this._workspace.index()}`);
+            Logger.debug(`render tree`);
             let fwm = this._forgeWm;
             let criteriaFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW']) {
                     Logger.debug(` window: ${node._data.get_wm_class()}`);
 
                     let parentNode = node._parent;
-                    let parentRect;
+                    let windowRect;
 
                     // It is possible that the node might be detached from the tree
                     // TODO: if there is no parent, use the current window's workspace?
                     // Or the window can be considered as floating?
                     if (parentNode) {
-                        if (parentNode._type === NODE_TYPES['ROOT']) {
-                            // Meta.Window.get_work_area_current_monitor() 
-                            // works well with panels
-                            parentRect = node._data.
-                                get_work_area_current_monitor();
-                        }
+                        let monitor = node._data.get_monitor();
+                        // A nodeWindow's parent is a monitor
+                        windowRect = node._data.get_work_area_for_monitor(monitor);
 
-                        let shownChildren = this._getShownChildren(parentNode._children);
+                        let shownChildren = this._getShownChildren(parentNode._nodes);
                         let numChild = shownChildren.length;
                         let floating = node.mode === WindowManager.WINDOW_MODES['FLOAT'];
                         Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
                         Logger.debug(`  workspace: ${node._data.get_workspace().index()}`);
+                        Logger.debug(`  monitor: ${monitor}`);
+                        Logger.debug(`  monitorWorkspace: ${parentNode._data}`);
                         if (numChild === 0 || floating) return;
                         
                         let childIndex = this._findNodeIndex(
                             shownChildren, node);
                         
-                        let splitDirection = parentNode._splitOrientation;
-                        let splitHorizontally = splitDirection === 
-                             SPLIT_ORIENTATION['HSPLIT'];
+                        let layout = parentNode.layout;
+                        let splitHorizontally = layout === 
+                             LAYOUT_TYPES['HSPLIT'];
                         let nodeWidth;
                         let nodeHeight;
                         let nodeX;
@@ -248,19 +288,19 @@ var Tree = GObject.registerClass(
                             // Divide the parent container's width 
                             // depending on number of children. And use this
                             // to setup each child window's width.
-                            nodeWidth = Math.floor(parentRect.width / numChild);
-                            nodeHeight = parentRect.height;
-                            nodeX = parentRect.x + (childIndex * nodeWidth);
-                            nodeY = parentRect.y;
+                            nodeWidth = Math.floor(windowRect.width / numChild);
+                            nodeHeight = windowRect.height;
+                            nodeX = windowRect.x + (childIndex * nodeWidth);
+                            nodeY = windowRect.y;
                             Logger.debug(`  direction: h-split`);
                         } else { // split vertically
-                            nodeWidth = parentRect.width;
+                            nodeWidth = windowRect.width;
                             // Conversely, divide the parent container's height 
                             // depending on number of children. And use this
                             // to setup each child window's height.
-                            nodeHeight = Math.floor(parentRect.height / numChild);
-                            nodeX = parentRect.x;
-                            nodeY = parentRect.y + (childIndex * nodeHeight);
+                            nodeHeight = Math.floor(windowRect.height / numChild);
+                            nodeX = windowRect.x;
+                            nodeY = windowRect.y + (childIndex * nodeHeight);
                             Logger.debug(` direction: v-split`);
                         }
 
@@ -300,8 +340,8 @@ var Tree = GObject.registerClass(
             let currentNode = queue.dequeue();
 
             while(currentNode) {
-                for (let i = 0, length = currentNode._children.length; i < length; i++) {
-                    queue.enqueue(currentNode._children[i]);
+                for (let i = 0, length = currentNode._nodes.length; i < length; i++) {
+                    queue.enqueue(currentNode._nodes[i]);
                 }
 
                 callback(currentNode);
@@ -312,8 +352,8 @@ var Tree = GObject.registerClass(
         // start walking from bottom to root
         _traverseDepthFirst(callback, startNode) {
             let recurse = (currentNode) => {
-                for (let i = 0, length = currentNode._children.length; i < length; i++) {
-                    recurse(currentNode._children[i]);
+                for (let i = 0, length = currentNode._nodes.length; i < length; i++) {
+                    recurse(currentNode._nodes[i]);
                 }
 
                 callback(currentNode);

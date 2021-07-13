@@ -1,0 +1,11 @@
+.root-border {
+    border-size: 4px;
+    border-color: lightblue;
+    border-style: solid;
+}
+
+.monitor-border {
+    border-size: 4px;
+    border-color: red;
+    border-style: solid;
+}
