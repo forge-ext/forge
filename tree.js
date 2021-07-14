@@ -277,8 +277,7 @@ var Tree = GObject.registerClass(
                             shownChildren, node);
                         
                         let layout = parentNode.layout;
-                        let splitHorizontally = layout === 
-                             LAYOUT_TYPES['HSPLIT'];
+                        let splitHorizontally = layout === LAYOUT_TYPES['HSPLIT'];
                         let nodeWidth;
                         let nodeHeight;
                         let nodeX;
@@ -313,10 +312,7 @@ var Tree = GObject.registerClass(
 
                         Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                        GLib.timeout_add(GLib.PRIORITY_LOW, 60, () => {
-                            fwm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
-                            return false;
-                        });
+                        fwm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
                     }
 
                 } else if (node._type === NODE_TYPES['ROOT']) {

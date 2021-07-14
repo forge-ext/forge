@@ -27,6 +27,9 @@ const Gio = imports.gi.Gio;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
+// App imports
+const Logger = Me.imports.logger;
+
 /**
  *
  * Turns an array into an immutable enum-like object
@@ -112,6 +115,8 @@ function resolveX(action, metaWindow) {
         default:
             break;
     }
+    val = monitorRect.x + val;
+    Logger.debug(`resolve x: ${val}`);
     return val;
 }
 
@@ -142,6 +147,8 @@ function resolveY(action, metaWindow) {
         default:
             break;
     }
+    val = monitorRect.y + val;
+    Logger.debug(`resolve y: ${val}`);
     return val;
 }
 
@@ -162,6 +169,7 @@ function resolveWidth(action, metaWindow) {
         default:
             break;
     }
+    Logger.debug(`resolve width: ${val}`);
     return val;
 }
 
@@ -182,5 +190,6 @@ function resolveHeight(action, metaWindow) {
         default:
             break;
     }
+    Logger.debug(`resolve height: ${val}`);
     return val;
 }

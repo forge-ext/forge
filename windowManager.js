@@ -82,7 +82,7 @@ var ForgeWindowManager = GObject.registerClass(
             this._displaySignals = [
                 display.connect("window-created", this._trackWindow.bind(this)),
                 display.connect("window-entered-monitor", this._windowEnteredMonitor.bind(this)),
-                display.connect("grab-op-end", (_, _display, metaWindow, _grabOp) => {
+                display.connect("grab-op-end", (_, _display, _metaWindow, _grabOp) => {
                     this.unfreezeRender();
                     this.renderTree();
                     Logger.debug(`grab op end`);
@@ -219,7 +219,7 @@ var ForgeWindowManager = GObject.registerClass(
 
         renderTree() {
             if (this._freezeRender) return;
-            GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            GLib.idle_add(GLib.PRIORITY_LOW, () => {
                 this._tree.render();
             });
         }
@@ -233,6 +233,10 @@ var ForgeWindowManager = GObject.registerClass(
                 let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`; 
                 metaWindow.connect("workspace-changed", (metaWindowWs) => {
                     Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
+                });
+                metaWindow.connect("position-changed", (metaWindowPos) => {
+                    Logger.debug(`position-changed ${metaWindowPos.get_wm_class()}`);
+                    this.renderTree();
                 });
 
                 let monitorNode = this._tree.findNode(metaMonWs);
@@ -248,8 +252,7 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
                 Logger.debug(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.debug(` on monitor: ${metaWindow.get_monitor()}`);
-                this._tree.render();
-            }
+            } 
         }
 
         _validWindow(metaWindow) {
@@ -259,12 +262,11 @@ var ForgeWindowManager = GObject.registerClass(
         _windowDestroy(actor) {
             // Release any resources on the window
             let nodeWindow;
-            let tree = this._tree;
-            nodeWindow = tree.findNodeByActor(actor);
+            nodeWindow = this._tree.findNodeByActor(actor);
             if (nodeWindow) {
-                tree.removeNode(nodeWindow._parent._data, nodeWindow);
+                this._tree.removeNode(nodeWindow._parent._data, nodeWindow);
                 Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
-                tree.render();
+                this.renderTree();
             }                
             Logger.debug(`window-destroy`);
         }
@@ -280,13 +282,14 @@ var ForgeWindowManager = GObject.registerClass(
                         existNodeWindow._parent._data !== metaMonWs) {
                         this._tree.removeNode(existNodeWindow._parent._data, existNodeWindow);
                         let movedNodeWindow = this._tree.addNode(metaMonWs, Tree.NODE_TYPES['WINDOW'], metaWindow);
-                        movedNodeWindow.mode = WINDOW_MODES['TILE'];
+                        movedNodeWindow.mode = existNodeWindow.mode;
                     }
                 }
                 Logger.debug(`window-entered-monitor: ${metaWindow.get_wm_class()}`);
                 Logger.debug(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.debug(` on monitor: ${monitor} `);
             }
+            this.renderTree();
         }
 
         freezeRender() {
