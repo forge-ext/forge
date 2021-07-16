@@ -83,8 +83,8 @@ var ForgeWindowManager = GObject.registerClass(
                 display.connect("window-created", this._trackWindow.bind(this)),
                 display.connect("window-entered-monitor", this._windowEnteredMonitor.bind(this)),
                 display.connect("grab-op-end", (_, _display, _metaWindow, _grabOp) => {
+                    this.unfreezeRender();
                     if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
-                        this.unfreezeRender();
                         this.renderTree();
                     }
                     Logger.debug(`grab op end`);
@@ -220,7 +220,10 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         renderTree() {
-            if (this._freezeRender) return;
+            if (this._freezeRender) {
+                Logger.debug(`render frozen`);
+                return;
+            }
             GLib.idle_add(GLib.PRIORITY_LOW, () => {
                 this._tree.render();
             });
