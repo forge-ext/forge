@@ -83,8 +83,10 @@ var ForgeWindowManager = GObject.registerClass(
                 display.connect("window-created", this._trackWindow.bind(this)),
                 display.connect("window-entered-monitor", this._windowEnteredMonitor.bind(this)),
                 display.connect("grab-op-end", (_, _display, _metaWindow, _grabOp) => {
-                    this.unfreezeRender();
-                    this.renderTree();
+                    if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
+                        this.unfreezeRender();
+                        this.renderTree();
+                    }
                     Logger.debug(`grab op end`);
                 }),
                 display.connect("grab-op-begin", (_, _display, metaWindow, grabOp) => {
@@ -235,8 +237,10 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
                 });
                 metaWindow.connect("position-changed", (metaWindowPos) => {
+                    if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
+                        this.renderTree();
+                    }
                     Logger.debug(`position-changed ${metaWindowPos.get_wm_class()}`);
-                    this.renderTree();
                 });
 
                 let monitorNode = this._tree.findNode(metaMonWs);
