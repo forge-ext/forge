@@ -115,6 +115,19 @@ var ForgeWindowManager = GObject.registerClass(
                 }),
             ];
 
+            const globalWsm = global.workspace_manager;
+
+            this._workspaceManagerSignals = [
+                globalWsm.connect("workspace-added", (_, wsIndex) => {
+                    this._tree.addWorkspace(wsIndex);
+                    Logger.debug(`workspace-added ${wsIndex}`);
+                }),
+                globalWsm.connect("workspace-removed", (_, wsIndex) => {
+                    this._tree.removeWorkspace(wsIndex);
+                    Logger.debug(`workspace-removed ${wsIndex}`);
+                }),
+            ];
+
             this._signalsBound = true;
         }
 
@@ -235,8 +248,8 @@ var ForgeWindowManager = GObject.registerClass(
                 let existNodeWindow = this._tree.findNode(metaWindow);
                 if (existNodeWindow) return;
                 
-                let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`; 
                 metaWindow.connect("workspace-changed", (metaWindowWs) => {
+                    this._windowEnteredMonitor(global.display, metaWindowWs.get_monitor(), metaWindowWs);
                     Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
                 });
                 metaWindow.connect("position-changed", (metaWindowPos) => {
@@ -246,6 +259,7 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug(`position-changed ${metaWindowPos.get_wm_class()}`);
                 });
 
+                let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
                 let monitorNode = this._tree.findNode(metaMonWs);
                 if (!monitorNode) return;
                 let newNodeWindow = this._tree.addNode(monitorNode._data, Tree.NODE_TYPES['WINDOW'], 
@@ -280,16 +294,20 @@ var ForgeWindowManager = GObject.registerClass(
 
         _windowEnteredMonitor(_, monitor, metaWindow) {
             if (this._validWindow(metaWindow)) {
+                if (metaWindow.get_workspace() === null) return;
                 let existNodeWindow = this._tree.findNode(metaWindow);
                 let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`; 
-
+                let metaMonWsNode = this._tree.findNode(metaMonWs);
                 if (existNodeWindow) {
                     // check if meta in correct ws and monitor
-                    if (existNodeWindow._parent &&
-                        existNodeWindow._parent._data !== metaMonWs) {
-                        this._tree.removeNode(existNodeWindow._parent._data, existNodeWindow);
-                        let movedNodeWindow = this._tree.addNode(metaMonWs, Tree.NODE_TYPES['WINDOW'], metaWindow);
-                        movedNodeWindow.mode = existNodeWindow.mode;
+                    if (existNodeWindow._parent && metaMonWsNode) {
+                        Logger.debug(`window-monitorWorkspace:${metaMonWs}`);
+                        Logger.debug(`parent-monitorWorkspace:${existNodeWindow._parent._data}`);
+                        if (existNodeWindow._parent._data !== metaMonWs) {
+                            this._tree.removeNode(existNodeWindow._parent._data, existNodeWindow);
+                            let movedNodeWindow = this._tree.addNode(metaMonWs, Tree.NODE_TYPES['WINDOW'], metaWindow);
+                            movedNodeWindow.mode = existNodeWindow.mode;
+                        }
                     }
                 }
                 Logger.debug(`window-entered-monitor: ${metaWindow.get_wm_class()}`);

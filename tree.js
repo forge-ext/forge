@@ -102,22 +102,6 @@ var Tree = GObject.registerClass(
             global.window_group.add_child(rootBin);
 
             this._initWorkspaces();
-            this._initMonitors();
-        }
-
-        _initMonitors() {
-            let monitors = global.display.get_n_monitors();
-            let nodeWorkspaces = this.nodeWorkpaces;
-
-            for (let i = 0; i < nodeWorkspaces.length; i++) {
-                let nodeWs = nodeWorkspaces[i];
-                for (let mi = 0; mi < monitors; mi++) {
-                    let monitorWsNode = this.addNode(nodeWs._data, NODE_TYPES['MONITOR'], `mo${mi}ws${nodeWs._data.index()}`);
-                    monitorWsNode.layout = LAYOUT_TYPES['HSPLIT'];
-                }
-            }
-
-            Logger.debug(`initial monitors: ${monitors}`);
         }
 
         /**
@@ -126,14 +110,52 @@ var Tree = GObject.registerClass(
         _initWorkspaces() {
             let wsManager = global.display.get_workspace_manager();
             let workspaces = wsManager.get_n_workspaces();
-            for(let i = 0; i < workspaces; i++) {
-                let workspace = wsManager.get_workspace_by_index(i); 
-                let existWsNode = this.findNode(workspace);
-                if (existWsNode) continue;
-                let newWsNode = this.addNode(this._root._data, NODE_TYPES['WORKSPACE'], workspace);
-                newWsNode.layout = LAYOUT_TYPES['HSPLIT'];
+            for (let i = 0; i < workspaces; i++) {
+                this.addWorkspace(i);
             }
             Logger.debug(`initial workspaces: ${workspaces}`);
+        }
+
+        addMonitor(workspaceNodeData) {
+            let monitors = global.display.get_n_monitors();
+            for (let mi = 0; mi < monitors; mi++) {
+                let monitorWsNode = this.addNode(workspaceNodeData, NODE_TYPES['MONITOR'], `mo${mi}${workspaceNodeData}`);
+                monitorWsNode.layout = LAYOUT_TYPES['HSPLIT'];
+            }
+        }
+
+        addWorkspace(wsIndex) {
+            let wsManager = global.display.get_workspace_manager();
+            let workspaceNodeData = `ws${wsIndex}`;
+
+            Logger.debug(`adding workspace: ${workspaceNodeData}`);
+
+            let newWsNode = this.addNode(this._root._data, NODE_TYPES['WORKSPACE'], workspaceNodeData);
+            let workspace = wsManager.get_workspace_by_index(wsIndex);
+            workspace.connect("window-added", (_, metaWindow) => {
+                this._forgeWm._windowEnteredMonitor(global.display, metaWindow.get_monitor(), metaWindow);
+                Logger.debug(`workspace:window-added ${metaWindow.get_wm_class()}`);
+            });
+            workspace.connect("window-removed", (_, metaWindow) => {
+                this._forgeWm._windowEnteredMonitor(global.display, metaWindow.get_monitor(), metaWindow);
+                Logger.debug(`workspace:window-removed ${metaWindow.get_wm_class()}`);
+            });
+            newWsNode.layout = LAYOUT_TYPES['HSPLIT'];
+            this.addMonitor(workspaceNodeData);
+        }
+
+        removeWorkspace(wsIndex) {
+            let workspaceNodeData = `ws${wsIndex}`;
+            let existingWsNode = this.findNode(workspaceNodeData);
+            Logger.debug(`removing workspace: ${workspaceNodeData}`);
+            let monitors = existingWsNode._nodes;
+            this.removeNode(this._root._data, existingWsNode);
+            for (let m = 0; m < monitors.length; m++) {
+                let windows  = monitors[m]._nodes;
+                for (let w = 0; w < windows.length; w++) {
+                    this._forgeWm._windowEnteredMonitor(global.display, w._data.get_monitor(), w._data);
+                }
+            }
         }
 
         get nodeWorkpaces() {
@@ -234,11 +256,9 @@ var Tree = GObject.registerClass(
 
             if (parentNode) {
                 nodeIndex = this._findNodeIndex(parentNode._nodes, node);
-
                 if (nodeIndex === undefined) {
                     // do nothing
                 } else {
-                    // TODO re-adjust the children to the next sibling
                     nodeToRemove = parentNode._nodes.splice(nodeIndex, 1);
                 }
             }
@@ -268,9 +288,9 @@ var Tree = GObject.registerClass(
                         let numChild = shownChildren.length;
                         let floating = node.mode === WindowManager.WINDOW_MODES['FLOAT'];
                         Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
-                        Logger.debug(`  workspace: ${node._data.get_workspace().index()}`);
-                        Logger.debug(`  monitor: ${monitor}`);
-                        Logger.debug(`  monitorWorkspace: ${parentNode._data}`);
+                        Logger.debug(`  meta-workspace: ${node._data.get_workspace().index()}`);
+                        Logger.debug(`  meta-monitor: ${monitor}`);
+                        Logger.debug(`  parent-monitor-workspace: ${parentNode._data}`);
                         if (numChild === 0 || floating) return;
                         
                         let childIndex = this._findNodeIndex(
@@ -323,6 +343,7 @@ var Tree = GObject.registerClass(
             };
 
             this._walk(criteriaFn, this._traverseBreadthFirst);
+            Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`render end`);
             Logger.debug(`--------------------------`);
         }
