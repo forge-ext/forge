@@ -133,11 +133,11 @@ var Tree = GObject.registerClass(
             let newWsNode = this.addNode(this._root._data, NODE_TYPES['WORKSPACE'], workspaceNodeData);
             let workspace = wsManager.get_workspace_by_index(wsIndex);
             workspace.connect("window-added", (_, metaWindow) => {
-                this._forgeWm._windowEnteredMonitor(global.display, metaWindow.get_monitor(), metaWindow);
+                this._forgeWm._updateMetaWorkspaceMonitor(global.display, metaWindow.get_monitor(), metaWindow);
                 Logger.debug(`workspace:window-added ${metaWindow.get_wm_class()}`);
             });
             workspace.connect("window-removed", (_, metaWindow) => {
-                this._forgeWm._windowEnteredMonitor(global.display, metaWindow.get_monitor(), metaWindow);
+                this._forgeWm._updateMetaWorkspaceMonitor(global.display, metaWindow.get_monitor(), metaWindow);
                 Logger.debug(`workspace:window-removed ${metaWindow.get_wm_class()}`);
             });
             newWsNode.layout = LAYOUT_TYPES['HSPLIT'];
@@ -153,7 +153,7 @@ var Tree = GObject.registerClass(
             for (let m = 0; m < monitors.length; m++) {
                 let windows  = monitors[m]._nodes;
                 for (let w = 0; w < windows.length; w++) {
-                    this._forgeWm._windowEnteredMonitor(global.display, w._data.get_monitor(), w._data);
+                    this._forgeWm._updateMetaWorkspaceMonitor(global.display, w._data.get_monitor(), w._data);
                 }
             }
         }

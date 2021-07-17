@@ -81,7 +81,7 @@ var ForgeWindowManager = GObject.registerClass(
 
             this._displaySignals = [
                 display.connect("window-created", this._trackWindow.bind(this)),
-                display.connect("window-entered-monitor", this._windowEnteredMonitor.bind(this)),
+                display.connect("window-entered-monitor", this._updateMetaWorkspaceMonitor.bind(this)),
                 display.connect("grab-op-end", (_, _display, _metaWindow, _grabOp) => {
                     this.unfreezeRender();
                     if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
@@ -249,7 +249,7 @@ var ForgeWindowManager = GObject.registerClass(
                 if (existNodeWindow) return;
                 
                 metaWindow.connect("workspace-changed", (metaWindowWs) => {
-                    this._windowEnteredMonitor(global.display, metaWindowWs.get_monitor(), metaWindowWs);
+                    this._updateMetaWorkspaceMonitor(global.display, metaWindowWs.get_monitor(), metaWindowWs);
                     Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
                 });
                 metaWindow.connect("position-changed", (metaWindowPos) => {
@@ -292,7 +292,7 @@ var ForgeWindowManager = GObject.registerClass(
             Logger.debug(`window-destroy`);
         }
 
-        _windowEnteredMonitor(_, monitor, metaWindow) {
+        _updateMetaWorkspaceMonitor(_, monitor, metaWindow) {
             if (this._validWindow(metaWindow)) {
                 if (metaWindow.get_workspace() === null) return;
                 let existNodeWindow = this._tree.findNode(metaWindow);
