@@ -171,6 +171,18 @@ var Tree = GObject.registerClass(
             return _nodeWs;
         }
 
+        get nodeWindows() {
+            let _nodeWindows = [];
+            let criteriaMatchFn = (node) => {
+                if (node._type === NODE_TYPES['WINDOW']) {
+                    _nodeWindows.push(node);
+                }
+            }
+
+            this._walkFrom(this._root, criteriaMatchFn, this._traverseBreadthFirst);
+            return _nodeWindows;
+        }
+
         addNode(toData, type, data) {
             let parentNode = this.findNode(toData);
             let child;

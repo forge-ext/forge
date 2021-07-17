@@ -1,11 +1,6 @@
-.root-border {
-    border-size: 4px;
+.window-clone-border {
+    border-width: 3px;
     border-color: lightblue;
     border-style: solid;
-}
-
-.monitor-border {
-    border-size: 4px;
-    border-color: red;
-    border-style: solid;
+    border-radius: 3;
 }
