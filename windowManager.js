@@ -85,7 +85,7 @@ var ForgeWindowManager = GObject.registerClass(
                 display.connect("grab-op-end", (_, _display, _metaWindow, _grabOp) => {
                     this.unfreezeRender();
                     if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
-                        this.renderTree();
+                        this.renderTree("grab-op-end");
                     }
                     Logger.debug(`grab op end`);
                 }),
@@ -96,18 +96,40 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug(`grab op begin ${grabOp}`);
                 }),
                 display.connect("workareas-changed", (_display) => {
-                    Logger.debug(`workareas changed`);
-                    this.renderTree();
+                    let treeWorkspaces = this._tree.nodeWorkpaces;
+                    let globalWsNum = global.workspace_manager.get_n_workspaces(); 
+                    Logger.debug(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
+
+                    GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                        this._tree._root._nodes.length = 0;
+                        this._tree._initWorkspaces();
+                        this.trackCurrentWindows();
+
+                        for (let i = 0; i < this._tree.nodeWorkpaces.length; i++) {
+                            let existingWsNode = this._tree.nodeWorkpaces[i];
+                            let monitors = existingWsNode._nodes;
+                            Logger.debug(`  ${existingWsNode._data}`);
+                            for (let m = 0; m < monitors.length; m++) {
+                                let windows  = monitors[m]._nodes;
+                                for (let w = 0; w < windows.length; w++) {
+                                    if (w && w._data)
+                                        this._updateMetaWorkspaceMonitor(global.display, w._data.get_monitor(), w._data);
+                                }
+                            }
+                        }
+                        Logger.debug(`workareas changed`);
+                        this.renderTree("workareas-changed");
+                    });
                 }),
             ];
 
             this._windowManagerSignals = [
                 shellWm.connect("minimize", () => {
-                    this.renderTree();
+                    this.renderTree("minimize");
                     Logger.debug(`minimize`);
                 }),
                 shellWm.connect("unminimize", () => {
-                    this.renderTree();
+                    this.renderTree("unminimize");
                     Logger.debug(`unminimize`);
                 }),
                 shellWm.connect("show-tile-preview", (_, _metaWindow, _rect, _num) => {
@@ -119,12 +141,12 @@ var ForgeWindowManager = GObject.registerClass(
 
             this._workspaceManagerSignals = [
                 globalWsm.connect("workspace-added", (_, wsIndex) => {
-                    this._tree.addWorkspace(wsIndex);
-                    Logger.debug(`workspace-added ${wsIndex}`);
+                    let added = this._tree.addWorkspace(wsIndex);
+                    Logger.debug(`${added ? "workspace-added" : "workspace-add-skipped"} ${wsIndex}`);
                 }),
                 globalWsm.connect("workspace-removed", (_, wsIndex) => {
-                    this._tree.removeWorkspace(wsIndex);
-                    Logger.debug(`workspace-removed ${wsIndex}`);
+                    let removed = this._tree.removeWorkspace(wsIndex);
+                    Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
                 }),
             ];
 
@@ -147,7 +169,7 @@ var ForgeWindowManager = GObject.registerClass(
                         height: Utils.resolveHeight(action, focusWindow),
                     };
                     this.move(focusWindow, moveRect);
-                    this.renderTree();
+                    this.renderTree("move-resize");
                     break;
                 default:
                     break;
@@ -161,7 +183,7 @@ var ForgeWindowManager = GObject.registerClass(
 
         enable() {
             this._bindSignals();
-            this.renderTree();
+            this.renderTree("enable");
         }
 
         _findNodeWindow(metaWindow) {
@@ -185,11 +207,25 @@ var ForgeWindowManager = GObject.registerClass(
             return this._findNodeWindow(this.focusMetaWindow);
         }
 
-        get windows() {
+        get windowsActiveWorkspace() {
             let wsManager = global.workspace_manager;
-            // TODO: make it configurable
-            return global.display.get_tabs_list(Meta.TabList.NORMAL_ALL,
+            return global.display.get_tab_list(Meta.TabList.NORMAL_ALL,
                 wsManager.get_active_workspace());
+        }
+
+        get windowsAllWorkspaces() {
+            let wsManager = global.workspace_manager;
+            let windowsAll = [];
+
+            for (let i = 0; i < wsManager.get_n_workspaces(); i++) {
+                Array.prototype.push.apply(windowsAll, global.display.
+                    get_tab_list(Meta.TabList.NORMAL_ALL, wsManager.get_workspace_by_index(i)));
+            }
+            Logger.debug(`open-windows: ${windowsAll.length}`);
+            windowsAll.sort((w1, w2) => {
+                return w1.get_stable_sequence() - w2.get_stable_sequence();
+            });
+            return windowsAll;
         }
 
         // Window movement API
@@ -232,13 +268,13 @@ var ForgeWindowManager = GObject.registerClass(
             this._signalsBound = false;
         }
 
-        renderTree() {
+        renderTree(from) {
             if (this._freezeRender) {
                 Logger.debug(`render frozen`);
                 return;
             }
             GLib.idle_add(GLib.PRIORITY_LOW, () => {
-                this._tree.render();
+                this._tree.render(from);
             });
         }
 
@@ -249,12 +285,11 @@ var ForgeWindowManager = GObject.registerClass(
                 if (existNodeWindow) return;
                 
                 metaWindow.connect("workspace-changed", (metaWindowWs) => {
-                    this._updateMetaWorkspaceMonitor(global.display, metaWindowWs.get_monitor(), metaWindowWs);
                     Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
                 });
                 metaWindow.connect("position-changed", (metaWindowPos) => {
                     if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
-                        this.renderTree();
+                        this.renderTree("position-changed");
                     }
                     Logger.debug(`position-changed ${metaWindowPos.get_wm_class()}`);
                 });
@@ -276,6 +311,14 @@ var ForgeWindowManager = GObject.registerClass(
             } 
         }
 
+        trackCurrentWindows() {
+            let windowsAll = this.windowsAllWorkspaces;
+            for (let i = 0; i < windowsAll.length; i++) {
+                this._trackWindow(global.display, windowsAll[i]);
+            }
+            Logger.debug(`track-current-windows`);
+        }
+
         _validWindow(metaWindow) {
             return metaWindow.get_window_type() == Meta.WindowType.NORMAL;
         }
@@ -287,7 +330,7 @@ var ForgeWindowManager = GObject.registerClass(
             if (nodeWindow) {
                 this._tree.removeNode(nodeWindow._parent._data, nodeWindow);
                 Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
-                this.renderTree();
+                this.renderTree("window-destroy");
             }                
             Logger.debug(`window-destroy`);
         }
@@ -314,7 +357,7 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.debug(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.debug(` on monitor: ${monitor} `);
             }
-            this.renderTree();
+            this.renderTree("update-workspace-monitor");
         }
 
         freezeRender() {

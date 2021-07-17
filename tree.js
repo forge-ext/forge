@@ -113,7 +113,7 @@ var Tree = GObject.registerClass(
             for (let i = 0; i < workspaces; i++) {
                 this.addWorkspace(i);
             }
-            Logger.debug(`initial workspaces: ${workspaces}`);
+            Logger.debug(`initialized workspaces: ${workspaces}`);
         }
 
         addMonitor(workspaceNodeData) {
@@ -122,6 +122,7 @@ var Tree = GObject.registerClass(
                 let monitorWsNode = this.addNode(workspaceNodeData, NODE_TYPES['MONITOR'], `mo${mi}${workspaceNodeData}`);
                 monitorWsNode.layout = LAYOUT_TYPES['HSPLIT'];
             }
+            Logger.debug(`initialized monitors: ${monitors}`);
         }
 
         addWorkspace(wsIndex) {
@@ -129,6 +130,11 @@ var Tree = GObject.registerClass(
             let workspaceNodeData = `ws${wsIndex}`;
 
             Logger.debug(`adding workspace: ${workspaceNodeData}`);
+            let existingWsNode = this.findNode(workspaceNodeData);
+            if (existingWsNode) {
+                Logger.debug(`workspace-node ${workspaceNodeData} already exists`);
+                return false;
+            }
 
             let newWsNode = this.addNode(this._root._data, NODE_TYPES['WORKSPACE'], workspaceNodeData);
             let workspace = wsManager.get_workspace_by_index(wsIndex);
@@ -136,26 +142,21 @@ var Tree = GObject.registerClass(
                 this._forgeWm._updateMetaWorkspaceMonitor(global.display, metaWindow.get_monitor(), metaWindow);
                 Logger.debug(`workspace:window-added ${metaWindow.get_wm_class()}`);
             });
-            workspace.connect("window-removed", (_, metaWindow) => {
-                this._forgeWm._updateMetaWorkspaceMonitor(global.display, metaWindow.get_monitor(), metaWindow);
-                Logger.debug(`workspace:window-removed ${metaWindow.get_wm_class()}`);
-            });
             newWsNode.layout = LAYOUT_TYPES['HSPLIT'];
             this.addMonitor(workspaceNodeData);
+            return true;
         }
 
         removeWorkspace(wsIndex) {
             let workspaceNodeData = `ws${wsIndex}`;
             let existingWsNode = this.findNode(workspaceNodeData);
             Logger.debug(`removing workspace: ${workspaceNodeData}`);
-            let monitors = existingWsNode._nodes;
-            this.removeNode(this._root._data, existingWsNode);
-            for (let m = 0; m < monitors.length; m++) {
-                let windows  = monitors[m]._nodes;
-                for (let w = 0; w < windows.length; w++) {
-                    this._forgeWm._updateMetaWorkspaceMonitor(global.display, w._data.get_monitor(), w._data);
-                }
+            if (!existingWsNode) {
+                Logger.debug(`workspace-node ${workspaceNodeData} does not exist`);
+                return false;
             }
+            this.removeNode(this._root._data, existingWsNode);
+            return true;
         }
 
         get nodeWorkpaces() {
@@ -266,8 +267,8 @@ var Tree = GObject.registerClass(
             return nodeToRemove;
         }
 
-        render() {
-            Logger.debug(`render tree`);
+        render(from) {
+            Logger.debug(`render tree ${from ? "from " + from : ""}`);
             let fwm = this._forgeWm;
             let criteriaFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW']) {
@@ -288,7 +289,7 @@ var Tree = GObject.registerClass(
                         let numChild = shownChildren.length;
                         let floating = node.mode === WindowManager.WINDOW_MODES['FLOAT'];
                         Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
-                        Logger.debug(`  meta-workspace: ${node._data.get_workspace().index()}`);
+                        Logger.debug(`  meta-workspace: ${node._data.get_workspace()? node._data.get_workspace().index() : null}`);
                         Logger.debug(`  meta-monitor: ${monitor}`);
                         Logger.debug(`  parent-monitor-workspace: ${parentNode._data}`);
                         if (numChild === 0 || floating) return;
