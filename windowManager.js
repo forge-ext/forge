@@ -82,6 +82,9 @@ var ForgeWindowManager = GObject.registerClass(
             this._displaySignals = [
                 display.connect("window-created", this._trackWindow.bind(this)),
                 display.connect("window-entered-monitor", this._updateMetaWorkspaceMonitor.bind(this)),
+                display.connect("window-left-monitor", () => {
+                    Logger.debug(`window-left-monitor`);
+                }),
                 display.connect("grab-op-end", (_, _display, _metaWindow, _grabOp) => {
                     this.unfreezeRender();
                     if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
@@ -94,6 +97,9 @@ var ForgeWindowManager = GObject.registerClass(
                     let nodeWindow = this._findNodeWindow(metaWindow);
                     if (nodeWindow) nodeWindow._grabOp = grabOp;
                     Logger.debug(`grab op begin ${grabOp}`);
+                }),
+                display.connect("showing-desktop-changed", () => {
+                    Logger.debug(`display:showing-desktop-changed`);
                 }),
                 display.connect("workareas-changed", (_display) => {
                     GLib.idle_add(GLib.PRIORITY_LOW, () => {
@@ -142,6 +148,10 @@ var ForgeWindowManager = GObject.registerClass(
             const globalWsm = global.workspace_manager;
 
             this._workspaceManagerSignals = [
+                globalWsm.connect("showing-desktop-changed", () => {
+                    this.hideWindowBorders();
+                    Logger.debug(`workspace:showing-desktop-changed`);
+                }),
                 globalWsm.connect("workspace-added", (_, wsIndex) => {
                     let added = this._tree.addWorkspace(wsIndex);
                     Logger.debug(`${added ? "workspace-added" : "workspace-add-skipped"} ${wsIndex}`);
@@ -152,7 +162,7 @@ var ForgeWindowManager = GObject.registerClass(
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
                     this.hideWindowBorders();
-                    GLib.timeout_add(GLib.PRIORITY_LOW, 300, () => {
+                    GLib.timeout_add(GLib.PRIORITY_LOW, 60, () => {
                         this.showBorderFocusWindow();
                     });
                     Logger.debug(`workspace-switched`);
@@ -306,7 +316,7 @@ var ForgeWindowManager = GObject.registerClass(
                 windowActor.border.set_position(rect.x, rect.y);
                 if (metaWindow.appears_focused && !metaWindow.minimized)
                     windowActor.border.show();
-                if (global.window_group) {
+                if (global.window_group && global.window_group.contains(windowActor.border)) {
                     global.window_group.remove_child(windowActor.border);
                     global.window_group.add_child(windowActor.border);
                 }
@@ -325,12 +335,8 @@ var ForgeWindowManager = GObject.registerClass(
 
                 metaWindow.connect("position-changed", this._updateMetaPositionSize.bind(this));
                 metaWindow.connect("size-changed", this._updateMetaPositionSize.bind(this));
-                metaWindow.connect("focus", (metaWindowFocus) => {
-                    let windowActor = metaWindowFocus.get_compositor_private();
-                    if (windowActor && windowActor.border) {
-                        this.hideWindowBorders();
-                        windowActor.border.show();
-                    }
+                metaWindow.connect("focus", (_metaWindowFocus) => {
+                    this.showBorderFocusWindow();
                 });
 
                 let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
