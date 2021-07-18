@@ -117,6 +117,7 @@ var ForgeWindowManager = GObject.registerClass(
                                 }
                             }
                         }
+                        this.showBorderFocusWindow();
                         Logger.debug(`workareas changed`);
                         this.renderTree("workareas-changed");
                     });
@@ -125,6 +126,7 @@ var ForgeWindowManager = GObject.registerClass(
 
             this._windowManagerSignals = [
                 shellWm.connect("minimize", () => {
+                    this.hideWindowBorders();
                     this.renderTree("minimize");
                     Logger.debug(`minimize`);
                 }),
@@ -148,7 +150,11 @@ var ForgeWindowManager = GObject.registerClass(
                     let removed = this._tree.removeWorkspace(wsIndex);
                     Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
                 }),
-                globalWsm.connect("workspace-switched", (_, wsIndex) => {
+                globalWsm.connect("workspace-switched", (_, _wsIndex) => {
+                    this.hideWindowBorders();
+                    GLib.timeout_add(GLib.PRIORITY_LOW, 300, () => {
+                        this.showBorderFocusWindow();
+                    });
                     Logger.debug(`workspace-switched`);
                 }),
             ];
@@ -289,6 +295,24 @@ var ForgeWindowManager = GObject.registerClass(
             });
         }
 
+        showBorderFocusWindow() {
+            this.hideWindowBorders();
+            let metaWindow = this.focusMetaWindow;
+            if (!metaWindow) return;
+            let windowActor = metaWindow.get_compositor_private();
+            if (windowActor && windowActor.border) {
+                let rect = metaWindow.get_frame_rect();
+                windowActor.border.set_size(rect.width, rect.height);
+                windowActor.border.set_position(rect.x, rect.y);
+                if (metaWindow.appears_focused && !metaWindow.minimized)
+                    windowActor.border.show();
+                if (global.window_group) {
+                    global.window_group.remove_child(windowActor.border);
+                    global.window_group.add_child(windowActor.border);
+                }
+            }
+        }
+
         _trackWindow(_display, metaWindow) {
             // Make window types configurable
             if (this._validWindow(metaWindow)) {
@@ -305,9 +329,7 @@ var ForgeWindowManager = GObject.registerClass(
                     let windowActor = metaWindowFocus.get_compositor_private();
                     if (windowActor && windowActor.border) {
                         this.hideWindowBorders();
-                        global.window_group.remove_child(windowActor.border);
                         windowActor.border.show();
-                        global.window_group.add_child(windowActor.border);
                     }
                 });
 
@@ -351,7 +373,10 @@ var ForgeWindowManager = GObject.registerClass(
             // Release any resources on the window
             let border = actor.border;
             if (border) {
-                border = null;
+                if (global.window_group) {
+                    global.window_group.remove_child(border);
+                    border = null;
+                }
             }
             let nodeWindow;
             nodeWindow = this._tree.findNodeByActor(actor);
@@ -385,31 +410,18 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.debug(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.debug(` on monitor: ${monitor} `);
             }
-            let focusNodeWindow = this.focusNodeWindow;
-            if (focusNodeWindow && focusNodeWindow._actor && focusNodeWindow._actor.border) {
-                focusNodeWindow._actor.border.show();
-            }
+            this.showBorderFocusWindow();
             this.renderTree("update-workspace-monitor");
         }
 
         _updateMetaPositionSize(metaWindowPos) {
-            this.hideWindowBorders();
-            let windowActor = metaWindowPos.get_compositor_private();
-            if (windowActor.border) {
-                let rect = metaWindowPos.get_frame_rect();
-                windowActor.border.set_size(rect.width, rect.height);
-                windowActor.border.set_position(rect.x, rect.y);
-            }
+            this.showBorderFocusWindow();
 
             let focusMetaWindow = this.focusMetaWindow;
             if (focusMetaWindow && focusMetaWindow.get_maximized() === 0) {
                 this.renderTree("position-size-changed");
             }
 
-            let focusNodeWindow = this.focusNodeWindow;
-            if (focusNodeWindow && focusNodeWindow._actor && focusNodeWindow._actor.border) {
-                focusNodeWindow._actor.border.show();
-            }
             Logger.debug(`position-size-changed ${metaWindowPos.get_wm_class()}`);
         }
 
