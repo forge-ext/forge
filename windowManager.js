@@ -162,7 +162,7 @@ var ForgeWindowManager = GObject.registerClass(
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
                     this.hideWindowBorders();
-                    GLib.timeout_add(GLib.PRIORITY_LOW, 60, () => {
+                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 350, () => {
                         this.showBorderFocusWindow();
                     });
                     Logger.debug(`workspace-switched`);
@@ -350,9 +350,12 @@ var ForgeWindowManager = GObject.registerClass(
                 let windowActor = metaWindow.get_compositor_private();
                 if (!windowActor.border) {
                     let border = new St.Bin({style_class: "window-clone-border"});
-                    border.show();
-                    global.window_group.add_child(border);
+
+                    if (global.window_group)
+                        global.window_group.add_child(border);
+
                     windowActor.border = border;
+                    border.show();
                 }
 
                 windowActor.connect("destroy", this._windowDestroy.bind(this));
