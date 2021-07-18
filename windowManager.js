@@ -102,31 +102,8 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug(`display:showing-desktop-changed`);
                 }),
                 display.connect("workareas-changed", (_display) => {
-                    GLib.idle_add(GLib.PRIORITY_LOW, () => {
-                        let treeWorkspaces = this._tree.nodeWorkpaces;
-                        let wsManager = global.workspace_manager;
-                        let globalWsNum = wsManager.get_n_workspaces();
-                        Logger.debug(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
-                        this._tree._root._nodes.length = 0;
-                        this._tree._initWorkspaces();
-                        this.trackCurrentWindows();
-
-                        for (let i = 0; i < this._tree.nodeWorkpaces.length; i++) {
-                            let existingWsNode = this._tree.nodeWorkpaces[i];
-                            let monitors = existingWsNode._nodes;
-                            Logger.debug(`  ${existingWsNode._data}`);
-                            for (let m = 0; m < monitors.length; m++) {
-                                let windows  = monitors[m]._nodes;
-                                for (let w = 0; w < windows.length; w++) {
-                                    if (w && w._data)
-                                        this._updateMetaWorkspaceMonitor(global.display, w._data.get_monitor(), w._data);
-                                }
-                            }
-                        }
-                        this.showBorderFocusWindow();
-                        Logger.debug(`workareas changed`);
-                        this.renderTree("workareas-changed");
-                    });
+                    this._reloadTree("workareas-changed");
+                    Logger.debug(`workareas-changed`);
                 }),
             ];
 
@@ -169,7 +146,28 @@ var ForgeWindowManager = GObject.registerClass(
                 }),
             ];
 
+            let numberOfWorkspaces = globalWsm.get_n_workspaces();
+
+            for (let i = 0; i < numberOfWorkspaces; i++) {
+                let workspace = globalWsm.get_workspace_by_index(i);
+                this._bindWorkspaceSignals(workspace);
+            }
+
             this._signalsBound = true;
+        }
+
+        _bindWorkspaceSignals(metaWorkspace) {
+            if (metaWorkspace) {
+                if (!metaWorkspace.workspaceSignals) {
+                    let workspaceSignals = [
+                        metaWorkspace.connect("window-added", (_, metaWindow) => {
+                            this._updateMetaWorkspaceMonitor(global.display, metaWindow.get_monitor(), metaWindow);
+                            Logger.debug(`workspace:window-added ${metaWindow.get_wm_class()}`);
+                        }),
+                    ];
+                    metaWorkspace.workspaceSignals = workspaceSignals;
+                }
+            }
         }
 
         command(action) {
@@ -196,13 +194,15 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         disable() {
-            Logger.debug(`Disable is called`);
             this._removeSignals();
+            this.disabled = true;
+            Logger.debug(`extension:disable`);
         }
 
         enable() {
             this._bindSignals();
-            this.renderTree("enable");
+            this._reloadTree("enable");
+            Logger.debug(`extension:enable`);
         }
 
         _findNodeWindow(metaWindow) {
@@ -284,11 +284,69 @@ var ForgeWindowManager = GObject.registerClass(
                 for (const displaySignal of this._displaySignals) {
                     global.display.disconnect(displaySignal);
                 }
+                this._displaySignals.length = 0;
+                this._displaySignals = undefined;
             }
 
             if (this._windowManagerSignals) {
                 for (const windowManagerSignal of this._windowManagerSignals) {
                     global.window_manager.disconnect(windowManagerSignal);
+                }
+                this._windowManagerSignals.length = 0;
+                this._windowManagerSignals = undefined;
+            }
+
+            const globalWsm = global.workspace_manager;
+
+            if (this._workspaceManagerSignals) {
+                for (const workspaceManagerSignal of this._workspaceManagerSignals) {
+                    globalWsm.disconnect(workspaceManagerSignal);
+                }
+                this._workspaceManagerSignals.length = 0;
+                this._workspaceManagerSignals = undefined;
+            }
+
+            let numberOfWorkspaces = globalWsm.get_n_workspaces();
+
+            for (let i = 0; i < numberOfWorkspaces; i++) {
+                let workspace = globalWsm.get_workspace_by_index(i);
+                if (workspace.workspaceSignals) {
+                    for (const workspaceSignal of workspace.workspaceSignals) {
+                        workspace.disconnect(workspaceSignal);
+                    }
+                    workspace.workspaceSignals.length = 0;
+                    workspace.workspaceSignals = undefined;
+                }
+            }
+
+            let allWindows = this.windowsAllWorkspaces;
+
+            if (allWindows) {
+                for (let metaWindow of allWindows) {
+                    if (metaWindow.windowSignals !== undefined) {
+                        for (const windowSignal of metaWindow.windowSignals) {
+                            metaWindow.disconnect(windowSignal);
+                        }
+                        metaWindow.windowSignals.length = 0;
+                        metaWindow.windowSignals = undefined;
+                    }
+
+                    let windowActor = metaWindow.get_compositor_private();
+                    if (windowActor && windowActor.actorSignals) {
+                        for (const actorSignal of windowActor.actorSignals) {
+                            windowActor.disconnect(actorSignal);
+                        }
+                        windowActor.actorSignals.length = 0;
+                        windowActor.actorSignals = undefined;
+                    }
+
+                    if (windowActor && windowActor.border) {
+                        windowActor.border.hide();
+                        if (global.window_group) {
+                            global.window_group.remove_child(windowActor.border);
+                        }
+                        windowActor.border = undefined;
+                    }
                 }
             }
 
@@ -302,6 +360,34 @@ var ForgeWindowManager = GObject.registerClass(
             }
             GLib.idle_add(GLib.PRIORITY_LOW, () => {
                 this._tree.render(from);
+            });
+        }
+
+        _reloadTree(from) {
+            GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                let treeWorkspaces = this._tree.nodeWorkpaces;
+                let wsManager = global.workspace_manager;
+                let globalWsNum = wsManager.get_n_workspaces();
+                Logger.debug(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
+                this._tree._root._nodes.length = 0;
+                this._tree._initWorkspaces();
+                this.trackCurrentWindows();
+
+                for (let i = 0; i < this._tree.nodeWorkpaces.length; i++) {
+                    let existingWsNode = this._tree.nodeWorkpaces[i];
+                    let monitors = existingWsNode._nodes;
+                    Logger.debug(`  ${existingWsNode._data}`);
+                    for (let m = 0; m < monitors.length; m++) {
+                        let windows  = monitors[m]._nodes;
+                        for (let w = 0; w < windows.length; w++) {
+                            if (w && w._data)
+                                this._updateMetaWorkspaceMonitor(global.display, w._data.get_monitor(), w._data);
+                        }
+                    }
+                }
+                this.showBorderFocusWindow();
+                Logger.debug(`windowmgr:reload-tree ${from ? "from " + from : ""}`);
+                this.renderTree("reload-tree");
             });
         }
 
@@ -321,33 +407,48 @@ var ForgeWindowManager = GObject.registerClass(
                     global.window_group.add_child(windowActor.border);
                 }
             }
+            Logger.debug(`show-border-focus-window`);
         }
 
         _trackWindow(_display, metaWindow) {
             // Make window types configurable
             if (this._validWindow(metaWindow)) {
                 let existNodeWindow = this._tree.findNode(metaWindow);
-                if (existNodeWindow) return;
-                
-                metaWindow.connect("workspace-changed", (metaWindowWs) => {
-                    Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
-                });
-
-                metaWindow.connect("position-changed", this._updateMetaPositionSize.bind(this));
-                metaWindow.connect("size-changed", this._updateMetaPositionSize.bind(this));
-                metaWindow.connect("focus", (_metaWindowFocus) => {
-                    this.showBorderFocusWindow();
-                });
-
-                let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-                let monitorNode = this._tree.findNode(metaMonWs);
-                if (!monitorNode) return;
-                let newNodeWindow = this._tree.addNode(monitorNode._data, Tree.NODE_TYPES['WINDOW'], 
-                    metaWindow);
-                // default to tile mode
-                newNodeWindow.mode = WINDOW_MODES['TILE'];
+                if (!existNodeWindow) {
+                    let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+                    let monitorNode = this._tree.findNode(metaMonWs);
+                    if (!monitorNode) return;
+                    let newNodeWindow = this._tree.addNode(monitorNode._data, Tree.NODE_TYPES['WINDOW'], 
+                        metaWindow);
+                    // default to tile mode
+                    newNodeWindow.mode = WINDOW_MODES['TILE'];
+                }
 
                 let windowActor = metaWindow.get_compositor_private();
+
+                if (!metaWindow.windowSignals) {
+                    let windowSignals = [
+                        metaWindow.connect("position-changed", this._updateMetaPositionSize.bind(this)),
+                        metaWindow.connect("size-changed", this._updateMetaPositionSize.bind(this)),
+                        metaWindow.connect("focus", (_metaWindowFocus) => {
+                            this.showBorderFocusWindow();
+                        }),
+                        metaWindow.connect("workspace-changed", (metaWindowWs) => {
+                            Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
+                        }),
+                    ];
+                    metaWindow.windowSignals = windowSignals;
+                    Logger.debug(`track-window:binding-metawindow-signal`);
+                }
+
+                if (!windowActor.actorSignals) {
+                    let actorSignals = [
+                        windowActor.connect("destroy", this._windowDestroy.bind(this)),
+                    ];
+                    windowActor.actorSignals = actorSignals;
+                    Logger.debug(`track-window:binding-actor-signal`);
+                }
+
                 if (!windowActor.border) {
                     let border = new St.Bin({style_class: "window-clone-border"});
 
@@ -356,9 +457,8 @@ var ForgeWindowManager = GObject.registerClass(
 
                     windowActor.border = border;
                     border.show();
+                    Logger.debug(`track-window:create-border`);
                 }
-
-                windowActor.connect("destroy", this._windowDestroy.bind(this));
 
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
                 Logger.debug(` on workspace: ${metaWindow.get_workspace().index()}`);

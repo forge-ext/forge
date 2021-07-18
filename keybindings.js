@@ -69,8 +69,6 @@ var Keybindings = GObject.registerClass(
         }
 
         enable() {
-            Logger.info(`Enable gsetting keybindings`);
-
             let keybindings = this._bindings;
 
             for (const key in keybindings) {
@@ -83,7 +81,6 @@ var Keybindings = GObject.registerClass(
                 );
             }
 
-            Logger.info('Enable JSON keybindings');
             windowConfig.forEach((config) => {
                 this.listenFor(config.shortcut, () => {
                     config.actions.forEach((action) => {
@@ -91,18 +88,15 @@ var Keybindings = GObject.registerClass(
                     });
                 });
             });
+            Logger.debug(`keybindings:enable`);
         }
 
         disable() {
-            Logger.info(`Disable gsetting keybindings`);
-
             let keybindings = this._bindings;
 
             for (const key in keybindings) {
                 Main.wm.removeKeybinding(key);
             }
-
-            Logger.info(`Disable JSON keybindings`);
 
             // The existing grabber items are from the custom config by 
             // this extension.
@@ -112,6 +106,7 @@ var Keybindings = GObject.registerClass(
             });
 
             this._grabbers.clear();
+            Logger.debug(`keybindings:disable`);
         }
 
         /**
@@ -144,7 +139,6 @@ var Keybindings = GObject.registerClass(
                 });
             }
         }
-
     }
 );
 

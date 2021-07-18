@@ -138,11 +138,10 @@ var Tree = GObject.registerClass(
 
             let newWsNode = this.addNode(this._root._data, NODE_TYPES['WORKSPACE'], workspaceNodeData);
             let workspace = wsManager.get_workspace_by_index(wsIndex);
-            workspace.connect("window-added", (_, metaWindow) => {
-                this._forgeWm._updateMetaWorkspaceMonitor(global.display, metaWindow.get_monitor(), metaWindow);
-                Logger.debug(`workspace:window-added ${metaWindow.get_wm_class()}`);
-            });
             newWsNode.layout = LAYOUT_TYPES['HSPLIT'];
+
+            this._forgeWm._bindWorkspaceSignals(workspace);
+
             this.addMonitor(workspaceNodeData);
             return true;
         }
@@ -294,6 +293,7 @@ var Tree = GObject.registerClass(
                     // Or the window can be considered as floating?
                     if (parentNode) {
                         let monitor = node._data.get_monitor();
+                        if (monitor < 0) return;
                         // A nodeWindow's parent is a monitor
                         windowRect = node._data.get_work_area_for_monitor(monitor);
 
