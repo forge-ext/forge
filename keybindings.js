@@ -34,7 +34,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Utils = Me.imports.utils;
 const Logger = Me.imports.logger;
-const WindowManager = Me.imports.windowManager;
+const Window = Me.imports.window;
 
 var Keybindings = GObject.registerClass(
     class Keybindings extends GObject.Object {
@@ -149,7 +149,7 @@ var windowConfig = [
         actions: [
             {
                 name : 'MoveResize',
-                mode: WindowManager.WINDOW_MODES['FLOAT'],
+                mode: Window.WINDOW_MODES['FLOAT'],
                 x : 'center',
                 y : 'center',
                 width: 0.65,

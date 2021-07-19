@@ -33,7 +33,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Logger = Me.imports.logger;
 const Utils = Me.imports.utils;
-const WindowManager = Me.imports.windowManager;
+const Window = Me.imports.window;
 
 var NODE_TYPES = Utils.createEnum([
     'ROOT',
@@ -250,7 +250,7 @@ var Tree = GObject.registerClass(
         _getShownChildren(items) {
             let filterFn = (nodeWindow) => {
                 if (nodeWindow._type === NODE_TYPES['WINDOW']) {
-                    let floating = nodeWindow.mode === WindowManager.WINDOW_MODES['FLOAT'];
+                    let floating = nodeWindow.mode === Window.WINDOW_MODES['FLOAT'];
                     if (!nodeWindow._data.minimized && !floating) {
                         return true;
                     }
@@ -299,7 +299,7 @@ var Tree = GObject.registerClass(
 
                         let shownChildren = this._getShownChildren(parentNode._nodes);
                         let numChild = shownChildren.length;
-                        let floating = node.mode === WindowManager.WINDOW_MODES['FLOAT'];
+                        let floating = node.mode === Window.WINDOW_MODES['FLOAT'];
                         Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
                         Logger.debug(`  meta-workspace: ${node._data.get_workspace()? node._data.get_workspace().index() : null}`);
                         Logger.debug(`  meta-monitor: ${monitor}`);

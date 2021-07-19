@@ -1,3 +1,4 @@
+
 /*
  * This file is part of the Forge Window Manager extension for Gnome 3
  *
@@ -17,44 +18,16 @@
  */
 
 // Gnome imports
+const GLib = imports.gi.GLib;
+const GObject = imports.gi.GObject;
+const Meta = imports.gi.Meta;
+const Shell = imports.gi.Shell;
+const St = imports.gi.St;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // Application imports
-const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
-const Window = Me.imports.window;
 
-var forgeWm;
-var keybindings;
-
-function init() {
-    Logger.info("init");
-}
-
-function enable() {
-    Logger.info("enable");
-
-    if (!forgeWm) {
-        forgeWm = new Window.ForgeWindowManager();
-    }
-
-    if (!keybindings) {
-        keybindings = new Keybindings.Keybindings(forgeWm);
-    }
-
-    forgeWm.enable();
-    keybindings.enable();
-}
-
-function disable() {
-    Logger.info("disable");
-
-    if (forgeWm)
-        forgeWm.disable();
-
-    if (keybindings)
-        keybindings.disable();
-}
