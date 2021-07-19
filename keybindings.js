@@ -159,4 +159,14 @@ var windowConfig = [
             },
         ],
     },
+    {
+        name: 'navigate-left',
+        shortcut : '<Super>h',
+        actions: [
+            {
+                name : 'Focus',
+                direction: ''
+            },
+        ],
+    },
 ];
