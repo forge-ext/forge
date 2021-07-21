@@ -16,6 +16,8 @@
  *
  */
 
+'use strict';
+
 // Gnome imports
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;

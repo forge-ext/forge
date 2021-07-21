@@ -16,6 +16,8 @@
  *
  */
 
+'use strict';
+
 // Gnome-shell imports
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();

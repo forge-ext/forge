@@ -19,6 +19,8 @@
  * Some code was also adapted from the upstream Gnome Shell source code.
  */
 
+'use strict';
+
 // Gnome imports
 const Clutter = imports.gi;
 const Gio = imports.gi.Gio;

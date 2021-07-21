@@ -16,6 +16,8 @@
  *
  */
 
+'use strict';
+
 // Gnome imports
 
 // Extension imports

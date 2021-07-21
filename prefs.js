@@ -16,6 +16,8 @@
  *
  */
 
+'use strict';
+
 // Gnome imports
 imports.gi.versions.Gtk = "3.0";
 const Gtk = imports.gi.Gtk;

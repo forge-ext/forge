@@ -16,6 +16,8 @@
  *
  */
 
+'use strict';
+
 // Gnome imports
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
@@ -37,32 +39,42 @@ const Window = Me.imports.window;
 
 var NODE_TYPES = Utils.createEnum([
     'ROOT',
-    'MONITOR',
-    'SPLIT',
+    'MONITOR', //Output in i3
+    'CON', //Container in i3
     'WINDOW',
     'WORKSPACE',
 ]);
 
 var LAYOUT_TYPES = Utils.createEnum([
     'STACK',
-    'TABBED',
+    'TABS',
     'ROOT',
     'HSPLIT',
     'VSPLIT',
+    'PRESET',
 ]);
 
 /**
- * The container node to represent Forge
+ * The Node data representation of the following elements in the user's display:
+ *
+ * Monitor,
+ * Window,
+ * Container (generic),
+ * Workspace
+ *
  */
 var Node = GObject.registerClass(
     class Node extends GObject.Object {
         _init(type, data) {
             super._init();
-            this._type = type;
-            this._data = data;
+            // TODO - move to GObject property definitions?
+            this._type = type; // see NODE_TYPES
+            // _data: Meta.Window, unique id strings (Monitor,
+            // Workspace or St.Bin - a representation of Container)
+            this._data = data; 
             this._parent = null;
-            this._nodes = [];
-            this._floats = []; // handle the floating windows
+            this._nodes = []; // Child elements of this node
+            this._floats = []; // handle the floating window children of this node
 
             if (this._type === NODE_TYPES['WINDOW']) {
                 this._actor = this._data.get_compositor_private();
@@ -71,6 +83,9 @@ var Node = GObject.registerClass(
     }
 );
 
+/**
+ * An implementation of Queue using arrays
+ */
 var Queue = GObject.registerClass(
     class Queue extends GObject.Object {
         _init() {
@@ -116,6 +131,7 @@ var Tree = GObject.registerClass(
             Logger.debug(`initialized workspaces: ${workspaces}`);
         }
 
+        // TODO move to monitor.js
         addMonitor(workspaceNodeData) {
             let monitors = global.display.get_n_monitors();
             for (let mi = 0; mi < monitors; mi++) {
@@ -125,27 +141,30 @@ var Tree = GObject.registerClass(
             Logger.debug(`initialized monitors: ${monitors}`);
         }
 
+        // TODO move to workspace.js
         addWorkspace(wsIndex) {
             let wsManager = global.display.get_workspace_manager();
             let workspaceNodeData = `ws${wsIndex}`;
 
-            Logger.debug(`adding workspace: ${workspaceNodeData}`);
             let existingWsNode = this.findNode(workspaceNodeData);
             if (existingWsNode) {
                 Logger.debug(`workspace-node ${workspaceNodeData} already exists`);
                 return false;
             }
 
+            Logger.debug(`adding workspace: ${workspaceNodeData}`);
+
             let newWsNode = this.addNode(this._root._data, NODE_TYPES['WORKSPACE'], workspaceNodeData);
             let workspace = wsManager.get_workspace_by_index(wsIndex);
             newWsNode.layout = LAYOUT_TYPES['HSPLIT'];
 
-            this._forgeWm._bindWorkspaceSignals(workspace);
-
+            this._forgeWm.bindWorkspaceSignals(workspace);
             this.addMonitor(workspaceNodeData);
+
             return true;
         }
 
+        // TODO move to workspace.js
         removeWorkspace(wsIndex) {
             let workspaceNodeData = `ws${wsIndex}`;
             let existingWsNode = this.findNode(workspaceNodeData);
@@ -159,27 +178,27 @@ var Tree = GObject.registerClass(
         }
 
         get nodeWorkpaces() {
-            let _nodeWs = [];
+            let nodeWorkspaces = [];
             let criteriaMatchFn = (node) => {
                 if (node._type === NODE_TYPES['WORKSPACE']) {
-                    _nodeWs.push(node);
+                    nodeWorkspaces.push(node);
                 }
             }
 
             this._walkFrom(this._root, criteriaMatchFn, this._traverseBreadthFirst);
-            return _nodeWs;
+            return nodeWorkspaces;
         }
 
         get nodeWindows() {
-            let _nodeWindows = [];
+            let nodeWindows = [];
             let criteriaMatchFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW']) {
-                    _nodeWindows.push(node);
+                    nodeWindows.push(node);
                 }
             }
 
             this._walkFrom(this._root, criteriaMatchFn, this._traverseBreadthFirst);
-            return _nodeWindows;
+            return nodeWindows;
         }
 
         addNode(toData, type, data) {
@@ -194,6 +213,16 @@ var Tree = GObject.registerClass(
             return child;
         }
 
+        /**
+         * Finds any Node in the tree using data
+         * Data types can be in the form of Meta.Window or unique id strings
+         * for Workspace, Monitor and Container
+         *
+         * Workspace id strings takes the form `ws{n}`.
+         * Monitor id strings takes the form `mo{m}ws{n}`
+         * Container id strings takes the form `mo{m}ws{n}c{x}`
+         *
+         */
         findNode(data) {
             let searchNode;
             let criteriaMatchFn = (node) => {
@@ -207,11 +236,14 @@ var Tree = GObject.registerClass(
             return searchNode;
         }
 
-        findNodeByActor(dataActor) {
+        /**
+         * Find the NodeWindow using the Meta.WindowActor
+         */
+        findNodeByActor(windowActor) {
             let searchNode;
             let criteriaMatchFn = (node) => {
                 if (node._type === NODE_TYPES['WINDOW'] && 
-                    node._actor === dataActor) {
+                    node._actor === windowActor) {
                     searchNode = node;
                 }
             };
@@ -247,10 +279,14 @@ var Tree = GObject.registerClass(
             // TODO get the height of a node
         }
 
-        _getShownChildren(items) {
+        /**
+         * Obtains the non-floating, non-minimized list of nodes
+         */
+        getTiledChildren(items) {
             let filterFn = (nodeWindow) => {
                 if (nodeWindow._type === NODE_TYPES['WINDOW']) {
                     let floating = nodeWindow.mode === Window.WINDOW_MODES['FLOAT'];
+                    // A Node[Window]._data is a Meta.Window
                     if (!nodeWindow._data.minimized && !floating) {
                         return true;
                     }
@@ -282,22 +318,21 @@ var Tree = GObject.registerClass(
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             let fwm = this._forgeWm;
             let criteriaFn = (node) => {
+                // TODO move the WINDOW rendering to a new function
                 if (node._type === NODE_TYPES['WINDOW']) {
                     Logger.debug(` window: ${node._data.get_wm_class()}`);
 
                     let parentNode = node._parent;
                     let windowRect;
 
-                    // It is possible that the node might be detached from the tree
-                    // TODO: if there is no parent, use the current window's workspace?
-                    // Or the window can be considered as floating?
                     if (parentNode) {
                         let monitor = node._data.get_monitor();
                         if (monitor < 0) return;
-                        // A nodeWindow's parent is a monitor
+                        // TODO, Node Window's parent can be a Monitor or
+                        // a Container
                         windowRect = node._data.get_work_area_for_monitor(monitor);
 
-                        let shownChildren = this._getShownChildren(parentNode._nodes);
+                        let shownChildren = this.getTiledChildren(parentNode._nodes);
                         let numChild = shownChildren.length;
                         let floating = node.mode === Window.WINDOW_MODES['FLOAT'];
                         Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
@@ -336,6 +371,7 @@ var Tree = GObject.registerClass(
                             Logger.debug(` direction: v-split`);
                         }
 
+                        // TODO make the gap configurable
                         let gap = 8;
 
                         nodeX += gap;
@@ -350,8 +386,8 @@ var Tree = GObject.registerClass(
 
                 } else if (node._type === NODE_TYPES['ROOT']) {
                     Logger.debug(` root`);
-                } else if (node._type === NODE_TYPES['SPLIT']) {
-                    Logger.debug(` split`);
+                } else if (node._type === NODE_TYPES['CON']) {
+                    Logger.debug(` container`);
                 }
             };
 
