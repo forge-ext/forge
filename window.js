@@ -383,8 +383,11 @@ var ForgeWindowManager = GObject.registerClass(
                     for (let m = 0; m < monitors.length; m++) {
                         let windows  = monitors[m]._nodes;
                         for (let w = 0; w < windows.length; w++) {
-                            if (w && w._data)
-                                this.updateMetaWorkspaceMonitor(global.display, w._data.get_monitor(), w._data);
+                            let nodeWindow = windows[w];
+                            if (nodeWindow && nodeWindow._data)
+                                this.updateMetaWorkspaceMonitor(global.display,
+                                    nodeWindow._data.get_monitor(),
+                                    nodeWindow._data);
                         }
                     }
                 }
