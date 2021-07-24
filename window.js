@@ -198,7 +198,10 @@ var ForgeWindowManager = GObject.registerClass(
                     let direction = Utils.resolveDirection(action.direction);
                     let next = this._tree.next(focusNodeWindow, direction);
                     Logger.debug(`focus:next ${next && next._data ? next._data.get_wm_class() : "undefined"}`);
-                    if (next && next._data) next._data.focus(global.get_current_time());
+                    if (next && next._data) {
+                        next._data.raise();
+                        next._data.focus(global.get_current_time());
+                    } 
                     break;
                 default:
                     break;
