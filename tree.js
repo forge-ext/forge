@@ -54,6 +54,17 @@ var LAYOUT_TYPES = Utils.createEnum([
     'PRESET',
 ]);
 
+var ORIENTATION_TYPES = Utils.createEnum([
+    'NONE',
+    'HORIZONTAL',
+    'VERTICAL',
+]);
+
+var POSITION = Utils.createEnum([
+    'BEFORE',
+    'AFTER',
+]);
+
 /**
  * The Node data representation of the following elements in the user's display:
  *
@@ -295,6 +306,46 @@ var Tree = GObject.registerClass(
             };
 
             return items.filter(filterFn);
+        }
+
+        /**
+         * Give the next sibling/parent/descendant on the tree based
+         * on a given Meta.MotionDirection
+         *
+         * @param {Tree.Node} node
+         * @param {Meta.MotionDirection} direction
+         */
+        next(node, direction) {
+            if (!node) return null;
+            let orientation = Utils.orientationFromDirection(direction);
+            let position = Utils.positionFromDirection(direction);
+            let horizontal = orientation === ORIENTATION_TYPES['HORIZONTAL'];
+            let previous = position === POSITION['BEFORE'];
+
+            Logger.debug(`next:orientation ${orientation}`);
+            Logger.debug(`next:position ${position}`);
+
+            // 1. If any of these top level nodes, focus on the next node window
+            if (node._type === NODE_TYPES['ROOT'] ||
+                node._type === NODE_TYPES['WORKSPACE'] ||
+                node._type === NODE_TYPES['MONITOR']) {
+                // Lock it on the current workspace
+                return null;
+            }
+
+            let nodeParent = node._parent;
+
+            // 2. Walk through the siblings of this node
+            while (node && node._type != NODE_TYPES['MONITOR']) {
+                if (nodeParent && nodeParent._nodes && nodeParent._nodes.length > 1) {
+                    let currentIndex = this._findNodeIndex(nodeParent._nodes, node);
+                    let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
+                    if (nextIndex !== -1 || !(nextIndex > nodeParent._nodes.length - 1)) {
+                        return nodeParent._nodes[nextIndex];
+                    } 
+                }
+                node = nodeParent;
+            }
         }
 
         removeNode(fromData, node) {

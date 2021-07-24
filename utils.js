@@ -24,6 +24,7 @@
 // Gnome imports
 const Clutter = imports.gi;
 const Gio = imports.gi.Gio;
+const Meta = imports.gi.Meta;
 
 // Gnome-shell imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -31,6 +32,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
 const Logger = Me.imports.logger;
+const Tree = Me.imports.tree;
 
 /**
  *
@@ -194,4 +196,41 @@ function resolveHeight(action, metaWindow) {
     }
     Logger.debug(`resolve height: ${val}`);
     return val;
+}
+
+function orientationFromDirection(direction) {
+    return (direction === Meta.MotionDirection.LEFT ||
+        direction === Meta.MotionDirection.RIGHT) ?
+        Tree.ORIENTATION_TYPES['HORIZONTAL'] :
+        Tree.ORIENTATION_TYPES['VERTICAL'];
+}
+
+function positionFromDirection(direction) {
+    return (direction === Meta.MotionDirection.LEFT ||
+        direction === Meta.MotionDirection.UP) ? 
+        Tree.POSITION['BEFORE'] : Tree.POSITION['AFTER'];
+}
+
+function resolveDirection(directionString) {
+    if (directionString) {
+        directionString = directionString.toUpperCase();
+
+        if (directionString === "LEFT") {
+            return Meta.MotionDirection.LEFT;
+        }
+
+        if (directionString === "RIGHT") {
+            return Meta.MotionDirection.RIGHT;
+        }
+
+        if (directionString === "UP") {
+            return Meta.MotionDirection.UP;
+        }
+
+        if (directionString === "DOWN") {
+            return Meta.MotionDirection.DOWN;
+        }
+    }
+
+    return null;
 }

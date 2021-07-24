@@ -193,6 +193,13 @@ var ForgeWindowManager = GObject.registerClass(
                     this.move(focusWindow, moveRect);
                     this.renderTree("move-resize");
                     break;
+                case "Focus":
+                    let focusNodeWindow = this.findNodeWindow(focusWindow);
+                    let direction = Utils.resolveDirection(action.direction);
+                    let next = this._tree.next(focusNodeWindow, direction);
+                    Logger.debug(`focus:next ${next && next._data ? next._data.get_wm_class() : "undefined"}`);
+                    if (next && next._data) next._data.focus(global.get_current_time());
+                    break;
                 default:
                     break;
             }

@@ -165,7 +165,37 @@ var windowConfig = [
         actions: [
             {
                 name : 'Focus',
-                direction: ''
+                direction: 'Left'
+            },
+        ],
+    },
+    {
+        name: 'navigate-right',
+        shortcut : '<Super>l',
+        actions: [
+            {
+                name : 'Focus',
+                direction: 'Right'
+            },
+        ],
+    },
+    {
+        name: 'navigate-up',
+        shortcut : '<Super>k',
+        actions: [
+            {
+                name : 'Focus',
+                direction: 'Up'
+            },
+        ],
+    },
+    {
+        name: 'navigate-down',
+        shortcut : '<Super>j',
+        actions: [
+            {
+                name : 'Focus',
+                direction: 'Down'
             },
         ],
     },
