@@ -84,9 +84,11 @@ var Keybindings = GObject.registerClass(
             }
 
             windowConfig.forEach((config) => {
-                this.listenFor(config.shortcut, () => {
-                    config.actions.forEach((action) => {
-                        this._forgeWm.command(action);
+                config.shortcut.forEach((shortcut) => {
+                    this.listenFor(shortcut, () => {
+                        config.actions.forEach((action) => {
+                            this._forgeWm.command(action);
+                        });
                     });
                 });
             });
@@ -147,7 +149,7 @@ var Keybindings = GObject.registerClass(
 var windowConfig = [
     {
         name: 'float',
-        shortcut : '<Super>c',
+        shortcut : ['<Super>c'],
         actions: [
             {
                 name : 'MoveResize',
@@ -161,7 +163,7 @@ var windowConfig = [
     },
     {
         name: 'navigate-left',
-        shortcut : '<Super>h',
+        shortcut : ['<Super>h','<Super>left'],
         actions: [
             {
                 name : 'Focus',
@@ -171,7 +173,7 @@ var windowConfig = [
     },
     {
         name: 'navigate-right',
-        shortcut : '<Super>l',
+        shortcut : ['<Super>l','<Super>right'],
         actions: [
             {
                 name : 'Focus',
@@ -181,7 +183,7 @@ var windowConfig = [
     },
     {
         name: 'navigate-up',
-        shortcut : '<Super>k',
+        shortcut : ['<Super>k','<Super>up'],
         actions: [
             {
                 name : 'Focus',
@@ -191,7 +193,7 @@ var windowConfig = [
     },
     {
         name: 'navigate-down',
-        shortcut : '<Super>j',
+        shortcut : ['<Super>j','<Super>down'],
         actions: [
             {
                 name : 'Focus',
