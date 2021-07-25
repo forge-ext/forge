@@ -314,6 +314,8 @@ var Tree = GObject.registerClass(
          *
          * @param {Tree.Node} node
          * @param {Meta.MotionDirection} direction
+         *
+         * Credits: borrowed logic from tree.c of i3
          */
         next(node, direction) {
             if (!node) return null;
@@ -325,24 +327,59 @@ var Tree = GObject.registerClass(
             Logger.debug(`next:orientation ${orientation}`);
             Logger.debug(`next:position ${position}`);
 
-            // 1. If any of these top level nodes, focus on the next node window
+
+            // 1. If any of these top level nodes,
             if (node._type === NODE_TYPES['ROOT'] ||
                 node._type === NODE_TYPES['WORKSPACE'] ||
                 node._type === NODE_TYPES['MONITOR']) {
-                // Lock it on the current workspace
+                // TODO focus on the next node window
                 return null;
             }
 
-            let nodeParent = node._parent;
+            // Remember the current focus node window
+            let prevNode = node;
 
             // 2. Walk through the siblings of this node
-            while (node && node._type != NODE_TYPES['MONITOR']) {
+            while (node && node._type != NODE_TYPES['WORKSPACE']) {
+                let nodeParent = node._parent;
+                Logger.trace(`node-parent-data ${nodeParent._data}`);
+                Logger.trace(`node-data ${node._data}`);
+
+                // 2.a Handle the top level monitor siblings
+                if (node && node._type === NODE_TYPES['MONITOR']) {
+                    let targetMonitor = global.display.
+                        get_monitor_neighbor_index(prevNode._data.get_monitor(),
+                            (previous ? Meta.DisplayDirection.LEFT :
+                                Meta.DisplayDirection.RIGHT));
+                    if (targetMonitor === -1) return null;
+
+                    let targetMoData = `mo${targetMonitor}ws${prevNode._data.get_workspace().index()}`;
+                    node = this.findNode(targetMoData);
+
+                    if (!node) return null; 
+                    if (node._nodes && node._nodes.length > 1) {
+                        if (previous) {
+                            // focus on the last child of the node monitor
+                            return node._nodes[node._nodes.length - 1];
+                        } else {
+                            // focus the first child of the node monitor
+                            return node._nodes[0];
+                        }
+                    } else if (node._nodes && node._nodes.length === 1) {
+                        return node._nodes[0];
+                    }
+                }
+
+                // 2.b Else check for the next sibling or parent
                 if (nodeParent && nodeParent._nodes && nodeParent._nodes.length > 1) {
                     let currentIndex = this._findNodeIndex(nodeParent._nodes, node);
                     let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
-                    if (nextIndex !== -1 || !(nextIndex > nodeParent._nodes.length - 1)) {
-                        return nodeParent._nodes[nextIndex];
-                    } 
+                    let next;
+                    if (nextIndex !== -1 && !(nextIndex > nodeParent._nodes.length - 1)) {
+                        next = nodeParent._nodes[nextIndex];
+                        Logger.trace(`next:type ${next ? next._type : "undefined"}`);
+                        return next;
+                    }
                 }
                 node = nodeParent;
             }
@@ -371,7 +408,7 @@ var Tree = GObject.registerClass(
             let criteriaFn = (node) => {
                 // TODO move the WINDOW rendering to a new function
                 if (node._type === NODE_TYPES['WINDOW']) {
-                    Logger.debug(` window: ${node._data.get_wm_class()}`);
+                    Logger.debug(` window: ${node._data.get_wm_class()}, title: ${node._data.get_title()}`);
 
                     let parentNode = node._parent;
                     let windowRect;
