@@ -524,6 +524,9 @@ var ForgeWindowManager = GObject.registerClass(
             Logger.debug(`window-destroy`);
         }
 
+        /**
+         * Handles any workspace/monitor update for the Meta.Window.
+         */
         updateMetaWorkspaceMonitor(_, monitor, metaWindow) {
             if (this._validWindow(metaWindow)) {
                 if (metaWindow.get_workspace() === null) return;
@@ -531,12 +534,9 @@ var ForgeWindowManager = GObject.registerClass(
                 let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`; 
                 let metaMonWsNode = this._tree.findNode(metaMonWs);
                 if (existNodeWindow) {
-                    // TODO - in multi-container, traverse the root
-                    // and check if meta in correct ws and monitor
                     if (existNodeWindow._parent && metaMonWsNode) {
                         Logger.trace(`window-monitorWorkspace:${metaMonWs}`);
                         Logger.trace(`parent-monitorWorkspace:${existNodeWindow._parent._data}`);
-                        // TODO find the correct parent on the next workspace
                         // Uses the existing workspace, monitor that the metaWindow
                         // belongs to.
                         if (existNodeWindow._parent._data !== metaMonWs) {
