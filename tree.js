@@ -523,7 +523,6 @@ var Tree = GObject.registerClass(
 
             if (node._type === NODE_TYPES['MONITOR'] ||
                 node._type === NODE_TYPES['CON']) {
-                Logger.debug(`render container ${node._data}`);
                 // The workarea from Meta.Window's assigned monitor 
                 // is important so it computes to `remove` the panel size
                 // really well. However, this type of workarea would only
@@ -569,13 +568,15 @@ var Tree = GObject.registerClass(
                 nodeHeight -= gap * 2;
 
                 Logger.debug(`render-window: ${node._data.get_wm_class()}:${node._data.get_title()}`);
-                Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
+                Logger.debug(` direction: ${node._parent.layout}`);
+                Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
                 this._forgeWm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
             }
         }
 
         renderSplit(node, child, params, index) {
+            Logger.debug(`render container ${node._data}`);
             let splitHorizontally = node.layout === LAYOUT_TYPES['HSPLIT'];
             let nodeRect = node.rect;
             let nodeWidth;
@@ -591,7 +592,6 @@ var Tree = GObject.registerClass(
                 nodeHeight = nodeRect.height;
                 nodeX = nodeRect.x + (index * nodeWidth);
                 nodeY = nodeRect.y;
-                Logger.debug(`  direction: h-split`);
             } else { // split vertically
                 // Conversely for vertical split, divide the parent container's height 
                 // depending on number of children. And use this
@@ -600,8 +600,8 @@ var Tree = GObject.registerClass(
                 nodeHeight = params.sizes[index];
                 nodeX = nodeRect.x;
                 nodeY = nodeRect.y + (index * nodeHeight);
-                Logger.debug(` direction: v-split`);
             }
+            Logger.debug(` direction: ${node.layout}`);
             child.rect = {
                 x: nodeX,
                 y: nodeY,

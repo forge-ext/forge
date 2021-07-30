@@ -450,13 +450,15 @@ var ForgeWindowManager = GObject.registerClass(
                     if (focusNodeWin) {
                         // find an existing window and attach to its parent
                         parentFocusNode = focusNodeWin._parent;
-                    } else {
+                    }
+                    if (!parentFocusNode) {
                         // Else it could be the initial window
                         // get the containing monitor instead
                         let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
                         parentFocusNode = this._tree.findNode(metaMonWs);
                     }
-                    if (!parentFocusNode) return;
+                    if (!parentFocusNode) return; // there is nothing to attach to
+                    Logger.debug(`track-window: attaching to ${parentFocusNode._data}`);
                     let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES['WINDOW'], 
                         metaWindow);
                     // default to tile mode
