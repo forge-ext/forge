@@ -34,7 +34,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
-const Utils = Me.imports.utils;
+const Settings = Me.imports.settings;
 const Logger = Me.imports.logger;
 const Window = Me.imports.window;
 
@@ -76,7 +76,7 @@ var Keybindings = GObject.registerClass(
             for (const key in keybindings) {
                 Main.wm.addKeybinding(
                     key,
-                    Utils.getSettings(),
+                    Settings.getSettings(),
                     Meta.KeyBindingFlags.NONE,
                     Shell.ActionMode.NORMAL,
                     keybindings[key]

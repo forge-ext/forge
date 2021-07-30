@@ -34,6 +34,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
 const Logger = Me.imports.logger;
+const Settings = Me.imports.settings;
 const Utils = Me.imports.utils;
 const Window = Me.imports.window;
 
@@ -220,7 +221,7 @@ var Tree = GObject.registerClass(
                 child = new Node(type, data);
                 parentNode._nodes.push(child);
                 child._parent = parentNode;
-                Logger.debug(`adding node ${type}: ${data} to ${toData}`);
+                Logger.trace(`adding node ${type}: ${data} to ${toData}`);
             }
             return child;
         }
@@ -332,7 +333,6 @@ var Tree = GObject.registerClass(
             Logger.debug(`next:orientation ${orientation}`);
             Logger.debug(`next:position ${position}`);
 
-
             // 1. If any of these top level nodes,
             if (node._type === NODE_TYPES['ROOT'] ||
                 node._type === NODE_TYPES['WORKSPACE'] ||
@@ -376,14 +376,23 @@ var Tree = GObject.registerClass(
                 }
 
                 // 2.b Else check for the next sibling or parent
-                if (nodeParent && nodeParent._nodes && nodeParent._nodes.length > 1) {
-                    let currentIndex = this._findNodeIndex(nodeParent._nodes, node);
-                    let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
-                    let next;
-                    if (nextIndex !== -1 && !(nextIndex > nodeParent._nodes.length - 1)) {
-                        next = nodeParent._nodes[nextIndex];
-                        Logger.trace(`next:type ${next ? next._type : "undefined"}`);
-                        return next;
+                // if the direction is opposite the parent layout,
+                // go to the parent's siblings
+                if (horizontal && nodeParent.layout === LAYOUT_TYPES['HSPLIT'] ||
+                    !horizontal && nodeParent.layout === LAYOUT_TYPES['VSPLIT']) {
+                    if (nodeParent && nodeParent._nodes && nodeParent._nodes.length > 1) {
+                        let currentIndex = this._findNodeIndex(nodeParent._nodes, node);
+                        let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
+                        let next;
+                        if (nextIndex !== -1 && !(nextIndex > nodeParent._nodes.length - 1)) {
+                            next = nodeParent._nodes[nextIndex];
+                            Logger.trace(`next:type ${next ? next._type : "undefined"}`);
+                            if (next._type === NODE_TYPES['CON']) {
+                                // find the first window of this container
+                                next = this.findNodeWindowFrom(next);
+                            }
+                            return next;
+                        }
                     }
                 }
                 node = nodeParent;
@@ -425,24 +434,25 @@ var Tree = GObject.registerClass(
             }
 
             // Push down the Meta.Window into a new Container
-            Logger.debug(`tree-split: parent node ${parentNode._type} ${parentNode._data}, children ${numChildren}`);
-            Logger.debug(`tree-split: node ${node._data} has children? ${node._nodes.length}`);
+            Logger.trace(`tree-split: parent node ${parentNode._type} ${parentNode._data}, children ${numChildren}`);
+            Logger.trace(`tree-split: node ${node._data} has children? ${node._nodes.length}`);
             Logger.debug(`tree-split: pushing down ${type} ${node._data.get_wm_class()} to CON`);
-            this.removeNode(parentNode._data, node);
+            let currentIndex = this._findNodeIndex(parentNode._nodes, node);
             let container = new St.Bin();
-            let newConNode = this.addNode(parentNode._data, NODE_TYPES['CON'],
-                container);
+            let newConNode = new Node(NODE_TYPES['CON'], container);
             // Take the direction of the parent
             newConNode.layout = orientation ===
                     ORIENTATION_TYPES['HORIZONTAL'] ?
                     LAYOUT_TYPES['HSPLIT'] : LAYOUT_TYPES['VSPLIT'];
             newConNode.rect = node.rect;
+            newConNode._parent = parentNode;
+            parentNode._nodes[currentIndex] = newConNode;
             this.addNode(container, node._type, node._data);
-            Logger.debug(`tree-split: container parent ${newConNode._parent._data} has children? ${newConNode._parent._nodes.length}`);
+            Logger.trace(`tree-split: container parent ${newConNode._parent._data} has children? ${newConNode._parent._nodes.length}`);
         }
 
         removeNode(fromData, node) {
-            Logger.debug(`removing ${node._type} from ${fromData}`);
+            Logger.trace(`removing ${node._type} from ${fromData}`);
             let parentNode = this.findNode(fromData);
             let nodeToRemove = null;
             let nodeIndex;
@@ -603,6 +613,7 @@ var Tree = GObject.registerClass(
 
             let nodeWindow;
             let criteriaFn = (node) => {
+                if (nodeWindow) return; // if already found return
                 if (node._type === NODE_TYPES['WINDOW']) {
                     nodeWindow = node;
                 }

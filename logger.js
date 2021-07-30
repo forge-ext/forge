@@ -23,7 +23,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
-const Utils = Me.imports.utils;
+const Settings = Me.imports.settings;
 
 const LOG_LEVELS = {
     "OFF" : 0,
@@ -41,7 +41,7 @@ function logContext(msg) {
 }
 
 function getLogLevel() {
-    let settings = Utils.getSettings();
+    let settings = Settings.getSettings();
     let loggingLevel = settings.get_uint("log-level");
     return loggingLevel;
 }

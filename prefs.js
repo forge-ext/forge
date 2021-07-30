@@ -28,7 +28,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 // Application imports
 const Logger = Me.imports.logger;
-const Utils = Me.imports.utils;
+const Settings = Me.imports.settings;
 
 function init() {
 
@@ -71,7 +71,7 @@ function createLoggingCombo(grid) {
 
     logCombo.set_active_id(`${currentLogLevelVal}`);
     logCombo.connect("changed", () => {
-        let settings = Utils.getSettings();
+        let settings = Settings.getSettings();
         let activeId = logCombo.get_active_id();
         settings.set_uint("log-level", activeId);
     });
