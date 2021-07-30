@@ -470,11 +470,29 @@ var Tree = GObject.registerClass(
         }
 
         render(from) {
+            this.cleanTree();
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             this.renderNode(this._root);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`render end`);
             Logger.debug(`--------------------------`);
+        }
+
+        cleanTree() {
+            let orphanCons = [];
+            let criteriaFn = (node) => {
+                if (node._nodes.length === 0 && node._type === NODE_TYPES['CON']) {
+                    orphanCons.push(node);
+                }
+            }
+
+            this._walk(criteriaFn, this._traverseDepthFirst);
+
+            Logger.debug(`tree-clean: nodes to scrub ${orphanCons.length}`);
+
+            orphanCons.forEach((orphan) => {
+                this.removeNode(orphan._parent._data, orphan);
+            });
         }
 
         /**
@@ -601,7 +619,6 @@ var Tree = GObject.registerClass(
             childItems.forEach((childNode, index) => {
                 let percent = childNode.percent > 0.0 ?
                     childNode.percent : 1.0 / childItems.length;
-                Logger.debug(`percentage: ${percent}`);
                 sizes[index] = Math.floor(percent * totalSize);
             });
             // TODO - make sure the totalSize = the sizes total
