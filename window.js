@@ -445,12 +445,7 @@ var ForgeWindowManager = GObject.registerClass(
             if (this._validWindow(metaWindow)) {
                 let existNodeWindow = this._tree.findNode(metaWindow);
                 if (!existNodeWindow) {
-                    let focusNodeWin = this.findNodeWindow(this.focusMetaWindow);
-                    let parentFocusNode;
-                    if (focusNodeWin) {
-                        // find an existing window and attach to its parent
-                        parentFocusNode = focusNodeWin._parent;
-                    }
+                    let parentFocusNode = this._tree.attachNode;
                     if (!parentFocusNode) {
                         // Else it could be the initial window
                         // get the containing monitor instead
@@ -458,7 +453,7 @@ var ForgeWindowManager = GObject.registerClass(
                         parentFocusNode = this._tree.findNode(metaMonWs);
                     }
                     if (!parentFocusNode) return; // there is nothing to attach to
-                    Logger.debug(`track-window: attaching to ${parentFocusNode._data}`);
+                    Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode._data}`);
                     let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES['WINDOW'], 
                         metaWindow);
                     // default to tile mode
@@ -473,6 +468,8 @@ var ForgeWindowManager = GObject.registerClass(
                         metaWindow.connect("size-changed", this.updateMetaPositionSize.bind(this)),
                         metaWindow.connect("focus", (_metaWindowFocus) => {
                             this.showBorderFocusWindow();
+                            let focusWindow = this.findNodeWindow(_metaWindowFocus);
+                            this._tree.attachNode = focusWindow? focusWindow._parent : undefined;
                             Logger.debug(`window:focus`);
                         }),
                         metaWindow.connect("workspace-changed", (metaWindowWs) => {

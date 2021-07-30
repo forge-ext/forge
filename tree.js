@@ -430,6 +430,7 @@ var Tree = GObject.registerClass(
                     ORIENTATION_TYPES['HORIZONTAL'] ?
                     LAYOUT_TYPES['HSPLIT'] : LAYOUT_TYPES['VSPLIT'];
                 Logger.debug(`tree-split: toggle parent ${parentNode._type} to layout: ${parentNode.layout}`);
+                this.attachNode = parentNode;
                 return;
             }
 
@@ -448,6 +449,7 @@ var Tree = GObject.registerClass(
             newConNode._parent = parentNode;
             parentNode._nodes[currentIndex] = newConNode;
             this.addNode(container, node._type, node._data);
+            this.attachNode = newConNode;
             Logger.trace(`tree-split: container parent ${newConNode._parent._data} has children? ${newConNode._parent._nodes.length}`);
         }
 
