@@ -209,6 +209,7 @@ var ForgeWindowManager = GObject.registerClass(
                     let orientation = action.orientation ? action.orientation.
                         toUpperCase() : Tree.ORIENTATION_TYPES['NONE'];
                     this._tree.split(this.findNodeWindow(focusWindow), orientation);
+                    this.renderTree("split");
                     break;
                 default:
                     break;
@@ -447,8 +448,11 @@ var ForgeWindowManager = GObject.registerClass(
                     let focusNodeWin = this.findNodeWindow(this.focusMetaWindow);
                     let parentFocusNode;
                     if (focusNodeWin) {
+                        // find an existing window and attach to its parent
                         parentFocusNode = focusNodeWin._parent;
                     } else {
+                        // Else it could be the initial window
+                        // get the containing monitor instead
                         let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
                         parentFocusNode = this._tree.findNode(metaMonWs);
                     }
@@ -527,13 +531,14 @@ var ForgeWindowManager = GObject.registerClass(
             nodeWindow = this._tree.findNodeByActor(actor);
             let parentNode = nodeWindow._parent;
             if (nodeWindow) {
-                this._tree.removeNode(parentNode._data, nodeWindow);
-                Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
-                if (parentNode._nodes.length === 0 &&
-                    parentNode._type !== Tree.NODE_TYPES['MONITOR']) {
+                // If parent has only this window, remove the parent instead
+                if (parentNode._nodes.length === 1 && parentNode._type !==
+                    Tree.NODE_TYPES['MONITOR']) {
                     this._tree.removeNode(parentNode._parent._data, parentNode);
-                    Logger.debug(`parent container destroyed for ${nodeWindow._data.get_wm_class()}`);
+                } else {
+                    this._tree.removeNode(parentNode._data, nodeWindow);
                 }
+                Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
                 this.renderTree("window-destroy");
             }                
             Logger.debug(`window-destroy`);
