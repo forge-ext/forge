@@ -201,4 +201,24 @@ var windowConfig = [
             },
         ],
     },
+    {
+        name: 'split-horizontal',
+        shortcut: ['<Super>z'],
+        actions: [
+            {
+                name: 'Split',
+                orientation: 'horizontal'
+            }
+        ],
+    },
+    {
+        name: 'split-vertical',
+        shortcut: ['<Super>v'],
+        actions: [
+            {
+                name: 'Split',
+                orientation: 'vertical'
+            }
+        ],
+    },
 ];

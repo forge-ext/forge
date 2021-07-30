@@ -294,13 +294,17 @@ var Tree = GObject.registerClass(
          * Obtains the non-floating, non-minimized list of nodes
          */
         getTiledChildren(items) {
-            let filterFn = (nodeWindow) => {
-                if (nodeWindow._type === NODE_TYPES['WINDOW']) {
-                    let floating = nodeWindow.mode === Window.WINDOW_MODES['FLOAT'];
+            let filterFn = (node) => {
+                if (node._type === NODE_TYPES['WINDOW']) {
+                    let floating = node.mode === Window.WINDOW_MODES['FLOAT'];
                     // A Node[Window]._data is a Meta.Window
-                    if (!nodeWindow._data.minimized && !floating) {
+                    if (!node._data.minimized && !floating) {
                         return true;
                     }
+                }
+                // handle split containers
+                if (node._type === NODE_TYPES['CON']) {
+                    return true;
                 }
                 return false;
             };
@@ -385,6 +389,46 @@ var Tree = GObject.registerClass(
             }
         }
 
+        /**
+         * Credits: i3-like split
+         */
+        split(node, direction) {
+            if (!node) return;
+            let type = node._type;
+
+            if (!(type === NODE_TYPES['MONITOR'] ||
+                type === NODE_TYPES['CON'] ||
+                type === NODE_TYPES['WINDOW'])) {
+                Logger.debug(`tree-split: cannot split ${type}`);
+                return;
+            }
+
+            let parentNode = node._parent;
+            let numChildren = parentNode._nodes.length;
+
+            // toggle the split
+            if (numChildren === 1 &&
+                (parentNode.layout === LAYOUT_TYPES['HSPLIT'] ||
+                parentNode.layout === LAYOUT_TYPES['VSPLIT'])) {
+                parentNode.layout = direction ===
+                    ORIENTATION_TYPES['HORIZONTAL'] ?
+                    LAYOUT_TYPES['HSPLIT'] : LAYOUT_TYPES['VSPLIT'];
+                Logger.debug(`tree-split: toggle parent ${parentNode._type} to layout: ${parentNode.layout}`);
+                return;
+            }
+
+            // Push down the Meta.Window into a new Container
+            Logger.debug(`tree-split: pushing down ${type} to CON`);
+            this.removeNode(parentNode._data, node);
+            let container = new St.Bin();
+            let newConNode = this.addNode(parentNode._data, NODE_TYPES['CON'],
+                container);
+            newConNode.layout = direction ===
+                    ORIENTATION_TYPES['HORIZONTAL'] ?
+                    LAYOUT_TYPES['HSPLIT'] : LAYOUT_TYPES['VSPLIT'];
+            this.addNode(container, node._type, node._data);
+        }
+
         removeNode(fromData, node) {
             let parentNode = this.findNode(fromData);
             let nodeToRemove = null;
@@ -404,86 +448,154 @@ var Tree = GObject.registerClass(
 
         render(from) {
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
-            let fwm = this._forgeWm;
-            let criteriaFn = (node) => {
-                // TODO move the WINDOW rendering to a new function
-                if (node._type === NODE_TYPES['WINDOW']) {
-                    Logger.debug(` window: ${node._data.get_wm_class()}, title: ${node._data.get_title()}`);
-
-                    let parentNode = node._parent;
-                    let windowRect;
-
-                    if (parentNode) {
-                        let monitor = node._data.get_monitor();
-                        if (monitor < 0) return;
-                        // TODO, Node Window's parent can be a Monitor or
-                        // a Container
-                        windowRect = node._data.get_work_area_for_monitor(monitor);
-
-                        let shownChildren = this.getTiledChildren(parentNode._nodes);
-                        let numChild = shownChildren.length;
-                        let floating = node.mode === Window.WINDOW_MODES['FLOAT'];
-                        Logger.debug(`  mode: ${node.mode.toLowerCase()}, grabop ${node._grabOp}`);
-                        Logger.debug(`  meta-workspace: ${node._data.get_workspace()? node._data.get_workspace().index() : null}`);
-                        Logger.debug(`  meta-monitor: ${monitor}`);
-                        Logger.debug(`  parent-monitor-workspace: ${parentNode._data}`);
-                        if (numChild === 0 || floating) return;
-                        
-                        let childIndex = this._findNodeIndex(
-                            shownChildren, node);
-                        
-                        let layout = parentNode.layout;
-                        let splitHorizontally = layout === LAYOUT_TYPES['HSPLIT'];
-                        let nodeWidth;
-                        let nodeHeight;
-                        let nodeX;
-                        let nodeY;
-
-                        if (splitHorizontally) {
-                            // Divide the parent container's width 
-                            // depending on number of children. And use this
-                            // to setup each child window's width.
-                            nodeWidth = Math.floor(windowRect.width / numChild);
-                            nodeHeight = windowRect.height;
-                            nodeX = windowRect.x + (childIndex * nodeWidth);
-                            nodeY = windowRect.y;
-                            Logger.debug(`  direction: h-split`);
-                        } else { // split vertically
-                            nodeWidth = windowRect.width;
-                            // Conversely, divide the parent container's height 
-                            // depending on number of children. And use this
-                            // to setup each child window's height.
-                            nodeHeight = Math.floor(windowRect.height / numChild);
-                            nodeX = windowRect.x;
-                            nodeY = windowRect.y + (childIndex * nodeHeight);
-                            Logger.debug(` direction: v-split`);
-                        }
-
-                        // TODO make the gap configurable
-                        let gap = 8;
-
-                        nodeX += gap;
-                        nodeY += gap;
-                        nodeWidth -= gap * 2;
-                        nodeHeight -= gap * 2;
-
-                        Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
-
-                        fwm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
-                    }
-
-                } else if (node._type === NODE_TYPES['ROOT']) {
-                    Logger.debug(` root`);
-                } else if (node._type === NODE_TYPES['CON']) {
-                    Logger.debug(` container`);
-                }
-            };
-
-            this._walk(criteriaFn, this._traverseBreadthFirst);
+            this.renderNode(this._root);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`render end`);
             Logger.debug(`--------------------------`);
         }
+
+        /**
+         *
+         * Credits: Do the i3-like rendering
+         *
+         */
+        renderNode(node) {
+            if (!node) return;
+            
+            // Render the Root, Workspace and Monitor
+            // For now, we let them render their children recursively
+            if (node._type === NODE_TYPES['ROOT']) {
+                node._nodes.forEach((child) => {
+                    this.renderNode(child);
+                });
+            }
+
+            if (node._type === NODE_TYPES['WORKSPACE']) {
+                node._nodes.forEach((child) => {
+                    this.renderNode(child);
+                });
+            }
+
+            let params = {};
+
+            if (node._type === NODE_TYPES['MONITOR'] ||
+                node._type === NODE_TYPES['CON']) {
+                // The workarea from Meta.Window's assigned monitor 
+                // is important so it computes to `remove` the panel size
+                // really well. However, this type of workarea would only
+                // appear if there is window present on the monitor.
+
+                // If monitor, get the workarea
+                if (node._type === NODE_TYPES['MONITOR']) {
+                    let nodeWinOnContainer = this.findNodeWindowFrom(node);
+                    let monitorArea = nodeWinOnContainer && nodeWinOnContainer._data ?
+                        nodeWinOnContainer._data.get_work_area_current_monitor() : null;
+                    if (!monitorArea) return; // there is no visible child window
+                    node.rect = monitorArea;
+                }
+
+                let tiledChildren = this.getTiledChildren(node._nodes);
+                let sizes = this.computeSizes(node, tiledChildren);
+
+                params.sizes = sizes;
+
+                tiledChildren.forEach((child, index) => {
+                    // A monitor can contain a window or container child
+                    if (node.layout === LAYOUT_TYPES['HSPLIT'] ||
+                        node.layout === LAYOUT_TYPES['VSPLIT']) {
+                        this.renderSplit(node, child, params, index);
+                    }
+                    this.renderNode(child);
+                });
+            }
+
+            // TODO - move the border rendering here from window.js?
+            if (node._type === NODE_TYPES['WINDOW']) {
+                let nodeWidth = node.rect.width;
+                let nodeHeight = node.rect.height;
+                let nodeX = node.rect.x;
+                let nodeY = node.rect.y;
+
+                // TODO make the gap configurable
+                let gap = 8;
+                nodeX += gap;
+                nodeY += gap;
+                nodeWidth -= gap * 2;
+                nodeHeight -= gap * 2;
+
+                Logger.debug(`  x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
+
+                this._forgeWm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
+            }
+        }
+
+        renderSplit(node, child, params, index) {
+            let splitHorizontally = node.layout === LAYOUT_TYPES['HSPLIT'];
+            let nodeRect = node.rect;
+            let nodeWidth;
+            let nodeHeight;
+            let nodeX;
+            let nodeY;
+
+            if (splitHorizontally) {
+                // Divide the parent container's width 
+                // depending on number of children. And use this
+                // to setup each child window's width.
+                nodeWidth = params.sizes[index];
+                nodeHeight = nodeRect.height;
+                nodeX = nodeRect.x + (index * nodeWidth);
+                nodeY = nodeRect.y;
+                Logger.debug(`  direction: h-split`);
+            } else { // split vertically
+                // Conversely for vertical split, divide the parent container's height 
+                // depending on number of children. And use this
+                // to setup each child window's height.
+                nodeWidth = nodeRect.width;
+                nodeHeight = params.sizes[index];
+                nodeX = nodeRect.x;
+                nodeY = nodeRect.y + (index * nodeHeight);
+                Logger.debug(` direction: v-split`);
+            }
+            child.rect = {
+                x: nodeX,
+                y: nodeY,
+                width: nodeWidth,
+                height: nodeHeight
+            };
+        }
+
+        computeSizes(node, childItems) {
+            let sizes = [];
+            let orientation = Utils.orientationFromLayout(node.layout);
+            let totalSize = orientation ===
+                ORIENTATION_TYPES['HORIZONTAL'] ?
+                node.rect.width : node.rect.height;
+            childItems.forEach((childNode, index) => {
+                let percent = childNode.percent > 0.0 ?
+                    childNode.percent : 1.0 / childItems.length;
+                Logger.debug(`percentage: ${percent}`);
+                sizes[index] = Math.floor(percent * totalSize);
+            });
+            // TODO - make sure the totalSize = the sizes total
+            return sizes;
+        }
+
+        findNodeWindowFrom(parentNode) {
+            if (!parentNode) return undefined;
+
+            let nodeWindow;
+            let criteriaFn = (node) => {
+                let isParentMon = node._parent._data === parentNode._data;
+                if (node._type === NODE_TYPES['WINDOW'] && isParentMon) {
+                    nodeWindow = node;
+                }
+            };
+
+            this._walkFrom(parentNode, criteriaFn, this._traverseBreadthFirst);
+
+            return nodeWindow;
+        }
+
 
         // start walking from root and all child nodes
         _traverseBreadthFirst(callback, startNode) {

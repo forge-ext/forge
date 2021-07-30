@@ -205,6 +205,11 @@ var ForgeWindowManager = GObject.registerClass(
                         next._data.focus(global.get_current_time());
                     } 
                     break;
+                case "Split":
+                    let orientation = action.orientation ? action.orientation.
+                        toUpperCase() : Tree.ORIENTATION_TYPES['NONE'];
+                    this._tree.split(this.findNodeWindow(focusWindow), orientation);
+                    break;
                 default:
                     break;
             }
@@ -439,12 +444,16 @@ var ForgeWindowManager = GObject.registerClass(
             if (this._validWindow(metaWindow)) {
                 let existNodeWindow = this._tree.findNode(metaWindow);
                 if (!existNodeWindow) {
-                    // TODO check if the current focused window is attached to
-                    // a Container or Monitor Node
-                    let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-                    let monitorNode = this._tree.findNode(metaMonWs);
-                    if (!monitorNode) return;
-                    let newNodeWindow = this._tree.addNode(monitorNode._data, Tree.NODE_TYPES['WINDOW'], 
+                    let focusNodeWin = this.findNodeWindow(this.focusMetaWindow);
+                    let parentFocusNode;
+                    if (focusNodeWin) {
+                        parentFocusNode = focusNodeWin._parent;
+                    } else {
+                        let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+                        parentFocusNode = this._tree.findNode(metaMonWs);
+                    }
+                    if (!parentFocusNode) return;
+                    let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES['WINDOW'], 
                         metaWindow);
                     // default to tile mode
                     newNodeWindow.mode = WINDOW_MODES['TILE'];
@@ -516,9 +525,15 @@ var ForgeWindowManager = GObject.registerClass(
             }
             let nodeWindow;
             nodeWindow = this._tree.findNodeByActor(actor);
+            let parentNode = nodeWindow._parent;
             if (nodeWindow) {
-                this._tree.removeNode(nodeWindow._parent._data, nodeWindow);
-                Logger.trace(`window destroyed ${nodeWindow._data.get_wm_class()}`);
+                this._tree.removeNode(parentNode._data, nodeWindow);
+                Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
+                if (parentNode._nodes.length === 0 &&
+                    parentNode._type !== Tree.NODE_TYPES['MONITOR']) {
+                    this._tree.removeNode(parentNode._parent._data, parentNode);
+                    Logger.debug(`parent container destroyed for ${nodeWindow._data.get_wm_class()}`);
+                }
                 this.renderTree("window-destroy");
             }                
             Logger.debug(`window-destroy`);

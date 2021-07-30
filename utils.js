@@ -205,6 +205,17 @@ function orientationFromDirection(direction) {
         Tree.ORIENTATION_TYPES['VERTICAL'];
 }
 
+function orientationFromLayout(layout) {
+    switch(layout) {
+        case Tree.LAYOUT_TYPES['HSPLIT']:
+            return Tree.ORIENTATION_TYPES['HORIZONTAL'];
+        case Tree.LAYOUT_TYPES['VSPLIT']:
+            return Tree.ORIENTATION_TYPES['VERTICAL'];
+        default:
+            break;
+    }
+}
+
 function positionFromDirection(direction) {
     return (direction === Meta.MotionDirection.LEFT ||
         direction === Meta.MotionDirection.UP) ? 
