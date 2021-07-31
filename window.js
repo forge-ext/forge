@@ -220,8 +220,16 @@ var ForgeWindowManager = GObject.registerClass(
                     let nextSwapNode = this._tree.next(focusNodeWindow, swapDirection);
                     let isNextNodeWin = nextSwapNode && nextSwapNode._data && nextSwapNode._type ===
                         Tree.NODE_TYPES['WINDOW'];
-                    Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode._data.get_wm_class() : "undefined"}`);
                     if (isNextNodeWin) {
+                        let nextMonWs = `mo${nextSwapNode._data.get_monitor()}ws${nextSwapNode._data.get_workspace().index()}`;
+                        let focusMonWs = `mo${focusNodeWindow._data.get_monitor()}ws${focusNodeWindow._data.get_workspace().index()}`;
+                        // TODO The following check for same monitor workspace prevents a serious GC bug
+                        if (nextMonWs !== focusMonWs) {
+                            // TODO - use move window to monitor?
+                            Logger.warn(`swap: unable windows with different monitors`);
+                            return;
+                        };
+                        Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode._data.get_wm_class() : "undefined"}`);
                         this._tree.swap(focusNodeWindow, nextSwapNode);
                         this.renderTree("swap");
                     } 
