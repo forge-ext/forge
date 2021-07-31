@@ -221,4 +221,44 @@ var windowConfig = [
             }
         ],
     },
+    {
+        name: 'swap-left',
+        shortcut : ['<Super><Shift>h','<Super><Shift>left'],
+        actions: [
+            {
+                name : 'Swap',
+                direction: 'Left'
+            },
+        ],
+    },
+    {
+        name: 'swap-right',
+        shortcut : ['<Super><Shift>l','<Super><Shift>right'],
+        actions: [
+            {
+                name : 'Swap',
+                direction: 'Right'
+            },
+        ],
+    },
+    {
+        name: 'swap-up',
+        shortcut : ['<Super><Shift>k','<Super><Shift>up'],
+        actions: [
+            {
+                name : 'Swap',
+                direction: 'Up'
+            },
+        ],
+    },
+    {
+        name: 'swap-down',
+        shortcut : ['<Super><Shift>j','<Super><Shift>down'],
+        actions: [
+            {
+                name : 'Swap',
+                direction: 'Down'
+            },
+        ],
+    },
 ];

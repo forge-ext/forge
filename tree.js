@@ -387,7 +387,7 @@ var Tree = GObject.registerClass(
                         if (nextIndex !== -1 && !(nextIndex > nodeParent._nodes.length - 1)) {
                             next = nodeParent._nodes[nextIndex];
                             Logger.trace(`next:type ${next ? next._type : "undefined"}`);
-                            if (next._type === NODE_TYPES['CON']) {
+                            if (next && next._type === NODE_TYPES['CON']) {
                                 // find the first window of this container
                                 next = this.findFirstNodeWindowFrom(next);
                             }
@@ -451,6 +451,25 @@ var Tree = GObject.registerClass(
             this.addNode(container, node._type, node._data);
             this.attachNode = newConNode;
             Logger.trace(`tree-split: container parent ${newConNode._parent._data} has children? ${newConNode._parent._nodes.length}`);
+        }
+
+        swap(fromNode, toNode, focus = true) {
+            // Swap the items in the array
+            let parentForFrom = fromNode ?
+                fromNode._parent : undefined;
+            let parentForTo = toNode._parent;
+            if (parentForTo && parentForFrom) {
+                let nextIndex = this._findNodeIndex(parentForTo._nodes, toNode);
+                let focusIndex = this._findNodeIndex(parentForFrom._nodes, fromNode);
+                parentForTo._nodes[nextIndex] = fromNode;
+                fromNode._parent = parentForTo;
+                parentForFrom._nodes[focusIndex] = toNode;
+                toNode._parent = parentForFrom;
+                if (focus) {
+                    fromNode._data.raise();
+                    fromNode._data.focus(global.get_current_time());
+                }
+            }
         }
 
         removeNode(fromData, node) {

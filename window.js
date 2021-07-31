@@ -177,7 +177,7 @@ var ForgeWindowManager = GObject.registerClass(
         // TODO move this in command.js
         command(action) {
             let focusWindow = this.focusMetaWindow;
-
+            let focusNodeWindow = this.findNodeWindow(focusWindow);
             switch(action.name) {
                 case "MoveResize":
                     // TODO validate the parameters for MoveResize
@@ -194,15 +194,25 @@ var ForgeWindowManager = GObject.registerClass(
                     this.renderTree("move-resize");
                     break;
                 case "Focus":
-                    let focusNodeWindow = this.findNodeWindow(focusWindow);
-                    let direction = Utils.resolveDirection(action.direction);
-                    let next = this._tree.next(focusNodeWindow, direction);
-                    let nextWindow = next && next._data && next._type ===
+                    let focusDirection = Utils.resolveDirection(action.direction);
+                    let nextFocusNode = this._tree.next(focusNodeWindow, focusDirection);
+                    let nextWindow = nextFocusNode && nextFocusNode._data && nextFocusNode._type ===
                         Tree.NODE_TYPES['WINDOW'];
-                    Logger.debug(`focus:next ${nextWindow ? next._data.get_wm_class() : "undefined"}`);
+                    Logger.debug(`focus:next ${nextWindow ? nextFocusNode._data.get_wm_class() : "undefined"}`);
                     if (nextWindow) {
-                        next._data.raise();
-                        next._data.focus(global.get_current_time());
+                        nextFocusNode._data.raise();
+                        nextFocusNode._data.focus(global.get_current_time());
+                    } 
+                    break;
+                case "Swap":
+                    let swapDirection = Utils.resolveDirection(action.direction);
+                    let nextSwapNode = this._tree.next(focusNodeWindow, swapDirection);
+                    let isNextNodeWin = nextSwapNode && nextSwapNode._data && nextSwapNode._type ===
+                        Tree.NODE_TYPES['WINDOW'];
+                    Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode._data.get_wm_class() : "undefined"}`);
+                    if (isNextNodeWin) {
+                        this._tree.swap(focusNodeWindow, nextSwapNode);
+                        this.renderTree("swap");
                     } 
                     break;
                 case "Split":
