@@ -407,7 +407,11 @@ var Tree = GObject.registerClass(
                                 // find the first window of this container
                                 next = this.findFirstNodeWindowFrom(next);
                             }
-                            return next;
+
+                            if (next._type === NODE_TYPES['WINDOW'] &&
+                                !next._data.minimized) {
+                                return next;
+                            }
                         }
                     }
                 }
