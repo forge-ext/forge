@@ -280,16 +280,32 @@ var Tree = GObject.registerClass(
             return index;
         }
 
-        // The depth of a node is the number of edges
-        // from the root to the node.
-        getDepthOf(node) {
-            // TODO get the depth of a node
-        }
+        /**
+         * Finds the NodeWindow under the Meta.Window and the
+         * current pointer coordinates;
+         */
+        findNodeWindowAtPointer(metaWindow, pointer) {
+            let nodeAtPointer;
+            let monWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+            // The searched window should be on the same monitor workspace
+            let monWsNode = this.findNode(monWs);
 
-        // The height of a node is the number of edges
-        // from the node to the deepest leaf.
-        getHeightOf(node) {
-            // TODO get the height of a node
+            let criteriaFn = (node) => {
+                if (nodeAtPointer) return;
+                if (node._data !== metaWindow &&
+                    node._type === NODE_TYPES['WINDOW'] &&
+                    !node._data.minimized) {
+                    let metaRect = node.rect;
+                    if (!metaRect) return;
+                    let atPointer = Utils.rectContainsPoint(
+                        metaRect, pointer);
+                    if (atPointer)
+                        nodeAtPointer = node;
+                }
+            }
+
+            this._walkFrom(monWsNode, criteriaFn, this._traverseDepthFirst);
+            return nodeAtPointer;
         }
 
         /**

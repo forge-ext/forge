@@ -89,6 +89,17 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug(`window-left-monitor`);
                 }),
                 display.connect("grab-op-end", (_, _display, _metaWindow, _grabOp) => {
+                    // handle window swapping
+                    let pointerCoord = global.get_pointer();
+                    Logger.trace(`grab-end:pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
+                    let nodeWinPrev = this.findNodeWindow(_metaWindow);
+                    let nodeWinAtPointer = this._tree.findNodeWindowAtPointer(
+                        _metaWindow, pointerCoord);
+                    Logger.debug(`node at pointer ${nodeWinAtPointer}`);
+                    if (nodeWinAtPointer) {
+                        this._tree.swap(nodeWinPrev, nodeWinAtPointer);
+                    }
+
                     this.unfreezeRender();
                     if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
                         this.renderTree("grab-op-end");
