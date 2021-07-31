@@ -370,7 +370,7 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.trace(`render frozen`);
                 return;
             }
-            GLib.idle_add(GLib.PRIORITY_LOW, () => {
+            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 30, () => {
                 this._tree.render(from);
             });
         }
@@ -456,8 +456,10 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode._data}`);
                     let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES['WINDOW'], 
                         metaWindow);
-                    // default to tile mode
-                    newNodeWindow.mode = WINDOW_MODES['TILE'];
+                    if (newNodeWindow) {
+                        // default to tile mode
+                        newNodeWindow.mode = WINDOW_MODES['TILE'];
+                    }
                 }
 
                 let windowActor = metaWindow.get_compositor_private();
