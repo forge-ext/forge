@@ -389,7 +389,7 @@ var Tree = GObject.registerClass(
                             Logger.trace(`next:type ${next ? next._type : "undefined"}`);
                             if (next._type === NODE_TYPES['CON']) {
                                 // find the first window of this container
-                                next = this.findNodeWindowFrom(next);
+                                next = this.findFirstNodeWindowFrom(next);
                             }
                             return next;
                         }
@@ -532,7 +532,7 @@ var Tree = GObject.registerClass(
 
                 // If monitor, get the workarea
                 if (node._type === NODE_TYPES['MONITOR']) {
-                    let nodeWinOnContainer = this.findNodeWindowFrom(node);
+                    let nodeWinOnContainer = this.findFirstNodeWindowFrom(node);
                     let monitorArea = nodeWinOnContainer && nodeWinOnContainer._data ?
                         nodeWinOnContainer._data.get_work_area_current_monitor() : null;
                     if (!monitorArea) return; // there is no visible child window
@@ -627,7 +627,7 @@ var Tree = GObject.registerClass(
             return sizes;
         }
 
-        findNodeWindowFrom(parentNode) {
+        findFirstNodeWindowFrom(parentNode) {
             if (!parentNode) return undefined;
 
             let nodeWindow;
@@ -643,6 +643,19 @@ var Tree = GObject.registerClass(
             return nodeWindow;
         }
 
+        findNodeWindowFrom(nodeWindow, parentNode) {
+            if (!parentNode) return undefined;
+            let found = false;
+            let criteriaFn = (node) => {
+                if (found) return;
+                if (nodeWindow._data === node._data) {
+                    found = true;
+                }
+            };
+
+            this._walkFrom(parentNode, criteriaFn, this._traverseBreadthFirst);
+            return found;
+        }
 
         // start walking from root and all child nodes
         _traverseBreadthFirst(callback, startNode) {

@@ -560,9 +560,14 @@ var ForgeWindowManager = GObject.registerClass(
                         Logger.trace(`parent-monitorWorkspace:${existNodeWindow._parent._data}`);
                         // Uses the existing workspace, monitor that the metaWindow
                         // belongs to.
-                        if (existNodeWindow._parent._data !== metaMonWs) {
-                            this._tree.removeNode(existNodeWindow._parent._data, existNodeWindow);
-                            let movedNodeWindow = this._tree.addNode(metaMonWs, Tree.NODE_TYPES['WINDOW'], metaWindow);
+                        let windowInMonitor = this._tree.findNodeWindowFrom(
+                            existNodeWindow, metaMonWsNode);
+                        Logger.debug(`window found in monitor ${windowInMonitor}`);
+                        if (!windowInMonitor) {
+                            this._tree.removeNode(existNodeWindow._parent._data,
+                                existNodeWindow);
+                            let movedNodeWindow = this._tree.addNode(metaMonWs,
+                                Tree.NODE_TYPES['WINDOW'], metaWindow);
                             movedNodeWindow.mode = existNodeWindow.mode;
                         }
                     }
