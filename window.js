@@ -390,6 +390,7 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.trace(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
                 // empty out the root children nodes
                 this._tree._root._nodes.length = 0;
+                this._tree.attachNode = undefined;
                 // initialize the workspaces and monitors id strings
                 this._tree._initWorkspaces();
                 this.trackCurrentWindows();
@@ -452,7 +453,11 @@ var ForgeWindowManager = GObject.registerClass(
                         let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
                         parentFocusNode = this._tree.findNode(metaMonWs);
                     }
-                    if (!parentFocusNode) return; // there is nothing to attach to
+                    if (!parentFocusNode) {
+                        // there is nothing to attach to
+                        Logger.warn(`track-window: nothing to attach to for ${metaWindow.get_title()}`);
+                        return;
+                    }
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode._data}`);
                     let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES['WINDOW'], 
                         metaWindow);
