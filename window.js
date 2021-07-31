@@ -92,7 +92,7 @@ var ForgeWindowManager = GObject.registerClass(
                     // handle window swapping
                     let pointerCoord = global.get_pointer();
                     Logger.trace(`grab-end:pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
-                    let nodeWinPrev = this.findNodeWindow(_metaWindow);
+                    let nodeWinPrev = this.findNodeWindow(this.focusMetaWindow);
                     let nodeWinAtPointer = this._tree.findNodeWindowAtPointer(
                         _metaWindow, pointerCoord);
                     Logger.debug(`node at pointer ${nodeWinAtPointer}`);
