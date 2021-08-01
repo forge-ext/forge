@@ -36,8 +36,13 @@
 .search-section-content-item:hover,
 .icon-grid .app-well-app:focus,
 #searchResultsContent .app-well-app:focus,
-.search-section-content-item:focus
+.search-section-content-item:focus,
+.list-search-result:hover,
+.list-search-result:focus,
+.search-provider-icon:hover,
+.search-provider-icon:focus
 {
-    background-color: rgba(236,94,94, 0.25);
+    background-color: rgba(236,94,94, 0.5);
     border-radius: 8px;
 }
+
