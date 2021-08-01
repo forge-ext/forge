@@ -452,8 +452,13 @@ var ForgeWindowManager = GObject.registerClass(
             let windowActor = metaWindow.get_compositor_private();
             if (windowActor && windowActor.border) {
                 let rect = metaWindow.get_frame_rect();
-                windowActor.border.set_size(rect.width, rect.height);
-                windowActor.border.set_position(rect.x, rect.y);
+                let inset = 2; //TODO make configurable
+                let maximized = () => {
+                    return metaWindow.get_maximized() !== 0;
+                }
+                if (maximized()) return;
+                windowActor.border.set_size(rect.width + (inset * 2), rect.height + (inset * 2));
+                windowActor.border.set_position(rect.x - inset, rect.y - inset);
                 if (metaWindow.appears_focused && !metaWindow.minimized)
                     windowActor.border.show();
                 if (global.window_group && global.window_group.contains(windowActor.border)) {

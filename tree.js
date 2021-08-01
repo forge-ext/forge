@@ -286,6 +286,7 @@ var Tree = GObject.registerClass(
          */
         findNodeWindowAtPointer(metaWindow, pointer) {
             let nodeAtPointer;
+            if (!metaWindow) return undefined;
             let monWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
             // The searched window should be on the same monitor workspace
             let monWsNode = this.findNode(monWs);

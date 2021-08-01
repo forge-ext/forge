@@ -1,6 +1,22 @@
-.window-clone-border {
+.window-clone-border,.workspace-thumbnail-indicator {
     border-width: 3px;
-    border-color: lightblue;
+    border-color: #ec5e5e;
     border-style: solid;
     border-radius: 3px;
+}
+.search-entry:focus {
+    border-color: #ec5e5e;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.icon-grid .app-well-app:hover,
+#searchResultsContent .app-well-app:hover,
+.search-section-content-item:hover,
+.icon-grid .app-well-app:focus,
+#searchResultsContent .app-well-app:focus,
+.search-section-content-item:focus
+{
+    background-color: rgba(236,94,94, 0.25);
+    border-radius: 8px;
 }
