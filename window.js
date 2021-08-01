@@ -474,12 +474,15 @@ var ForgeWindowManager = GObject.registerClass(
                 if (maximized()) return;
                 // handle the split border
                 let nodeWindow = this.findNodeWindow(metaWindow);
-                if (nodeWindow._parent._nodes.length === 1 &&
-                    nodeWindow._parent._type === Tree.NODE_TYPES['CON']) {
+                if (nodeWindow &&
+                    nodeWindow._parent._nodes.length === 1 &&
+                    (nodeWindow._parent._type === Tree.NODE_TYPES['CON'] ||
+                        nodeWindow._parent._type === Tree.NODE_TYPES['MONITOR'])) {
                     if (!windowActor.splitBorder) {
                         let splitBorder = new St.Bin({style_class: "window-split-direction-horizontal"});
                         global.window_group.add_child(splitBorder);
                         windowActor.splitBorder = splitBorder;
+                        Logger.debug(`focus-border: create split border`);
                     } 
 
                     let splitBorder = windowActor.splitBorder;
