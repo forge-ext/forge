@@ -606,6 +606,15 @@ var ForgeWindowManager = GObject.registerClass(
                     border = null;
                 }
             }
+
+            let splitBorder = actor.splitBorder;
+            if (splitBorder) {
+                if (global.window_group) {
+                    global.window_group.remove_child(splitBorder);
+                    splitBorder = null;
+                }
+            }
+            
             let nodeWindow;
             nodeWindow = this._tree.findNodeByActor(actor);
             let parentNode = nodeWindow._parent;
