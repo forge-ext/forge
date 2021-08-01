@@ -4,6 +4,27 @@
     border-style: solid;
     border-radius: 3px;
 }
+
+.window-split-direction-horizontal {
+    border-width: 3px;
+    border-color: #fff66c !important;
+    border-left-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-style: solid;
+    border-radius: 3px;
+}
+
+.window-split-direction-vertical {
+    border-width: 3px;
+    border-color: #fff66c !important;
+    border-left-width: 0;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-style: solid;
+    border-radius: 3px;
+}
+
 .search-entry:focus {
     border-color: #ec5e5e;
     border-width: 2px;

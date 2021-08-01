@@ -239,6 +239,7 @@ var ForgeWindowManager = GObject.registerClass(
                         toUpperCase() : Tree.ORIENTATION_TYPES['NONE'];
                     this._tree.split(this.findNodeWindow(focusWindow), orientation);
                     this.renderTree("split");
+                    this.showBorderFocusWindow();
                     break;
                 default:
                     break;
@@ -289,8 +290,13 @@ var ForgeWindowManager = GObject.registerClass(
         hideWindowBorders() {
             // TODO - use the tree walk to traverse all node windows?
             this._tree.nodeWindows.forEach((nodeWindow) => {
-                if (nodeWindow._actor && nodeWindow._actor.border) {
-                    nodeWindow._actor.border.hide();
+                if (nodeWindow._actor) { 
+                    if (nodeWindow._actor.border) {
+                        nodeWindow._actor.border.hide();
+                    }
+                    if (nodeWindow._actor.splitBorder) {
+                        nodeWindow._actor.splitBorder.hide();
+                    }
                 }
             });
         }
@@ -387,6 +393,14 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                         windowActor.border = undefined;
                     }
+
+                    if (windowActor && windowActor.splitBorder) {
+                        windowActor.splitBorder.hide();
+                        if (global.window_group) {
+                            global.window_group.remove_child(windowActor.splitBorder);
+                        }
+                        windowActor.splitBorder = undefined;
+                    }
                 }
             }
 
@@ -451,20 +465,42 @@ var ForgeWindowManager = GObject.registerClass(
             if (!metaWindow) return;
             let windowActor = metaWindow.get_compositor_private();
             if (windowActor && windowActor.border) {
+                let borders = [windowActor.border];
                 let rect = metaWindow.get_frame_rect();
                 let inset = 2; //TODO make configurable
                 let maximized = () => {
                     return metaWindow.get_maximized() !== 0;
                 }
                 if (maximized()) return;
-                windowActor.border.set_size(rect.width + (inset * 2), rect.height + (inset * 2));
-                windowActor.border.set_position(rect.x - inset, rect.y - inset);
-                if (metaWindow.appears_focused && !metaWindow.minimized)
-                    windowActor.border.show();
-                if (global.window_group && global.window_group.contains(windowActor.border)) {
-                    global.window_group.remove_child(windowActor.border);
-                    global.window_group.add_child(windowActor.border);
+                // handle the split border
+                let nodeWindow = this.findNodeWindow(metaWindow);
+                if (nodeWindow._parent._nodes.length === 1 &&
+                    nodeWindow._parent._type === Tree.NODE_TYPES['CON']) {
+                    if (!windowActor.splitBorder) {
+                        let splitBorder = new St.Bin({style_class: "window-split-direction-horizontal"});
+                        global.window_group.add_child(splitBorder);
+                        windowActor.splitBorder = splitBorder;
+                    } 
+
+                    let splitBorder = windowActor.splitBorder;
+                    if (nodeWindow._parent.layout === Tree.LAYOUT_TYPES['VSPLIT']) {
+                        splitBorder.set_style_class_name("window-split-direction-vertical");
+                    } else {
+                        splitBorder.set_style_class_name("window-split-direction-horizontal");
+                    }
+                    borders.push(splitBorder);
                 }
+
+                borders.forEach((border) => {
+                    border.set_size(rect.width + (inset * 2), rect.height + (inset * 2));
+                    border.set_position(rect.x - inset, rect.y - inset);
+                    if (metaWindow.appears_focused && !metaWindow.minimized)
+                        border.show();
+                    if (global.window_group && global.window_group.contains(border)) {
+                        global.window_group.remove_child(border);
+                        global.window_group.add_child(border);
+                    }
+                });
             }
             Logger.trace(`show-border-focus-window`);
         }
