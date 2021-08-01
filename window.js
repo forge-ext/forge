@@ -441,7 +441,7 @@ var ForgeWindowManager = GObject.registerClass(
                 for (let i = 0; i < this._tree.nodeWorkpaces.length; i++) {
                     let existingWsNode = this._tree.nodeWorkpaces[i];
                     let monitors = existingWsNode._nodes;
-                    Logger.debug(`  ${existingWsNode._data}`);
+                    Logger.trace(`  ${existingWsNode._data}`);
                     for (let m = 0; m < monitors.length; m++) {
                         let windows  = monitors[m]._nodes;
                         for (let w = 0; w < windows.length; w++) {
@@ -453,9 +453,9 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                     }
                 }
-                this.showBorderFocusWindow();
                 Logger.debug(`windowmgr:reload-tree ${from ? "from " + from : ""}`);
                 this.renderTree("reload-tree");
+                this.showBorderFocusWindow();
             });
         }
 
