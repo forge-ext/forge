@@ -475,6 +475,9 @@ var Tree = GObject.registerClass(
         }
 
         swap(fromNode, toNode, focus = true) {
+            if (!(this._swappable(fromNode) &&
+                this._swappable(toNode)))
+                return;
             // Swap the items in the array
             let parentForFrom = fromNode ?
                 fromNode._parent : undefined;
@@ -491,6 +494,15 @@ var Tree = GObject.registerClass(
                     fromNode._data.focus(global.get_current_time());
                 }
             }
+        }
+
+        _swappable(node) {
+            if (!node) return false;
+            if (node._type === NODE_TYPES['WINDOW'] &&
+                node.mode !== Window.WINDOW_MODES['FLOAT']) {
+                return true;
+            }
+            return false;
         }
 
         removeNode(fromData, node) {
