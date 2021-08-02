@@ -413,7 +413,7 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.trace(`render frozen`);
                 return;
             }
-            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 30, () => {
+            GLib.idle_add(GLib.PRIORITY_LOW, () => {
                 this._tree.render(from);
             });
         }
@@ -497,8 +497,9 @@ var ForgeWindowManager = GObject.registerClass(
                 borders.forEach((border) => {
                     border.set_size(rect.width + (inset * 2), rect.height + (inset * 2));
                     border.set_position(rect.x - inset, rect.y - inset);
-                    if (metaWindow.appears_focused && !metaWindow.minimized)
+                    if (metaWindow.appears_focused && !metaWindow.minimized) {
                         border.show();
+                    }
                     if (global.window_group && global.window_group.contains(border)) {
                         global.window_group.remove_child(border);
                         global.window_group.add_child(border);

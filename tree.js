@@ -524,8 +524,9 @@ var Tree = GObject.registerClass(
         }
 
         render(from) {
-            this.cleanTree();
+            // this.cleanTree();
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
+            // TODO - render from the current active workspace for performance
             this.renderNode(this._root);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`render end`);
