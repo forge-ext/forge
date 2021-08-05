@@ -124,7 +124,8 @@ var Keybindings = GObject.registerClass(
          *  - Adapted based on current Gnome-shell API or syntax
          */
         listenFor(accelerator, callback){
-            let action = global.display.grab_accelerator(accelerator, callback)
+            let grabFlags = Meta.KeyBindingFlags.NONE;
+            let action = global.display.grab_accelerator(accelerator, grabFlags)
 
             if(action == Meta.KeyBindingAction.NONE) {
                 Logger.error(`Unable to grab accelerator [binding={${accelerator}}]`);

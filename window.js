@@ -618,8 +618,8 @@ var ForgeWindowManager = GObject.registerClass(
             
             let nodeWindow;
             nodeWindow = this._tree.findNodeByActor(actor);
-            let parentNode = nodeWindow._parent;
             if (nodeWindow) {
+                let parentNode = nodeWindow._parent;
                 // If parent has only this window, remove the parent instead
                 if (parentNode._nodes.length === 1 && parentNode._type !==
                     Tree.NODE_TYPES['MONITOR']) {

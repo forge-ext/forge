@@ -3,7 +3,7 @@
     "description": "A window manager for GNOME 3",
     "uuid": "forge@jmmaranan.com",
     "settings-schema": "org.gnome.shell.extensions.forge",
-    "shell-version": ["3.38"],
+    "shell-version": ["3.36"],
     "version": 1,
     "url": "https://github.com/jmmaranan/forge"
 }
