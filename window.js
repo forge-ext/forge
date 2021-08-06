@@ -469,7 +469,8 @@ var ForgeWindowManager = GObject.registerClass(
                 let rect = metaWindow.get_frame_rect();
                 let inset = 2; //TODO make configurable
                 let maximized = () => {
-                    return metaWindow.get_maximized() !== 0;
+                    return metaWindow.get_maximized() !== 0 ||
+                        metaWindow.is_fullscreen();
                 }
                 if (maximized()) return;
                 // handle the split border
@@ -548,7 +549,8 @@ var ForgeWindowManager = GObject.registerClass(
                         metaWindow.connect("position-changed", this.updateMetaPositionSize.bind(this)),
                         metaWindow.connect("size-changed", this.updateMetaPositionSize.bind(this)),
                         metaWindow.connect("focus", (_metaWindowFocus) => {
-                            this.showBorderFocusWindow();
+                            if (!_metaWindowFocus.firstRender)
+                                this.showBorderFocusWindow();
                             let focusWindow = this.findNodeWindow(_metaWindowFocus);
                             this._tree.attachNode = focusWindow? focusWindow._parent : undefined;
                             Logger.debug(`window:focus`);
@@ -579,6 +581,8 @@ var ForgeWindowManager = GObject.registerClass(
                     border.show();
                     Logger.debug(`track-window:create-border`);
                 }
+
+                metaWindow.firstRender = true;
 
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
@@ -673,12 +677,11 @@ var ForgeWindowManager = GObject.registerClass(
          * Useful for updating the active window border, etc.
          */
         updateMetaPositionSize(metaWindowPos) {
-            this.showBorderFocusWindow();
-
             let focusMetaWindow = this.focusMetaWindow;
             if (focusMetaWindow && focusMetaWindow.get_maximized() === 0) {
                 this.renderTree("position-size-changed");
             }
+            this.showBorderFocusWindow();
 
             // Position updates are chatty, make it as a trace
             Logger.trace(`position-size-changed ${metaWindowPos.get_wm_class()}`);

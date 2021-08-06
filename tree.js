@@ -628,6 +628,8 @@ var Tree = GObject.registerClass(
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
                 this._forgeWm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
+                if (node._data.firstRender)
+                    node._data.firstRender = false;
             }
         }
 
