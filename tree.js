@@ -680,7 +680,7 @@ var Tree = GObject.registerClass(
                 ORIENTATION_TYPES['HORIZONTAL'] ?
                 node.rect.width : node.rect.height;
             childItems.forEach((childNode, index) => {
-                let percent = childNode.percent > 0.0 ?
+                let percent = childNode.percent && childNode.percent > 0.0 ?
                     childNode.percent : 1.0 / childItems.length;
                 sizes[index] = Math.floor(percent * totalSize);
             });
