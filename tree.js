@@ -186,7 +186,7 @@ var Tree = GObject.registerClass(
                 Logger.debug(`workspace-node ${workspaceNodeData} does not exist`);
                 return false;
             }
-            this.removeNode(this._root._data, existingWsNode);
+            this.removeNode(existingWsNode);
             return true;
         }
 
@@ -506,13 +506,13 @@ var Tree = GObject.registerClass(
             return false;
         }
 
-        removeNode(fromData, node) {
-            Logger.trace(`removing ${node._type} from ${fromData}`);
-            let parentNode = this.findNode(fromData);
+        removeNode(node) {
+            let parentNode = node._parent;
             let nodeToRemove = null;
             let nodeIndex;
 
             if (parentNode) {
+                Logger.trace(`removing ${node._type} from ${parentNode._data}`);
                 nodeIndex = this._findNodeIndex(parentNode._nodes, node);
                 if (nodeIndex === undefined) {
                     // do nothing
@@ -525,13 +525,13 @@ var Tree = GObject.registerClass(
         }
 
         render(from) {
-            // this.cleanTree();
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             // TODO - render from the current active workspace for performance
             this.renderNode(this._root);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`render end`);
             Logger.debug(`--------------------------`);
+            this.cleanTree();
         }
 
         cleanTree() {
@@ -544,11 +544,16 @@ var Tree = GObject.registerClass(
 
             this._walk(criteriaFn, this._traverseDepthFirst);
 
-            Logger.debug(`tree-clean: nodes to scrub ${orphanCons.length}`);
+            let orphans = orphanCons.length;
+            Logger.debug(`tree-clean: nodes to scrub ${orphans}`);
 
             orphanCons.forEach((orphan) => {
-                this.removeNode(orphan._parent._data, orphan);
+                this.removeNode(orphan);
             });
+            orphanCons.length = 0;
+            if (orphans > 0) {
+                this.renderNode(this._root);
+            }
         }
 
         /**

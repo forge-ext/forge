@@ -629,9 +629,9 @@ var ForgeWindowManager = GObject.registerClass(
                 // If parent has only this window, remove the parent instead
                 if (parentNode._nodes.length === 1 && parentNode._type !==
                     Tree.NODE_TYPES['MONITOR']) {
-                    this._tree.removeNode(parentNode._parent._data, parentNode);
+                    this._tree.removeNode(parentNode);
                 } else {
-                    this._tree.removeNode(parentNode._data, nodeWindow);
+                    this._tree.removeNode(nodeWindow);
                 }
                 Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
                 this.renderTree("window-destroy");
@@ -658,8 +658,7 @@ var ForgeWindowManager = GObject.registerClass(
                             existNodeWindow, metaMonWsNode);
                         Logger.debug(`window found in monitor ${windowInMonitor}`);
                         if (!windowInMonitor) {
-                            this._tree.removeNode(existNodeWindow._parent._data,
-                                existNodeWindow);
+                            this._tree.removeNode(existNodeWindow);
                             let movedNodeWindow = this._tree.addNode(metaMonWs,
                                 Tree.NODE_TYPES['WINDOW'], metaWindow);
                             movedNodeWindow.mode = existNodeWindow.mode;
