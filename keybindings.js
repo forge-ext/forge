@@ -262,4 +262,13 @@ var windowConfig = [
             },
         ],
     },
+    {
+        name: 'layout-toggle',
+        shortcut: ['<Super>g'],
+        actions: [
+            {
+                name: 'LayoutToggle'
+            }
+        ],
+    }
 ];

@@ -243,6 +243,16 @@ var ForgeWindowManager = GObject.registerClass(
                     this.renderTree("split");
                     this.showBorderFocusWindow();
                     break;
+                case "LayoutToggle":
+                    let currentLayout = focusNodeWindow._parent.layout;
+                    if (currentLayout === Tree.LAYOUT_TYPES['HSPLIT']) {
+                        focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES['VSPLIT'];
+                    } else {
+                        focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES['HSPLIT'];
+                    }
+                    this.renderTree("layout-toggle");
+                    this.showBorderFocusWindow();
+                    break;
                 default:
                     break;
             }
