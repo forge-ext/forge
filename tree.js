@@ -88,6 +88,7 @@ var Node = GObject.registerClass(
             this._nodes = []; // Child elements of this node
             this._floats = []; // handle the floating window children of this node
             this.mode = Window.WINDOW_MODES['TILE'];
+            this.percent = 0.0;
 
             if (this._type === NODE_TYPES['WINDOW']) {
                 this._actor = this._data.get_compositor_private();

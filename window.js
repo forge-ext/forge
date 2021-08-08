@@ -40,8 +40,7 @@ const Utils = Me.imports.utils;
 
 var WINDOW_MODES = Utils.createEnum([
     'FLOAT',
-    'TILE',
-    'LAYOUT',
+    'TILE'
 ]);
 
 var ForgeWindowManager = GObject.registerClass(
@@ -549,8 +548,14 @@ var ForgeWindowManager = GObject.registerClass(
                     let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES['WINDOW'], 
                         metaWindow);
                     if (newNodeWindow) {
-                        // default to tile mode
-                        newNodeWindow.mode = WINDOW_MODES['TILE'];
+                        if (metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
+                            metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG ||
+                            metaWindow.get_transient_for() !== null ||
+                            !metaWindow.allows_resize()) {
+                            newNodeWindow.mode = WINDOW_MODES['FLOAT'];
+                        } else {
+                            newNodeWindow.mode = WINDOW_MODES['TILE'];
+                        }
                     }
                 }
 
@@ -611,7 +616,9 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _validWindow(metaWindow) {
-            return metaWindow.get_window_type() == Meta.WindowType.NORMAL;
+            return metaWindow.get_window_type() === Meta.WindowType.NORMAL ||
+                metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
+                metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG;
         }
 
         _windowDestroy(actor) {
