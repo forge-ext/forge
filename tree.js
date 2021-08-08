@@ -353,6 +353,7 @@ var Tree = GObject.registerClass(
             let position = Utils.positionFromDirection(direction);
             let horizontal = orientation === ORIENTATION_TYPES['HORIZONTAL'];
             let previous = position === POSITION['BEFORE'];
+            let nextDirection = previous ? "top" : "bottom";
 
             Logger.debug(`next:orientation ${orientation}`);
             Logger.debug(`next:position ${position}`);
@@ -376,27 +377,20 @@ var Tree = GObject.registerClass(
 
                 // 2.a Handle the top level monitor siblings
                 if (node && node._type === NODE_TYPES['MONITOR']) {
+                    let next;
                     let targetMonitor = global.display.
                         get_monitor_neighbor_index(prevNode._data.get_monitor(),
                             (previous ? Meta.DisplayDirection.LEFT :
                                 Meta.DisplayDirection.RIGHT));
+                    Logger.trace(`next: targetMonitor ${targetMonitor}`);
                     if (targetMonitor === -1) return null;
 
                     let targetMoData = `mo${targetMonitor}ws${prevNode._data.get_workspace().index()}`;
                     node = this.findNode(targetMoData);
 
                     if (!node) return null; 
-                    if (node._nodes && node._nodes.length > 1) {
-                        if (previous) {
-                            // focus on the last child of the node monitor
-                            return node._nodes[node._nodes.length - 1];
-                        } else {
-                            // focus the first child of the node monitor
-                            return node._nodes[0];
-                        }
-                    } else if (node._nodes && node._nodes.length === 1) {
-                        return node._nodes[0];
-                    }
+                    next = this.findFirstNodeWindowFrom(node, nextDirection);
+                    return next;
                 }
 
                 // 2.b Else check for the next sibling or parent
@@ -413,7 +407,7 @@ var Tree = GObject.registerClass(
                             Logger.trace(`next:type ${next ? next._type : "undefined"}`);
                             if (next && next._type === NODE_TYPES['CON']) {
                                 // find the first window of this container
-                                next = this.findFirstNodeWindowFrom(next);
+                                next = this.findFirstNodeWindowFrom(next, nextDirection);
                             }
 
                             if (next._type === NODE_TYPES['WINDOW'] &&
@@ -694,18 +688,25 @@ var Tree = GObject.registerClass(
             return sizes;
         }
 
-        findFirstNodeWindowFrom(parentNode) {
+        findFirstNodeWindowFrom(parentNode, direction) {
             if (!parentNode) return undefined;
 
             let nodeWindow;
             let criteriaFn = (node) => {
                 if (nodeWindow) return; // if already found return
-                if (node._type === NODE_TYPES['WINDOW']) {
+                if (node._type === NODE_TYPES['WINDOW'] &&
+                    !node._data.minimized) {
                     nodeWindow = node;
                 }
             };
 
-            this._walkFrom(parentNode, criteriaFn, this._traverseBreadthFirst);
+            let traversal = this._traverseBreadthFirst;
+            // TODO, improve this logic in the future
+            if (direction && direction.toLowerCase() === "bottom") {
+                traversal = this._traverseDepthFirst;
+            }
+
+            this._walkFrom(parentNode, criteriaFn, traversal);
 
             return nodeWindow;
         }
