@@ -325,6 +325,11 @@ var Tree = GObject.registerClass(
                 }
                 // handle split containers
                 if (node._type === NODE_TYPES['CON']) {
+                    if (node._nodes.length === 1 &&
+                        node._nodes[0]._type === NODE_TYPES['WINDOW'] &&
+                        node._nodes[0]._data.minimized) {
+                        return false;
+                    }
                     return true;
                 }
                 return false;
