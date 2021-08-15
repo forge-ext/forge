@@ -102,16 +102,26 @@ var ForgeWindowManager = GObject.registerClass(
                     }
 
                     this.unfreezeRender();
-                    if (this.focusMetaWindow && this.focusMetaWindow.get_maximized() === 0) {
-                        this.renderTree("grab-op-end");
+
+                    let focusWindow = this.focusMetaWindow;
+                    if (focusWindow) {
+                        if (focusWindow.get_maximized() === 0) {
+                            this.renderTree("grab-op-end");
+                        }
+                        focusWindow.grabbed = false;
+                        focusWindow.initRect = null;
                     }
                     Logger.debug(`grab op end`);
                 }),
-                display.connect("grab-op-begin", (_, _display, metaWindow, grabOp) => {
+                display.connect("grab-op-begin", (_, _display, _metaWindow, grabOp) => {
                     this.freezeRender();
-                    let nodeWindow = this.findNodeWindow(metaWindow);
-                    if (nodeWindow) nodeWindow._grabOp = grabOp;
-                    Logger.debug(`grab op begin ${grabOp}`);
+                    let direction = Utils.directionFromGrab(grabOp);
+                    let focusWindow = this.focusMetaWindow;
+                    if (focusWindow) {
+                        focusWindow.grabbed = true;
+                        focusWindow.initRect = focusWindow.get_frame_rect();
+                    }
+                    Logger.debug(`grab op begin ${grabOp}, direction ${direction}`);
                 }),
                 display.connect("showing-desktop-changed", () => {
                     Logger.debug(`display:showing-desktop-changed`);
@@ -563,8 +573,14 @@ var ForgeWindowManager = GObject.registerClass(
 
                 if (!metaWindow.windowSignals) {
                     let windowSignals = [
-                        metaWindow.connect("position-changed", this.updateMetaPositionSize.bind(this)),
-                        metaWindow.connect("size-changed", this.updateMetaPositionSize.bind(this)),
+                        metaWindow.connect("position-changed", (_metaWindow) => {
+                            let from = "position-changed";
+                            this.updateMetaPositionSize(this.focusMetaWindow, from);
+                        }),
+                        metaWindow.connect("size-changed", (_metaWindow) => {
+                            let from = "size-changed";
+                            this.updateMetaPositionSize(this.focusMetaWindow, from);
+                        }),
                         metaWindow.connect("focus", (_metaWindowFocus) => {
                             if (!_metaWindowFocus.firstRender)
                                 this.showBorderFocusWindow();
@@ -694,15 +710,24 @@ var ForgeWindowManager = GObject.registerClass(
          * Handle any updates to the current focused window's position.
          * Useful for updating the active window border, etc.
          */
-        updateMetaPositionSize(metaWindowPos) {
-            let focusMetaWindow = this.focusMetaWindow;
-            if (focusMetaWindow && focusMetaWindow.get_maximized() === 0) {
-                this.renderTree("position-size-changed");
+        updateMetaPositionSize(_metaWindow, from) {
+            let focusWindow = this.focusMetaWindow;
+            if (!focusWindow) return;
+            if (focusWindow.get_maximized() === 0) {
+                this.renderTree(`${from}`);
             }
-            this.showBorderFocusWindow();
+
+            if (focusWindow.grabbed) {
+                let startRect = focusWindow.initRect;
+                let rect = focusWindow.get_frame_rect();
+
+                Logger.info(`${from} start x${startRect.x}, y${startRect.y}, w${startRect.width}, h${startRect.height}`);
+                Logger.info(`${from} current x${rect.x}, y${rect.y}, w${rect.width}, h${rect.height}`);
+            }
 
             // Position updates are chatty, make it as a trace
-            Logger.trace(`position-size-changed ${metaWindowPos.get_wm_class()}`);
+            Logger.trace(`${from} ${focusWindow.get_wm_class()}`);
+            this.showBorderFocusWindow();
         }
 
         freezeRender() {

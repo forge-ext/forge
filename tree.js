@@ -629,7 +629,7 @@ var Tree = GObject.registerClass(
                 nodeHeight -= gap * 2;
 
                 Logger.debug(`render-window: ${node._data.get_wm_class()}:${node._data.get_title()}`);
-                Logger.debug(` direction: ${node._parent.layout}`);
+                Logger.debug(` layout: ${node._parent.layout}`);
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
                 this._forgeWm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
@@ -664,7 +664,7 @@ var Tree = GObject.registerClass(
                 nodeX = nodeRect.x;
                 nodeY = nodeRect.y + (index * nodeHeight);
             }
-            Logger.debug(` direction: ${node.layout}`);
+            Logger.debug(` layout: ${node.layout}`);
             child.rect = {
                 x: nodeX,
                 y: nodeY,
@@ -723,6 +723,20 @@ var Tree = GObject.registerClass(
 
             this._walkFrom(parentNode, criteriaFn, this._traverseBreadthFirst);
             return found;
+        }
+
+        resizeContainer(node, direction, grabOp) {
+            if (!node || !direction) return;
+            if (node._type !== NODE_TYPES['WINDOW']) return;
+
+            let parentNode = node._parent;
+            let orientation = parentNode.orientation; //horizontal|vertical
+            let layout = parentNode.layout; //hsplit|vsplit
+
+            Logger.info(`resize-container: layout ${layout}, orientation ${orientation}, direction ${direction}, grab-op: ${grabOp}`);
+            // if the grab op is opposite the orientation,
+            // then resizing the parent
+            // else resizing the window
         }
 
         // start walking from root and all child nodes

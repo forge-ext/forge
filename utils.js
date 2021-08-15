@@ -206,3 +206,11 @@ function rectContainsPoint(rect, pointP) {
         rect.y <= pointP[1] && pointP[1] <= rect.y + rect.height;
 }
 
+function directionFromGrab(grabOp) {
+    if (grabOp === Meta.GrabOp.RESIZING_N || grabOp === Meta.GrabOp.RESIZING_S) {
+        return Tree.ORIENTATION_TYPES['VERTICAL'];
+    } else if (grabOp === Meta.GrabOp.RESIZING_E || Meta.GrabOp.RESIZING_W) {
+        return Tree.ORIENTATION_TYPES['HORIZONTAL'];
+    }
+    return Tree.ORIENTATION_TYPES['NONE'];
+}
