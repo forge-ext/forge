@@ -108,18 +108,22 @@ var ForgeWindowManager = GObject.registerClass(
                         if (focusWindow.get_maximized() === 0) {
                             this.renderTree("grab-op-end");
                         }
-                        focusWindow.grabbed = false;
-                        focusWindow.initRect = null;
+                        let focusNodeWindow = this.findNodeWindow(focusWindow);
+                        if (focusNodeWindow) {
+                            focusNodeWindow.grabbed = false;
+                            focusNodeWindow.initRect = null;
+                        }
                     }
                     Logger.debug(`grab op end`);
                 }),
                 display.connect("grab-op-begin", (_, _display, _metaWindow, grabOp) => {
                     this.freezeRender();
-                    let direction = Utils.directionFromGrab(grabOp);
+                    let direction = Utils.orientationFromGrab(grabOp);
                     let focusWindow = this.focusMetaWindow;
                     if (focusWindow) {
-                        focusWindow.grabbed = true;
-                        focusWindow.initRect = focusWindow.get_frame_rect();
+                        let focusNodeWindow = this.findNodeWindow(focusWindow);
+                        focusNodeWindow.grabbed = true;
+                        focusNodeWindow.initRect = focusWindow.get_frame_rect();
                     }
                     Logger.debug(`grab op begin ${grabOp}, direction ${direction}`);
                 }),
@@ -555,6 +559,12 @@ var ForgeWindowManager = GObject.registerClass(
                         return;
                     }
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode._data}`);
+
+                    let childNodes = this._tree.getTiledChildren(parentFocusNode._nodes);
+                    childNodes.forEach((n) => {
+                        n.percent = 0.0;
+                    });
+
                     let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES['WINDOW'], 
                         metaWindow);
                     if (newNodeWindow) {
@@ -575,11 +585,11 @@ var ForgeWindowManager = GObject.registerClass(
                     let windowSignals = [
                         metaWindow.connect("position-changed", (_metaWindow) => {
                             let from = "position-changed";
-                            this.updateMetaPositionSize(this.focusMetaWindow, from);
+                            this.updateMetaPositionSize(_metaWindow, from);
                         }),
                         metaWindow.connect("size-changed", (_metaWindow) => {
                             let from = "size-changed";
-                            this.updateMetaPositionSize(this.focusMetaWindow, from);
+                            this.updateMetaPositionSize(_metaWindow, from);
                         }),
                         metaWindow.connect("focus", (_metaWindowFocus) => {
                             if (!_metaWindowFocus.firstRender)
@@ -664,7 +674,12 @@ var ForgeWindowManager = GObject.registerClass(
                     Tree.NODE_TYPES['MONITOR']) {
                     this._tree.removeNode(parentNode);
                 } else {
+                    let existParent = nodeWindow._parent;
                     this._tree.removeNode(nodeWindow);
+                    let childNodes = this._tree.getTiledChildren(existParent._nodes);
+                    childNodes.forEach((n) => {
+                        n.percent = 0.0;
+                    });
                 }
                 Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
                 this.renderTree("window-destroy");
@@ -691,7 +706,13 @@ var ForgeWindowManager = GObject.registerClass(
                             existNodeWindow, metaMonWsNode);
                         Logger.debug(`window found in monitor ${windowInMonitor}`);
                         if (!windowInMonitor) {
+                            // handle cleanup of resize percentages
+                            let existParent = existNodeWindow._parent;
                             this._tree.removeNode(existNodeWindow);
+                            let existSiblings = this._tree.getTiledChildren(existParent._nodes);
+                            existSiblings.forEach((n) => {
+                                n.percent = 0.0;
+                            });
                             let movedNodeWindow = this._tree.addNode(metaMonWs,
                                 Tree.NODE_TYPES['WINDOW'], metaWindow);
                             movedNodeWindow.mode = existNodeWindow.mode;
@@ -717,17 +738,95 @@ var ForgeWindowManager = GObject.registerClass(
                 this.renderTree(`${from}`);
             }
 
-            if (focusWindow.grabbed) {
-                let startRect = focusWindow.initRect;
-                let rect = focusWindow.get_frame_rect();
+            let focusNodeWindow = this.findNodeWindow(focusWindow);
 
-                Logger.info(`${from} start x${startRect.x}, y${startRect.y}, w${startRect.width}, h${startRect.height}`);
-                Logger.info(`${from} current x${rect.x}, y${rect.y}, w${rect.width}, h${rect.height}`);
+            if (focusNodeWindow.grabbed) {
+                let grabOp = global.display.get_grab_op();
+                let parentNode = focusNodeWindow._parent;
+                let childNodes = this._tree.getTiledChildren(parentNode._nodes); 
+                if (childNodes.length > 1) {
+                    let orientation = Utils.orientationFromGrab(grabOp);
+                    let position = Utils.positionFromGrabOp(grabOp);
+                    let startRect = focusNodeWindow.rect; // use the rect without gaps
+                    let currentRect = focusWindow.get_frame_rect(); // normalize the rect without gaps
+                    let gap = 8;
+                    currentRect = {
+                        x: currentRect.x -= gap,
+                        y: currentRect.y -= gap,
+                        width: currentRect.width += gap * 2,
+                        height: currentRect.height += gap * 2
+                    }
+                    let parentRect = parentNode.rect;
+                    Logger.info(`orientation ${orientation}, grabOp ${grabOp}`);
+                    Logger.info(`start x${startRect.x}, y${startRect.y}, w${startRect.width}, h${startRect.height}`);
+                    Logger.info(`rect-nogap x${currentRect.x}, y${currentRect.y}, w${currentRect.width}, h${currentRect.height}`);
+                    Logger.info(`parent x${parentRect.x}, y${parentRect.y}, w${parentRect.width}, h${parentRect.height}`);
+
+                    if (orientation === Tree.ORIENTATION_TYPES['HORIZONTAL']) {
+                        if (parentNode.layout === Tree.LAYOUT_TYPES['HSPLIT']) {
+                            // use width
+                            let percentage = currentRect.width / parentRect.width;
+                            let remainPercentage = 1 - percentage / (childNodes.length - 1);
+                            let currentIndex = this._tree._findNodeIndex(childNodes, focusNodeWindow);
+                            let siblingIndex = position === Tree.POSITION['BEFORE'] ? currentIndex - 1 : currentIndex + 1;
+
+                            Logger.info(`focus-percent ${percentage}, remain-percent ${remainPercentage}`);
+
+                            if (percentage < 0.0) {
+                                return;
+                            } 
+                            if (siblingIndex < 0 || siblingIndex + 1 > childNodes.length) {
+                                return;
+                            }
+                            focusNodeWindow.percent = percentage;
+
+                            childNodes.forEach((n, i) => {
+                                Logger.info(`c${currentIndex} l${i} ${n._type}`);
+                                if (currentIndex != i) {
+                                    n.percent = remainPercentage;
+                                }
+                            });
+                            this.unfreezeRender();
+                            this._tree.renderNode(parentNode);
+                            this.freezeRender();
+                        }
+                    } else if (orientation === Tree.ORIENTATION_TYPES['VERTICAL']) {
+                        if (parentNode.layout === Tree.LAYOUT_TYPES['VSPLIT']) {
+                            // use height
+                            let percentage = currentRect.height / parentRect.height;
+                            let remainPercentage = 1 - percentage / (childNodes.length - 1);
+                            let currentIndex = this._tree._findNodeIndex(childNodes, focusNodeWindow);
+                            let siblingIndex = position === Tree.POSITION['BEFORE'] ? currentIndex - 1 : currentIndex + 1;
+
+                            Logger.info(`focus-percent ${percentage}, remain-percent ${remainPercentage}`);
+
+                            if (percentage < 0.0) {
+                                return;
+                            } 
+                            if (siblingIndex < 0 || siblingIndex + 1 > childNodes.length) {
+                                return;
+                            }
+                            focusNodeWindow.percent = percentage;
+
+                            childNodes.forEach((n, i) => {
+                                Logger.info(`c${currentIndex} l${i} ${n._type}`);
+                                if (currentIndex != i) {
+                                    n.percent = remainPercentage;
+                                }
+                            });
+                            this.unfreezeRender();
+                            this._tree.renderNode(parentNode);
+                            this.freezeRender();
+                        }
+
+                    }
+                } else {
+                    Logger.warn(`not resizing`);
+                }
             }
 
-            // Position updates are chatty, make it as a trace
-            Logger.trace(`${from} ${focusWindow.get_wm_class()}`);
             this.showBorderFocusWindow();
+            Logger.trace(`${from} ${focusWindow.get_wm_class()}`);
         }
 
         freezeRender() {

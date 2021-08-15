@@ -64,6 +64,7 @@ var ORIENTATION_TYPES = Utils.createEnum([
 var POSITION = Utils.createEnum([
     'BEFORE',
     'AFTER',
+    'UNKNOWN',
 ]);
 
 /**
@@ -468,6 +469,7 @@ var Tree = GObject.registerClass(
                     ORIENTATION_TYPES['HORIZONTAL'] ?
                     LAYOUT_TYPES['HSPLIT'] : LAYOUT_TYPES['VSPLIT'];
             newConNode.rect = node.rect;
+            newConNode.percent = node.percent;
             newConNode._parent = parentNode;
             parentNode._nodes[currentIndex] = newConNode;
             this.addNode(container, node._type, node._data);
@@ -490,6 +492,9 @@ var Tree = GObject.registerClass(
                 fromNode._parent = parentForTo;
                 parentForFrom._nodes[focusIndex] = toNode;
                 toNode._parent = parentForFrom;
+                let percent = fromNode.percent;
+                fromNode.percent = toNode.percent;
+                toNode.percent = percent;
                 if (focus) {
                     fromNode._data.raise();
                     fromNode._data.focus(global.get_current_time());
@@ -653,7 +658,14 @@ var Tree = GObject.registerClass(
                 // to setup each child window's width.
                 nodeWidth = params.sizes[index];
                 nodeHeight = nodeRect.height;
-                nodeX = nodeRect.x + (index * nodeWidth);
+                nodeX = nodeRect.x;
+                if (index != 0) {
+                    let i = 1;
+                    while (i <= index) {
+                        nodeX += params.sizes[i - 1];
+                        i++;
+                    }
+                }
                 nodeY = nodeRect.y;
             } else { // split vertically
                 // Conversely for vertical split, divide the parent container's height 
@@ -662,7 +674,14 @@ var Tree = GObject.registerClass(
                 nodeWidth = nodeRect.width;
                 nodeHeight = params.sizes[index];
                 nodeX = nodeRect.x;
-                nodeY = nodeRect.y + (index * nodeHeight);
+                nodeY = nodeRect.y;
+                if (index != 0) {
+                    let i = 1;
+                    while (i <= index) {
+                        nodeY += params.sizes[i - 1];
+                        i++;
+                    }
+                }
             }
             Logger.debug(` layout: ${node.layout}`);
             child.rect = {
@@ -682,6 +701,7 @@ var Tree = GObject.registerClass(
             childItems.forEach((childNode, index) => {
                 let percent = childNode.percent && childNode.percent > 0.0 ?
                     childNode.percent : 1.0 / childItems.length;
+                Logger.info(`percent ${percent}, c${childNode._type}`);
                 sizes[index] = Math.floor(percent * totalSize);
             });
             // TODO - make sure the totalSize = the sizes total
@@ -723,20 +743,6 @@ var Tree = GObject.registerClass(
 
             this._walkFrom(parentNode, criteriaFn, this._traverseBreadthFirst);
             return found;
-        }
-
-        resizeContainer(node, direction, grabOp) {
-            if (!node || !direction) return;
-            if (node._type !== NODE_TYPES['WINDOW']) return;
-
-            let parentNode = node._parent;
-            let orientation = parentNode.orientation; //horizontal|vertical
-            let layout = parentNode.layout; //hsplit|vsplit
-
-            Logger.info(`resize-container: layout ${layout}, orientation ${orientation}, direction ${direction}, grab-op: ${grabOp}`);
-            // if the grab op is opposite the orientation,
-            // then resizing the parent
-            // else resizing the window
         }
 
         // start walking from root and all child nodes

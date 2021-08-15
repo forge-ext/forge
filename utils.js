@@ -206,11 +206,20 @@ function rectContainsPoint(rect, pointP) {
         rect.y <= pointP[1] && pointP[1] <= rect.y + rect.height;
 }
 
-function directionFromGrab(grabOp) {
+function orientationFromGrab(grabOp) {
     if (grabOp === Meta.GrabOp.RESIZING_N || grabOp === Meta.GrabOp.RESIZING_S) {
         return Tree.ORIENTATION_TYPES['VERTICAL'];
-    } else if (grabOp === Meta.GrabOp.RESIZING_E || Meta.GrabOp.RESIZING_W) {
+    } else if (grabOp === Meta.GrabOp.RESIZING_E || grabOp === Meta.GrabOp.RESIZING_W) {
         return Tree.ORIENTATION_TYPES['HORIZONTAL'];
     }
     return Tree.ORIENTATION_TYPES['NONE'];
+}
+
+function positionFromGrabOp(grabOp) {
+    if (grabOp === Meta.GrabOp.RESIZING_W || grabOp === Meta.GrabOp.RESIZING_N) {
+        return Tree.POSITION['BEFORE'];
+    } else if (grabOp === Meta.GrabOp.RESIZING_E || grabOp === Meta.GrabOp.RESIZING_S) {
+        return Tree.POSITION['AFTER'];
+    }
+    return Tree.POSITION['UNKNOWN'];
 }
