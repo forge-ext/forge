@@ -118,14 +118,20 @@ var ForgeWindowManager = GObject.registerClass(
                 }),
                 display.connect("grab-op-begin", (_, _display, _metaWindow, grabOp) => {
                     this.freezeRender();
-                    let direction = Utils.orientationFromGrab(grabOp);
+                    let orientation = Utils.orientationFromGrab(grabOp);
                     let focusWindow = this.focusMetaWindow;
                     if (focusWindow) {
                         let focusNodeWindow = this.findNodeWindow(focusWindow);
-                        focusNodeWindow.grabbed = true;
-                        focusNodeWindow.initRect = focusWindow.get_frame_rect();
+                        let resizeGrab = Utils.allowResizeGrabOp(grabOp);
+                        if (resizeGrab) {
+                            focusNodeWindow.grabbed = true;
+                            let resizePairNode = this._tree.next(focusNodeWindow, Utils.directionFromGrab(grabOp));
+                            Logger.info(`resize-pair: ${resizePairNode ? resizePairNode._type : undefined}`);
+                            focusNodeWindow.resizePairNode = resizePairNode;
+                            focusNodeWindow.initRect = focusWindow.get_frame_rect();
+                        }
                     }
-                    Logger.debug(`grab op begin ${grabOp}, direction ${direction}`);
+                    Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}`);
                 }),
                 display.connect("showing-desktop-changed", () => {
                     Logger.debug(`display:showing-desktop-changed`);
@@ -222,17 +228,46 @@ var ForgeWindowManager = GObject.registerClass(
                 case "Focus":
                     let focusDirection = Utils.resolveDirection(action.direction);
                     let nextFocusNode = this._tree.next(focusNodeWindow, focusDirection);
-                    let nextWindow = nextFocusNode && nextFocusNode._data && nextFocusNode._type ===
-                        Tree.NODE_TYPES['WINDOW'];
-                    Logger.debug(`focus:next ${nextWindow ? nextFocusNode._data.get_wm_class() : "undefined"}`);
-                    if (nextWindow) {
-                        nextFocusNode._data.raise();
-                        nextFocusNode._data.focus(global.get_current_time());
-                    } 
+                    Logger.trace(`focus: next ${nextFocusNode ? nextFocusNode._type : undefined}`);
+                    if (!nextFocusNode) {
+                        return;
+                    }
+
+                    let nodeType = nextFocusNode._type;
+
+                    switch(nodeType) {
+                        case Tree.NODE_TYPES['WINDOW']:
+                            nextFocusNode._data.raise();
+                            nextFocusNode._data.focus(global.get_current_time());
+                            break;
+                        case Tree.NODE_TYPES['CON']:
+                        case Tree.NODE_TYPES['MONITOR']:
+                            nextFocusNode = this._tree.findFirstNodeWindowFrom(nextFocusNode, "bottom");
+                            if (nextFocusNode) {
+                                nextFocusNode._data.raise();
+                                nextFocusNode._data.focus(global.get_current_time());
+                            }
+                            break;
+                    }
+
                     break;
                 case "Swap":
                     let swapDirection = Utils.resolveDirection(action.direction);
                     let nextSwapNode = this._tree.next(focusNodeWindow, swapDirection);
+                    Logger.trace(`swap: next ${nextSwapNode ? nextSwapNode._type : undefined}`);
+                    if (!nextSwapNode) {
+                        return;
+                    }
+                    let nodeSwapType = nextSwapNode._type;
+
+                    switch(nodeSwapType) {
+                        case Tree.NODE_TYPES['WINDOW']:
+                            break;
+                        case Tree.NODE_TYPES['CON']:
+                        case Tree.NODE_TYPES['MONITOR']:
+                            nextSwapNode = this._tree.findFirstNodeWindowFrom(nextSwapNode, "bottom");
+                            break;
+                    }
                     let isNextNodeWin = nextSwapNode && nextSwapNode._data && nextSwapNode._type ===
                         Tree.NODE_TYPES['WINDOW'];
                     if (isNextNodeWin) {
@@ -739,53 +774,53 @@ var ForgeWindowManager = GObject.registerClass(
             }
 
             let focusNodeWindow = this.findNodeWindow(focusWindow);
+            let resizePairNode = focusNodeWindow.resizePairNode;
 
-            if (focusNodeWindow.grabbed) {
+            if (focusNodeWindow.grabbed && resizePairNode) {
                 let grabOp = global.display.get_grab_op();
                 let parentNode = focusNodeWindow._parent;
                 let childNodes = this._tree.getTiledChildren(parentNode._nodes); 
                 if (childNodes.length > 1) {
                     let orientation = Utils.orientationFromGrab(grabOp);
                     let position = Utils.positionFromGrabOp(grabOp);
-                    let startRect = focusNodeWindow.rect; // use the rect without gaps
+                    let startRect = focusNodeWindow.initRect; // use the rect without gaps
                     let currentRect = focusWindow.get_frame_rect(); // normalize the rect without gaps
-                    let gap = 8;
-                    currentRect = {
-                        x: currentRect.x -= gap,
-                        y: currentRect.y -= gap,
-                        width: currentRect.width += gap * 2,
-                        height: currentRect.height += gap * 2
-                    }
+                    let secondRect = resizePairNode.rect;
+                    // TODO tranfer to utils?
+                    let removeGapOnRect = (rectWithGap) => {
+                        let gap = 8;
+                        return {
+                            x: rectWithGap.x -= gap,
+                            y: rectWithGap.y -= gap,
+                            width: rectWithGap.width += gap * 2,
+                            height: rectWithGap.height += gap * 2
+                        };
+                    };
+                    startRect = removeGapOnRect(startRect);
+                    currentRect = removeGapOnRect(currentRect);
+                    secondRect = resizePairNode._type === Tree.NODE_TYPES['WINDOW'] ? removeGapOnRect(secondRect) : secondRect;
                     let parentRect = parentNode.rect;
-                    Logger.info(`orientation ${orientation}, grabOp ${grabOp}`);
-                    Logger.info(`start x${startRect.x}, y${startRect.y}, w${startRect.width}, h${startRect.height}`);
-                    Logger.info(`rect-nogap x${currentRect.x}, y${currentRect.y}, w${currentRect.width}, h${currentRect.height}`);
-                    Logger.info(`parent x${parentRect.x}, y${parentRect.y}, w${parentRect.width}, h${parentRect.height}`);
+                    Logger.debug(`orientation ${orientation}, grabOp ${grabOp}`);
+                    Logger.debug(`start x${startRect.x}, y${startRect.y}, w${startRect.width}, h${startRect.height}`);
+                    Logger.debug(`rect-nogap x${currentRect.x}, y${currentRect.y}, w${currentRect.width}, h${currentRect.height}`);
+                    Logger.debug(`parent x${parentRect.x}, y${parentRect.y}, w${parentRect.width}, h${parentRect.height}`);
 
                     if (orientation === Tree.ORIENTATION_TYPES['HORIZONTAL']) {
                         if (parentNode.layout === Tree.LAYOUT_TYPES['HSPLIT']) {
                             // use width
+                            let pairWidth = startRect.width + secondRect.width;
                             let percentage = currentRect.width / parentRect.width;
-                            let remainPercentage = 1 - percentage / (childNodes.length - 1);
-                            let currentIndex = this._tree._findNodeIndex(childNodes, focusNodeWindow);
-                            let siblingIndex = position === Tree.POSITION['BEFORE'] ? currentIndex - 1 : currentIndex + 1;
+                            let secondPercentage = (pairWidth - currentRect.width) / parentRect.width;
 
-                            Logger.info(`focus-percent ${percentage}, remain-percent ${remainPercentage}`);
+                            Logger.info(`focus-percent ${percentage}, second-percent ${secondPercentage}`);
+                            Logger.info(`pairWidth ${pairWidth}`);
 
-                            if (percentage < 0.0) {
+                            if (percentage < 0.0 || secondPercentage < 0.0) {
                                 return;
                             } 
-                            if (siblingIndex < 0 || siblingIndex + 1 > childNodes.length) {
-                                return;
-                            }
+
                             focusNodeWindow.percent = percentage;
 
-                            childNodes.forEach((n, i) => {
-                                Logger.info(`c${currentIndex} l${i} ${n._type}`);
-                                if (currentIndex != i) {
-                                    n.percent = remainPercentage;
-                                }
-                            });
                             this.unfreezeRender();
                             this._tree.renderNode(parentNode);
                             this.freezeRender();
@@ -809,7 +844,6 @@ var ForgeWindowManager = GObject.registerClass(
                             focusNodeWindow.percent = percentage;
 
                             childNodes.forEach((n, i) => {
-                                Logger.info(`c${currentIndex} l${i} ${n._type}`);
                                 if (currentIndex != i) {
                                     n.percent = remainPercentage;
                                 }

@@ -223,3 +223,22 @@ function positionFromGrabOp(grabOp) {
     }
     return Tree.POSITION['UNKNOWN'];
 }
+
+function allowResizeGrabOp(grabOp) {
+    return grabOp === Meta.GrabOp.RESIZING_E ||
+        grabOp === Meta.GrabOp.RESIZING_E ||
+        grabOp === Meta.GrabOp.RESIZING_W ||
+        grabOp === Meta.GrabOp.RESIZING_S;
+}
+
+function directionFromGrab(grabOp) {
+    if (grabOp === Meta.GrabOp.RESIZING_E) {
+        return Meta.MotionDirection.RIGHT;
+    } else if (grabOp === Meta.GrabOp.RESIZING_W) {
+        return Meta.MotionDirection.LEFT;
+    } else if (grabOp === Meta.GrabOp.RESIZING_N) {
+        return Meta.MotionDirection.UP;
+    } else if (grabOp === Meta.GrabOp.RESIZING_S) {
+        return Meta.MotionDirection.DOWN;
+    }
+}

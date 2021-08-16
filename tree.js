@@ -354,7 +354,7 @@ var Tree = GObject.registerClass(
             let position = Utils.positionFromDirection(direction);
             let horizontal = orientation === ORIENTATION_TYPES['HORIZONTAL'];
             let previous = position === POSITION['BEFORE'];
-            let nextDirection = previous ? "top" : "bottom";
+            let next;
 
             Logger.debug(`next:orientation ${orientation}`);
             Logger.debug(`next:position ${position}`);
@@ -378,7 +378,6 @@ var Tree = GObject.registerClass(
 
                 // 2.a Handle the top level monitor siblings
                 if (node && node._type === NODE_TYPES['MONITOR']) {
-                    let next;
                     let targetMonitor = global.display.
                         get_monitor_neighbor_index(prevNode._data.get_monitor(),
                             (previous ? Meta.DisplayDirection.LEFT :
@@ -387,11 +386,8 @@ var Tree = GObject.registerClass(
                     if (targetMonitor === -1) return null;
 
                     let targetMoData = `mo${targetMonitor}ws${prevNode._data.get_workspace().index()}`;
-                    node = this.findNode(targetMoData);
-
-                    if (!node) return null; 
-                    next = this.findFirstNodeWindowFrom(node, nextDirection);
-                    return next;
+                    next = this.findNode(targetMoData);
+                    if (next) return next;
                 }
 
                 // 2.b Else check for the next sibling or parent
@@ -402,24 +398,16 @@ var Tree = GObject.registerClass(
                     if (nodeParent && nodeParent._nodes && nodeParent._nodes.length > 1) {
                         let currentIndex = this._findNodeIndex(nodeParent._nodes, node);
                         let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
-                        let next;
                         if (nextIndex !== -1 && !(nextIndex > nodeParent._nodes.length - 1)) {
                             next = nodeParent._nodes[nextIndex];
-                            Logger.trace(`next:type ${next ? next._type : "undefined"}`);
-                            if (next && next._type === NODE_TYPES['CON']) {
-                                // find the first window of this container
-                                next = this.findFirstNodeWindowFrom(next, nextDirection);
-                            }
-
-                            if (next._type === NODE_TYPES['WINDOW'] &&
-                                !next._data.minimized) {
-                                return next;
-                            }
+                            if (next) return next;
                         }
                     }
                 }
                 node = nodeParent;
             }
+            Logger.trace(`next:type ${next ? next._type : "undefined"}`);
+            return next;
         }
 
         /**
@@ -701,7 +689,7 @@ var Tree = GObject.registerClass(
             childItems.forEach((childNode, index) => {
                 let percent = childNode.percent && childNode.percent > 0.0 ?
                     childNode.percent : 1.0 / childItems.length;
-                Logger.info(`percent ${percent}, c${childNode._type}`);
+                Logger.trace(`percent ${percent}, c${childNode._type}`);
                 sizes[index] = Math.floor(percent * totalSize);
             });
             // TODO - make sure the totalSize = the sizes total
