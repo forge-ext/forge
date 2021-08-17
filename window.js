@@ -123,12 +123,19 @@ var ForgeWindowManager = GObject.registerClass(
                     if (focusWindow) {
                         let focusNodeWindow = this.findNodeWindow(focusWindow);
                         let resizeGrab = Utils.allowResizeGrabOp(grabOp);
+                        Logger.info(`grabOp ${grabOp}`);
                         if (resizeGrab) {
                             focusNodeWindow.grabbed = true;
                             let resizePairNode = this._tree.next(focusNodeWindow, Utils.directionFromGrab(grabOp));
                             Logger.info(`resize-pair: ${resizePairNode ? resizePairNode._type : undefined}`);
-                            focusNodeWindow.resizePairNode = resizePairNode;
-                            focusNodeWindow.initRect = focusWindow.get_frame_rect();
+                            if (resizePairNode) {
+                                let validPair = resizePairNode._type === Tree.NODE_TYPES['WINDOW'] ||
+                                    resizePairNode._type === Tree.NODE_TYPES['CON'];
+                                if (validPair) {
+                                    focusNodeWindow.resizePairNode = resizePairNode;
+                                }
+                            }
+                            focusNodeWindow.initRect = Utils.removeGapOnRect(focusWindow.get_frame_rect());
                         }
                     }
                     Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}`);
@@ -707,7 +714,12 @@ var ForgeWindowManager = GObject.registerClass(
                 // If parent has only this window, remove the parent instead
                 if (parentNode._nodes.length === 1 && parentNode._type !==
                     Tree.NODE_TYPES['MONITOR']) {
+                    let existParent = parentNode._parent;
                     this._tree.removeNode(parentNode);
+                    let childNodes = this._tree.getTiledChildren(existParent._nodes);
+                    childNodes.forEach((n) => {
+                        n.percent = 0.0;
+                    });
                 } else {
                     let existParent = nodeWindow._parent;
                     this._tree.removeNode(nodeWindow);
@@ -774,6 +786,8 @@ var ForgeWindowManager = GObject.registerClass(
             }
 
             let focusNodeWindow = this.findNodeWindow(focusWindow);
+            if (!focusNodeWindow) return;
+
             let resizePairNode = focusNodeWindow.resizePairNode;
 
             if (focusNodeWindow.grabbed && resizePairNode) {
@@ -782,77 +796,41 @@ var ForgeWindowManager = GObject.registerClass(
                 let childNodes = this._tree.getTiledChildren(parentNode._nodes); 
                 if (childNodes.length > 1) {
                     let orientation = Utils.orientationFromGrab(grabOp);
-                    let position = Utils.positionFromGrabOp(grabOp);
+                    let direction = Utils.directionFromGrab(grabOp);
                     let startRect = focusNodeWindow.initRect; // use the rect without gaps
                     let currentRect = focusWindow.get_frame_rect(); // normalize the rect without gaps
+                    currentRect = Utils.removeGapOnRect(currentRect);
                     let secondRect = resizePairNode.rect;
-                    // TODO tranfer to utils?
-                    let removeGapOnRect = (rectWithGap) => {
-                        let gap = 8;
-                        return {
-                            x: rectWithGap.x -= gap,
-                            y: rectWithGap.y -= gap,
-                            width: rectWithGap.width += gap * 2,
-                            height: rectWithGap.height += gap * 2
-                        };
-                    };
-                    startRect = removeGapOnRect(startRect);
-                    currentRect = removeGapOnRect(currentRect);
-                    secondRect = resizePairNode._type === Tree.NODE_TYPES['WINDOW'] ? removeGapOnRect(secondRect) : secondRect;
                     let parentRect = parentNode.rect;
-                    Logger.debug(`orientation ${orientation}, grabOp ${grabOp}`);
-                    Logger.debug(`start x${startRect.x}, y${startRect.y}, w${startRect.width}, h${startRect.height}`);
-                    Logger.debug(`rect-nogap x${currentRect.x}, y${currentRect.y}, w${currentRect.width}, h${currentRect.height}`);
-                    Logger.debug(`parent x${parentRect.x}, y${parentRect.y}, w${parentRect.width}, h${parentRect.height}`);
 
                     if (orientation === Tree.ORIENTATION_TYPES['HORIZONTAL']) {
+                        // use width
+                        let amountPx = currentRect.width - startRect.width;
+                        let firstPercent = (startRect.width + amountPx) / parentRect.width;
                         if (parentNode.layout === Tree.LAYOUT_TYPES['HSPLIT']) {
-                            // use width
-                            let pairWidth = startRect.width + secondRect.width;
-                            let percentage = currentRect.width / parentRect.width;
-                            let secondPercentage = (pairWidth - currentRect.width) / parentRect.width;
-
-                            Logger.info(`focus-percent ${percentage}, second-percent ${secondPercentage}`);
-                            Logger.info(`pairWidth ${pairWidth}`);
-
-                            if (percentage < 0.0 || secondPercentage < 0.0) {
-                                return;
-                            } 
-
-                            focusNodeWindow.percent = percentage;
-
-                            this.unfreezeRender();
-                            this._tree.renderNode(parentNode);
-                            this.freezeRender();
+                            let secondPercent = (secondRect.width - amountPx) / parentRect.width;
+                            focusNodeWindow.percent = firstPercent;
+                            resizePairNode.percent = secondPercent;
+                        } else if (parentNode.layout === Tree.LAYOUT_TYPES['VSPLIT']) {
+                            parentNode.percent = firstPercent;
+                            resizePairNode = this._tree.next(parentNode, direction);
+                            let secondPercent = (resizePairNode.rect.width - amountPx) / parentNode._parent.rect.width;
+                            resizePairNode.percent = secondPercent;
                         }
                     } else if (orientation === Tree.ORIENTATION_TYPES['VERTICAL']) {
+                        // use height
+                        let amountPx = currentRect.height - startRect.height;
+                        let firstPercent = (startRect.height + amountPx) / parentRect.height;
                         if (parentNode.layout === Tree.LAYOUT_TYPES['VSPLIT']) {
-                            // use height
-                            let percentage = currentRect.height / parentRect.height;
-                            let remainPercentage = 1 - percentage / (childNodes.length - 1);
-                            let currentIndex = this._tree._findNodeIndex(childNodes, focusNodeWindow);
-                            let siblingIndex = position === Tree.POSITION['BEFORE'] ? currentIndex - 1 : currentIndex + 1;
-
-                            Logger.info(`focus-percent ${percentage}, remain-percent ${remainPercentage}`);
-
-                            if (percentage < 0.0) {
-                                return;
-                            } 
-                            if (siblingIndex < 0 || siblingIndex + 1 > childNodes.length) {
-                                return;
-                            }
-                            focusNodeWindow.percent = percentage;
-
-                            childNodes.forEach((n, i) => {
-                                if (currentIndex != i) {
-                                    n.percent = remainPercentage;
-                                }
-                            });
-                            this.unfreezeRender();
-                            this._tree.renderNode(parentNode);
-                            this.freezeRender();
+                            let secondPercent = (secondRect.height - amountPx) / parentRect.height;
+                            focusNodeWindow.percent = firstPercent;
+                            resizePairNode.percent = secondPercent;
+                        } else if (parentNode.layout === Tree.LAYOUT_TYPES['HSPLIT']) {
+                            parentNode.percent = firstPercent;
+                            resizePairNode = this._tree.next(parentNode, direction);
+                            let secondPercent = (resizePairNode.rect.height - amountPx) / parentNode._parent.rect.height;
+                            resizePairNode.percent = secondPercent;
                         }
-
                     }
                 } else {
                     Logger.warn(`not resizing`);

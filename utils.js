@@ -225,7 +225,7 @@ function positionFromGrabOp(grabOp) {
 }
 
 function allowResizeGrabOp(grabOp) {
-    return grabOp === Meta.GrabOp.RESIZING_E ||
+    return grabOp === Meta.GrabOp.RESIZING_N ||
         grabOp === Meta.GrabOp.RESIZING_E ||
         grabOp === Meta.GrabOp.RESIZING_W ||
         grabOp === Meta.GrabOp.RESIZING_S;
@@ -241,4 +241,13 @@ function directionFromGrab(grabOp) {
     } else if (grabOp === Meta.GrabOp.RESIZING_S) {
         return Meta.MotionDirection.DOWN;
     }
+}
+
+function removeGapOnRect(rectWithGap) {
+    let gap = 8;
+    rectWithGap.x = rectWithGap.x -= gap;
+    rectWithGap.y = rectWithGap.y -= gap;
+    rectWithGap.width = rectWithGap.width += gap * 2;
+    rectWithGap.height = rectWithGap.height += gap * 2;
+    return rectWithGap;
 }
