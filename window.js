@@ -764,6 +764,11 @@ var ForgeWindowManager = GObject.registerClass(
                             let movedNodeWindow = this._tree.addNode(metaMonWs,
                                 Tree.NODE_TYPES['WINDOW'], metaWindow);
                             movedNodeWindow.mode = existNodeWindow.mode;
+                            // adjust the children of the target MonWs
+                            let targetSiblings = this._tree.getTiledChildren(metaMonWsNode._nodes);
+                            targetSiblings.forEach((n) => {
+                                n.percent = 0.0;
+                            });
                         }
                     }
                 }
