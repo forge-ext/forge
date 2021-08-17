@@ -377,17 +377,23 @@ var Tree = GObject.registerClass(
                 Logger.trace(`node-data ${node._data}`);
 
                 // 2.a Handle the top level monitor siblings
+                // This is to support moving focus to the next monitor available
+                // based on the direction
                 if (node && node._type === NODE_TYPES['MONITOR']) {
-                    let targetMonitor = global.display.
-                        get_monitor_neighbor_index(prevNode._data.get_monitor(),
-                            (previous ? Meta.DisplayDirection.LEFT :
-                                Meta.DisplayDirection.RIGHT));
-                    Logger.trace(`next: targetMonitor ${targetMonitor}`);
-                    if (targetMonitor === -1) return null;
+                    if (prevNode._type === NODE_TYPES['WINDOW']) {
+                        let targetMonitor = global.display.
+                            get_monitor_neighbor_index(prevNode._data.get_monitor(),
+                                (previous ? Meta.DisplayDirection.LEFT :
+                                    Meta.DisplayDirection.RIGHT));
+                        Logger.trace(`next: targetMonitor ${targetMonitor}`);
+                        if (targetMonitor === -1) return null;
 
-                    let targetMoData = `mo${targetMonitor}ws${prevNode._data.get_workspace().index()}`;
-                    next = this.findNode(targetMoData);
-                    if (next) return next;
+                        let targetMoData = `mo${targetMonitor}ws${prevNode._data.get_workspace().index()}`;
+                        next = this.findNode(targetMoData);
+                        if (next) return next;
+                    } else {
+                        return null;
+                    }
                 }
 
                 // 2.b Else check for the next sibling or parent
