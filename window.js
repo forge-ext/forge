@@ -112,6 +112,7 @@ var ForgeWindowManager = GObject.registerClass(
                         if (focusNodeWindow) {
                             focusNodeWindow.grabbed = false;
                             focusNodeWindow.initRect = null;
+                            focusNodeWindow.initParentRect = null;
                         }
                     }
                     Logger.debug(`grab op end`);
@@ -126,15 +127,6 @@ var ForgeWindowManager = GObject.registerClass(
                         Logger.debug(`grabOp ${grabOp}`);
                         if (resizeGrab) {
                             focusNodeWindow.grabbed = true;
-                            let resizePairNode = this._tree.next(focusNodeWindow, Utils.directionFromGrab(grabOp));
-                            Logger.debug(`resize-pair: ${resizePairNode ? resizePairNode._type : undefined}`);
-                            if (resizePairNode) {
-                                let validPair = resizePairNode._type === Tree.NODE_TYPES['WINDOW'] ||
-                                    resizePairNode._type === Tree.NODE_TYPES['CON'];
-                                if (validPair) {
-                                    focusNodeWindow.resizePairNode = resizePairNode;
-                                }
-                            }
                             focusNodeWindow.initRect = Utils.removeGapOnRect(focusWindow.get_frame_rect());
                             focusNodeWindow.initParentRect = focusNodeWindow._parent.rect;
                         }
@@ -306,6 +298,7 @@ var ForgeWindowManager = GObject.registerClass(
                     } else {
                         focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES['HSPLIT'];
                     }
+                    this._tree.attachNode = focusNodeWindow._parent;
                     this.renderTree("layout-toggle");
                     this.showBorderFocusWindow();
                     break;
@@ -793,6 +786,8 @@ var ForgeWindowManager = GObject.registerClass(
 
             let focusNodeWindow = this.findNodeWindow(focusWindow);
             if (!focusNodeWindow) return;
+            this.showBorderFocusWindow();
+            Logger.debug(`grabOp ${global.display.get_grab_op()}`);
 
             if (focusNodeWindow.grabbed) {
                 let grabOp = global.display.get_grab_op();
@@ -803,7 +798,6 @@ var ForgeWindowManager = GObject.registerClass(
                 let firstRect;
                 let secondRect;
                 let parentRect;
-                let resizePairForWindow = focusNodeWindow.resizePairNode;
 
                 if (orientation === Tree.ORIENTATION_TYPES['HORIZONTAL']) {
                     if (parentNodeForFocus.layout === Tree.LAYOUT_TYPES['HSPLIT']) {
@@ -813,6 +807,7 @@ var ForgeWindowManager = GObject.registerClass(
                             return;
                         }
                         firstRect = focusNodeWindow.initRect;
+                        let resizePairForWindow = this._tree.next(focusNodeWindow, direction);
                         if (resizePairForWindow) {
                             secondRect = resizePairForWindow.rect;
                         }
@@ -857,6 +852,7 @@ var ForgeWindowManager = GObject.registerClass(
                             return;
                         }
                         firstRect = focusNodeWindow.initRect;
+                        let resizePairForWindow = this._tree.next(focusNodeWindow, direction);
                         if (resizePairForWindow) {
                             secondRect = resizePairForWindow.rect;
                         }
@@ -896,7 +892,6 @@ var ForgeWindowManager = GObject.registerClass(
                 }
             }
 
-            this.showBorderFocusWindow();
             Logger.trace(`${from} ${focusWindow.get_wm_class()}`);
         }
 

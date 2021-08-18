@@ -207,18 +207,30 @@ function rectContainsPoint(rect, pointP) {
 }
 
 function orientationFromGrab(grabOp) {
-    if (grabOp === Meta.GrabOp.RESIZING_N || grabOp === Meta.GrabOp.RESIZING_S) {
+    if (grabOp === Meta.GrabOp.RESIZING_N ||
+        grabOp === Meta.GrabOp.RESIZING_S ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S) {
         return Tree.ORIENTATION_TYPES['VERTICAL'];
-    } else if (grabOp === Meta.GrabOp.RESIZING_E || grabOp === Meta.GrabOp.RESIZING_W) {
+    } else if (grabOp === Meta.GrabOp.RESIZING_E ||
+        grabOp === Meta.GrabOp.RESIZING_W ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W) {
         return Tree.ORIENTATION_TYPES['HORIZONTAL'];
     }
     return Tree.ORIENTATION_TYPES['NONE'];
 }
 
 function positionFromGrabOp(grabOp) {
-    if (grabOp === Meta.GrabOp.RESIZING_W || grabOp === Meta.GrabOp.RESIZING_N) {
+    if (grabOp === Meta.GrabOp.RESIZING_W ||
+        grabOp === Meta.GrabOp.RESIZING_N ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N) {
         return Tree.POSITION['BEFORE'];
-    } else if (grabOp === Meta.GrabOp.RESIZING_E || grabOp === Meta.GrabOp.RESIZING_S) {
+    } else if (grabOp === Meta.GrabOp.RESIZING_E ||
+        grabOp === Meta.GrabOp.RESIZING_S ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S) {
         return Tree.POSITION['AFTER'];
     }
     return Tree.POSITION['UNKNOWN'];
@@ -228,17 +240,26 @@ function allowResizeGrabOp(grabOp) {
     return grabOp === Meta.GrabOp.RESIZING_N ||
         grabOp === Meta.GrabOp.RESIZING_E ||
         grabOp === Meta.GrabOp.RESIZING_W ||
-        grabOp === Meta.GrabOp.RESIZING_S;
+        grabOp === Meta.GrabOp.RESIZING_S ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN;
 }
 
 function directionFromGrab(grabOp) {
-    if (grabOp === Meta.GrabOp.RESIZING_E) {
+    if (grabOp === Meta.GrabOp.RESIZING_E ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E) {
         return Meta.MotionDirection.RIGHT;
-    } else if (grabOp === Meta.GrabOp.RESIZING_W) {
+    } else if (grabOp === Meta.GrabOp.RESIZING_W ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W) {
         return Meta.MotionDirection.LEFT;
-    } else if (grabOp === Meta.GrabOp.RESIZING_N) {
+    } else if (grabOp === Meta.GrabOp.RESIZING_N ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N) {
         return Meta.MotionDirection.UP;
-    } else if (grabOp === Meta.GrabOp.RESIZING_S) {
+    } else if (grabOp === Meta.GrabOp.RESIZING_S ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S) {
         return Meta.MotionDirection.DOWN;
     }
 }
