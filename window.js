@@ -227,28 +227,38 @@ var ForgeWindowManager = GObject.registerClass(
                     break;
                 case "Focus":
                     let focusDirection = Utils.resolveDirection(action.direction);
-                    let nextFocusNode = this._tree.next(focusNodeWindow, focusDirection);
-                    Logger.trace(`focus: next ${nextFocusNode ? nextFocusNode._type : undefined}`);
-                    if (!nextFocusNode) {
-                        return;
-                    }
+                    let focusNext = (focusNodeWindow) => {
+                        let nextFocusNode = this._tree.next(focusNodeWindow, focusDirection);
+                        Logger.trace(`focus: next ${nextFocusNode ? nextFocusNode._type : undefined}`);
+                        if (!nextFocusNode) {
+                            return;
+                        }
 
-                    let nodeType = nextFocusNode._type;
+                        let nodeType = nextFocusNode._type;
 
-                    switch(nodeType) {
-                        case Tree.NODE_TYPES['WINDOW']:
-                            nextFocusNode._data.raise();
-                            nextFocusNode._data.focus(global.get_current_time());
-                            break;
-                        case Tree.NODE_TYPES['CON']:
-                        case Tree.NODE_TYPES['MONITOR']:
-                            nextFocusNode = this._tree.findFirstNodeWindowFrom(nextFocusNode, "bottom");
-                            if (nextFocusNode) {
+                        switch(nodeType) {
+                            case Tree.NODE_TYPES['WINDOW']:
+                                if (this.floatingWindow(nextFocusNode) || nextFocusNode._data.minimized) {
+                                    focusNext(nextFocusNode);
+                                }
                                 nextFocusNode._data.raise();
                                 nextFocusNode._data.focus(global.get_current_time());
-                            }
-                            break;
+                                break;
+                            case Tree.NODE_TYPES['CON']:
+                            case Tree.NODE_TYPES['MONITOR']:
+                                nextFocusNode = this._tree.findFirstNodeWindowFrom(nextFocusNode, "bottom");
+                                if (nextFocusNode) {
+                                    if (this.floatingWindow(nextFocusNode) || nextFocusNode._data.minimized) {
+                                        focusNext(nextFocusNode);
+                                    }
+                                    nextFocusNode._data.raise();
+                                    nextFocusNode._data.focus(global.get_current_time());
+                                }
+                                break;
+                        }
                     }
+
+                    focusNext(focusNodeWindow);
 
                     break;
                 case "Swap":
