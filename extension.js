@@ -19,6 +19,7 @@
 'use strict';
 
 // Gnome imports
+const SessionMode = imports.ui.main.sessionMode;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -31,6 +32,7 @@ const Window = Me.imports.window;
 
 var forgeWm;
 var keybindings;
+var sameSession = false;
 
 function init() {
     Logger.info("init");
@@ -38,6 +40,11 @@ function init() {
 
 function enable() {
     Logger.info("enable");
+
+    if (sameSession) {
+        sameSession = false;
+        return;
+    }
 
     if (!forgeWm) {
         forgeWm = new Window.ForgeWindowManager();
@@ -53,6 +60,11 @@ function enable() {
 
 function disable() {
     Logger.info("disable");
+
+    if (SessionMode.isLocked) {
+        sameSession = true;
+        return;
+    }
 
     if (forgeWm)
         forgeWm.disable();
