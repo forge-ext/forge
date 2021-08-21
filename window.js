@@ -640,8 +640,6 @@ var ForgeWindowManager = GObject.registerClass(
                         metaWindow.connect("focus", (_metaWindowFocus) => {
                             if (!_metaWindowFocus.firstRender)
                                 this.showBorderFocusWindow();
-                            let focusWindow = this.findNodeWindow(_metaWindowFocus);
-                            this._tree.attachNode = focusWindow? focusWindow._parent : undefined;
                             Logger.debug(`window:focus`);
                         }),
                         metaWindow.connect("workspace-changed", (metaWindowWs) => {
