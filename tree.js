@@ -507,8 +507,8 @@ var Tree = GObject.registerClass(
 
         removeNode(node) {
             let parentNode = node._parent;
-            let nodeToRemove = null;
             let nodeIndex;
+            let success = false;
 
             if (parentNode) {
                 Logger.trace(`removing ${node._type} from ${parentNode._data}`);
@@ -516,11 +516,17 @@ var Tree = GObject.registerClass(
                 if (nodeIndex === undefined) {
                     // do nothing
                 } else {
-                    nodeToRemove = parentNode._nodes.splice(nodeIndex, 1);
+                    if (parentNode._nodes.splice(nodeIndex, 1)) {
+                        success = true;
+                    }
                 }
             }
 
-            return nodeToRemove;
+            if (node === this.attachNode) {
+                this.attachNode = null;
+            }
+
+            return success;
         }
 
         render(from) {

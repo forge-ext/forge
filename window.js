@@ -20,6 +20,7 @@
 
 // Gnome imports
 const Clutter = imports.gi.Clutter;
+const Gdk = imports.gi.Gdk;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
@@ -241,20 +242,42 @@ var ForgeWindowManager = GObject.registerClass(
                                 if (this.floatingWindow(nextFocusNode) || nextFocusNode._data.minimized) {
                                     focusNext(nextFocusNode);
                                 }
+                                // TODO, maybe put the code block below in a new function
                                 nextFocusNode._data.raise();
+                                nextFocusNode._data.activate(global.get_current_time());
                                 nextFocusNode._data.focus(global.get_current_time());
                                 break;
                             case Tree.NODE_TYPES['CON']:
                             case Tree.NODE_TYPES['MONITOR']:
                                 nextFocusNode = this._tree.findFirstNodeWindowFrom(nextFocusNode, "bottom");
                                 if (nextFocusNode) {
-                                    if (this.floatingWindow(nextFocusNode) || nextFocusNode._data.minimized) {
+                                    // Always try to find the next window
+                                    if (this.floatingWindow(nextFocusNode) ||
+                                        nextFocusNode._data.minimized) {
                                         focusNext(nextFocusNode);
                                     }
                                     nextFocusNode._data.raise();
+                                    nextFocusNode._data.activate(global.get_current_time());
                                     nextFocusNode._data.focus(global.get_current_time());
                                 }
                                 break;
+                        }
+
+                        if (nextFocusNode) {
+                            // Great found the next node window,
+                            // check if same monitor as before, else warp the pointer
+                            if (!this.sameParentMonitor(focusNodeWindow, nextFocusNode)) {
+                                // TODO warp the pointer here to the new monitor
+                                // and make it configurable
+                                let movePointerAlongWithMonitor = true;
+                                if (movePointerAlongWithMonitor) {
+                                    this.movePointerWith(nextFocusNode);
+                                }
+                            }
+                            // FIXME, when the window focuses on hover always
+                            // move the pointer
+                            this._tree.attachNode = nextFocusNode._parent;
+                            Logger.trace(`focus: next attachNode ${this._tree.attachNode._type} ${this._tree.attachNode}`);
                         }
                     }
 
@@ -281,14 +304,11 @@ var ForgeWindowManager = GObject.registerClass(
                     let isNextNodeWin = nextSwapNode && nextSwapNode._data && nextSwapNode._type ===
                         Tree.NODE_TYPES['WINDOW'];
                     if (isNextNodeWin) {
-                        let nextMonWs = `mo${nextSwapNode._data.get_monitor()}ws${nextSwapNode._data.get_workspace().index()}`;
-                        let focusMonWs = `mo${focusNodeWindow._data.get_monitor()}ws${focusNodeWindow._data.get_workspace().index()}`;
-                        // TODO The following check for same monitor workspace prevents a serious GC bug
-                        if (nextMonWs !== focusMonWs) {
-                            // TODO - use move window to monitor?
-                            Logger.warn(`swap: unable windows with different monitors`);
+                        // FIXME, this prevents a serious GC bug for now
+                        if (!this.sameParentMonitor(focusNodeWindow, nextSwapNode)) {
+                            Logger.warn(`swap: not same monitor, do not swap`);
                             return;
-                        };
+                        }
                         Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode._data.get_wm_class() : "undefined"}`);
                         this._tree.swap(focusNodeWindow, nextSwapNode);
                         this.renderTree("swap");
@@ -530,6 +550,16 @@ var ForgeWindowManager = GObject.registerClass(
             });
         }
 
+        sameParentMonitor(firstNode, secondNode) {
+            if (!firstNode || !secondNode) return false;
+            if (!firstNode._data || !secondNode._data) return false;
+            if (!firstNode._data.get_workspace()) return false;
+            if (!secondNode._data.get_workspace()) return false;
+            let firstMonWs = `mo${firstNode._data.get_monitor()}ws${firstNode._data.get_workspace().index()}`;
+            let secondMonWs = `mo${secondNode._data.get_monitor()}ws${secondNode._data.get_workspace().index()}`;
+            return firstMonWs === secondMonWs;
+        }
+
         showBorderFocusWindow() {
             this.hideWindowBorders();
             let metaWindow = this.focusMetaWindow;
@@ -640,6 +670,13 @@ var ForgeWindowManager = GObject.registerClass(
                         metaWindow.connect("focus", (_metaWindowFocus) => {
                             if (!_metaWindowFocus.firstRender)
                                 this.showBorderFocusWindow();
+
+                            // handle the attach node
+                            let focusNodeWindow = this._tree.findNode(this.focusMetaWindow);
+                            if (focusNodeWindow) {
+                                this._tree.attachNode = focusNodeWindow._parent;
+                            }
+
                             Logger.debug(`window:focus`);
                         }),
                         metaWindow.connect("workspace-changed", (metaWindowWs) => {
@@ -732,7 +769,15 @@ var ForgeWindowManager = GObject.registerClass(
                 }
                 Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
                 this.renderTree("window-destroy");
-            }                
+            }
+
+            // find the next attachNode here
+            let focusNodeWindow = this._tree.findNode(this.focusMetaWindow);
+            if (focusNodeWindow) {
+                this._tree.attachNode = focusNodeWindow._parent;
+                Logger.trace(`on-destroy: finding next attach node ${this._tree.attachNode._type}`);
+            }
+
             Logger.debug(`window-destroy`);
         }
 
@@ -940,6 +985,25 @@ var ForgeWindowManager = GObject.registerClass(
             if (!node) return false;
             return (node._type === Tree.NODE_TYPES['WINDOW'] &&
                 node.mode === WINDOW_MODES['FLOAT']);
+        }
+
+        /**
+         * Moves the pointer along with the nodeWindow's meta
+         *
+         * This is useful for making sure that Forge calculates the attachNode
+         * properly
+         */
+        movePointerWith(nodeWindow) {
+            if (!nodeWindow || !nodeWindow._data) return;
+            let rect = nodeWindow._data.get_frame_rect();
+            let gdkDisplay = Gdk.DisplayManager.get().get_default_display();
+
+            if (gdkDisplay) {
+                let gdkScreen = gdkDisplay.get_default_screen();
+                let gdkPointer = gdkDisplay.get_default_seat().get_pointer();
+                Logger.warn(`move-pointer with monitor to ${rect.x}, ${rect.y}`);
+                gdkPointer.warp(gdkScreen, rect.x, rect.y);
+            }
         }
     }
 );
