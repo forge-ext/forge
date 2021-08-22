@@ -776,9 +776,9 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.debug(`window-entered-monitor: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${monitor} `);
+                this.showBorderFocusWindow();
+                this.renderTree("update-workspace-monitor");
             }
-            this.showBorderFocusWindow();
-            this.renderTree("update-workspace-monitor");
         }
 
         /**
