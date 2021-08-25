@@ -763,6 +763,14 @@ var Tree = GObject.registerClass(
             }
         }
 
+        resetSiblingPercent(parentNode) {
+            if (!parentNode) return;
+            let children = this.getTiledChildren(parentNode._nodes);
+            children.forEach((n) => {
+                n.percent = 0.0;
+            });
+        }
+
         // start walking from bottom to root
         _traverseDepthFirst(callback, startNode) {
             let recurse = (currentNode) => {
