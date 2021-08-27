@@ -19,8 +19,8 @@
 'use strict';
 
 // Gnome imports
-imports.gi.versions.Gtk = "3.0";
 const Gdk = imports.gi.Gdk;
+const GdkPixbuf = imports.gi.GdkPixbuf;
 const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
 const GObject = imports.gi.GObject;
@@ -95,9 +95,11 @@ function createLoggingCombo(grid) {
     grid.attach(logCombo, 1, 0, 1, 1);
 }
 
-/**
- * Declare the root Gtk class
- */
+/*********************************************
+ * Declare GTK widgets for Forge.
+ * Credits from ArcMenu's prefs.js
+ *********************************************/
+
 var PrefsWidget = GObject.registerClass(
     class PrefsWidget extends Gtk.Box {
         _init() {
@@ -153,9 +155,9 @@ var PrefsWidget = GObject.registerClass(
 
             let backButton = new Gtk.Button({
                 image: new Gtk.Image({
-                    icon_name: "go-previous-symbolic",
-                    visible: true
-                })
+                    icon_name: "go-previous-symbolic"
+                }),
+                visible: true
             });
 
             this.backButton = backButton;
@@ -173,13 +175,14 @@ var PrefsWidget = GObject.registerClass(
             this.add(this.settingsPagesStack);
 
             this.buildSettingsList();
+            this.buildPanelBoxes();
             this.show_all();
         }
 
         returnToTop() {
             let generalStack = this.settingsStack.get_child_by_name("General");
             this.settingsStack.visible_child = generalStack;
-            generalStack.activate_first_row();
+            generalStack.activateFirstRow();
         }
 
         addBackButtonAccelerator() {
@@ -204,15 +207,47 @@ var PrefsWidget = GObject.registerClass(
                 backButtonMod);
         }
 
+        showBackButton() {
+            if (!this.leftHeaderBox) return;
+            this.leftHeaderBox.add(this.backButton);
+            this.addBackButtonAccelerator();
+        }
+
         buildSettingsList() {
             const leftBoxWidth = 220;
+            // TODO - translations!
+
+            // Main Settings
             let generalSettingsBox = new ScrollStackBox(this, {
                 widthRequest: leftBoxWidth
             });
-
-            generalSettingsBox.addStackRow("Main", "Main", "go-home-symbolic");
-
+            generalSettingsBox.addStackRow("Home", "Home", "go-home-symbolic");
+            generalSettingsBox.addStackRow("Appearance", "Appearance", `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
+            generalSettingsBox.addStackRow("Keyboard", "Keyboard", `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
+            generalSettingsBox.addStackRow("Development", "Development", `${Me.path}/icons/prefs/code-context-symbolic.svg`);
+            generalSettingsBox.addStackRow("Experimental", "Experimental", `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
+            generalSettingsBox.addStackRow("About", "About", `${Me.path}/icons/prefs/forge-logo-symbolic.svg`);
             this.settingsStack.add_named(generalSettingsBox, "General");
+
+            // Appearance
+            let appearanceSettingsBox = new ScrollStackBox(this, {
+                widthRequest: leftBoxWidth
+            });
+            appearanceSettingsBox.addStackRow("Focus Hint", "Focus Hint", `${Me.path}/icons/prefs/window-symbolic.svg`);
+            appearanceSettingsBox.addStackRow("Windows", "Windows", `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
+            this.settingsStack.add_named(appearanceSettingsBox, "AppearanceSettings");
+
+            // Keyboard
+            let keyboardSettingsBox = new ScrollStackBox(this, {
+                widthRequest: leftBoxWidth
+            });
+            keyboardSettingsBox.addStackRow("Shortcuts", "Shortcuts", `${Me.path}/icons/prefs/preferences-desktop-keyboard-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Restore", "Restore", `${Me.path}/icons/prefs/appointment-soon-symbolic.svg`);
+            this.settingsStack.add_named(keyboardSettingsBox, "KeyboardSettings");
+        }
+
+        buildPanelBoxes() {
+            this.settingsPagesStack.add_named(new UnderConstructionPanel("Home"), "Home");
         }
     }
 );
@@ -236,6 +271,8 @@ var ScrollStackBox = GObject.registerClass(
             this.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
             this.add_with_viewport(this.listBox);
             this.prefsWidget = prefsWidget;
+
+            this.bindSignals();
         }
 
         addStackRow(name, labelName, iconPath, childName) {
@@ -271,6 +308,146 @@ var ScrollStackBox = GObject.registerClass(
             }
 
             this.listBox.add(row);
+        }
+
+        bindSignals() {
+            let listBox = this.listBox;
+            listBox.connect("row-activated", (_self, row) => {
+                this.onRowLoad(_self, row);
+            });
+            listBox.connect("row-selected", (_self, row) => {
+                let listRow = row.get_children()[0];
+                // Always check if the listbox row has children
+                // Autoload when no children, else activate the next child
+                if (!listRow.child_name) {
+                    this.onRowLoad(_self, row);
+                }
+            });
+        }
+
+        onRowLoad(_self, row) {
+            let prefsWidget = this.prefsWidget;
+            let settingsStack = prefsWidget.settingsStack;
+            let settingsPagesStack = prefsWidget.settingsPagesStack;
+
+            if (row) {
+                let listRow = row.get_children()[0];
+                let stackName = listRow.stack_name;
+                settingsPagesStack.set_visible_child_name(stackName);
+
+                if (listRow.child_name) {
+                    settingsStack.set_visible_child_name(listRow.child_name);
+                    let childRowScrollWin = settingsStack.
+                        get_child_by_name(listRow.child_name);
+                    childRowScrollWin.activateFirstRow();
+                    prefsWidget.showBackButton();
+                }
+            }
+        }
+
+        selectFirstRow() {
+            this.listBox.select_row(this.get_row_at_index(0));
+        }
+
+        activateFirstRow() {
+            this.listBox.get_row_at_index(0).activate();
+        }
+    }
+);
+
+var PanelBox = GObject.registerClass(
+    class PanelBox extends Gtk.Box {
+        _init(title) {
+            super._init({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 24,
+                spacing: 20,
+                homogeneous: false
+            });
+
+            this._title = new Gtk.Label({
+                label: `<b>${title}</b>`,
+                use_markup: true,
+                xalign: 0
+            });
+        }
+    }
+);
+
+var FrameListBox = GObject.registerClass(
+    class FrameListBox extends Gtk.Frame {
+        _init() {
+            super._init({
+                label_yalign: 0.550
+            });
+            this.listBox = new Gtk.ListBox();
+            this.count = 0;
+            this.listBox.set_selection_mode(Gtk.SelectionMode.NONE);
+            Gtk.Frame.prototype.add.call(this, this.listBox);
+        }
+
+        add(boxRow) {
+            this.listBox.add(boxRow);
+            this.count++;
+        }
+
+        show() {
+            this.listBox.show_all();
+        }
+    }
+);
+
+var ListBoxRow = GObject.registerClass(
+    class ListBoxRow extends Gtk.ListBoxRow {
+        _init(params) {
+            super._init(params);
+            this.selectable = false;
+            this.activatable = false;
+            this.grid = new Gtk.Grid({
+                margin_top: 5,
+                margin_bottom: 5,
+                margin_left: 10,
+                margin_right: 10,
+                column_spacing: 20,
+                row_spacing: 20
+            });
+            Gtk.ListBoxRow.prototype.add.call(this, this.grid);
+        }
+
+        add(widget) {
+            this.grid.add(widget);
+        }
+    }
+);
+
+var UnderConstructionPanel = GObject.registerClass(
+    class UnderConstructionPanel extends PanelBox {
+        _init(label) {
+            super._init(label);
+            
+            let logoPath = `${Me.path}/icons/prefs/forge-logo-symbolic.svg`;
+            let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(logoPath, 100, 100);
+            let logoImage = new Gtk.Image({
+                pixbuf: pixbuf,
+                margin_bottom: 5
+            });
+
+            let underConstructionText = new Gtk.Label({
+                label: "Work in Progress",
+                hexpand: true
+            });
+            underConstructionText.set_justify(Gtk.Justification.CENTER);
+            
+            let verticalBox = new Gtk.VBox({
+                margin_top: 100,
+                margin_bottom: 0,
+                expand: false
+            });
+
+            verticalBox.add(logoImage);
+
+            this.add(verticalBox);
+            this.add(underConstructionText);
         }
     }
 );

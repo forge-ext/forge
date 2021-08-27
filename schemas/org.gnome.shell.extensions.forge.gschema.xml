@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="org.gnome.shell.extensions.forge" path="/org/gnome/shell/extensions/forge/">
+        <!-- Main Settings -->
+        <key type="b" name="focus-border-toggle">
+            <default>false</default>
+            <summary>Show window border on focused window</summary>
+        </key>
+
+        <key type="u" name="focus-border-size">
+            <default>3</default>
+            <summary>The focused border's current thickness</summary>
+        </key>
+
+        <key type="s" name="focus-border-color">
+            <default>'rgba(236, 94, 94, 1)'</default>
+            <summary>The focused border's current color</summary>
+        </key>
+
+        <key type="b" name="split-border-toggle">
+            <default>true</default>
+            <summary>Show split direction border on focused window</summary>
+        </key>
+
+        <key type="s" name="split-border-color">
+            <default>'rgba(255, 246, 108, 1)'</default>
+            <summary>The focused border's current color</summary>
+        </key>
+
+        <key type="u" name="window-gap-size">
+            <default>8</default>
+            <summary>
+                The size of the gap between windows in the workarea
+            </summary>
+        </key>
+
+        <key type="s" name="primary-layout-mode">
+            <default>'tiling'</default>
+            <summary>Layout modes: stacking, tiling</summary>
+        </key>
+        
+        <!-- Keybinding Settings -->
+        <key type="as" name="kbd-focus-border-toggle">
+            <default><![CDATA[['<Super>x']]]></default>
+            <summary>Toggle the focused window's border</summary>
+        </key>
+
+        <key type="as" name="kbd-focus-border-size-increase">
+            <default><![CDATA[['<Shift><Super>Plus']]]></default>
+            <summary>Increase the size of the focus border</summary>
+        </key>
+
+        <key type="as" name="kbd-focus-border-size-decrease">
+            <default><![CDATA[['<Shift><Super>Minus']]]></default>
+            <summary>Decrease the size of the focus border</summary>
+        </key>
+
+        <key type="as" name="kbd-window-gap-size-increase">
+            <default><![CDATA[['<Ctrl><Super>Plus']]]></default>
+            <summary>Increase the size of the focus border</summary>
+        </key>
+
+        <key type="as" name="kbd-window-gap-size-decrease">
+            <default><![CDATA[['<Ctrl><Super>Minus']]]></default>
+            <summary>Decrease the size of the focus border</summary>
+        </key>
+
+        <key type="as" name="kbd-con-split-layout-toggle">
+            <default><![CDATA[['<Super>g']]]></default>
+            <summary>Toggle split layout: horizontal or vertical</summary>
+        </key>
+
+        <key type="as" name="kbd-con-split-horizontal">
+            <default><![CDATA[['<Super>z']]]></default>
+            <summary>Split a container horizontally</summary>
+        </key>
+
+        <key type="as" name="kbd-con-split-vertical">
+            <default><![CDATA[['<Super>v']]]></default>
+            <summary>Split a container vertically</summary>
+        </key>
+
+        <key type="as" name="kbd-window-swap-left">
+            <default><![CDATA[['<Ctrl><Super>h']]]></default>
+            <summary>Swap window left</summary>
+        </key>
+
+        <key type="as" name="kbd-window-swap-down">
+            <default><![CDATA[['<Ctrl><Super>j']]]></default>
+            <summary>Swap window down</summary>
+        </key>
+
+        <key type="as" name="kbd-window-swap-up">
+            <default><![CDATA[['<Ctrl><Super>k']]]></default>
+            <summary>Swap window up</summary>
+        </key>
+
+        <key type="as" name="kbd-window-swap-right">
+            <default><![CDATA[['<Ctrl><Super>l']]]></default>
+            <summary>Swap window right</summary>
+        </key>
+
+        <key type="as" name="kbd-window-move-left">
+            <default><![CDATA[['<Shift><Super>h']]]></default>
+            <summary>Move window left</summary>
+        </key>
+
+        <key type="as" name="kbd-window-move-down">
+            <default><![CDATA[['<Shift><Super>j']]]></default>
+            <summary>Move window down</summary>
+        </key>
+
+        <key type="as" name="kbd-window-move-up">
+            <default><![CDATA[['<Shift><Super>k']]]></default>
+            <summary>Move window up</summary>
+        </key>
+
+        <key type="as" name="kbd-window-move-right">
+            <default><![CDATA[['<Shift><Super>l']]]></default>
+            <summary>Move window right</summary>
+        </key>
+
+        <key type="as" name="kbd-window-focus-left">
+            <default><![CDATA[['<Super>h']]]></default>
+            <summary>Move window left</summary>
+        </key>
+
+        <key type="as" name="kbd-window-focus-down">
+            <default><![CDATA[['<Super>j']]]></default>
+            <summary>Move window down</summary>
+        </key>
+
+        <key type="as" name="kbd-window-focus-up">
+            <default><![CDATA[['<Super>k']]]></default>
+            <summary>Move window up</summary>
+        </key>
+
+        <key type="as" name="kbd-window-focus-right">
+            <default><![CDATA[['<Super>l']]]></default>
+            <summary>Move window right</summary>
+        </key>
+
+        <!-- Development Settings -->
+        <key type="u" name="log-level">
+            <default>0</default>
+            <summary>
+                Provide log4j-like logging levels:
+                0 - OFF
+                1 - FATAL
+                2 - ERROR
+                3 - WARN
+                4 - INFO
+                5 - DEBUG
+                6 - TRACE
+                7 - ALL
+            </summary>
+        </key>
+    </schema>
+</schemalist>

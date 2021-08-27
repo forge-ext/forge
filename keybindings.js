@@ -47,7 +47,7 @@ var Keybindings = GObject.registerClass(
             this._forgeWm = forgeWm;
 
             this._bindings = {
-                'kbd-window-border': () => {
+                'kbd-focus-border-toggle': () => {
                     // TODO, add any keyboard actions here
                 },
             };
