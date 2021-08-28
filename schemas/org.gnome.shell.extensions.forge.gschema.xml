@@ -38,107 +38,6 @@
             <default>'tiling'</default>
             <summary>Layout modes: stacking, tiling</summary>
         </key>
-        
-        <!-- Keybinding Settings -->
-        <key type="as" name="kbd-focus-border-toggle">
-            <default><![CDATA[['<Super>x']]]></default>
-            <summary>Toggle the focused window's border</summary>
-        </key>
-
-        <key type="as" name="kbd-focus-border-size-increase">
-            <default><![CDATA[['<Shift><Super>Plus']]]></default>
-            <summary>Increase the size of the focus border</summary>
-        </key>
-
-        <key type="as" name="kbd-focus-border-size-decrease">
-            <default><![CDATA[['<Shift><Super>Minus']]]></default>
-            <summary>Decrease the size of the focus border</summary>
-        </key>
-
-        <key type="as" name="kbd-window-gap-size-increase">
-            <default><![CDATA[['<Ctrl><Super>Plus']]]></default>
-            <summary>Increase the size of the focus border</summary>
-        </key>
-
-        <key type="as" name="kbd-window-gap-size-decrease">
-            <default><![CDATA[['<Ctrl><Super>Minus']]]></default>
-            <summary>Decrease the size of the focus border</summary>
-        </key>
-
-        <key type="as" name="kbd-con-split-layout-toggle">
-            <default><![CDATA[['<Super>g']]]></default>
-            <summary>Toggle split layout: horizontal or vertical</summary>
-        </key>
-
-        <key type="as" name="kbd-con-split-horizontal">
-            <default><![CDATA[['<Super>z']]]></default>
-            <summary>Split a container horizontally</summary>
-        </key>
-
-        <key type="as" name="kbd-con-split-vertical">
-            <default><![CDATA[['<Super>v']]]></default>
-            <summary>Split a container vertically</summary>
-        </key>
-
-        <key type="as" name="kbd-window-swap-left">
-            <default><![CDATA[['<Ctrl><Super>h']]]></default>
-            <summary>Swap window left</summary>
-        </key>
-
-        <key type="as" name="kbd-window-swap-down">
-            <default><![CDATA[['<Ctrl><Super>j']]]></default>
-            <summary>Swap window down</summary>
-        </key>
-
-        <key type="as" name="kbd-window-swap-up">
-            <default><![CDATA[['<Ctrl><Super>k']]]></default>
-            <summary>Swap window up</summary>
-        </key>
-
-        <key type="as" name="kbd-window-swap-right">
-            <default><![CDATA[['<Ctrl><Super>l']]]></default>
-            <summary>Swap window right</summary>
-        </key>
-
-        <key type="as" name="kbd-window-move-left">
-            <default><![CDATA[['<Shift><Super>h']]]></default>
-            <summary>Move window left</summary>
-        </key>
-
-        <key type="as" name="kbd-window-move-down">
-            <default><![CDATA[['<Shift><Super>j']]]></default>
-            <summary>Move window down</summary>
-        </key>
-
-        <key type="as" name="kbd-window-move-up">
-            <default><![CDATA[['<Shift><Super>k']]]></default>
-            <summary>Move window up</summary>
-        </key>
-
-        <key type="as" name="kbd-window-move-right">
-            <default><![CDATA[['<Shift><Super>l']]]></default>
-            <summary>Move window right</summary>
-        </key>
-
-        <key type="as" name="kbd-window-focus-left">
-            <default><![CDATA[['<Super>h']]]></default>
-            <summary>Move window left</summary>
-        </key>
-
-        <key type="as" name="kbd-window-focus-down">
-            <default><![CDATA[['<Super>j']]]></default>
-            <summary>Move window down</summary>
-        </key>
-
-        <key type="as" name="kbd-window-focus-up">
-            <default><![CDATA[['<Super>k']]]></default>
-            <summary>Move window up</summary>
-        </key>
-
-        <key type="as" name="kbd-window-focus-right">
-            <default><![CDATA[['<Super>l']]]></default>
-            <summary>Move window right</summary>
-        </key>
 
         <!-- Development Settings -->
         <key type="u" name="log-level">
@@ -154,6 +53,118 @@
                 6 - TRACE
                 7 - ALL
             </summary>
+        </key>
+    </schema>
+    <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
+        <!-- Keybinding Settings -->
+        <key type="as" name="focus-border-toggle">
+            <default><![CDATA[['<Super>x']]]></default>
+            <summary>Toggle the focused window's border</summary>
+        </key>
+
+        <key type="as" name="focus-border-size-increase">
+            <default><![CDATA[['<Shift><Super>Plus']]]></default>
+            <summary>Increase the size of the focus border</summary>
+        </key>
+
+        <key type="as" name="focus-border-size-decrease">
+            <default><![CDATA[['<Shift><Super>Minus']]]></default>
+            <summary>Decrease the size of the focus border</summary>
+        </key>
+
+        <key type="as" name="window-gap-size-increase">
+            <default><![CDATA[['<Ctrl><Super>Plus']]]></default>
+            <summary>Increase the size of the focus border</summary>
+        </key>
+
+        <key type="as" name="window-gap-size-decrease">
+            <default><![CDATA[['<Ctrl><Super>Minus']]]></default>
+            <summary>Decrease the size of the focus border</summary>
+        </key>
+
+        <key type="as" name="con-split-layout-toggle">
+            <default><![CDATA[['<Super>g']]]></default>
+            <summary>Toggle split layout: horizontal or vertical</summary>
+        </key>
+
+        <key type="as" name="con-split-horizontal">
+            <default><![CDATA[['<Super>z']]]></default>
+            <summary>Split a container horizontally</summary>
+        </key>
+
+        <key type="as" name="con-split-vertical">
+            <default><![CDATA[['<Super>v']]]></default>
+            <summary>Split a container vertically</summary>
+        </key>
+
+        <key type="as" name="window-swap-left">
+            <default><![CDATA[['<Ctrl><Super>h']]]></default>
+            <summary>Swap window left</summary>
+        </key>
+
+        <key type="as" name="window-swap-down">
+            <default><![CDATA[['<Ctrl><Super>j']]]></default>
+            <summary>Swap window down</summary>
+        </key>
+
+        <key type="as" name="window-swap-up">
+            <default><![CDATA[['<Ctrl><Super>k']]]></default>
+            <summary>Swap window up</summary>
+        </key>
+
+        <key type="as" name="window-swap-right">
+            <default><![CDATA[['<Ctrl><Super>l']]]></default>
+            <summary>Swap window right</summary>
+        </key>
+
+        <key type="as" name="window-move-left">
+            <default><![CDATA[['<Shift><Super>h']]]></default>
+            <summary>Move window left</summary>
+        </key>
+
+        <key type="as" name="window-move-down">
+            <default><![CDATA[['<Shift><Super>j']]]></default>
+            <summary>Move window down</summary>
+        </key>
+
+        <key type="as" name="window-move-up">
+            <default><![CDATA[['<Shift><Super>k']]]></default>
+            <summary>Move window up</summary>
+        </key>
+
+        <key type="as" name="window-move-right">
+            <default><![CDATA[['<Shift><Super>l']]]></default>
+            <summary>Move window right</summary>
+        </key>
+
+        <key type="as" name="window-focus-left">
+            <default><![CDATA[['<Super>h']]]></default>
+            <summary>Move window left</summary>
+        </key>
+
+        <key type="as" name="window-focus-down">
+            <default><![CDATA[['<Super>j']]]></default>
+            <summary>Move window down</summary>
+        </key>
+
+        <key type="as" name="window-focus-up">
+            <default><![CDATA[['<Super>k']]]></default>
+            <summary>Move window up</summary>
+        </key>
+
+        <key type="as" name="window-focus-right">
+            <default><![CDATA[['<Super>l']]]></default>
+            <summary>Move window right</summary>
+        </key>
+
+        <key type="as" name="window-toggle-float">
+            <default><![CDATA[['<Super>c']]]></default>
+            <summary>Toggle window float</summary>
+        </key>
+
+        <key type="as" name="prefs-open">
+            <default><![CDATA[['<Super>Period']]]></default>
+            <summary>Open the extension's preferences</summary>
         </key>
     </schema>
 </schemalist>

@@ -46,8 +46,9 @@ var WINDOW_MODES = Utils.createEnum([
 
 var ForgeWindowManager = GObject.registerClass(
     class ForgeWindowManager extends GObject.Object {
-        _init() {
+        _init(ext) {
             super._init();
+            this.ext = ext;
             this._tree = new Tree.Tree(this);
             Logger.info("forge initialized");
         }
@@ -57,6 +58,7 @@ var ForgeWindowManager = GObject.registerClass(
             let nodeWindow = this.findNodeWindow(metaWindow);
             if (!nodeWindow || !(action || action.mode)) return;
             if (nodeWindow._type !== Tree.NODE_TYPES['WINDOW']) return;
+            action.mode = action.mode.toUpperCase();
 
             let floatFlag = action.mode === WINDOW_MODES['FLOAT'];
 

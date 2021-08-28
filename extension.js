@@ -28,47 +28,57 @@ const Me = ExtensionUtils.getCurrentExtension();
 // Application imports
 const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
+const Settings = Me.imports.settings;
 const Window = Me.imports.window;
 
-var forgeWm;
-var keybindings;
-var sameSession = false;
 
 function init() {
     Logger.info("init");
+    return new Extension();
 }
 
-function enable() {
-    Logger.info("enable");
-
-    if (sameSession) {
-        sameSession = false;
-        return;
+class Extension {
+    constructor() {
+        this.sameSession = false;
+        this.forgeWm;
+        this.keybindings;
+        this.settings = Settings.getSettings();
+        this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
     }
 
-    if (!forgeWm) {
-        forgeWm = new Window.ForgeWindowManager();
+    enable() {
+        Logger.info("enable");
+
+        if (this.sameSession) {
+            this.sameSession = false;
+            return;
+        }
+
+        if (!this.forgeWm) {
+            this.forgeWm = new Window.ForgeWindowManager(this);
+        }
+
+        if (!this.keybindings) {
+            this.keybindings = new Keybindings.Keybindings(this);
+        }
+
+        this.forgeWm.enable();
+        this.keybindings.enable();
     }
 
-    if (!keybindings) {
-        keybindings = new Keybindings.Keybindings(forgeWm);
-    }
+    disable() {
+        Logger.info("disable");
 
-    forgeWm.enable();
-    keybindings.enable();
+        if (SessionMode.isLocked) {
+            this.sameSession = true;
+            return;
+        }
+
+        if (this.forgeWm)
+            this.forgeWm.disable();
+
+        if (this.keybindings)
+            this.keybindings.disable();
+    }
 }
 
-function disable() {
-    Logger.info("disable");
-
-    if (SessionMode.isLocked) {
-        sameSession = true;
-        return;
-    }
-
-    if (forgeWm)
-        forgeWm.disable();
-
-    if (keybindings)
-        keybindings.disable();
-}

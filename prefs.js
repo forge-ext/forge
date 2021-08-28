@@ -120,7 +120,7 @@ var PrefsWidget = GObject.registerClass(
                 this.accelGroup = new Gtk.AccelGroup();
                 let prefsAccelGroup = this.accelGroup;
                 let topLevel = this.get_toplevel();
-                topLevel.set_title("Forge Preferences Window");
+                topLevel.set_title("Forge Preferences");
                 topLevel.get_titlebar().pack_start(this.leftHeaderBox);
                 topLevel.add_accel_group(prefsAccelGroup);
                 topLevel.set_modal(true);
@@ -134,6 +134,7 @@ var PrefsWidget = GObject.registerClass(
                     }
                     return false;
                 });
+                this.topLevel = topLevel;
             });
 
             // The main settings category
@@ -223,7 +224,7 @@ var PrefsWidget = GObject.registerClass(
             });
             generalSettingsBox.addStackRow("Home", "Home", "go-home-symbolic");
             generalSettingsBox.addStackRow("Appearance", "Appearance", `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
-            generalSettingsBox.addStackRow("Keyboard", "Keyboard", `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
+            generalSettingsBox.addStackRow("Keyboard", "Keyboard", `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`);
             generalSettingsBox.addStackRow("Development", "Development", `${Me.path}/icons/prefs/code-context-symbolic.svg`);
             generalSettingsBox.addStackRow("Experimental", "Experimental", `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
             generalSettingsBox.addStackRow("About", "About", `${Me.path}/icons/prefs/forge-logo-symbolic.svg`);
@@ -236,18 +237,13 @@ var PrefsWidget = GObject.registerClass(
             appearanceSettingsBox.addStackRow("Focus Hint", "Focus Hint", `${Me.path}/icons/prefs/window-symbolic.svg`);
             appearanceSettingsBox.addStackRow("Windows", "Windows", `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
             this.settingsStack.add_named(appearanceSettingsBox, "AppearanceSettings");
-
-            // Keyboard
-            let keyboardSettingsBox = new ScrollStackBox(this, {
-                widthRequest: leftBoxWidth
-            });
-            keyboardSettingsBox.addStackRow("Shortcuts", "Shortcuts", `${Me.path}/icons/prefs/preferences-desktop-keyboard-symbolic.svg`);
-            keyboardSettingsBox.addStackRow("Restore", "Restore", `${Me.path}/icons/prefs/appointment-soon-symbolic.svg`);
-            this.settingsStack.add_named(keyboardSettingsBox, "KeyboardSettings");
         }
 
         buildPanelBoxes() {
-            this.settingsPagesStack.add_named(new UnderConstructionPanel("Home"), "Home");
+            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
+            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Focus Hint"), "Focus Hint");
+            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Windows"), "Windows");
+            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
         }
     }
 );
@@ -317,6 +313,7 @@ var ScrollStackBox = GObject.registerClass(
             });
             listBox.connect("row-selected", (_self, row) => {
                 let listRow = row.get_children()[0];
+                this.prefsWidget.topLevel.set_title(`Forge Preferences - ${listRow.stack_name}`);
                 // Always check if the listbox row has children
                 // Autoload when no children, else activate the next child
                 if (!listRow.child_name) {
@@ -357,19 +354,15 @@ var ScrollStackBox = GObject.registerClass(
 
 var PanelBox = GObject.registerClass(
     class PanelBox extends Gtk.Box {
-        _init(title) {
+        _init(prefsWidget, title) {
             super._init({
                 orientation: Gtk.Orientation.VERTICAL,
                 margin: 24,
                 spacing: 20,
                 homogeneous: false
             });
-
-            this._title = new Gtk.Label({
-                label: `<b>${title}</b>`,
-                use_markup: true,
-                xalign: 0
-            });
+            this.prefsWidget = prefsWidget;
+            this.title = title;
         }
     }
 );
@@ -420,10 +413,29 @@ var ListBoxRow = GObject.registerClass(
     }
 );
 
+var MainSettingsPanel = GObject.registerClass(
+    class MainSettingsPanel extends PanelBox {
+        _init(prefsWidget, settings) {
+            super._init(prefsWidget, "MainSettings");
+            this.settings = settings;
+        }
+    }
+);
+
+var KeyboardSettingsPanel = GObject.registerClass(
+    class KeyboardSettingsPanel extends PanelBox {
+        _init(prefsWidget, settings) {
+            super._init(prefsWidget, "KeyboardSettings");
+            this.settings = settings;
+        }
+    }
+);
+
 var UnderConstructionPanel = GObject.registerClass(
     class UnderConstructionPanel extends PanelBox {
-        _init(label) {
-            super._init(label);
+        _init(prefsWidget, label) {
+            super._init(prefsWidget, label);
+            this.prefsWidget = prefsWidget;
             
             let logoPath = `${Me.path}/icons/prefs/forge-logo-symbolic.svg`;
             let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(logoPath, 100, 100);

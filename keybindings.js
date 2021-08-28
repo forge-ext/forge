@@ -24,6 +24,7 @@ const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
 const Shell = imports.gi.Shell;
 const St = imports.gi.St;
+const Util = imports.misc.util;
 
 // Gnome Shell imports
 const DND = imports.ui.dnd;
@@ -34,23 +35,20 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
-const Settings = Me.imports.settings;
 const Logger = Me.imports.logger;
 const Window = Me.imports.window;
 
 var Keybindings = GObject.registerClass(
     class Keybindings extends GObject.Object {
-        _init(forgeWm) {
+        _init(ext) {
             Logger.debug(`created keybindings`);
             this._grabbers = new Map();
             this._bindSignals();
-            this._forgeWm = forgeWm;
-
-            this._bindings = {
-                'kbd-focus-border-toggle': () => {
-                    // TODO, add any keyboard actions here
-                },
-            };
+            this.ext = ext;
+            this.forgeWm = ext.forgeWm;
+            this.kbdSettings = ext.kbdSettings;
+            this.settings = ext.settings;
+            this.buildBindingDefinitions();
         }
 
         _acceleratorActivate (action) {
@@ -76,22 +74,13 @@ var Keybindings = GObject.registerClass(
             for (const key in keybindings) {
                 Main.wm.addKeybinding(
                     key,
-                    Settings.getSettings(),
+                    this.kbdSettings,
                     Meta.KeyBindingFlags.NONE,
                     Shell.ActionMode.NORMAL,
                     keybindings[key]
                 );
             }
 
-            windowConfig.forEach((config) => {
-                config.shortcut.forEach((shortcut) => {
-                    this.listenFor(shortcut, () => {
-                        config.actions.forEach((action) => {
-                            this._forgeWm.command(action);
-                        });
-                    });
-                });
-            });
             Logger.debug(`keybindings:enable`);
         }
 
@@ -102,6 +91,28 @@ var Keybindings = GObject.registerClass(
                 Main.wm.removeKeybinding(key);
             }
 
+            Logger.debug(`keybindings:disable`);
+        }
+
+        checkConflict(shortcut) {
+            return false;
+        }
+
+        // @deprecated
+        enableListenForBindings() {
+            windowConfig.forEach((config) => {
+                config.shortcut.forEach((shortcut) => {
+                    this.listenFor(shortcut, () => {
+                        config.actions.forEach((action) => {
+                            this.forgeWm.command(action);
+                        });
+                    });
+                });
+            });
+        }
+
+        // @deprecated
+        disableListenForBindings() {
             // The existing grabber items are from the custom config by 
             // this extension.
             this._grabbers.forEach((grabber) => {
@@ -110,7 +121,6 @@ var Keybindings = GObject.registerClass(
             });
 
             this._grabbers.clear();
-            Logger.debug(`keybindings:disable`);
         }
 
         /**
@@ -144,131 +154,143 @@ var Keybindings = GObject.registerClass(
                 });
             }
         }
+
+        buildBindingDefinitions() {
+            this._bindings = {
+                "focus-border-toggle": () => {
+                },
+                "window-toggle-float": () => {
+                    let actions = [
+                        {
+                            name : "MoveResize",
+                            mode: "float",
+                            x : "center",
+                            y : "center",
+                            width: 0.65,
+                            height: 0.75
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-focus-left": () => {
+                    let actions = [
+                        {
+                            name : "Focus",
+                            direction: "Left"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-focus-down": () => {
+                    let actions = [
+                        {
+                            name : "Focus",
+                            direction: "Down"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-focus-up": () => {
+                    let actions = [
+                        {
+                            name : "Focus",
+                            direction: "Up"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-focus-right": () => {
+                    let actions = [
+                        {
+                            name : "Focus",
+                            direction: "Right"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-swap-left": () => {
+                    let actions = [
+                        {
+                            name : "Swap",
+                            direction: "Left"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-swap-down": () => {
+                    let actions = [
+                        {
+                            name : "Swap",
+                            direction: "Down"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-swap-up": () => {
+                    let actions = [
+                        {
+                            name : "Swap",
+                            direction: "Up"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-swap-right": () => {
+                    let actions = [
+                        {
+                            name : "Swap",
+                            direction: "Right"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "con-split-layout-toggle": () => {
+                    let actions = [
+                        { name: "LayoutToggle" }
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "con-split-vertical": () => {
+                    let actions = [
+                        { name: "Split", orientation: "vertical" }
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "con-split-horizontal": () => {
+                    let actions = [
+                        { name: "Split", orientation: "horizontal" }
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "prefs-open": () => {
+                    // TODO - find prefs.js if it is already open
+                    Util.spawnCommandLine("gnome-extensions prefs forge@jmmaranan.com");
+                },
+            };
+        }
     }
 );
-
-var windowConfig = [
-    {
-        name: 'float',
-        shortcut : ['<Super>c'],
-        actions: [
-            {
-                name : 'MoveResize',
-                mode: Window.WINDOW_MODES['FLOAT'],
-                x : 'center',
-                y : 'center',
-                width: 0.65,
-                height: 0.75
-            },
-        ],
-    },
-    {
-        name: 'navigate-left',
-        shortcut : ['<Super>h','<Super>left'],
-        actions: [
-            {
-                name : 'Focus',
-                direction: 'Left'
-            },
-        ],
-    },
-    {
-        name: 'navigate-right',
-        shortcut : ['<Super>l','<Super>right'],
-        actions: [
-            {
-                name : 'Focus',
-                direction: 'Right'
-            },
-        ],
-    },
-    {
-        name: 'navigate-up',
-        shortcut : ['<Super>k','<Super>up'],
-        actions: [
-            {
-                name : 'Focus',
-                direction: 'Up'
-            },
-        ],
-    },
-    {
-        name: 'navigate-down',
-        shortcut : ['<Super>j','<Super>down'],
-        actions: [
-            {
-                name : 'Focus',
-                direction: 'Down'
-            },
-        ],
-    },
-    {
-        name: 'split-horizontal',
-        shortcut: ['<Super>z'],
-        actions: [
-            {
-                name: 'Split',
-                orientation: 'horizontal'
-            }
-        ],
-    },
-    {
-        name: 'split-vertical',
-        shortcut: ['<Super>v'],
-        actions: [
-            {
-                name: 'Split',
-                orientation: 'vertical'
-            }
-        ],
-    },
-    {
-        name: 'swap-left',
-        shortcut : ['<Super><Shift>h','<Super><Shift>left'],
-        actions: [
-            {
-                name : 'Swap',
-                direction: 'Left'
-            },
-        ],
-    },
-    {
-        name: 'swap-right',
-        shortcut : ['<Super><Shift>l','<Super><Shift>right'],
-        actions: [
-            {
-                name : 'Swap',
-                direction: 'Right'
-            },
-        ],
-    },
-    {
-        name: 'swap-up',
-        shortcut : ['<Super><Shift>k','<Super><Shift>up'],
-        actions: [
-            {
-                name : 'Swap',
-                direction: 'Up'
-            },
-        ],
-    },
-    {
-        name: 'swap-down',
-        shortcut : ['<Super><Shift>j','<Super><Shift>down'],
-        actions: [
-            {
-                name : 'Swap',
-                direction: 'Down'
-            },
-        ],
-    },
-    {
-        name: 'layout-toggle',
-        shortcut: ['<Super>g'],
-        actions: [
-            {
-                name: 'LayoutToggle'
-            }
-        ],
-    }
-];
