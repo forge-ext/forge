@@ -272,3 +272,24 @@ function removeGapOnRect(rectWithGap) {
     rectWithGap.height = rectWithGap.height += gap * 2;
     return rectWithGap;
 }
+
+// Credits: PopShell
+function findWindowWith(title) {
+    let display = global.display;
+    let type = Meta.TabList.NORMAL_ALL;
+    let workspaceMgr = display.get_workspace_manager();
+    let workspaces = workspaceMgr.get_n_workspaces();
+
+    for (let wsId = 1; wsId <= workspaces; wsId++) {
+        let workspace = workspaceMgr.get_workspace_by_index(wsId);
+        for (const metaWindow of display.get_tab_list(type, workspace)) {
+            if (metaWindow.title && title &&
+                (metaWindow.title === title ||
+                    metaWindow.title.includes(title))) {
+                return metaWindow;
+            }
+        }
+    }
+
+    return undefined;
+}

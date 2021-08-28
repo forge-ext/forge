@@ -37,6 +37,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Logger = Me.imports.logger;
 const Window = Me.imports.window;
+const ExtUtils = Me.imports.utils;
 
 var Keybindings = GObject.registerClass(
     class Keybindings extends GObject.Object {
@@ -287,8 +288,17 @@ var Keybindings = GObject.registerClass(
                     });
                 },
                 "prefs-open": () => {
-                    // TODO - find prefs.js if it is already open
-                    Util.spawnCommandLine("gnome-extensions prefs forge@jmmaranan.com");
+                    let prefsTitle = "Forge Preferences";
+                    let existWindow = ExtUtils.findWindowWith(prefsTitle);
+                    if (existWindow && existWindow.get_workspace()) {
+                        existWindow.get_workspace().activate_with_focus(existWindow,
+                            global.display.get_current_time());
+                    } else {
+                        Util.spawnCommandLine("gnome-extensions prefs forge@jmmaranan.com");
+                        let newPrefsWindow = ExtUtils.findWindowWith(prefsTitle);
+                        newPrefsWindow.get_workspace().activate_with_focus(existWindow,
+                            global.display.get_current_time());
+                    }
                 },
             };
         }
