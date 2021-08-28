@@ -84,7 +84,9 @@ var ForgeWindowManager = GObject.registerClass(
 
             this._displaySignals = [
                 display.connect("window-created", this.trackWindow.bind(this)),
-                display.connect("window-entered-monitor", this.updateMetaWorkspaceMonitor.bind(this)),
+                display.connect("window-entered-monitor", (_, monitor, metaWindow) => {
+                    this.updateMetaWorkspaceMonitor("window-entered-monitor", monitor, metaWindow);
+                }),
                 display.connect("window-left-monitor", () => {
                     Logger.debug(`window-left-monitor`);
                 }),
@@ -203,8 +205,7 @@ var ForgeWindowManager = GObject.registerClass(
                 if (!metaWorkspace.workspaceSignals) {
                     let workspaceSignals = [
                         metaWorkspace.connect("window-added", (_, metaWindow) => {
-                            this.updateMetaWorkspaceMonitor(global.display, metaWindow.get_monitor(), metaWindow);
-                            Logger.debug(`workspace:window-added ${metaWindow.get_wm_class()}`);
+                            this.updateMetaWorkspaceMonitor("window-added", metaWindow.get_monitor(), metaWindow);
                         }),
                     ];
                     metaWorkspace.workspaceSignals = workspaceSignals;
@@ -545,7 +546,7 @@ var ForgeWindowManager = GObject.registerClass(
                         for (let w = 0; w < windows.length; w++) {
                             let nodeWindow = windows[w];
                             if (nodeWindow && nodeWindow._data)
-                                this.updateMetaWorkspaceMonitor(global.display,
+                                this.updateMetaWorkspaceMonitor("reload-tree",
                                     nodeWindow._data.get_monitor(),
                                     nodeWindow._data);
                         }
@@ -785,7 +786,7 @@ var ForgeWindowManager = GObject.registerClass(
         /**
          * Handles any workspace/monitor update for the Meta.Window.
          */
-        updateMetaWorkspaceMonitor(_, monitor, metaWindow) {
+        updateMetaWorkspaceMonitor(from, monitor, metaWindow) {
             if (this._validWindow(metaWindow)) {
                 if (metaWindow.get_workspace() === null) return;
                 let existNodeWindow = this._tree.findNode(metaWindow);
@@ -797,10 +798,8 @@ var ForgeWindowManager = GObject.registerClass(
                         Logger.trace(`parent-monitorWorkspace:${existNodeWindow._parent._data}`);
                         // Uses the existing workspace, monitor that the metaWindow
                         // belongs to.
-                        let windowInMonitor = this._tree.findNodeWindowFrom(
-                            existNodeWindow, metaMonWsNode);
-                        Logger.debug(`window found in monitor ${windowInMonitor}`);
-                        if (!windowInMonitor) {
+                        if (existNodeWindow !== metaMonWsNode) {
+                            Logger.warn("window is not in same monitor-workspace");
                             // handle cleanup of resize percentages
                             let existParent = existNodeWindow._parent;
                             this._tree.removeNode(existNodeWindow);
@@ -808,17 +807,21 @@ var ForgeWindowManager = GObject.registerClass(
                             let movedNodeWindow = this._tree.addNode(metaMonWs,
                                 Tree.NODE_TYPES['WINDOW'], metaWindow);
                             movedNodeWindow.mode = existNodeWindow.mode;
+                            // Below ensures that some apps like Firefox gets focused
+                            metaWindow.get_workspace()
+                                .activate_with_focus(metaWindow,
+                                    global.display.get_current_time());
                             // adjust the children of the target MonWs
                             this._tree.resetSiblingPercent(metaMonWsNode);
                         }
                     }
                 }
-                Logger.debug(`window-entered-monitor: ${metaWindow.get_wm_class()}`);
+                Logger.debug(`update-ws-mon:${from}: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${monitor} `);
-                this.showBorderFocusWindow();
-                this.renderTree("update-workspace-monitor");
+                this.renderTree(from);
             }
+            this.showBorderFocusWindow();
         }
 
         /**
