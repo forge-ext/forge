@@ -295,9 +295,16 @@ var Keybindings = GObject.registerClass(
                             global.display.get_current_time());
                     } else {
                         Util.spawnCommandLine("gnome-extensions prefs forge@jmmaranan.com");
-                        let newPrefsWindow = ExtUtils.findWindowWith(prefsTitle);
-                        newPrefsWindow.get_workspace().activate_with_focus(existWindow,
-                            global.display.get_current_time());
+
+                        // Wait for it to appear on TabList
+                        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
+                            let newPrefsWindow = ExtUtils.findWindowWith(prefsTitle);
+                            if (newPrefsWindow) {
+                                newPrefsWindow.get_workspace()
+                                    .activate_with_focus(newPrefsWindow,
+                                global.display.get_current_time());
+                            }
+                        });
                     }
                 },
             };
