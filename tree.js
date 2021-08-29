@@ -364,6 +364,7 @@ var Tree = GObject.registerClass(
                 node._type === NODE_TYPES['WORKSPACE'] ||
                 node._type === NODE_TYPES['MONITOR']) {
                 // TODO focus on the next node window
+                Logger.trace(`next:${node._type}`);
                 return null;
             }
 
@@ -390,8 +391,10 @@ var Tree = GObject.registerClass(
 
                         let targetMoData = `mo${targetMonitor}ws${prevNode._data.get_workspace().index()}`;
                         next = this.findNode(targetMoData);
+                        Logger.trace(`next:${node._type}`);
                         if (next) return next;
                     } else {
+                        Logger.trace(`next:${node._type}`);
                         return null;
                     }
                 }
@@ -406,6 +409,7 @@ var Tree = GObject.registerClass(
                         let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
                         if (nextIndex !== -1 && !(nextIndex > nodeParent._nodes.length - 1)) {
                             next = nodeParent._nodes[nextIndex];
+                            Logger.trace(`next:${node._type}`);
                             if (next) return next;
                         }
                     }

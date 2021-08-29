@@ -157,6 +157,11 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug(`minimized ${this.focusMetaWindow.title}`);
                 }),
                 shellWm.connect("unminimize", () => {
+                    let focusNodeWindow = this._tree.findNode(this.focusMetaWindow);
+                    if (focusNodeWindow) {
+                        focusNodeWindow.percent = 0.0;
+                        this._tree.resetSiblingPercent(focusNodeWindow._parent);
+                    }
                     this.renderTree("unminimize");
                     Logger.debug(`unminimize`);
                 }),
@@ -248,12 +253,14 @@ var ForgeWindowManager = GObject.registerClass(
                         switch(nodeType) {
                             case Tree.NODE_TYPES['WINDOW']:
                                 if (this.floatingWindow(nextFocusNode) || nextFocusNode._data.minimized) {
+                                    Logger.warn(`focus: window is minimized or floating`);
                                     focusNext(nextFocusNode);
+                                } else {
+                                    // TODO, maybe put the code block below in a new function
+                                    nextFocusNode._data.raise();
+                                    nextFocusNode._data.activate(global.get_current_time());
+                                    nextFocusNode._data.focus(global.get_current_time());
                                 }
-                                // TODO, maybe put the code block below in a new function
-                                nextFocusNode._data.raise();
-                                nextFocusNode._data.activate(global.get_current_time());
-                                nextFocusNode._data.focus(global.get_current_time());
                                 break;
                             case Tree.NODE_TYPES['CON']:
                             case Tree.NODE_TYPES['MONITOR']:
@@ -262,11 +269,13 @@ var ForgeWindowManager = GObject.registerClass(
                                     // Always try to find the next window
                                     if (this.floatingWindow(nextFocusNode) ||
                                         nextFocusNode._data.minimized) {
+                                        Logger.warn(`focus: window is minimized or floating`);
                                         focusNext(nextFocusNode);
+                                    } else {
+                                        nextFocusNode._data.raise();
+                                        nextFocusNode._data.activate(global.get_current_time());
+                                        nextFocusNode._data.focus(global.get_current_time());
                                     }
-                                    nextFocusNode._data.raise();
-                                    nextFocusNode._data.activate(global.get_current_time());
-                                    nextFocusNode._data.focus(global.get_current_time());
                                 }
                                 break;
                         }
@@ -863,10 +872,10 @@ var ForgeWindowManager = GObject.registerClass(
 
                         firstRect = focusNodeWindow.initRect;
                         if (resizePairForWindow) {
-                            if (!this.floatingWindow(resizePairForWindow)) {
+                            if (!this.floatingWindow(resizePairForWindow)
+                                && !this.minimizedWindow(resizePairForWindow)) {
                                 secondRect = resizePairForWindow.rect;
-                            }
-                        }
+                            }                        }
 
                         if (!firstRect || !secondRect) {
                             Logger.warn(`first and second rect pairs not available`);
@@ -920,7 +929,8 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                         firstRect = focusNodeWindow.initRect;
                         if (resizePairForWindow) {
-                            if (!this.floatingWindow(resizePairForWindow)) {
+                            if (!this.floatingWindow(resizePairForWindow)
+                                && !this.minimizedWindow(resizePairForWindow)) {
                                 secondRect = resizePairForWindow.rect;
                             }
                         }
@@ -1002,6 +1012,13 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.warn(`move-pointer with monitor to ${rect.x}, ${rect.y}`);
                 gdkPointer.warp(gdkScreen, rect.x, rect.y);
             }
+        }
+
+        minimizedWindow(node) {
+            if (!node) return false;
+            return (node._type === Tree.NODE_TYPES['WINDOW']
+                && node._data
+                && node._data.minimized);
         }
     }
 );
