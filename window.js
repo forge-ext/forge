@@ -115,7 +115,6 @@ var ForgeWindowManager = GObject.registerClass(
                         if (focusNodeWindow) {
                             focusNodeWindow.grabbed = false;
                             focusNodeWindow.initRect = null;
-                            focusNodeWindow.initParentRect = null;
                         }
                     }
                     Logger.debug(`grab op end`);
@@ -123,6 +122,7 @@ var ForgeWindowManager = GObject.registerClass(
                 display.connect("grab-op-begin", (_, _display, _metaWindow, grabOp) => {
                     this.freezeRender();
                     let orientation = Utils.orientationFromGrab(grabOp);
+                    let direction = Utils.directionFromGrab(grabOp);
                     let focusWindow = this.focusMetaWindow;
                     if (focusWindow) {
                         let focusNodeWindow = this.findNodeWindow(focusWindow);
@@ -131,7 +131,7 @@ var ForgeWindowManager = GObject.registerClass(
                         if (resizeGrab) {
                             focusNodeWindow.grabbed = true;
                             focusNodeWindow.initRect = Utils.removeGapOnRect(focusWindow.get_frame_rect());
-                            focusNodeWindow.initParentRect = focusNodeWindow._parent.rect;
+                            focusNodeWindow.resizePairForWindow = this._tree.nextVisible(focusNodeWindow, direction);
                         }
                     }
                     Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}`);
@@ -153,6 +153,11 @@ var ForgeWindowManager = GObject.registerClass(
                     if (focusNodeWindow) {
                         focusNodeWindow.percent = 0.0;
                         this._tree.resetSiblingPercent(focusNodeWindow._parent);
+                        if (focusNodeWindow._parent._nodes.length === 1) {
+                            focusNodeWindow._parent.percent = 0.0;
+                            // TODO recurse upwards to find cons with individual windows
+                            // and reset percent for each of them.
+                        }
                     }
                     Logger.debug(`minimized ${this.focusMetaWindow.title}`);
                 }),
@@ -852,14 +857,13 @@ var ForgeWindowManager = GObject.registerClass(
                 let grabOp = global.display.get_grab_op();
                 let orientation = Utils.orientationFromGrab(grabOp);
                 let parentNodeForFocus = focusNodeWindow._parent;
-                let direction = Utils.directionFromGrab(grabOp);
                 let position = Utils.positionFromGrabOp(grabOp);
                 let currentRect = Utils.removeGapOnRect(focusWindow.get_frame_rect()); // normalize the rect without gaps
                 let firstRect;
                 let secondRect;
                 let parentRect;
 
-                let resizePairForWindow = this._tree.next(focusNodeWindow, direction);
+                let resizePairForWindow = focusNodeWindow.resizePairForWindow;
                 let sameParent = resizePairForWindow ?
                     resizePairForWindow._parent === focusNodeWindow._parent : false;
                 if (orientation === Tree.ORIENTATION_TYPES['HORIZONTAL']) {
@@ -875,7 +879,10 @@ var ForgeWindowManager = GObject.registerClass(
                             if (!this.floatingWindow(resizePairForWindow)
                                 && !this.minimizedWindow(resizePairForWindow)) {
                                 secondRect = resizePairForWindow.rect;
-                            }                        }
+                            } else {
+                                // TODO try to get the next resize pair?
+                            }
+                        }
 
                         if (!firstRect || !secondRect) {
                             Logger.warn(`first and second rect pairs not available`);
@@ -932,6 +939,8 @@ var ForgeWindowManager = GObject.registerClass(
                             if (!this.floatingWindow(resizePairForWindow)
                                 && !this.minimizedWindow(resizePairForWindow)) {
                                 secondRect = resizePairForWindow.rect;
+                            } else {
+                                // TODO try to get the next resize pair?
                             }
                         }
                         if (!firstRect || !secondRect) {

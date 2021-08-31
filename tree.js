@@ -420,6 +420,17 @@ var Tree = GObject.registerClass(
             return next;
         }
 
+        nextVisible(node, direction) {
+            if (!node) return null;
+            let next = this.next(node, direction);
+            if (next && next._type === NODE_TYPES['WINDOW']
+                && next._data
+                && next._data.minimized) {
+                next = this.nextVisible(next, direction);
+            }
+            return next;
+        }
+
         /**
          * Credits: i3-like split
          */
