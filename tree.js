@@ -326,12 +326,7 @@ var Tree = GObject.registerClass(
                 }
                 // handle split containers
                 if (node._type === NODE_TYPES['CON']) {
-                    if (node._nodes.length === 1 &&
-                        node._nodes[0]._type === NODE_TYPES['WINDOW'] &&
-                        node._nodes[0]._data.minimized) {
-                        return false;
-                    }
-                    return true;
+                    return this.getTiledChildren(node._nodes).length > 0;
                 }
                 return false;
             };
@@ -780,7 +775,7 @@ var Tree = GObject.registerClass(
 
         resetSiblingPercent(parentNode) {
             if (!parentNode) return;
-            let children = this.getTiledChildren(parentNode._nodes);
+            let children = parentNode._nodes;
             children.forEach((n) => {
                 n.percent = 0.0;
             });
