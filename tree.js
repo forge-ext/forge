@@ -718,8 +718,8 @@ var Tree = GObject.registerClass(
             return sizes;
         }
 
-        findFirstNodeWindowFrom(parentNode, direction) {
-            if (!parentNode) return undefined;
+        findFirstNodeWindowFrom(topNode, direction) {
+            if (!topNode) return undefined;
 
             let nodeWindow;
             let criteriaFn = (node) => {
@@ -736,13 +736,13 @@ var Tree = GObject.registerClass(
                 traversal = this._traverseDepthFirst;
             }
 
-            this._walkFrom(parentNode, criteriaFn, traversal);
+            this._walkFrom(topNode, criteriaFn, traversal);
 
             return nodeWindow;
         }
 
-        findNodeWindowFrom(nodeWindow, parentNode) {
-            if (!parentNode) return undefined;
+        findNodeWindowFrom(nodeWindow, topNode) {
+            if (!topNode) return undefined;
             let found = false;
             let criteriaFn = (node) => {
                 if (found) return;
@@ -751,7 +751,7 @@ var Tree = GObject.registerClass(
                 }
             };
 
-            this._walkFrom(parentNode, criteriaFn, this._traverseBreadthFirst);
+            this._walkFrom(topNode, criteriaFn, this._traverseBreadthFirst);
             return found;
         }
 

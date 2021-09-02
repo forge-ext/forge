@@ -817,11 +817,10 @@ var ForgeWindowManager = GObject.registerClass(
                 let metaMonWsNode = this._tree.findNode(metaMonWs);
                 if (existNodeWindow) {
                     if (existNodeWindow._parent && metaMonWsNode) {
-                        Logger.trace(`window-monitorWorkspace:${metaMonWs}`);
-                        Logger.trace(`parent-monitorWorkspace:${existNodeWindow._parent._data}`);
                         // Uses the existing workspace, monitor that the metaWindow
                         // belongs to.
-                        if (existNodeWindow !== metaMonWsNode) {
+                        let containsWindow = this._tree.findNodeWindowFrom(existNodeWindow, metaMonWsNode);
+                        if (!containsWindow) {
                             Logger.warn("window is not in same monitor-workspace");
                             // handle cleanup of resize percentages
                             let existParent = existNodeWindow._parent;
