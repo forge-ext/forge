@@ -829,12 +829,6 @@ var ForgeWindowManager = GObject.registerClass(
                             let movedNodeWindow = this._tree.addNode(metaMonWs,
                                 Tree.NODE_TYPES['WINDOW'], metaWindow);
                             movedNodeWindow.mode = existNodeWindow.mode;
-                            // Below ensures that some apps like Firefox gets focused
-                            metaWindow.get_workspace()
-                                .activate_with_focus(metaWindow,
-                                    global.display.get_current_time());
-                            // adjust the children of the target MonWs
-                            this._tree.resetSiblingPercent(metaMonWsNode);
                         }
                     }
                 }
