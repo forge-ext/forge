@@ -174,6 +174,7 @@ var PrefsWidget = GObject.registerClass(
             this.add(this.leftPanelBox);
             this.add(Gtk.Separator.new(Gtk.Orientation.VERTICAL));
             this.add(this.settingsPagesStack);
+            this.settings = Settings.getSettings();
 
             this.buildSettingsList();
             this.buildPanelBoxes();
@@ -244,6 +245,7 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Focus Hint"), "Focus Hint");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Windows"), "Windows");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
+            this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
         }
     }
 );
@@ -427,6 +429,48 @@ var KeyboardSettingsPanel = GObject.registerClass(
         _init(prefsWidget, settings) {
             super._init(prefsWidget, "KeyboardSettings");
             this.settings = settings;
+        }
+    }
+);
+
+var DeveloperSettingsPanel = GObject.registerClass(
+    class DeveloperSettingsPanel extends PanelBox {
+        _init(prefsWidget) {
+            super._init(prefsWidget, "DeveloperSettings");
+            this.settings = prefsWidget.settings;
+
+            let developmentFrame = new FrameListBox();
+            let loggingFrameRow = new ListBoxRow();
+
+            let loggingLabel = new Gtk.Label({
+                label: `Logging Level`,
+                use_markup: true,
+                xalign: 0,
+                hexpand: true
+            });
+
+            let loggingCombo = new Gtk.ComboBoxText();
+
+            for (const key in Logger.LOG_LEVELS) {
+                if (typeof Logger.LOG_LEVELS[key] === "number") {
+                    loggingCombo.append(`${Logger.LOG_LEVELS[key]}`, key);
+                }
+            }
+
+            let currentLogLevel = Logger.getLogLevel();
+
+            loggingCombo.set_active_id(`${currentLogLevel}`);
+            loggingCombo.connect("changed", () => {
+                let activeId = loggingCombo.get_active_id();
+                this.settings.set_uint("log-level", activeId);
+            });
+
+            loggingFrameRow.add(loggingLabel);
+            loggingFrameRow.add(loggingCombo);
+
+            developmentFrame.add(loggingFrameRow);
+            developmentFrame.show();
+            this.add(developmentFrame);
         }
     }
 );
