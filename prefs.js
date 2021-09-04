@@ -33,66 +33,10 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Logger = Me.imports.logger;
 const Settings = Me.imports.settings;
 
-var newPrefs = true;
-
-function init() {
-
-}
+function init() {}
 
 function buildPrefsWidget() {
-    let prefsWidget;
-    if (newPrefs) {
-        prefsWidget = new PrefsWidget();
-    } else {
-        prefsWidget = legacy();
-    }
-
-    return prefsWidget;
-}
-
-function legacy() {
-    let prefsWidget = new Gtk.Grid({
-        margin: 18,
-        column_spacing: 12,
-        row_spacing: 12
-    });
-
-    createLoggingCombo(prefsWidget);
-
-    // show the grid
-    prefsWidget.show_all();
-
-    return prefsWidget;
-}
-
-/**
- * Create Logger level changer in preferences
- * @param {grid} grid 
- */
-function createLoggingCombo(grid) {
-    let logLabel = new Gtk.Label({
-        label: `Log Level`,
-        halign: Gtk.Align.START
-    });
-
-    grid.attach(logLabel, 0, 0, 1, 1);
-
-    let logCombo = new Gtk.ComboBoxText();
-
-    for (const key in Logger.LOG_LEVELS) {
-        logCombo.append(`${Logger.LOG_LEVELS[key]}`, key);
-    }
-
-    let currentLogLevelVal = Logger.getLogLevel();
-
-    logCombo.set_active_id(`${currentLogLevelVal}`);
-    logCombo.connect("changed", () => {
-        let settings = Settings.getSettings();
-        let activeId = logCombo.get_active_id();
-        settings.set_uint("log-level", activeId);
-    });
-
-    grid.attach(logCombo, 1, 0, 1, 1);
+    return new PrefsWidget();
 }
 
 /*********************************************
@@ -322,7 +266,7 @@ var ScrollStackBox = GObject.registerClass(
             });
             listBox.connect("row-selected", (_self, row) => {
                 let listRow = row.get_children()[0];
-                this.prefsWidget.topLevel.set_title(`Forge Preferences - ${listRow.stack_name}`);
+                this.prefsWidget.topLevel.set_title(`Forge Preferences - ${listRow.label_name}`);
                 // Always check if the listbox row has children
                 // Autoload when no children, else activate the next child
                 if (!listRow.child_name) {
