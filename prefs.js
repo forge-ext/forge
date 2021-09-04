@@ -123,9 +123,7 @@ var PrefsWidget = GObject.registerClass(
                 topLevel.set_title("Forge Preferences");
                 topLevel.get_titlebar().pack_start(this.leftHeaderBox);
                 topLevel.add_accel_group(prefsAccelGroup);
-                topLevel.set_modal(true);
-                topLevel.set_type_hint(Gdk.WindowTypeHint.DIALOG);
-                topLevel.set_resizable(false);
+                topLevel.set_type_hint(Gdk.WindowTypeHint.NORMAL);
 
                 topLevel.connect("key-press-event", (_self, keyevent) => {
                     let [, val] = keyevent.get_keyval();
@@ -220,31 +218,38 @@ var PrefsWidget = GObject.registerClass(
             // TODO - translations!
 
             // Main Settings
-            let generalSettingsBox = new ScrollStackBox(this, {
-                widthRequest: leftBoxWidth
-            });
-            generalSettingsBox.addStackRow("Home", "Home", "go-home-symbolic");
+            let generalSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
+            generalSettingsBox.addStackRow("Home", "Home", `${Me.path}/icons/prefs/preferences-desktop-apps-symbolic.svg`);
             generalSettingsBox.addStackRow("Appearance", "Appearance", `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
-            generalSettingsBox.addStackRow("Keyboard", "Keyboard", `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`);
+            generalSettingsBox.addStackRow("Keyboard", "Keyboard", `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
             generalSettingsBox.addStackRow("Development", "Development", `${Me.path}/icons/prefs/code-context-symbolic.svg`);
             generalSettingsBox.addStackRow("Experimental", "Experimental", `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
             generalSettingsBox.addStackRow("About", "About", `${Me.path}/icons/prefs/forge-logo-symbolic.svg`);
             this.settingsStack.add_named(generalSettingsBox, "General");
 
             // Appearance
-            let appearanceSettingsBox = new ScrollStackBox(this, {
-                widthRequest: leftBoxWidth
-            });
-            appearanceSettingsBox.addStackRow("Focus Hint", "Focus Hint", `${Me.path}/icons/prefs/window-symbolic.svg`);
+            let appearanceSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
             appearanceSettingsBox.addStackRow("Windows", "Windows", `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
+            appearanceSettingsBox.addStackRow("Focus Hint", "Focus Hint", `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
             this.settingsStack.add_named(appearanceSettingsBox, "AppearanceSettings");
+
+            // Keyboard
+            let keyboardSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
+            keyboardSettingsBox.addStackRow("Window Shortcuts", "Window Shortcuts", `${Me.path}/icons/prefs/window-duplicate-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Container Shortcuts", "Container Shortcuts", `${Me.path}/icons/prefs/view-dual-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Focus Shortcuts", "Focus Shortcuts", `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Other Shortcuts", "Other Shortcuts", `${Me.path}/icons/prefs/view-grid-symbolic.svg`);
+            this.settingsStack.add_named(keyboardSettingsBox, "KeyboardSettings");
         }
 
         buildPanelBoxes() {
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Focus Hint"), "Focus Hint");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Windows"), "Windows");
-            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this), "Keyboard");
+            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "window-"), "Window Shortcuts");
+            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
+            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "focus-"), "Focus Shortcuts");
+            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "prefs-"), "Others Shortcuts");
             this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Experimental"), "Experimental");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "About"), "About");
@@ -299,7 +304,7 @@ var ScrollStackBox = GObject.registerClass(
             if (childName) {
                 row.child_name = childName;
                 let nextPageIcon = new Gtk.Image({
-                    gicon: Gio.icon_new_for_string("go-next-symbolic"),
+                    gicon: Gio.icon_new_for_string(`${Me.path}/icons/prefs/go-next-symbolic.svg`),
                     halign: Gtk.Align.END,
                     hexpand: true
                 });
@@ -439,10 +444,12 @@ var MainSettingsPanel = GObject.registerClass(
 
 var KeyboardSettingsPanel = GObject.registerClass(
     class KeyboardSettingsPanel extends PanelBox {
-        _init(prefsWidget) {
-            super._init(prefsWidget, "KeyboardSettings");
+        _init(prefsWidget, category) {
+            super._init(prefsWidget, `Keyboard Settings ${category}`);
             this.settings = prefsWidget.settings;
-            this.refSettings = this.buildRefSettings();
+            this.category = category; //window-, focus-, con-
+            // TODO - calling this each time can introduce performance issues
+            // this.refSettings = this.buildRefSettings();
             this.schemaName = "org.gnome.shell.extensions.forge.keybindings";
             this.kbdSettings = Settings.getSettings(this.schemaName);
 
@@ -462,8 +469,8 @@ var KeyboardSettingsPanel = GObject.registerClass(
             });
 
             descriptionBox.add(shortcutHeader);
-            descriptionBox.add(createLabel(`Syntax Example: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
-            descriptionBox.add(createLabel(`Press Return key to accept. Delete text to unset. <i>Resets</i> to previous value when invalid`));
+            descriptionBox.add(createLabel(`<i>Syntax Example</i>: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
+            descriptionBox.add(createLabel(`Delete text to unset. Press Return key to accept. <i>Resets</i> to previous value when invalid`));
             this.add(descriptionBox);
 
             let shortcutGrid = new Gtk.Grid({
@@ -473,7 +480,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
             });
 
             this.createShortcutHeader(shortcutGrid);
-            let keys = this.createKeyList(this.schemaName);
+            let keys = this.createKeyList(this.schemaName, this.category);
 
             keys.forEach((key, rowIndex) => {
                 rowIndex += 1; // the header is zero index, bump by 1
@@ -486,7 +493,9 @@ var KeyboardSettingsPanel = GObject.registerClass(
         }
 
         createShortcutHeader(grid) {
-            grid.attach(createLabel(`Action`), 0, 0, 1, 1);
+            let headerAction = createLabel(`Action`);
+            headerAction.width_chars = 30;
+            grid.attach(headerAction, 0, 0, 1, 1);
             grid.attach(createLabel(`Shortcut`), 1, 0, 1, 1);
             grid.attach(createLabel(`Conflicts With`), 2, 0, 1, 1);
         }
@@ -496,9 +505,14 @@ var KeyboardSettingsPanel = GObject.registerClass(
             grid.attach(actionLabel, 0, rowIndex, 1, 1);
 
             let shortcutEntry = new Gtk.Entry({
-                text: shortcut
+                text: shortcut,
+                width_request: 150
             });
             shortcutEntry.prev = shortcut;
+            this.kbdSettings.connect(`changed::${actionName}`, () => {
+                let value = this.kbdSettings.get_strv(actionName).toString();
+                shortcutEntry.text = value;
+            });
             shortcutEntry.connect("activate", (self) => {
                 if (!this.setShortcut(actionName, self.text)) {
                     self.text = self.prev;
@@ -530,9 +544,18 @@ var KeyboardSettingsPanel = GObject.registerClass(
             }
         }
 
-        createKeyList(schemaName) {
+        createKeyList(schemaName, categoryName) {
             let settingsSchema = Settings.getSettingsSchema(schemaName);
             let keys = settingsSchema.list_keys();
+
+            let filterFn = (keyName) => {
+                if (!keyName) return false;
+                if (!categoryName) return false;
+
+                return keyName.indexOf(categoryName) === 0;
+            }
+
+            keys = keys.filter(filterFn);
 
             let alphaSortFn = (a, b) => {
                 let aUp = a.toUpperCase();
@@ -546,6 +569,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
             return keys;
         }
 
+        // TODO move this to keybindings.js or settings.js
         buildRefSettings() {
             let refSettings = {};
             // List of schemas that might have conflicts with the keybindings for Forge
