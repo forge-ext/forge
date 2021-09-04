@@ -38,6 +38,13 @@ const Me = ExtensionUtils.getCurrentExtension();
  *  - See credits also on that file for further derivatives.
  */
 function getSettings(schema) {
+    let settingsSchema = getSettingsSchema(schema);
+    return new Gio.Settings({
+        settings_schema: settingsSchema
+    });
+}
+
+function getSettingsSchema(schema) {
     let extension = ExtensionUtils.getCurrentExtension();
 
     schema = schema || extension.metadata['settings-schema'];
@@ -51,21 +58,19 @@ function getSettings(schema) {
     // in the standard folders)
     let schemaDir = extension.dir.get_child('schemas');
     let schemaSource;
-    if (schemaDir.query_exists(null))
+    if (schemaDir.query_exists(null)) {
         schemaSource = GioSSS.new_from_directory(schemaDir.get_path(),
                                                  GioSSS.get_default(),
                                                  false);
-    else
+    } else {
         schemaSource = GioSSS.get_default();
+    }
 
-    let schemaObj = schemaSource.lookup(schema, true);
-    if (!schemaObj)
+    let settingsSchema = schemaSource.lookup(schema, true);
+    if (!settingsSchema)
         throw new Error('Schema ' + schema + 
             ' could not be found for extension ' + extension.metadata.uuid + 
             '. Please check your installation.');
-
-    return new Gio.Settings({
-        settings_schema: schemaObj
-    });
+    return settingsSchema;
 }
 

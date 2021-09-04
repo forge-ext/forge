@@ -31,6 +31,10 @@
     border-style: solid;
 }
 
+.kbd-shortcut:focus {
+    color: #ec5e5e !important;
+}
+
 .icon-grid .app-well-app:hover,
 #searchResultsContent .app-well-app:hover,
 .search-section-content-item:hover,

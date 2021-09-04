@@ -107,7 +107,7 @@ var PrefsWidget = GObject.registerClass(
                 orientation: Gtk.Orientation.HORIZONTAL,
                 border_width: 0,
                 margin: 0,
-                width_request: 750,
+                width_request: 950,
                 height_request: 550
             });
 
@@ -244,8 +244,10 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Focus Hint"), "Focus Hint");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Windows"), "Windows");
-            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
+            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this), "Keyboard");
             this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
+            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Experimental"), "Experimental");
+            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "About"), "About");
         }
     }
 );
@@ -415,20 +417,153 @@ var ListBoxRow = GObject.registerClass(
     }
 );
 
+let createLabel = (text) => {
+    let newLabel = new Gtk.Label({
+        label: text,
+        use_markup: true,
+        xalign: 0,
+        hexpand: true
+    });
+
+    return newLabel;
+}
+
 var MainSettingsPanel = GObject.registerClass(
     class MainSettingsPanel extends PanelBox {
-        _init(prefsWidget, settings) {
+        _init(prefsWidget) {
             super._init(prefsWidget, "MainSettings");
-            this.settings = settings;
+            this.settings = prefsWidget.settings;
         }
     }
 );
 
 var KeyboardSettingsPanel = GObject.registerClass(
     class KeyboardSettingsPanel extends PanelBox {
-        _init(prefsWidget, settings) {
+        _init(prefsWidget) {
             super._init(prefsWidget, "KeyboardSettings");
-            this.settings = settings;
+            this.settings = prefsWidget.settings;
+            this.refSettings = this.buildRefSettings();
+            this.schemaName = "org.gnome.shell.extensions.forge.keybindings";
+            this.kbdSettings = Settings.getSettings(this.schemaName);
+
+            let shortcutsFrame = new FrameListBox();
+            let shortcutHeader = new Gtk.Label({
+                label: `<b>Update Keybindings</b>`,
+                use_markup: true,
+                xalign: 0,
+                hexpand: true
+            });
+
+            let descriptionBox = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 6,
+                spacing: 5,
+                homogeneous: false
+            });
+
+            descriptionBox.add(shortcutHeader);
+            descriptionBox.add(createLabel(`Syntax Example: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
+            descriptionBox.add(createLabel(`Press Return key to accept. Delete text to unset. <i>Resets</i> to previous value when invalid`));
+            this.add(descriptionBox);
+
+            let shortcutGrid = new Gtk.Grid({
+                margin: 12,
+                column_spacing: 10,
+                row_spacing: 10
+            });
+
+            this.createShortcutHeader(shortcutGrid);
+            let keys = this.createKeyList(this.schemaName);
+
+            keys.forEach((key, rowIndex) => {
+                rowIndex += 1; // the header is zero index, bump by 1
+                let value = this.kbdSettings.get_strv(key).toString();
+                this.createShortcutRow(shortcutGrid, key, value, rowIndex);
+            });
+
+            shortcutsFrame.add(shortcutGrid);
+            this.add(shortcutsFrame);
+        }
+
+        createShortcutHeader(grid) {
+            grid.attach(createLabel(`Action`), 0, 0, 1, 1);
+            grid.attach(createLabel(`Shortcut`), 1, 0, 1, 1);
+            grid.attach(createLabel(`Conflicts With`), 2, 0, 1, 1);
+        }
+
+        createShortcutRow(grid, actionName, shortcut, rowIndex) {
+            let actionLabel = createLabel(actionName);
+            grid.attach(actionLabel, 0, rowIndex, 1, 1);
+
+            let shortcutEntry = new Gtk.Entry({
+                text: shortcut
+            });
+            shortcutEntry.prev = shortcut;
+            shortcutEntry.connect("activate", (self) => {
+                if (!this.setShortcut(actionName, self.text)) {
+                    self.text = self.prev;
+                } else {
+                    self.prev = self.text;
+                }
+            });
+            grid.attach(shortcutEntry, 1, rowIndex, 1, 1);
+            // TODO check for conflicts
+            grid.attach(createLabel(`--`), 2, rowIndex, 1, 1);
+        }
+
+        setShortcut(actionName, shortcut) {
+            if (!shortcut || shortcut === "") {
+                // when empty or blank entry, remove the shortcut
+                this.kbdSettings.set_strv(actionName, []);
+                return true;
+            } else {
+                let [key, mods] = Gtk.accelerator_parse(shortcut);
+
+                if (Gtk.accelerator_valid(key, mods)) {
+                    let shortcut = Gtk.accelerator_name(key, mods);
+                    this.kbdSettings.set_strv(actionName, [shortcut]);
+                    return true;
+                } else {
+                    // TODO warn user not valid
+                    return false;
+                }
+            }
+        }
+
+        createKeyList(schemaName) {
+            let settingsSchema = Settings.getSettingsSchema(schemaName);
+            let keys = settingsSchema.list_keys();
+
+            let alphaSortFn = (a, b) => {
+                let aUp = a.toUpperCase();
+                let bUp = b.toUpperCase();
+                if (aUp < bUp) return -1;
+                if (aUp > bUp) return 1;
+                return 0;
+            };
+
+            keys.sort(alphaSortFn);
+            return keys;
+        }
+
+        buildRefSettings() {
+            let refSettings = {};
+            // List of schemas that might have conflicts with the keybindings for Forge
+            let referenceSchemas = [
+                "org.gnome.desktop.wm.keybindings",
+                "org.gnome.mutter.wayland.keybindings",
+                "org.gnome.shell.keybindings",
+                "org.gnome.shell.extensions.pop-shell",
+                "com.gexperts.Tilix.Keybindings",
+                "org.gnome.mutter.keybindings"
+            ];
+
+            referenceSchemas.forEach((schema) => {
+                let refSetting = Settings.getSettings(schema);
+                refSettings[schema] = refSetting;
+            });
+
+            return refSettings;
         }
     }
 );
