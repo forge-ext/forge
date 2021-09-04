@@ -150,7 +150,7 @@ var ForgeWindowManager = GObject.registerClass(
                     this.hideWindowBorders();
                     let focusNodeWindow = this._tree.findNode(this.focusMetaWindow);
                     if (focusNodeWindow) {
-                        if (this._tree.getTiledChildren(focusNodeWindow._parent._nodes).length <= 1) {
+                        if (this._tree.getTiledChildren(focusNodeWindow._parent._nodes).length === 0) {
                             this._tree.resetSiblingPercent(focusNodeWindow._parent._parent);
                         }
                         this._tree.resetSiblingPercent(focusNodeWindow._parent);
@@ -778,7 +778,7 @@ var ForgeWindowManager = GObject.registerClass(
                     Tree.NODE_TYPES['MONITOR']) {
                     let existParent = parentNode._parent;
                     this._tree.removeNode(parentNode);
-                    if (this._tree.getTiledChildren(existParent._nodes).length <= 1) {
+                    if (this._tree.getTiledChildren(existParent._nodes).length === 0) {
                         existParent.percent = 0.0;
                         this._tree.resetSiblingPercent(existParent._parent);
                     }
@@ -786,7 +786,7 @@ var ForgeWindowManager = GObject.registerClass(
                 } else {
                     let existParent = nodeWindow._parent;
                     this._tree.removeNode(nodeWindow);
-                    if (this._tree.getTiledChildren(existParent._nodes).length <= 1) {
+                    if (this._tree.getTiledChildren(existParent._nodes).length === 0) {
                         existParent.percent = 0.0;
                         this._tree.resetSiblingPercent(existParent._parent);
                     }
