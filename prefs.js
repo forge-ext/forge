@@ -193,7 +193,7 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "window-"), "Window Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "focus-"), "Focus Shortcuts");
-            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "prefs-"), "Others Shortcuts");
+            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "prefs-"), "Other Shortcuts");
             this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Experimental"), "Experimental");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "About"), "About");

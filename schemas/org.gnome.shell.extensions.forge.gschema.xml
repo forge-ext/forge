@@ -63,22 +63,22 @@
         </key>
 
         <key type="as" name="focus-border-size-increase">
-            <default><![CDATA[['<Shift><Super>Plus']]]></default>
+            <default><![CDATA[['<Shift><Super>plus']]]></default>
             <summary>Increase the size of the focus border</summary>
         </key>
 
         <key type="as" name="focus-border-size-decrease">
-            <default><![CDATA[['<Shift><Super>Minus']]]></default>
+            <default><![CDATA[['<Shift><Super>minus']]]></default>
             <summary>Decrease the size of the focus border</summary>
         </key>
 
         <key type="as" name="window-gap-size-increase">
-            <default><![CDATA[['<Ctrl><Super>Plus']]]></default>
+            <default><![CDATA[['<Ctrl><Super>plus']]]></default>
             <summary>Increase the size of the focus border</summary>
         </key>
 
         <key type="as" name="window-gap-size-decrease">
-            <default><![CDATA[['<Ctrl><Super>Minus']]]></default>
+            <default><![CDATA[['<Ctrl><Super>minus']]]></default>
             <summary>Decrease the size of the focus border</summary>
         </key>
 
@@ -163,7 +163,7 @@
         </key>
 
         <key type="as" name="prefs-open">
-            <default><![CDATA[['<Super>Period']]]></default>
+            <default><![CDATA[['<Super>period']]]></default>
             <summary>Open the extension's preferences</summary>
         </key>
     </schema>

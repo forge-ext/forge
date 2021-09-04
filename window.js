@@ -204,6 +204,18 @@ var ForgeWindowManager = GObject.registerClass(
                 this.bindWorkspaceSignals(workspace);
             }
 
+            let settings = this.ext.settings;
+
+            settings.connect("changed", (_, settingName) => {
+                switch (settingName) {
+                    case "focus-border-toggle":
+                        this.showBorderFocusWindow();
+                        break;
+                    default:
+                        break;
+                }
+            });
+
             this._signalsBound = true;
         }
 
@@ -356,6 +368,10 @@ var ForgeWindowManager = GObject.registerClass(
                     this._tree.attachNode = focusNodeWindow._parent;
                     this.renderTree("layout-toggle");
                     this.showBorderFocusWindow();
+                    break;
+                case "FocusBorderToggle":
+                    let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
+                    this.ext.settings.set_boolean("focus-border-toggle", !focusBorderEnabled);
                     break;
                 default:
                     break;
@@ -590,49 +606,58 @@ var ForgeWindowManager = GObject.registerClass(
             let metaWindow = this.focusMetaWindow;
             if (!metaWindow) return;
             let windowActor = metaWindow.get_compositor_private();
-            if (windowActor && windowActor.border) {
-                let borders = [windowActor.border];
-                let rect = metaWindow.get_frame_rect();
-                let inset = 2; //TODO make configurable
+            if (!windowActor) return;
+
+            let borders = [];
+            let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
+            let splitBorderEnabled = this.ext.settings.get_boolean("split-border-toggle");
+
+            if (windowActor.border && focusBorderEnabled) {
                 let maximized = () => {
                     return metaWindow.get_maximized() !== 0 ||
                         metaWindow.is_fullscreen();
                 }
                 if (maximized()) return;
-                // handle the split border
-                let nodeWindow = this.findNodeWindow(metaWindow);
-                if (nodeWindow &&
-                    nodeWindow._parent._nodes.length === 1 &&
-                    (nodeWindow._parent._type === Tree.NODE_TYPES['CON'] ||
-                        nodeWindow._parent._type === Tree.NODE_TYPES['MONITOR'])) {
-                    if (!windowActor.splitBorder) {
-                        let splitBorder = new St.Bin({style_class: "window-split-direction-horizontal"});
-                        global.window_group.add_child(splitBorder);
-                        windowActor.splitBorder = splitBorder;
-                        Logger.debug(`focus-border: create split border`);
-                    } 
+                borders.push(windowActor.border);
 
-                    let splitBorder = windowActor.splitBorder;
-                    if (nodeWindow._parent.layout === Tree.LAYOUT_TYPES['VSPLIT']) {
-                        splitBorder.set_style_class_name("window-split-direction-vertical");
-                    } else {
-                        splitBorder.set_style_class_name("window-split-direction-horizontal");
-                    }
-                    borders.push(splitBorder);
-                }
-
-                borders.forEach((border) => {
-                    border.set_size(rect.width + (inset * 2), rect.height + (inset * 2));
-                    border.set_position(rect.x - inset, rect.y - inset);
-                    if (metaWindow.appears_focused && !metaWindow.minimized) {
-                        border.show();
-                    }
-                    if (global.window_group && global.window_group.contains(border)) {
-                        global.window_group.remove_child(border);
-                        global.window_group.add_child(border);
-                    }
-                });
             }
+
+            // handle the split border
+            let nodeWindow = this.findNodeWindow(metaWindow);
+            if (nodeWindow && splitBorderEnabled &&
+                nodeWindow._parent._nodes.length === 1 &&
+                (nodeWindow._parent._type === Tree.NODE_TYPES['CON'] ||
+                    nodeWindow._parent._type === Tree.NODE_TYPES['MONITOR'])) {
+                if (!windowActor.splitBorder) {
+                    let splitBorder = new St.Bin({style_class: "window-split-direction-horizontal"});
+                    global.window_group.add_child(splitBorder);
+                    windowActor.splitBorder = splitBorder;
+                    Logger.debug(`focus-border: create split border`);
+                } 
+
+                let splitBorder = windowActor.splitBorder;
+                if (nodeWindow._parent.layout === Tree.LAYOUT_TYPES['VSPLIT']) {
+                    splitBorder.set_style_class_name("window-split-direction-vertical");
+                } else {
+                    splitBorder.set_style_class_name("window-split-direction-horizontal");
+                }
+                borders.push(splitBorder);
+            }
+
+            let rect = metaWindow.get_frame_rect();
+            let inset = 2; //TODO make configurable
+
+            borders.forEach((border) => {
+                border.set_size(rect.width + (inset * 2), rect.height + (inset * 2));
+                border.set_position(rect.x - inset, rect.y - inset);
+                if (metaWindow.appears_focused && !metaWindow.minimized) {
+                    border.show();
+                }
+                if (global.window_group && global.window_group.contains(border)) {
+                    global.window_group.remove_child(border);
+                    global.window_group.add_child(border);
+                }
+            });
             Logger.trace(`show-border-focus-window`);
         }
 

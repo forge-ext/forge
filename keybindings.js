@@ -44,7 +44,7 @@ var Keybindings = GObject.registerClass(
         _init(ext) {
             Logger.debug(`created keybindings`);
             this._grabbers = new Map();
-            this._bindSignals();
+            // this._bindSignals();
             this.ext = ext;
             this.forgeWm = ext.forgeWm;
             this.kbdSettings = ext.kbdSettings;
@@ -286,6 +286,10 @@ var Keybindings = GObject.registerClass(
                     actions.forEach((action) => {
                         this.forgeWm.command(action);
                     });
+                },
+                "focus-border-toggle": () => {
+                    let action = { name: "FocusBorderToggle" };
+                    this.forgeWm.command(action);
                 },
                 "prefs-open": () => {
                     let prefsTitle = "Forge Preferences";
