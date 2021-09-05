@@ -54,6 +54,10 @@
                 7 - ALL
             </summary>
         </key>
+        <key type="b" name="logging-enabled">
+            <default>false</default>
+            <summary>Enable logging</summary>
+        </key>
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->

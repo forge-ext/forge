@@ -1,11 +1,11 @@
 UUID = "forge@jmmaranan.com"
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 
-.PHONY: all clean install schemas uninstall enable disable log
+.PHONY: all clean install schemas uninstall enable disable log debug
 
 all: build install enable restart
 
-dev: build install enable restart log
+dev: build debug install enable restart log
 
 schemas: schemas/gschemas.compiled
 	touch $@
@@ -21,6 +21,9 @@ build: clean metadata.json schemas
 	cp -r schemas temp
 	cp *.js temp
 	cp *.css temp
+
+debug:
+	sed -i 's/!loggingEnabled/false/' temp/logger.js
 
 clean:
 	rm -rf temp schemas/gschemas.compiled
@@ -39,7 +42,7 @@ uninstall:
 	rm -rf $(INSTALL_PATH)
 	make restart
 
-dist: all
+dist: build
 	cd temp && \
 	zip -qr "../${UUID}.zip" .
 

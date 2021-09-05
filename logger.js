@@ -42,7 +42,11 @@ function logContext(msg) {
 
 function getLogLevel() {
     let settings = Settings.getSettings();
+    let loggingEnabled = settings.get_boolean("logging-enabled");
     let loggingLevel = settings.get_uint("log-level");
+    if (!loggingEnabled) {
+        loggingLevel = LOG_LEVELS.OFF;
+    }
     return loggingLevel;
 }
 
