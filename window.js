@@ -134,7 +134,7 @@ var ForgeWindowManager = GObject.registerClass(
                             focusNodeWindow.grabbed = true;
                             focusNodeWindow.initRect = Utils.removeGapOnRect(
                                 focusWindow.get_frame_rect(),
-                                this.calculateGaps());
+                                this.calculateGaps(focusWindow));
                             focusNodeWindow.resizePairForWindow = this._tree.nextVisible(focusNodeWindow, direction);
                         }
                     }
@@ -673,7 +673,7 @@ var ForgeWindowManager = GObject.registerClass(
 
             let rect = metaWindow.get_frame_rect();
             let inset = 2; // whether to put border inside the window when 0-gapped or maximized
-            let gap = this.calculateGaps();
+            let gap = this.calculateGaps(metaWindow);
 
             if (gap === 0) {
                 inset = 0;
@@ -694,17 +694,19 @@ var ForgeWindowManager = GObject.registerClass(
             Logger.trace(`show-border-focus-window`);
         }
 
-        calculateGaps() {
+        calculateGaps(metaWindow) {
             let settings = this.ext.settings;
             let gapSize = settings.get_uint("window-gap-size")
             let gapIncrement = settings.get_uint("window-gap-size-increment");
             let gap = gapSize * gapIncrement;
-            let monitorWs = `mo${this.focusMetaWindow.get_monitor()}ws${this.focusMetaWindow.get_workspace().index()}`;
-            let monitorWsNode = this._tree.findNode(monitorWs);
-            let tiled = this._tree.getTiledChildren(monitorWsNode._nodes);
-            let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
-            if (tiled.length === 1 && hideGapWhenSingle)
-                gap = 0;
+            if (metaWindow) {
+                let monitorWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+                let monitorWsNode = this._tree.findNode(monitorWs);
+                let tiled = this._tree.getTiledChildren(monitorWsNode._nodes);
+                let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
+                if (tiled.length === 1 && hideGapWhenSingle)
+                    gap = 0;
+            }
             return gap;
         }
 

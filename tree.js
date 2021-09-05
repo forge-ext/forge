@@ -636,7 +636,7 @@ var Tree = GObject.registerClass(
                 let nodeX = node.rect.x;
                 let nodeY = node.rect.y;
 
-                let gap = this._forgeWm.calculateGaps();
+                let gap = this._forgeWm.calculateGaps(node._data);
                 nodeX += gap;
                 nodeY += gap;
                 // TODO - detect inbetween windows and adjust accordingly 
