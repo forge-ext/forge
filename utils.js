@@ -265,11 +265,7 @@ function directionFromGrab(grabOp) {
     }
 }
 
-function removeGapOnRect(rectWithGap) {
-    let settings = Settings.getSettings();
-    let gapSize = settings.get_uint("window-gap-size")
-    let gapIncrement = settings.get_uint("window-gap-size-increment");
-    let gap = gapSize * gapIncrement;
+function removeGapOnRect(rectWithGap, gap) {
     rectWithGap.x = rectWithGap.x -= gap;
     rectWithGap.y = rectWithGap.y -= gap;
     rectWithGap.width = rectWithGap.width += gap * 2;

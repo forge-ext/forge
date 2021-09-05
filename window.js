@@ -132,7 +132,9 @@ var ForgeWindowManager = GObject.registerClass(
                         Logger.debug(`grabOp ${grabOp}`);
                         if (resizeGrab) {
                             focusNodeWindow.grabbed = true;
-                            focusNodeWindow.initRect = Utils.removeGapOnRect(focusWindow.get_frame_rect());
+                            focusNodeWindow.initRect = Utils.removeGapOnRect(
+                                focusWindow.get_frame_rect(),
+                                this.calculateGaps());
                             focusNodeWindow.resizePairForWindow = this._tree.nextVisible(focusNodeWindow, direction);
                         }
                     }
@@ -217,6 +219,7 @@ var ForgeWindowManager = GObject.registerClass(
                         break;
                     case "window-gap-size-increment":
                     case "window-gap-size":
+                    case "window-gap-hidden-on-single":
                         this.renderTree(settingName);
                         break;
                     default:
@@ -669,12 +672,9 @@ var ForgeWindowManager = GObject.registerClass(
             }
 
             let rect = metaWindow.get_frame_rect();
-
-            let settings = this.ext.settings;
-            let gapSize = settings.get_uint("window-gap-size")
-            let gapIncrement = settings.get_uint("window-gap-size-increment");
-            let gap = gapSize * gapIncrement;
             let inset = 2; // whether to put border inside the window when 0-gapped or maximized
+            let gap = this.calculateGaps();
+
             if (gap === 0) {
                 inset = 0;
             }
@@ -692,6 +692,20 @@ var ForgeWindowManager = GObject.registerClass(
                 }
             });
             Logger.trace(`show-border-focus-window`);
+        }
+
+        calculateGaps() {
+            let settings = this.ext.settings;
+            let gapSize = settings.get_uint("window-gap-size")
+            let gapIncrement = settings.get_uint("window-gap-size-increment");
+            let gap = gapSize * gapIncrement;
+            let monitorWs = `mo${this.focusMetaWindow.get_monitor()}ws${this.focusMetaWindow.get_workspace().index()}`;
+            let monitorWsNode = this._tree.findNode(monitorWs);
+            let tiled = this._tree.getTiledChildren(monitorWsNode._nodes);
+            let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
+            if (tiled.length === 1 && hideGapWhenSingle)
+                gap = 0;
+            return gap;
         }
 
         /**
@@ -920,7 +934,9 @@ var ForgeWindowManager = GObject.registerClass(
                 let orientation = Utils.orientationFromGrab(grabOp);
                 let parentNodeForFocus = focusNodeWindow._parent;
                 let position = Utils.positionFromGrabOp(grabOp);
-                let currentRect = Utils.removeGapOnRect(focusWindow.get_frame_rect()); // normalize the rect without gaps
+                // normalize the rect without gaps
+                let currentRect = Utils.removeGapOnRect(
+                    focusWindow.get_frame_rect(), this.calculateGaps()); 
                 let firstRect;
                 let secondRect;
                 let parentRect;

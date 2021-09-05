@@ -41,6 +41,11 @@
             </summary>
         </key>
 
+        <key type="b" name="window-gap-hidden-on-single">
+            <default>false</default>
+            <summary>Hide gap when single window toggle</summary>
+        </key>
+
         <key type="s" name="primary-layout-mode">
             <default>'tiling'</default>
             <summary>Layout modes: stacking, tiling</summary>

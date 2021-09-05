@@ -445,8 +445,25 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
             gapSizeIncrementRow.add(gapSizeIncrementLabel);
             gapSizeIncrementRow.add(gapSizeIncrementSpin);
 
+            // Gap Hidden when Single Window
+            let gapHiddenWhenSingleRow = new ListBoxRow();
+            let gapHiddenWhenSingleLabel = createLabel("Gap Hidden when Single Window");
+            let gapHiddenWhenSingleSwitch = new Gtk.Switch();
+            gapHiddenWhenSingleSwitch.set_active(this.settings.get_boolean("window-gap-hidden-on-single"));
+            gapHiddenWhenSingleSwitch.connect("state-set", (_, state) => {
+                this.settings.set_boolean("window-gap-hidden-on-single", state);
+            });
+            this.settings.connect("changed", (_, keyName) => {
+                if (keyName === "window-gap-hidden-on-single") {
+                    gapHiddenWhenSingleSwitch.set_active(this.settings.get_boolean("window-gap-hidden-on-single"));
+                }
+            });
+            gapHiddenWhenSingleRow.add(gapHiddenWhenSingleLabel);
+            gapHiddenWhenSingleRow.add(gapHiddenWhenSingleSwitch);
+
             appearanceWindowFrame.add(gapSizeRow);
             appearanceWindowFrame.add(gapSizeIncrementRow);
+            appearanceWindowFrame.add(gapHiddenWhenSingleRow);
 
             this.add(appearanceWindowFrame);
         }
