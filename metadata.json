@@ -1,6 +1,6 @@
 {
     "name": "Forge",
-    "description": "A window manager for GNOME 3",
+    "description": "Tiling and window manager for GNOME",
     "uuid": "forge@jmmaranan.com",
     "settings-schema": "org.gnome.shell.extensions.forge",
     "shell-version": ["3.36", "3.38"],
