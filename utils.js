@@ -156,16 +156,16 @@ function resolveHeight(action, metaWindow) {
 function orientationFromDirection(direction) {
     return (direction === Meta.MotionDirection.LEFT ||
         direction === Meta.MotionDirection.RIGHT) ?
-        Tree.ORIENTATION_TYPES['HORIZONTAL'] :
-        Tree.ORIENTATION_TYPES['VERTICAL'];
+        Tree.ORIENTATION_TYPES.HORIZONTAL :
+        Tree.ORIENTATION_TYPES.VERTICAL;
 }
 
 function orientationFromLayout(layout) {
     switch(layout) {
-        case Tree.LAYOUT_TYPES['HSPLIT']:
-            return Tree.ORIENTATION_TYPES['HORIZONTAL'];
-        case Tree.LAYOUT_TYPES['VSPLIT']:
-            return Tree.ORIENTATION_TYPES['VERTICAL'];
+        case Tree.LAYOUT_TYPES.HSPLIT:
+            return Tree.ORIENTATION_TYPES.HORIZONTAL;
+        case Tree.LAYOUT_TYPES.VSPLIT:
+            return Tree.ORIENTATION_TYPES.VERTICAL;
         default:
             break;
     }
@@ -174,7 +174,7 @@ function orientationFromLayout(layout) {
 function positionFromDirection(direction) {
     return (direction === Meta.MotionDirection.LEFT ||
         direction === Meta.MotionDirection.UP) ? 
-        Tree.POSITION['BEFORE'] : Tree.POSITION['AFTER'];
+        Tree.POSITION.BEFORE : Tree.POSITION.AFTER;
 }
 
 function resolveDirection(directionString) {
@@ -211,14 +211,14 @@ function orientationFromGrab(grabOp) {
         grabOp === Meta.GrabOp.RESIZING_S ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S) {
-        return Tree.ORIENTATION_TYPES['VERTICAL'];
+        return Tree.ORIENTATION_TYPES.VERTICAL;
     } else if (grabOp === Meta.GrabOp.RESIZING_E ||
         grabOp === Meta.GrabOp.RESIZING_W ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W) {
-        return Tree.ORIENTATION_TYPES['HORIZONTAL'];
+        return Tree.ORIENTATION_TYPES.HORIZONTAL;
     }
-    return Tree.ORIENTATION_TYPES['NONE'];
+    return Tree.ORIENTATION_TYPES.NONE;
 }
 
 function positionFromGrabOp(grabOp) {
@@ -226,14 +226,14 @@ function positionFromGrabOp(grabOp) {
         grabOp === Meta.GrabOp.RESIZING_N ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N) {
-        return Tree.POSITION['BEFORE'];
+        return Tree.POSITION.BEFORE;
     } else if (grabOp === Meta.GrabOp.RESIZING_E ||
         grabOp === Meta.GrabOp.RESIZING_S ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S) {
-        return Tree.POSITION['AFTER'];
+        return Tree.POSITION.AFTER;
     }
-    return Tree.POSITION['UNKNOWN'];
+    return Tree.POSITION.UNKNOWN;
 }
 
 function allowResizeGrabOp(grabOp) {

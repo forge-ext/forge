@@ -88,10 +88,10 @@ var Node = GObject.registerClass(
             this._parent = null;
             this._nodes = []; // Child elements of this node
             this._floats = []; // handle the floating window children of this node
-            this.mode = Window.WINDOW_MODES['TILE'];
+            this.mode = Window.WINDOW_MODES.TILE;
             this.percent = 0.0;
 
-            if (this._type === NODE_TYPES['WINDOW']) {
+            if (this._type === NODE_TYPES.WINDOW) {
                 this._actor = this._data.get_compositor_private();
             }
         }
@@ -127,8 +127,8 @@ var Tree = GObject.registerClass(
             // Attach the root node
             let rootBin = new St.Bin();
             rootBin.show();
-            this._root = new Node(NODE_TYPES['ROOT'], rootBin);
-            this._root.layout = LAYOUT_TYPES['ROOT'];
+            this._root = new Node(NODE_TYPES.ROOT, rootBin);
+            this._root.layout = LAYOUT_TYPES.ROOT;
             global.window_group.add_child(rootBin);
 
             this._initWorkspaces();
@@ -150,8 +150,8 @@ var Tree = GObject.registerClass(
         addMonitor(workspaceNodeData) {
             let monitors = global.display.get_n_monitors();
             for (let mi = 0; mi < monitors; mi++) {
-                let monitorWsNode = this.addNode(workspaceNodeData, NODE_TYPES['MONITOR'], `mo${mi}${workspaceNodeData}`);
-                monitorWsNode.layout = LAYOUT_TYPES['HSPLIT'];
+                let monitorWsNode = this.addNode(workspaceNodeData, NODE_TYPES.MONITOR, `mo${mi}${workspaceNodeData}`);
+                monitorWsNode.layout = LAYOUT_TYPES.HSPLIT;
             }
             Logger.debug(`initialized monitors: ${monitors}`);
         }
@@ -169,9 +169,9 @@ var Tree = GObject.registerClass(
 
             Logger.debug(`adding workspace: ${workspaceNodeData}`);
 
-            let newWsNode = this.addNode(this._root._data, NODE_TYPES['WORKSPACE'], workspaceNodeData);
+            let newWsNode = this.addNode(this._root._data, NODE_TYPES.WORKSPACE, workspaceNodeData);
             let workspace = wsManager.get_workspace_by_index(wsIndex);
-            newWsNode.layout = LAYOUT_TYPES['HSPLIT'];
+            newWsNode.layout = LAYOUT_TYPES.HSPLIT;
 
             this._forgeWm.bindWorkspaceSignals(workspace);
             this.addMonitor(workspaceNodeData);
@@ -195,7 +195,7 @@ var Tree = GObject.registerClass(
         get nodeWorkpaces() {
             let nodeWorkspaces = [];
             let criteriaMatchFn = (node) => {
-                if (node._type === NODE_TYPES['WORKSPACE']) {
+                if (node._type === NODE_TYPES.WORKSPACE) {
                     nodeWorkspaces.push(node);
                 }
             }
@@ -207,7 +207,7 @@ var Tree = GObject.registerClass(
         get nodeWindows() {
             let nodeWindows = [];
             let criteriaMatchFn = (node) => {
-                if (node._type === NODE_TYPES['WINDOW']) {
+                if (node._type === NODE_TYPES.WINDOW) {
                     nodeWindows.push(node);
                 }
             }
@@ -258,7 +258,7 @@ var Tree = GObject.registerClass(
         findNodeByActor(windowActor) {
             let searchNode;
             let criteriaMatchFn = (node) => {
-                if (node._type === NODE_TYPES['WINDOW'] && 
+                if (node._type === NODE_TYPES.WINDOW && 
                     node._actor === windowActor) {
                     searchNode = node;
                 }
@@ -297,7 +297,7 @@ var Tree = GObject.registerClass(
             let criteriaFn = (node) => {
                 if (nodeAtPointer) return;
                 if (node._data !== metaWindow &&
-                    node._type === NODE_TYPES['WINDOW'] &&
+                    node._type === NODE_TYPES.WINDOW &&
                     !node._data.minimized) {
                     let metaRect = node.rect;
                     if (!metaRect) return;
@@ -317,15 +317,15 @@ var Tree = GObject.registerClass(
          */
         getTiledChildren(items) {
             let filterFn = (node) => {
-                if (node._type === NODE_TYPES['WINDOW']) {
-                    let floating = node.mode === Window.WINDOW_MODES['FLOAT'];
+                if (node._type === NODE_TYPES.WINDOW) {
+                    let floating = node.mode === Window.WINDOW_MODES.FLOAT;
                     // A Node[Window]._data is a Meta.Window
                     if (!node._data.minimized && !floating) {
                         return true;
                     }
                 }
                 // handle split containers
-                if (node._type === NODE_TYPES['CON']) {
+                if (node._type === NODE_TYPES.CON) {
                     return this.getTiledChildren(node._nodes).length > 0;
                 }
                 return false;
@@ -347,17 +347,17 @@ var Tree = GObject.registerClass(
             if (!node) return null;
             let orientation = Utils.orientationFromDirection(direction);
             let position = Utils.positionFromDirection(direction);
-            let horizontal = orientation === ORIENTATION_TYPES['HORIZONTAL'];
-            let previous = position === POSITION['BEFORE'];
+            let horizontal = orientation === ORIENTATION_TYPES.HORIZONTAL;
+            let previous = position === POSITION.BEFORE;
             let next;
 
             Logger.debug(`next:orientation ${orientation}`);
             Logger.debug(`next:position ${position}`);
 
             // 1. If any of these top level nodes,
-            if (node._type === NODE_TYPES['ROOT'] ||
-                node._type === NODE_TYPES['WORKSPACE'] ||
-                node._type === NODE_TYPES['MONITOR']) {
+            if (node._type === NODE_TYPES.ROOT ||
+                node._type === NODE_TYPES.WORKSPACE ||
+                node._type === NODE_TYPES.MONITOR) {
                 // TODO focus on the next node window
                 Logger.trace(`next:${node._type}`);
                 return null;
@@ -367,7 +367,7 @@ var Tree = GObject.registerClass(
             let prevNode = node;
 
             // 2. Walk through the siblings of this node
-            while (node && node._type != NODE_TYPES['WORKSPACE']) {
+            while (node && node._type != NODE_TYPES.WORKSPACE) {
                 let nodeParent = node._parent;
                 Logger.trace(`node-parent-data ${nodeParent._data}`);
                 Logger.trace(`node-data ${node._data}`);
@@ -375,8 +375,8 @@ var Tree = GObject.registerClass(
                 // 2.a Handle the top level monitor siblings
                 // This is to support moving focus to the next monitor available
                 // based on the direction
-                if (node && node._type === NODE_TYPES['MONITOR']) {
-                    if (prevNode._type === NODE_TYPES['WINDOW']) {
+                if (node && node._type === NODE_TYPES.MONITOR) {
+                    if (prevNode._type === NODE_TYPES.WINDOW) {
                         let targetMonitor = global.display.
                             get_monitor_neighbor_index(prevNode._data.get_monitor(),
                                 (previous ? Meta.DisplayDirection.LEFT :
@@ -397,8 +397,8 @@ var Tree = GObject.registerClass(
                 // 2.b Else check for the next sibling or parent
                 // if the direction is opposite the parent layout,
                 // go to the parent's siblings
-                if (horizontal && nodeParent.layout === LAYOUT_TYPES['HSPLIT'] ||
-                    !horizontal && nodeParent.layout === LAYOUT_TYPES['VSPLIT']) {
+                if (horizontal && nodeParent.layout === LAYOUT_TYPES.HSPLIT ||
+                    !horizontal && nodeParent.layout === LAYOUT_TYPES.VSPLIT) {
                     if (nodeParent && nodeParent._nodes && nodeParent._nodes.length > 1) {
                         let currentIndex = this._findNodeIndex(nodeParent._nodes, node);
                         let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
@@ -418,7 +418,7 @@ var Tree = GObject.registerClass(
         nextVisible(node, direction) {
             if (!node) return null;
             let next = this.next(node, direction);
-            if (next && next._type === NODE_TYPES['WINDOW']
+            if (next && next._type === NODE_TYPES.WINDOW
                 && next._data
                 && next._data.minimized) {
                 next = this.nextVisible(next, direction);
@@ -433,15 +433,15 @@ var Tree = GObject.registerClass(
             if (!node) return;
             let type = node._type;
 
-            if (type === NODE_TYPES['WINDOW'] &&
-                node.mode === Window.WINDOW_MODES['FLOAT']) {
+            if (type === NODE_TYPES.WINDOW &&
+                node.mode === Window.WINDOW_MODES.FLOAT) {
                 Logger.debug(`tree-split: cannot split ${type} that floats`);
                 return;
             }
 
-            if (!(type === NODE_TYPES['MONITOR'] ||
-                type === NODE_TYPES['CON'] ||
-                type === NODE_TYPES['WINDOW'])) {
+            if (!(type === NODE_TYPES.MONITOR ||
+                type === NODE_TYPES.CON ||
+                type === NODE_TYPES.WINDOW)) {
                 Logger.debug(`tree-split: cannot split ${type}`);
                 return;
             }
@@ -451,11 +451,11 @@ var Tree = GObject.registerClass(
 
             // toggle the split
             if (numChildren === 1 &&
-                (parentNode.layout === LAYOUT_TYPES['HSPLIT'] ||
-                parentNode.layout === LAYOUT_TYPES['VSPLIT'])) {
+                (parentNode.layout === LAYOUT_TYPES.HSPLIT ||
+                parentNode.layout === LAYOUT_TYPES.VSPLIT)) {
                 parentNode.layout = orientation ===
-                    ORIENTATION_TYPES['HORIZONTAL'] ?
-                    LAYOUT_TYPES['HSPLIT'] : LAYOUT_TYPES['VSPLIT'];
+                    ORIENTATION_TYPES.HORIZONTAL ?
+                    LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;
                 Logger.debug(`tree-split: toggle parent ${parentNode._type} to layout: ${parentNode.layout}`);
                 this.attachNode = parentNode;
                 return;
@@ -467,11 +467,11 @@ var Tree = GObject.registerClass(
             Logger.debug(`tree-split: pushing down ${type} ${node._data.get_wm_class()} to CON`);
             let currentIndex = this._findNodeIndex(parentNode._nodes, node);
             let container = new St.Bin();
-            let newConNode = new Node(NODE_TYPES['CON'], container);
+            let newConNode = new Node(NODE_TYPES.CON, container);
             // Take the direction of the parent
             newConNode.layout = orientation ===
-                    ORIENTATION_TYPES['HORIZONTAL'] ?
-                    LAYOUT_TYPES['HSPLIT'] : LAYOUT_TYPES['VSPLIT'];
+                    ORIENTATION_TYPES.HORIZONTAL ?
+                    LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;
             newConNode.rect = node.rect;
             newConNode.percent = node.percent;
             newConNode._parent = parentNode;
@@ -508,8 +508,8 @@ var Tree = GObject.registerClass(
 
         _swappable(node) {
             if (!node) return false;
-            if (node._type === NODE_TYPES['WINDOW'] &&
-                node.mode !== Window.WINDOW_MODES['FLOAT']) {
+            if (node._type === NODE_TYPES.WINDOW &&
+                node.mode !== Window.WINDOW_MODES.FLOAT) {
                 return true;
             }
             return false;
@@ -552,7 +552,7 @@ var Tree = GObject.registerClass(
         cleanTree() {
             let orphanCons = [];
             let criteriaFn = (node) => {
-                if (node._nodes.length === 0 && node._type === NODE_TYPES['CON']) {
+                if (node._nodes.length === 0 && node._type === NODE_TYPES.CON) {
                     orphanCons.push(node);
                 }
             }
@@ -581,14 +581,14 @@ var Tree = GObject.registerClass(
             
             // Render the Root, Workspace and Monitor
             // For now, we let them render their children recursively
-            if (node._type === NODE_TYPES['ROOT']) {
+            if (node._type === NODE_TYPES.ROOT) {
                 Logger.debug(`render root ${node._data}`);
                 node._nodes.forEach((child) => {
                     this.renderNode(child);
                 });
             }
 
-            if (node._type === NODE_TYPES['WORKSPACE']) {
+            if (node._type === NODE_TYPES.WORKSPACE) {
                 Logger.debug(`render workspace ${node._data}`);
                 node._nodes.forEach((child) => {
                     this.renderNode(child);
@@ -597,15 +597,15 @@ var Tree = GObject.registerClass(
 
             let params = {};
 
-            if (node._type === NODE_TYPES['MONITOR'] ||
-                node._type === NODE_TYPES['CON']) {
+            if (node._type === NODE_TYPES.MONITOR ||
+                node._type === NODE_TYPES.CON) {
                 // The workarea from Meta.Window's assigned monitor 
                 // is important so it computes to `remove` the panel size
                 // really well. However, this type of workarea would only
                 // appear if there is window present on the monitor.
 
                 // If monitor, get the workarea
-                if (node._type === NODE_TYPES['MONITOR']) {
+                if (node._type === NODE_TYPES.MONITOR) {
                     let nodeWinOnContainer = this.findFirstNodeWindowFrom(node);
                     let monitorArea = nodeWinOnContainer && nodeWinOnContainer._data ?
                         nodeWinOnContainer._data.get_work_area_current_monitor() : null;
@@ -620,8 +620,8 @@ var Tree = GObject.registerClass(
 
                 tiledChildren.forEach((child, index) => {
                     // A monitor can contain a window or container child
-                    if (node.layout === LAYOUT_TYPES['HSPLIT'] ||
-                        node.layout === LAYOUT_TYPES['VSPLIT']) {
+                    if (node.layout === LAYOUT_TYPES.HSPLIT ||
+                        node.layout === LAYOUT_TYPES.VSPLIT) {
                         this.renderSplit(node, child, params, index);
                     }
                     this.renderNode(child);
@@ -629,7 +629,7 @@ var Tree = GObject.registerClass(
             }
 
             // TODO - move the border rendering here from window.js?
-            if (node._type === NODE_TYPES['WINDOW']) {
+            if (node._type === NODE_TYPES.WINDOW) {
                 if (!node.rect) node.rect = node.get_work_area_current_monitor();
                 let nodeWidth = node.rect.width;
                 let nodeHeight = node.rect.height;
@@ -655,7 +655,7 @@ var Tree = GObject.registerClass(
 
         renderSplit(node, child, params, index) {
             Logger.debug(`render container ${node._data}`);
-            let splitHorizontally = node.layout === LAYOUT_TYPES['HSPLIT'];
+            let splitHorizontally = node.layout === LAYOUT_TYPES.HSPLIT;
             let nodeRect = node.rect;
             let nodeWidth;
             let nodeHeight;
@@ -706,7 +706,7 @@ var Tree = GObject.registerClass(
             let sizes = [];
             let orientation = Utils.orientationFromLayout(node.layout);
             let totalSize = orientation ===
-                ORIENTATION_TYPES['HORIZONTAL'] ?
+                ORIENTATION_TYPES.HORIZONTAL ?
                 node.rect.width : node.rect.height;
             childItems.forEach((childNode, index) => {
                 let percent = childNode.percent && childNode.percent > 0.0 ?
@@ -724,7 +724,7 @@ var Tree = GObject.registerClass(
             let nodeWindow;
             let criteriaFn = (node) => {
                 if (nodeWindow) return; // if already found return
-                if (node._type === NODE_TYPES['WINDOW'] &&
+                if (node._type === NODE_TYPES.WINDOW &&
                     !node._data.minimized) {
                     nodeWindow = node;
                 }

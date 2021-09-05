@@ -57,20 +57,20 @@ var ForgeWindowManager = GObject.registerClass(
         _applyNodeWindowMode(action, metaWindow) {
             let nodeWindow = this.findNodeWindow(metaWindow);
             if (!nodeWindow || !(action || action.mode)) return;
-            if (nodeWindow._type !== Tree.NODE_TYPES['WINDOW']) return;
+            if (nodeWindow._type !== Tree.NODE_TYPES.WINDOW) return;
             action.mode = action.mode.toUpperCase();
 
-            let floatFlag = action.mode === WINDOW_MODES['FLOAT'];
+            let floatFlag = action.mode === WINDOW_MODES.FLOAT;
 
             if (floatFlag) {
-                let floating = nodeWindow.mode === WINDOW_MODES['FLOAT'];
+                let floating = nodeWindow.mode === WINDOW_MODES.FLOAT;
                 if (!floating) {
-                    nodeWindow.mode = WINDOW_MODES['FLOAT'];
+                    nodeWindow.mode = WINDOW_MODES.FLOAT;
                 } else {
-                    nodeWindow.mode = WINDOW_MODES['TILE'];
+                    nodeWindow.mode = WINDOW_MODES.TILE;
                 }
             } else {
-                nodeWindow.mode = WINDOW_MODES['TILE'];
+                nodeWindow.mode = WINDOW_MODES.TILE;
             }
         }
 
@@ -275,7 +275,7 @@ var ForgeWindowManager = GObject.registerClass(
                         let nodeType = nextFocusNode._type;
 
                         switch(nodeType) {
-                            case Tree.NODE_TYPES['WINDOW']:
+                            case Tree.NODE_TYPES.WINDOW:
                                 if (this.floatingWindow(nextFocusNode) || nextFocusNode._data.minimized) {
                                     Logger.warn(`focus: window is minimized or floating`);
                                     focusNext(nextFocusNode);
@@ -286,8 +286,8 @@ var ForgeWindowManager = GObject.registerClass(
                                     nextFocusNode._data.focus(global.get_current_time());
                                 }
                                 break;
-                            case Tree.NODE_TYPES['CON']:
-                            case Tree.NODE_TYPES['MONITOR']:
+                            case Tree.NODE_TYPES.CON:
+                            case Tree.NODE_TYPES.MONITOR:
                                 nextFocusNode = this._tree.findFirstNodeWindowFrom(nextFocusNode, "bottom");
                                 if (nextFocusNode) {
                                     // Always try to find the next window
@@ -335,15 +335,15 @@ var ForgeWindowManager = GObject.registerClass(
                     let nodeSwapType = nextSwapNode._type;
 
                     switch(nodeSwapType) {
-                        case Tree.NODE_TYPES['WINDOW']:
+                        case Tree.NODE_TYPES.WINDOW:
                             break;
-                        case Tree.NODE_TYPES['CON']:
-                        case Tree.NODE_TYPES['MONITOR']:
+                        case Tree.NODE_TYPES.CON:
+                        case Tree.NODE_TYPES.MONITOR:
                             nextSwapNode = this._tree.findFirstNodeWindowFrom(nextSwapNode, "bottom");
                             break;
                     }
                     let isNextNodeWin = nextSwapNode && nextSwapNode._data && nextSwapNode._type ===
-                        Tree.NODE_TYPES['WINDOW'];
+                        Tree.NODE_TYPES.WINDOW;
                     if (isNextNodeWin) {
                         // FIXME, this prevents a serious GC bug for now
                         if (!this.sameParentMonitor(focusNodeWindow, nextSwapNode)) {
@@ -357,17 +357,17 @@ var ForgeWindowManager = GObject.registerClass(
                     break;
                 case "Split":
                     let orientation = action.orientation ? action.orientation.
-                        toUpperCase() : Tree.ORIENTATION_TYPES['NONE'];
+                        toUpperCase() : Tree.ORIENTATION_TYPES.NONE;
                     this._tree.split(this.findNodeWindow(focusWindow), orientation);
                     this.renderTree("split");
                     this.showBorderFocusWindow();
                     break;
                 case "LayoutToggle":
                     let currentLayout = focusNodeWindow._parent.layout;
-                    if (currentLayout === Tree.LAYOUT_TYPES['HSPLIT']) {
-                        focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES['VSPLIT'];
+                    if (currentLayout === Tree.LAYOUT_TYPES.HSPLIT) {
+                        focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES.VSPLIT;
                     } else {
-                        focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES['HSPLIT'];
+                        focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES.HSPLIT;
                     }
                     this._tree.attachNode = focusNodeWindow._parent;
                     this.renderTree("layout-toggle");
@@ -636,8 +636,8 @@ var ForgeWindowManager = GObject.registerClass(
             let nodeWindow = this.findNodeWindow(metaWindow);
             if (nodeWindow && splitBorderEnabled && tilingModeEnabled &&
                 nodeWindow._parent._nodes.length === 1 &&
-                (nodeWindow._parent._type === Tree.NODE_TYPES['CON'] ||
-                    nodeWindow._parent._type === Tree.NODE_TYPES['MONITOR'])) {
+                (nodeWindow._parent._type === Tree.NODE_TYPES.CON ||
+                    nodeWindow._parent._type === Tree.NODE_TYPES.MONITOR)) {
                 if (!windowActor.splitBorder) {
                     let splitBorder = new St.Bin({style_class: "window-split-direction-horizontal"});
                     global.window_group.add_child(splitBorder);
@@ -646,7 +646,7 @@ var ForgeWindowManager = GObject.registerClass(
                 } 
 
                 let splitBorder = windowActor.splitBorder;
-                if (nodeWindow._parent.layout === Tree.LAYOUT_TYPES['VSPLIT']) {
+                if (nodeWindow._parent.layout === Tree.LAYOUT_TYPES.VSPLIT) {
                     splitBorder.set_style_class_name("window-split-direction-vertical");
                 } else {
                     splitBorder.set_style_class_name("window-split-direction-horizontal");
@@ -701,16 +701,16 @@ var ForgeWindowManager = GObject.registerClass(
                         n.percent = 0.0;
                     });
 
-                    let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES['WINDOW'], 
+                    let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES.WINDOW, 
                         metaWindow);
                     if (newNodeWindow) {
                         if (metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
                             metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG ||
                             metaWindow.get_transient_for() !== null ||
                             !metaWindow.allows_resize()) {
-                            newNodeWindow.mode = WINDOW_MODES['FLOAT'];
+                            newNodeWindow.mode = WINDOW_MODES.FLOAT;
                         } else {
-                            newNodeWindow.mode = WINDOW_MODES['TILE'];
+                            newNodeWindow.mode = WINDOW_MODES.TILE;
                         }
                     }
                 }
@@ -812,7 +812,7 @@ var ForgeWindowManager = GObject.registerClass(
                 let parentNode = nodeWindow._parent;
                 // If parent has only this window, remove the parent instead
                 if (parentNode._nodes.length === 1 && parentNode._type !==
-                    Tree.NODE_TYPES['MONITOR']) {
+                    Tree.NODE_TYPES.MONITOR) {
                     let existParent = parentNode._parent;
                     this._tree.removeNode(parentNode);
                     if (this._tree.getTiledChildren(existParent._nodes).length === 0) {
@@ -864,7 +864,7 @@ var ForgeWindowManager = GObject.registerClass(
                             this._tree.removeNode(existNodeWindow);
                             this._tree.resetSiblingPercent(existParent);
                             let movedNodeWindow = this._tree.addNode(metaMonWs,
-                                Tree.NODE_TYPES['WINDOW'], metaWindow);
+                                Tree.NODE_TYPES.WINDOW, metaWindow);
                             movedNodeWindow.mode = existNodeWindow.mode;
                         }
                     }
@@ -905,7 +905,7 @@ var ForgeWindowManager = GObject.registerClass(
                 let resizePairForWindow = focusNodeWindow.resizePairForWindow;
                 let sameParent = resizePairForWindow ?
                     resizePairForWindow._parent === focusNodeWindow._parent : false;
-                if (orientation === Tree.ORIENTATION_TYPES['HORIZONTAL']) {
+                if (orientation === Tree.ORIENTATION_TYPES.HORIZONTAL) {
                     if (sameParent) {
                         // use the window or con pairs
                         if (this._tree.getTiledChildren(parentNodeForFocus._nodes).length <= 1) {
@@ -943,7 +943,7 @@ var ForgeWindowManager = GObject.registerClass(
                             }
                             let firstWindowRect = focusNodeWindow.initRect;
                             let index = this._tree._findNodeIndex(resizePairForWindow._parent._nodes, resizePairForWindow);
-                            if (position === Tree.POSITION['BEFORE']) {
+                            if (position === Tree.POSITION.BEFORE) {
                                 // Find the opposite node
                                 index = index + 1;
                             } else {
@@ -966,7 +966,7 @@ var ForgeWindowManager = GObject.registerClass(
                         }
 
                    }
-                } else if (orientation === Tree.ORIENTATION_TYPES['VERTICAL']) {
+                } else if (orientation === Tree.ORIENTATION_TYPES.VERTICAL) {
                     if (sameParent) {
                         // use the window or con pairs
                         if (this._tree.getTiledChildren(parentNodeForFocus._nodes).length <= 1) {
@@ -1001,7 +1001,7 @@ var ForgeWindowManager = GObject.registerClass(
                             }
                             let firstWindowRect = focusNodeWindow.initRect;
                             let index = this._tree._findNodeIndex(resizePairForWindow._parent._nodes, resizePairForWindow);
-                            if (position === Tree.POSITION['BEFORE']) {
+                            if (position === Tree.POSITION.BEFORE) {
                                 // Find the opposite node
                                 index = index + 1;
                             } else {
@@ -1039,8 +1039,8 @@ var ForgeWindowManager = GObject.registerClass(
 
         floatingWindow(node) {
             if (!node) return false;
-            return (node._type === Tree.NODE_TYPES['WINDOW'] &&
-                node.mode === WINDOW_MODES['FLOAT']);
+            return (node._type === Tree.NODE_TYPES.WINDOW &&
+                node.mode === WINDOW_MODES.FLOAT);
         }
 
         /**
@@ -1064,7 +1064,7 @@ var ForgeWindowManager = GObject.registerClass(
 
         minimizedWindow(node) {
             if (!node) return false;
-            return (node._type === Tree.NODE_TYPES['WINDOW']
+            return (node._type === Tree.NODE_TYPES.WINDOW
                 && node._data
                 && node._data.minimized);
         }
