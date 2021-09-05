@@ -211,6 +211,10 @@ var ForgeWindowManager = GObject.registerClass(
                     case "focus-border-toggle":
                         this.showBorderFocusWindow();
                         break;
+                    case "tiling-mode-enabled":
+                        this.renderTree(settingName);
+                        this.showBorderFocusWindow();
+                        break;
                     default:
                         break;
                 }
@@ -372,6 +376,10 @@ var ForgeWindowManager = GObject.registerClass(
                 case "FocusBorderToggle":
                     let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
                     this.ext.settings.set_boolean("focus-border-toggle", !focusBorderEnabled);
+                    break;
+                case "TilingModeToggle":
+                    let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
+                    this.ext.settings.set_boolean("tiling-mode-enabled", !tilingModeEnabled);
                     break;
                 default:
                     break;
@@ -541,7 +549,8 @@ var ForgeWindowManager = GObject.registerClass(
 
         // TODO move this to tree.js
         renderTree(from) {
-            if (this._freezeRender) {
+            if (this._freezeRender ||
+                !this.ext.settings.get_boolean("tiling-mode-enabled")) {
                 Logger.trace(`render frozen`);
                 return;
             }
@@ -611,6 +620,7 @@ var ForgeWindowManager = GObject.registerClass(
             let borders = [];
             let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
             let splitBorderEnabled = this.ext.settings.get_boolean("split-border-toggle");
+            let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
 
             if (windowActor.border && focusBorderEnabled) {
                 let maximized = () => {
@@ -624,7 +634,7 @@ var ForgeWindowManager = GObject.registerClass(
 
             // handle the split border
             let nodeWindow = this.findNodeWindow(metaWindow);
-            if (nodeWindow && splitBorderEnabled &&
+            if (nodeWindow && splitBorderEnabled && tilingModeEnabled &&
                 nodeWindow._parent._nodes.length === 1 &&
                 (nodeWindow._parent._type === Tree.NODE_TYPES['CON'] ||
                     nodeWindow._parent._type === Tree.NODE_TYPES['MONITOR'])) {

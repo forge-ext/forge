@@ -291,6 +291,10 @@ var Keybindings = GObject.registerClass(
                     let action = { name: "FocusBorderToggle" };
                     this.forgeWm.command(action);
                 },
+                "prefs-tiling-toggle": () => {
+                    let action = { name: "TilingModeToggle" };
+                    this.forgeWm.command(action);
+                },
                 "prefs-open": () => {
                     let prefsTitle = "Forge Preferences";
                     let existWindow = ExtUtils.findWindowWith(prefsTitle);
