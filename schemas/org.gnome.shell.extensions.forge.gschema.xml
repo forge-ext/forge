@@ -34,6 +34,13 @@
             </summary>
         </key>
 
+        <key type="u" name="window-gap-size-increment">
+            <default>1</default>
+            <summary>
+                The size increment of the gaps. size-increment * gap-size
+            </summary>
+        </key>
+
         <key type="s" name="primary-layout-mode">
             <default>'tiling'</default>
             <summary>Layout modes: stacking, tiling</summary>
@@ -83,12 +90,12 @@
 
         <key type="as" name="window-gap-size-increase">
             <default><![CDATA[['<Ctrl><Super>plus']]]></default>
-            <summary>Increase the size of the focus border</summary>
+            <summary>Increase the size of gaps between windows/cons</summary>
         </key>
 
         <key type="as" name="window-gap-size-decrease">
             <default><![CDATA[['<Ctrl><Super>minus']]]></default>
-            <summary>Decrease the size of the focus border</summary>
+            <summary>Decrease the size of gaps between windows/cons</summary>
         </key>
 
         <key type="as" name="con-split-layout-toggle">

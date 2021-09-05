@@ -33,6 +33,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Logger = Me.imports.logger;
 const Tree = Me.imports.tree;
+const Settings = Me.imports.settings;
 
 /**
  *
@@ -265,7 +266,10 @@ function directionFromGrab(grabOp) {
 }
 
 function removeGapOnRect(rectWithGap) {
-    let gap = 8;
+    let settings = Settings.getSettings();
+    let gapSize = settings.get_uint("window-gap-size")
+    let gapIncrement = settings.get_uint("window-gap-size-increment");
+    let gap = gapSize * gapIncrement;
     rectWithGap.x = rectWithGap.x -= gap;
     rectWithGap.y = rectWithGap.y -= gap;
     rectWithGap.width = rectWithGap.width += gap * 2;

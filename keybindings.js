@@ -295,6 +295,14 @@ var Keybindings = GObject.registerClass(
                     let action = { name: "TilingModeToggle" };
                     this.forgeWm.command(action);
                 },
+                "window-gap-size-increase": () => {
+                    let action = { name: "GapSize", amount: 1 };
+                    this.forgeWm.command(action);
+                },
+                "window-gap-size-decrease": () => {
+                    let action = { name: "GapSize", amount: -1 };
+                    this.forgeWm.command(action);
+                },
                 "prefs-open": () => {
                     let prefsTitle = "Forge Preferences";
                     let existWindow = ExtUtils.findWindowWith(prefsTitle);

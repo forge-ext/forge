@@ -188,8 +188,10 @@ var PrefsWidget = GObject.registerClass(
 
         buildPanelBoxes() {
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
+            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Appearance"), "Appearance");
+            this.settingsPagesStack.add_named(new AppearanceWindowSettingsPanel(this), "Windows");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Focus Hint"), "Focus Hint");
-            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Windows"), "Windows");
+            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "window-"), "Window Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "focus-"), "Focus Shortcuts");
@@ -382,6 +384,71 @@ var MainSettingsPanel = GObject.registerClass(
         _init(prefsWidget) {
             super._init(prefsWidget, "MainSettings");
             this.settings = prefsWidget.settings;
+        }
+    }
+);
+
+var AppearanceWindowSettingsPanel = GObject.registerClass(
+    class AppearanceWindowSettingsPanel extends PanelBox {
+        _init(prefsWidget) {
+            super._init(prefsWidget, `Appearance Window Settings`);
+            this.settings = prefsWidget.settings;
+
+            let appearanceWindowFrame = new FrameListBox();
+            // Gaps Section
+            let gapHeader = createLabel("Gaps");
+            this.add(gapHeader);
+
+            // Gap Size Base
+            let gapSizeRow = new ListBoxRow();
+            let gapSizeLabel = createLabel("Gap Size");
+            let gapSizeAdjust = new Gtk.Adjustment({
+                lower: 8,
+                step_increment: 8,
+                upper: 32,
+                value: this.settings.get_uint("window-gap-size")
+            });
+            let gapSizeSpin = new Gtk.SpinButton({
+                adjustment: gapSizeAdjust
+            });
+            gapSizeSpin.connect("value-changed", () => {
+                this.settings.set_uint("window-gap-size", gapSizeSpin.value);
+            });
+            this.settings.connect("changed", (_, keyName) => {
+                if (keyName === "window-gap-size") {
+                    gapSizeSpin.set_value(this.settings.get_uint("window-gap-size"));
+                }
+            });
+            gapSizeRow.add(gapSizeLabel);
+            gapSizeRow.add(gapSizeSpin);
+
+            // Gap Size Increments
+            let gapSizeIncrementRow = new ListBoxRow();
+            let gapSizeIncrementLabel = createLabel("Gap Increment");
+            let gapSizeIncrementAdjust = new Gtk.Adjustment({
+                lower: 0,
+                step_increment: 1,
+                upper: 5,
+                value: this.settings.get_uint("window-gap-size-increment")
+            });
+            let gapSizeIncrementSpin = new Gtk.SpinButton({
+                adjustment: gapSizeIncrementAdjust
+            });
+            gapSizeIncrementSpin.connect("value-changed", () => {
+                this.settings.set_uint("window-gap-size-increment", gapSizeIncrementSpin.value);
+            });
+            this.settings.connect("changed", (_, keyName) => {
+                if (keyName === "window-gap-size-increment") {
+                    gapSizeIncrementSpin.set_value(this.settings.get_uint("window-gap-size-increment"));
+                }
+            });
+            gapSizeIncrementRow.add(gapSizeIncrementLabel);
+            gapSizeIncrementRow.add(gapSizeIncrementSpin);
+
+            appearanceWindowFrame.add(gapSizeRow);
+            appearanceWindowFrame.add(gapSizeIncrementRow);
+
+            this.add(appearanceWindowFrame);
         }
     }
 );

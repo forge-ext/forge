@@ -215,6 +215,10 @@ var ForgeWindowManager = GObject.registerClass(
                         this.renderTree(settingName);
                         this.showBorderFocusWindow();
                         break;
+                    case "window-gap-size-increment":
+                    case "window-gap-size":
+                        this.renderTree(settingName);
+                        break;
                     default:
                         break;
                 }
@@ -380,6 +384,16 @@ var ForgeWindowManager = GObject.registerClass(
                 case "TilingModeToggle":
                     let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
                     this.ext.settings.set_boolean("tiling-mode-enabled", !tilingModeEnabled);
+                    break;
+                case "GapSize":
+                    let gapIncrement = this.ext.settings.get_uint("window-gap-size-increment");
+                    let amount = action.amount;
+                    gapIncrement = gapIncrement + amount;
+                    if (gapIncrement < 0)
+                        gapIncrement = 0;
+                    if (gapIncrement > 5)
+                        gapIncrement = 5;
+                    this.ext.settings.set_uint("window-gap-size-increment", gapIncrement);
                     break;
                 default:
                     break;
@@ -655,12 +669,21 @@ var ForgeWindowManager = GObject.registerClass(
             }
 
             let rect = metaWindow.get_frame_rect();
-            let inset = 2; //TODO make configurable
+
+            let settings = this.ext.settings;
+            let gapSize = settings.get_uint("window-gap-size")
+            let gapIncrement = settings.get_uint("window-gap-size-increment");
+            let gap = gapSize * gapIncrement;
+            let inset = 2; // whether to put border inside the window when 0-gapped or maximized
+            if (gap === 0) {
+                inset = 0;
+            }
 
             borders.forEach((border) => {
                 border.set_size(rect.width + (inset * 2), rect.height + (inset * 2));
                 border.set_position(rect.x - inset, rect.y - inset);
-                if (metaWindow.appears_focused && !metaWindow.minimized) {
+                if (metaWindow.appears_focused &&
+                    !metaWindow.minimized) {
                     border.show();
                 }
                 if (global.window_group && global.window_group.contains(border)) {

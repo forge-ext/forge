@@ -40,8 +40,6 @@ function init() {
 class Extension {
     constructor() {
         this.sameSession = false;
-        this.forgeWm;
-        this.keybindings;
         this.settings = Settings.getSettings();
         this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
     }

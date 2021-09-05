@@ -636,10 +636,13 @@ var Tree = GObject.registerClass(
                 let nodeX = node.rect.x;
                 let nodeY = node.rect.y;
 
-                // TODO make the gap configurable
-                let gap = 8;
+                let gapSize = this._forgeWm.ext.settings.get_uint("window-gap-size")
+                let gapIncrement = this._forgeWm.ext.settings.get_uint("window-gap-size-increment");
+                let gap = gapSize * gapIncrement;
                 nodeX += gap;
                 nodeY += gap;
+                // TODO - detect inbetween windows and adjust accordingly 
+                // Also adjust depending on display scaling
                 nodeWidth -= gap * 2;
                 nodeHeight -= gap * 2;
 
