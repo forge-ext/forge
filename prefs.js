@@ -53,8 +53,10 @@ var PrefsWidget = GObject.registerClass(
         _init() {
             super._init({
                 orientation: Gtk.Orientation.HORIZONTAL,
-                border_width: 0,
-                margin: 0,
+                margin_start: 0,
+                margin_end: 0,
+                margin_top: 0,
+                margin_bottom: 0,
                 width_request: 950,
                 height_request: 550
             });
@@ -65,12 +67,9 @@ var PrefsWidget = GObject.registerClass(
                     visible: true
                 });
 
-                this.accelGroup = new Gtk.AccelGroup();
-                let prefsAccelGroup = this.accelGroup;
-                let topLevel = this.get_toplevel();
+                let topLevel = this.get_root();
                 topLevel.set_title(Msgs.prefs_title);
                 topLevel.get_titlebar().pack_start(this.leftHeaderBox);
-                topLevel.add_accel_group(prefsAccelGroup);
 
                 topLevel.connect("key-press-event", (_self, keyevent) => {
                     let [, val] = keyevent.get_keyval();
@@ -100,9 +99,7 @@ var PrefsWidget = GObject.registerClass(
             });
 
             let backButton = new Gtk.Button({
-                image: new Gtk.Image({
-                    icon_name: "go-previous-symbolic"
-                }),
+                icon_name: "go-previous-symbolic",
                 visible: true
             });
 
@@ -114,16 +111,16 @@ var PrefsWidget = GObject.registerClass(
                 this.removeBackButtonAccelerator();
             });
 
-            this.leftPanelBox.add(this.settingsStack);
+            this.leftPanelBox.append(this.settingsStack);
 
-            this.add(this.leftPanelBox);
-            this.add(Gtk.Separator.new(Gtk.Orientation.VERTICAL));
-            this.add(this.settingsPagesStack);
+            this.append(this.leftPanelBox);
+            this.append(Gtk.Separator.new(Gtk.Orientation.VERTICAL));
+            this.append(this.settingsPagesStack);
             this.settings = Settings.getSettings();
 
             this.buildSettingsList();
             this.buildPanelBoxes();
-            this.show_all();
+            this.show();
         }
 
         returnToTop() {
@@ -138,7 +135,7 @@ var PrefsWidget = GObject.registerClass(
             let [backButtonKey, backButtonMod] =
                 Gtk.accelerator_parse(backButtonShortCut);
             backButton.add_accelerator("clicked",
-                this.accelGroup,
+                this.shortcutController,
                 backButtonKey,
                 backButtonMod,
                 Gtk.AccelFlags.VISIBLE);
@@ -149,7 +146,7 @@ var PrefsWidget = GObject.registerClass(
             let backButtonShortCut = `<Alt>Left`;
             let [backButtonKey, backButtonMod] =
                 Gtk.accelerator_parse(backButtonShortCut);
-            backButton.remove_accelerator(this.accelGroup,
+            backButton.remove_accelerator(this.shortcutController,
                 backButtonKey,
                 backButtonMod);
         }
@@ -237,7 +234,7 @@ var ScrollStackBox = GObject.registerClass(
             });
 
             this.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
-            this.add_with_viewport(this.listBox);
+            this.set_child(this.listBox);
             this.prefsWidget = prefsWidget;
 
             this.bindSignals();
@@ -245,7 +242,10 @@ var ScrollStackBox = GObject.registerClass(
 
         addStackRow(name, labelName, iconPath, childName) {
             let row = new Gtk.Grid({
-                margin: 12,
+                margin_start: 12,
+                margin_end: 12,
+                margin_top: 12,
+                margin_bottom: 12,
                 column_spacing: 10
             });
 
@@ -272,10 +272,10 @@ var ScrollStackBox = GObject.registerClass(
                     hexpand: true
                 });
 
-                row.add(nextPageIcon);
+                row.attach(nextPageIcon, 2, 0, 1, 1);
             }
 
-            this.listBox.add(row);
+            this.listBox.append(row);
         }
 
         bindSignals() {
@@ -284,7 +284,7 @@ var ScrollStackBox = GObject.registerClass(
                 this.onRowLoad(_self, row);
             });
             listBox.connect("row-selected", (_self, row) => {
-                let listRow = row.get_children()[0];
+                let listRow = row.get_child();
                 this.prefsWidget.topLevel.set_title(`${Msgs.prefs_title} - ${listRow.label_name}`);
                 // Always check if the listbox row has children
                 // Autoload when no children, else activate the next child
@@ -300,7 +300,7 @@ var ScrollStackBox = GObject.registerClass(
             let settingsPagesStack = prefsWidget.settingsPagesStack;
 
             if (row) {
-                let listRow = row.get_children()[0];
+                let listRow = row.get_child();
                 let stackName = listRow.stack_name;
                 settingsPagesStack.set_visible_child_name(stackName);
 
@@ -335,7 +335,10 @@ var PanelBox = GObject.registerClass(
             this.title = title;
             this.box = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
-                margin: 24,
+                margin_start: 24,
+                margin_end: 24,
+                margin_top: 24,
+                margin_bottom: 24,
                 spacing: 20,
                 homogeneous: false
             });
@@ -352,22 +355,20 @@ var PanelBox = GObject.registerClass(
 var FrameListBox = GObject.registerClass(
     class FrameListBox extends Gtk.Frame {
         _init() {
-            super._init({
-                label_yalign: 0.550
-            });
+            super._init();
             this.listBox = new Gtk.ListBox();
             this.count = 0;
             this.listBox.set_selection_mode(Gtk.SelectionMode.NONE);
-            Gtk.Frame.prototype.add.call(this, this.listBox);
+            Gtk.Frame.prototype.set_child.call(this, this.listBox);
         }
 
         add(boxRow) {
-            this.listBox.add(boxRow);
+            this.listBox.append(boxRow);
             this.count++;
         }
 
         show() {
-            this.listBox.show_all();
+            this.listBox.show();
         }
     }
 );
@@ -381,16 +382,16 @@ var ListBoxRow = GObject.registerClass(
             this.grid = new Gtk.Grid({
                 margin_top: 5,
                 margin_bottom: 5,
-                margin_left: 10,
-                margin_right: 10,
+                margin_start: 10,
+                margin_end: 10,
                 column_spacing: 20,
                 row_spacing: 20
             });
-            Gtk.ListBoxRow.prototype.add.call(this, this.grid);
+            Gtk.ListBoxRow.prototype.set_child.call(this, this.grid);
         }
 
         add(widget) {
-            this.grid.add(widget);
+            this.grid.attach(widget, 0, 0, 1, 1);
         }
     }
 );
@@ -1062,7 +1063,7 @@ var DeveloperSettingsPanel = GObject.registerClass(
 
             developmentFrame.add(loggingFrameRow);
             developmentFrame.show();
-            this.add(developmentFrame);
+            this.append(developmentFrame);
         }
     }
 );
@@ -1141,10 +1142,8 @@ var UnderConstructionPanel = GObject.registerClass(
             
             let logoPath = `${Me.path}/icons/prefs/forge-logo-symbolic.svg`;
             let pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(logoPath, 100, 100);
-            let logoImage = new Gtk.Image({
-                pixbuf: pixbuf,
-                margin_bottom: 5
-            });
+            let logoImage = Gtk.Image.new_from_pixbuf(pixbuf);
+            logoImage.margin_bottom = 5;
 
             let underConstructionText = new Gtk.Label({
                 label: `${Msgs.prefs_wip_text} Extension version : ${Msgs.pkg_ext_text}`,
@@ -1152,16 +1151,16 @@ var UnderConstructionPanel = GObject.registerClass(
             });
             underConstructionText.set_justify(Gtk.Justification.CENTER);
             
-            let verticalBox = new Gtk.VBox({
+            let verticalBox = new Gtk.Box({
                 margin_top: 100,
                 margin_bottom: 0,
-                expand: false
+                orientation: Gtk.Orientation.VERTICAL
             });
 
-            verticalBox.add(logoImage);
+            verticalBox.append(logoImage);
 
-            this.add(verticalBox);
-            this.add(underConstructionText);
+            this.append(verticalBox);
+            this.append(underConstructionText);
         }
     }
 );
