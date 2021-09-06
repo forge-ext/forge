@@ -153,7 +153,7 @@ var PrefsWidget = GObject.registerClass(
 
         showBackButton() {
             if (!this.leftHeaderBox) return;
-            this.leftHeaderBox.add(this.backButton);
+            this.leftHeaderBox.append(this.backButton);
             this.addBackButtonAccelerator();
         }
 
@@ -379,19 +379,18 @@ var ListBoxRow = GObject.registerClass(
             super._init(params);
             this.selectable = false;
             this.activatable = false;
-            this.grid = new Gtk.Grid({
+            this.box = new Gtk.Box({
                 margin_top: 5,
                 margin_bottom: 5,
                 margin_start: 10,
                 margin_end: 10,
-                column_spacing: 20,
-                row_spacing: 20
+                orientation: Gtk.Orientation.HORIZONTAL,
             });
-            Gtk.ListBoxRow.prototype.set_child.call(this, this.grid);
+            Gtk.ListBoxRow.prototype.set_child.call(this, this.box);
         }
 
         add(widget) {
-            this.grid.attach(widget, 0, 0, 1, 1);
+            this.box.append(widget);
         }
     }
 );
@@ -498,7 +497,7 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
             appearanceWindowFrame.add(gapSizeIncrementRow);
             appearanceWindowFrame.add(gapHiddenWhenSingleRow);
 
-            this.add(appearanceWindowFrame);
+            this.append(appearanceWindowFrame);
         }
     }
 );
@@ -803,7 +802,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
                 }
             };
             shortcutEntry.connect("activate", updateChange.bind(this));
-            shortcutEntry.connect("focus-out-event", () => {
+            shortcutEntry.connect("move-focus", () => {
                 shortcutEntry.text = shortcutEntry.prev;
             });
 
