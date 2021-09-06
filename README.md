@@ -30,6 +30,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Toggle split container | `<Super> + g` |
 | Gap increase | `<Ctrl><Super>Plus` |
 | Gap decrease | `<Ctrl><Super>Minus` |
+| Toggle focus hint | `<Super>x` |
 
 For any conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
