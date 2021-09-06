@@ -44,8 +44,10 @@ User is encouraged to bind the following:
 
 ## Contributing
 
-- See existing [issues](https://github.com/jmmaranan/forge/issues) or file a new ticket.
-- See [planned features/milestones](https://github.com/jmmaranan/forge/milestones)
+- Please be nice, friendly and welcoming on discussions/tickets.
+- Run `make dev` for local development.
+- See existing [issues](https://github.com/jmmaranan/forge/issues) or file a new ticket with title `bug: short description` if it doesn't exist.
+- See [planned features/milestones](https://github.com/jmmaranan/forge/milestones) or file a new feature request with title `feat: short description` if it doesn't exist.
 
 ## Credits
 
