@@ -43,7 +43,7 @@ User is encouraged to bind the following:
 - Switching to numbered, previous or next workspace
 
 ## Contributing
-See existing [issues or planned features](issues)
+See existing [issues or planned features](https://github.com/jmmaranan/forge/issues)
 
 ## Credits
 
