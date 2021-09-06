@@ -452,6 +452,11 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
             let gapHiddenWhenSingleSwitch = new Gtk.Switch();
             gapHiddenWhenSingleSwitch.set_active(this.settings.get_boolean("window-gap-hidden-on-single"));
             gapHiddenWhenSingleSwitch.connect("state-set", (_, state) => {
+                if (!state) {
+                    if (this.settings.get_uint("window-gap-size-increment") === 0) {
+                        this.settings.set_uint("window-gap-size-increment", 1);
+                    }
+                }
                 this.settings.set_boolean("window-gap-hidden-on-single", state);
             });
             this.settings.connect("changed", (_, keyName) => {
@@ -513,8 +518,8 @@ var KeyboardSettingsPanel = GObject.registerClass(
 
             keys.forEach((key, rowIndex) => {
                 rowIndex += 1; // the header is zero index, bump by 1
-                let value = this.kbdSettings.get_strv(key).toString();
-                this.createShortcutRow(shortcutGrid, key, value, rowIndex);
+                let shortcuts = this.kbdSettings.get_strv(key).toString(); // <Super>s,<Super>t
+                this.createShortcutRow(shortcutGrid, key, shortcuts, rowIndex);
             });
 
             shortcutsFrame.add(shortcutGrid);
@@ -529,47 +534,60 @@ var KeyboardSettingsPanel = GObject.registerClass(
             grid.attach(createLabel(`Conflicts With`), 2, 0, 1, 1);
         }
 
-        createShortcutRow(grid, actionName, shortcut, rowIndex) {
+        createShortcutRow(grid, actionName, shortcuts, rowIndex) {
             let actionLabel = createLabel(actionName);
             grid.attach(actionLabel, 0, rowIndex, 1, 1);
 
             let shortcutEntry = new Gtk.Entry({
-                text: shortcut,
+                text: shortcuts,
                 width_request: 150
             });
-            shortcutEntry.prev = shortcut;
+            shortcutEntry.prev = shortcuts;
             this.kbdSettings.connect(`changed::${actionName}`, () => {
-                let value = this.kbdSettings.get_strv(actionName).toString();
-                shortcutEntry.text = value;
+                let shortcuts = this.kbdSettings.get_strv(actionName).toString();
+                shortcutEntry.text = shortcuts;
             });
-            shortcutEntry.connect("activate", (self) => {
-                if (!this.setShortcut(actionName, self.text)) {
-                    self.text = self.prev;
+            let updateChange = () => {
+                if (!this.setShortcut(actionName, shortcutEntry.text)) {
+                    shortcutEntry.text = shortcutEntry.prev;
                 } else {
-                    self.prev = self.text;
+                    shortcutEntry.prev = shortcutEntry.text;
                 }
+            };
+            shortcutEntry.connect("activate", updateChange.bind(this));
+            shortcutEntry.connect("focus-out-event", () => {
+                shortcutEntry.text = shortcutEntry.prev;
             });
+
             grid.attach(shortcutEntry, 1, rowIndex, 1, 1);
             // TODO check for conflicts
             grid.attach(createLabel(`--`), 2, rowIndex, 1, 1);
         }
 
-        setShortcut(actionName, shortcut) {
-            if (!shortcut || shortcut === "") {
+        setShortcut(actionName, shortcuts) {
+            if (!shortcuts || shortcuts === "") {
                 // when empty or blank entry, remove the shortcut
                 this.kbdSettings.set_strv(actionName, []);
                 return true;
             } else {
-                let [key, mods] = Gtk.accelerator_parse(shortcut);
+                let shortcutArray = shortcuts.split(",");
+                let processed = 0;
+                let processedShortcuts = [];
+                shortcutArray.forEach((shortcut) => {
+                    let [key, mods] = Gtk.accelerator_parse(shortcut);
 
-                if (Gtk.accelerator_valid(key, mods)) {
-                    let shortcut = Gtk.accelerator_name(key, mods);
-                    this.kbdSettings.set_strv(actionName, [shortcut]);
+                    if (Gtk.accelerator_valid(key, mods)) {
+                        let validShortcut = Gtk.accelerator_name(key, mods);
+                        processedShortcuts.push(validShortcut);
+                        processed += 1;
+                    }
+                });
+
+                if (processed === shortcutArray.length) {
+                    this.kbdSettings.set_strv(actionName, processedShortcuts);
                     return true;
-                } else {
-                    // TODO warn user not valid
-                    return false;
                 }
+                return false;
             }
         }
 

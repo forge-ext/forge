@@ -646,13 +646,13 @@ var ForgeWindowManager = GObject.registerClass(
             }
             let monitorCount = global.display.get_n_monitors();
 
+            let nodeWindow = this.findNodeWindow(metaWindow);
             if (windowActor.border && focusBorderEnabled) {
-                if (!maximized() || maximized() && monitorCount > 1) 
+                if (!maximized() || maximized() && monitorCount > 1 || this.floatingWindow(nodeWindow))
                     borders.push(windowActor.border);
             }
 
             // handle the split border
-            let nodeWindow = this.findNodeWindow(metaWindow);
             if (nodeWindow &&
                 splitBorderEnabled &&
                 tilingModeEnabled &&
