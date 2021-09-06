@@ -504,7 +504,8 @@ var KeyboardSettingsPanel = GObject.registerClass(
 
             descriptionBox.add(shortcutHeader);
             descriptionBox.add(createLabel(`<i>Syntax Example</i>: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
-            descriptionBox.add(createLabel(`Delete text to unset. Press Return key to accept. <i>Resets</i> to previous value when invalid`));
+            descriptionBox.add(createLabel(`<i>Legend</i>: &lt;Super&gt; - Windows key, &lt;Primary&gt; - Control key`));
+            descriptionBox.add(createLabel(`Delete text to unset. Press Return key to accept. Focus out to ignore. <i>Resets</i> to previous value when invalid`));
             this.add(descriptionBox);
 
             let shortcutGrid = new Gtk.Grid({
