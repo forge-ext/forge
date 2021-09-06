@@ -638,20 +638,25 @@ var ForgeWindowManager = GObject.registerClass(
             let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
             let splitBorderEnabled = this.ext.settings.get_boolean("split-border-toggle");
             let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
+            let gap = this.calculateGaps(metaWindow);
+            let maximized = () => {
+                return metaWindow.get_maximized() !== 0 ||
+                    metaWindow.is_fullscreen() ||
+                    gap === 0;
+            }
+            let monitorCount = global.display.get_n_monitors();
 
             if (windowActor.border && focusBorderEnabled) {
-                let maximized = () => {
-                    return metaWindow.get_maximized() !== 0 ||
-                        metaWindow.is_fullscreen();
-                }
-                if (maximized()) return;
-                borders.push(windowActor.border);
-
+                if (!maximized() || maximized() && monitorCount > 1) 
+                    borders.push(windowActor.border);
             }
 
             // handle the split border
             let nodeWindow = this.findNodeWindow(metaWindow);
-            if (nodeWindow && splitBorderEnabled && tilingModeEnabled &&
+            if (nodeWindow &&
+                splitBorderEnabled &&
+                tilingModeEnabled &&
+                !this.floatingWindow(nodeWindow) &&
                 nodeWindow._parent._nodes.length === 1 &&
                 (nodeWindow._parent._type === Tree.NODE_TYPES.CON ||
                     nodeWindow._parent._type === Tree.NODE_TYPES.MONITOR)) {
@@ -673,9 +678,8 @@ var ForgeWindowManager = GObject.registerClass(
 
             let rect = metaWindow.get_frame_rect();
             let inset = 2; // whether to put border inside the window when 0-gapped or maximized
-            let gap = this.calculateGaps(metaWindow);
 
-            if (gap === 0) {
+            if (maximized()) {
                 inset = 0;
             }
 
