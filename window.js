@@ -753,6 +753,7 @@ var ForgeWindowManager = GObject.registerClass(
                             !metaWindow.allows_resize()) {
                             newNodeWindow.mode = WINDOW_MODES.FLOAT;
                         } else {
+                            metaWindow.firstRender = true;
                             newNodeWindow.mode = WINDOW_MODES.TILE;
                         }
                     }
@@ -771,7 +772,8 @@ var ForgeWindowManager = GObject.registerClass(
                             this.updateMetaPositionSize(_metaWindow, from);
                         }),
                         metaWindow.connect("focus", (_metaWindowFocus) => {
-                            if (!_metaWindowFocus.firstRender)
+                            let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
+                            if ((tilingModeEnabled && !_metaWindowFocus.firstRender) || !tilingModeEnabled)
                                 this.showBorderFocusWindow();
 
                             // handle the attach node
@@ -808,8 +810,6 @@ var ForgeWindowManager = GObject.registerClass(
                     border.show();
                     Logger.debug(`track-window:create-border`);
                 }
-
-                metaWindow.firstRender = true;
 
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
