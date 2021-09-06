@@ -703,7 +703,7 @@ var ForgeWindowManager = GObject.registerClass(
             let gapSize = settings.get_uint("window-gap-size")
             let gapIncrement = settings.get_uint("window-gap-size-increment");
             let gap = gapSize * gapIncrement;
-            if (metaWindow) {
+            if (metaWindow && metaWindow.get_workspace()) {
                 let monitorWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
                 let monitorWsNode = this._tree.findNode(monitorWs);
                 let tiled = this._tree.getTiledChildren(monitorWsNode._nodes);
