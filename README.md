@@ -32,7 +32,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Gap decrease | `<Ctrl><Super>Minus` |
 
 For any conflicts, the user has to manually configure those for now from the
-`GNOME Control Center > Keyboard > Customize Shortcuts`.
+`GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
 
 ## GNOME Defaults
 
@@ -43,7 +43,9 @@ User is encouraged to bind the following:
 - Switching to numbered, previous or next workspace
 
 ## Contributing
-See existing [issues or planned features](https://github.com/jmmaranan/forge/issues)
+
+- See existing [issues](https://github.com/jmmaranan/forge/issues) or file a new ticket.
+- See [planned features/milestones](https://github.com/jmmaranan/forge/milestones)
 
 ## Credits
 
