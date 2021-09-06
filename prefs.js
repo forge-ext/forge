@@ -1,5 +1,5 @@
 /*
- * This file is part of the Forge Window Manager extension for Gnome 3
+ * This file is part of the Forge GNOME extension
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

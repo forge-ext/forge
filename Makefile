@@ -5,6 +5,7 @@ INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 
 all: build install enable restart
 
+# When developing locally
 dev: build debug install enable restart log
 
 schemas: schemas/gschemas.compiled
@@ -21,6 +22,7 @@ build: clean metadata.json schemas
 	cp -r schemas temp
 	cp *.js temp
 	cp *.css temp
+	cp LICENSE temp
 
 debug:
 	sed -i 's/!loggingEnabled/false/' temp/logger.js
@@ -42,6 +44,7 @@ uninstall:
 	rm -rf $(INSTALL_PATH)
 	make restart
 
+# When releasing
 dist: build
 	cd temp && \
 	zip -qr "../${UUID}.zip" .

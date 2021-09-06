@@ -1,13 +1,14 @@
 # Forge
 
-Forge is a GNOME Shell extension that provides extra tiling/window management.
+Forge is a GNOME Shell extension that provides tiling/window management.
 
 ## Features
-- Tree based tiling with vertical and horizontal split containers similar to i3-wm.
-- Vim-like keybindings for navigation/swapping windows. Customizable shortcuts in extension preferences.
-- Support for floating windows and focus hint.
-- Limited support for multi-display.
-- Works in gnome-shell versions 3.36+ and 40.
+- Tree-based tiling with vertical and horizontal split containers similar to i3-wm.
+- Vim-like keybindings for navigation/swapping windows.
+- Support for floating windows, smart gaps and focus hint.
+- Customizable shortcuts in extension preferences.
+- Some support for multi-display.
+- Should work in gnome-shell versions 3.36+ and soon fully on 40 [See #39](https://github.com/jmmaranan/forge/issues/39).
 
 ## Forge Keybinding Defaults
 
@@ -27,6 +28,11 @@ Forge is a GNOME Shell extension that provides extra tiling/window management.
 | Split container horizontally | `<Super> + z` |
 | Split container vertically | `<Super> + v` |
 | Toggle split container | `<Super> + g` |
+| Gap increase | `<Ctrl><Super>Plus` |
+| Gap decrease | `<Ctrl><Super>Minus` |
+
+For any conflicts, the user has to manually configure those for now from the
+`GNOME Control Center > Keyboard > Customize Shortcuts`.
 
 ## GNOME Defaults
 
@@ -36,6 +42,11 @@ User is encouraged to bind the following:
 - Switching/moving windows to different workspaces
 - Switching to numbered, previous or next workspace
 
-## Work in Progress
-- Stacking Containers
-- Tabbed Containers
+## Contributing
+See existing [issues or planned features](issues)
+
+## Credits
+
+Thank you to: 
+- Michael Stapelberg/contributors for i3.
+- System76/contributors for pop-shell.

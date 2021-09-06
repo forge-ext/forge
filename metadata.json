@@ -4,6 +4,6 @@
     "uuid": "forge@jmmaranan.com",
     "settings-schema": "org.gnome.shell.extensions.forge",
     "shell-version": ["3.36", "3.38"],
-    "version": 1,
+    "version": "1.0-alpha",
     "url": "https://github.com/jmmaranan/forge"
 }
