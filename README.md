@@ -48,6 +48,7 @@ User is encouraged to bind the following:
 - Run `make dev` for local development.
 - See existing [issues](https://github.com/jmmaranan/forge/issues) or file a new ticket with title `bug: short description` if it doesn't exist.
 - See [planned features/milestones](https://github.com/jmmaranan/forge/milestones) or file a new feature request with title `feat: short description` if it doesn't exist.
+- Support GNOME 3.36+ to 40. New features/fixes to land on `main` branch _which_ contains gnome-shell running Ubuntu LTS (3.36.x). `gnome-40` will be patched/rebased from `main` unless gnome 40 specific.
 
 ## Credits
 
