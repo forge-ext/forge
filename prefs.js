@@ -70,14 +70,6 @@ var PrefsWidget = GObject.registerClass(
                 let topLevel = this.get_root();
                 topLevel.set_title(Msgs.prefs_title);
                 topLevel.get_titlebar().pack_start(this.leftHeaderBox);
-
-                topLevel.connect("key-press-event", (_self, keyevent) => {
-                    let [, val] = keyevent.get_keyval();
-                    if (val === Gdk.KEY_Escape) {
-                        topLevel.close();
-                    }
-                    return false;
-                });
                 this.topLevel = topLevel;
             });
 
@@ -130,7 +122,7 @@ var PrefsWidget = GObject.registerClass(
         }
 
         addBackButtonAccelerator() {
-            let backButton = this.backButton;
+            /*let backButton = this.backButton;
             let backButtonShortCut = `<Alt>Left`;
             let [backButtonKey, backButtonMod] =
                 Gtk.accelerator_parse(backButtonShortCut);
@@ -138,17 +130,17 @@ var PrefsWidget = GObject.registerClass(
                 this.shortcutController,
                 backButtonKey,
                 backButtonMod,
-                Gtk.AccelFlags.VISIBLE);
+                Gtk.AccelFlags.VISIBLE);*/
         }
 
         removeBackButtonAccelerator() {
-            let backButton = this.backButton;
+            /*let backButton = this.backButton;
             let backButtonShortCut = `<Alt>Left`;
             let [backButtonKey, backButtonMod] =
                 Gtk.accelerator_parse(backButtonShortCut);
             backButton.remove_accelerator(this.shortcutController,
                 backButtonKey,
-                backButtonMod);
+                backButtonMod);*/
         }
 
         showBackButton() {
@@ -261,8 +253,8 @@ var ScrollStackBox = GObject.registerClass(
                 halign: Gtk.Align.START
             });
 
-            row.add(iconImage);
-            row.add(label);
+            row.attach(iconImage, 0, 0, 1, 1);
+            row.attach(label, 1, 0, 1, 1);
 
             if (childName) {
                 row.child_name = childName;
