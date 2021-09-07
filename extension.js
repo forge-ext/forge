@@ -38,11 +38,12 @@ function init() {
 }
 
 class Extension {
-    constructor() {}
+    constructor() {
+        this.sameSession = false;
+    }
 
     enable() {
         Logger.info("enable");
-        this.sameSession = false;
         this.settings = Settings.getSettings();
         this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
 
