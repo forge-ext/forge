@@ -168,14 +168,14 @@ var PrefsWidget = GObject.registerClass(
             generalSettingsBox.addStackRow("Appearance", "Appearance", `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
             generalSettingsBox.addStackRow("Keyboard", "Keyboard", `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
             generalSettingsBox.addStackRow("Development", "Development", `${Me.path}/icons/prefs/code-context-symbolic.svg`);
-            generalSettingsBox.addStackRow("Experimental", "Experimental", `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
+            // generalSettingsBox.addStackRow("Experimental", "Experimental", `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
             generalSettingsBox.addStackRow("About", "About", `${Me.path}/icons/prefs/forge-logo-symbolic.svg`);
             this.settingsStack.add_named(generalSettingsBox, "General");
 
             // Appearance
             let appearanceSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
             appearanceSettingsBox.addStackRow("Windows", "Windows", `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
-            appearanceSettingsBox.addStackRow("Focus Hint", "Focus Hint", `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
+            // appearanceSettingsBox.addStackRow("Focus Hint", "Focus Hint", `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
             this.settingsStack.add_named(appearanceSettingsBox, "AppearanceSettings");
 
             // Keyboard
@@ -191,14 +191,14 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Appearance"), "Appearance");
             this.settingsPagesStack.add_named(new AppearanceWindowSettingsPanel(this), "Windows");
-            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Focus Hint"), "Focus Hint");
+            // this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Focus Hint"), "Focus Hint");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "window-"), "Window Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "focus-"), "Focus Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "prefs-"), "Other Shortcuts");
             this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
-            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Experimental"), "Experimental");
+            // this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Experimental"), "Experimental");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "About"), "About");
         }
     }

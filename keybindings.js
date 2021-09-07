@@ -310,7 +310,7 @@ var Keybindings = GObject.registerClass(
                         existWindow.get_workspace().activate_with_focus(existWindow,
                             global.display.get_current_time());
                     } else {
-                        Util.spawnCommandLine("gnome-extensions prefs forge@jmmaranan.com");
+                        ExtensionUtils.openPrefs();
 
                         // Wait for it to appear on TabList
                         GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {

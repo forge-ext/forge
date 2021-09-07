@@ -38,14 +38,13 @@ function init() {
 }
 
 class Extension {
-    constructor() {
-        this.sameSession = false;
-        this.settings = Settings.getSettings();
-        this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
-    }
+    constructor() {}
 
     enable() {
         Logger.info("enable");
+        this.sameSession = false;
+        this.settings = Settings.getSettings();
+        this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
 
         if (this.sameSession) {
             this.sameSession = false;
@@ -77,6 +76,10 @@ class Extension {
 
         if (this.keybindings)
             this.keybindings.disable();
+
+        this.forgeWm = null;
+        this.keybindings = null;
+        this.settings = null;
     }
 }
 

@@ -44,6 +44,9 @@ function getSettings(schema) {
     });
 }
 
+/**
+ * TODO patch this on GNOME 41
+ */
 function getSettingsSchema(schema) {
     let extension = ExtensionUtils.getCurrentExtension();
 

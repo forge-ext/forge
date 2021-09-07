@@ -28,6 +28,7 @@ debug:
 	sed -i 's/!loggingEnabled/false/' temp/logger.js
 
 clean:
+	rm "$(UUID).zip" || echo "Nothing to delete"
 	rm -rf temp schemas/gschemas.compiled
 
 enable:
