@@ -645,10 +645,14 @@ var ForgeWindowManager = GObject.registerClass(
                     gap === 0;
             }
             let monitorCount = global.display.get_n_monitors();
-
             let nodeWindow = this.findNodeWindow(metaWindow);
+            let tiled = this._tree.getTiledChildren(nodeWindow._parent._nodes);
+
             if (windowActor.border && focusBorderEnabled) {
-                if (!maximized() || maximized() && monitorCount > 1 || this.floatingWindow(nodeWindow))
+                if (!maximized() ||
+                    gap === 0 && tiled.length === 1 && monitorCount > 1 ||
+                    gap === 0 && tiled.length > 1 ||
+                    this.floatingWindow(nodeWindow))
                     borders.push(windowActor.border);
             }
 
@@ -708,8 +712,9 @@ var ForgeWindowManager = GObject.registerClass(
                 let monitorWsNode = this._tree.findNode(monitorWs);
                 let tiled = this._tree.getTiledChildren(monitorWsNode._nodes);
                 let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
-                if (tiled.length === 1 && hideGapWhenSingle)
+                if (tiled.length === 1 && hideGapWhenSingle) {
                     gap = 0;
+                }
             }
             return gap;
         }
