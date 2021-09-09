@@ -710,10 +710,12 @@ var ForgeWindowManager = GObject.registerClass(
             if (metaWindow && metaWindow.get_workspace()) {
                 let monitorWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
                 let monitorWsNode = this._tree.findNode(monitorWs);
-                let tiled = this._tree.getTiledChildren(monitorWsNode._nodes);
-                let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
-                if (tiled.length === 1 && hideGapWhenSingle) {
-                    gap = 0;
+                if (monitorWsNode) {
+                    let tiled = this._tree.getTiledChildren(monitorWsNode._nodes);
+                    let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
+                    if (tiled.length === 1 && hideGapWhenSingle) {
+                        gap = 0;
+                    }
                 }
             }
             return gap;
