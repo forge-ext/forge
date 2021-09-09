@@ -44,6 +44,13 @@ var WINDOW_MODES = Utils.createEnum([
     'TILE'
 ]);
 
+// Simplify the grab modes
+var GRAB_TYPES = Utils.createEnum([
+    "RESIZING",
+    "MOVING",
+    "UNKNOWN"
+]);
+
 var ForgeWindowManager = GObject.registerClass(
     class ForgeWindowManager extends GObject.Object {
         _init(ext) {
@@ -128,17 +135,17 @@ var ForgeWindowManager = GObject.registerClass(
                     let focusWindow = this.focusMetaWindow;
                     if (focusWindow) {
                         let focusNodeWindow = this.findNodeWindow(focusWindow);
-                        let resizeGrab = Utils.allowResizeGrabOp(grabOp);
+                        let resizing = Utils.grabMode(grabOp) === GRAB_TYPES.RESIZING;
                         Logger.debug(`grabOp ${grabOp}`);
-                        if (resizeGrab) {
-                            focusNodeWindow.grabbed = true;
+                        if (resizing) {
+                            focusNodeWindow.grabMode = GRAB_TYPES.RESIZING;
+                            focusNodeWindow.initGrabOp = grabOp;
                             focusNodeWindow.initRect = Utils.removeGapOnRect(
                                 focusWindow.get_frame_rect(),
                                 this.calculateGaps(focusWindow));
-                            focusNodeWindow.resizePairForWindow = this._tree.nextVisible(focusNodeWindow, direction);
                         }
                     }
-                    Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}`);
+                    Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
                 }),
                 display.connect("showing-desktop-changed", () => {
                     Logger.debug(`display:showing-desktop-changed`);
@@ -937,13 +944,15 @@ var ForgeWindowManager = GObject.registerClass(
             if (focusWindow.get_maximized() === 0) {
                 this.renderTree(`${from}`);
             }
+            this.showBorderFocusWindow();
 
             let focusNodeWindow = this.findNodeWindow(focusWindow);
             if (!focusNodeWindow) return;
-            this.showBorderFocusWindow();
 
-            if (focusNodeWindow.grabbed) {
+            if (focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
                 let grabOp = global.display.get_grab_op();
+                let initGrabOp = focusNodeWindow.initGrabOp;
+                let direction = Utils.directionFromGrab(grabOp);
                 let orientation = Utils.orientationFromGrab(grabOp);
                 let parentNodeForFocus = focusNodeWindow._parent;
                 let position = Utils.positionFromGrabOp(grabOp);
@@ -953,10 +962,19 @@ var ForgeWindowManager = GObject.registerClass(
                 let firstRect;
                 let secondRect;
                 let parentRect;
+                let resizePairForWindow;
 
-                let resizePairForWindow = focusNodeWindow.resizePairForWindow;
+                if (initGrabOp === Meta.GrabOp.RESIZING_UNKNOWN) {
+                    // the direction is null so do not process yet below.
+                    return;
+                } else {
+                   resizePairForWindow = this._tree.nextVisible(focusNodeWindow, direction);
+                }
+
+                Logger.trace(`update-position-size: ${grabOp}`);
                 let sameParent = resizePairForWindow ?
                     resizePairForWindow._parent === focusNodeWindow._parent : false;
+
                 if (orientation === Tree.ORIENTATION_TYPES.HORIZONTAL) {
                     if (sameParent) {
                         // use the window or con pairs

@@ -32,8 +32,9 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
 const Logger = Me.imports.logger;
-const Tree = Me.imports.tree;
 const Settings = Me.imports.settings;
+const Tree = Me.imports.tree;
+const Window = Me.imports.window;
 
 /**
  *
@@ -247,6 +248,24 @@ function allowResizeGrabOp(grabOp) {
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S ||
         grabOp === Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN;
+}
+
+function grabMode(grabOp) {
+    if (grabOp === Meta.GrabOp.RESIZING_N ||
+        grabOp === Meta.GrabOp.RESIZING_E ||
+        grabOp === Meta.GrabOp.RESIZING_W ||
+        grabOp === Meta.GrabOp.RESIZING_S ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S ||
+        grabOp === Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN) {
+        return Window.GRAB_TYPES.RESIZING;
+    } else if (grabOp === Meta.GrabOp.KEYBOARD_MOVING ||
+        grabOp === Meta.GrabOp.MOVING) {
+        return Window.GRAB_TYPES.MOVING;
+    }
+    return Window.GRAB_TYPES.UNKNOWN;
 }
 
 function directionFromGrab(grabOp) {
