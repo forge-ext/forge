@@ -95,6 +95,176 @@ var Node = GObject.registerClass(
                 this._actor = this._data.get_compositor_private();
             }
         }
+
+        get childNodes() {
+            return this._nodes;
+        }
+
+        get firstChild() {
+            if (this._nodes && this._nodes.length >= 1) {
+                return this._nodes[0];
+            }
+            return null;
+        }
+
+        /**
+         * Find the index of this relative to the siblings
+         */
+        get index() {
+            if (this.parentNode) {
+                let childNodes = this.parentNode.childNodes;
+                for (let i = 0; i < childNodes.length; i++) {
+                    if (childNodes[i] === this) {
+                        return i;
+                    }
+                }
+            }
+            return null;
+        }
+
+        get lastChild() {
+            if (this._nodes && this._nodes.length >= 1) {
+                return this._nodes[this._nodes.length - 1];
+            }
+            return null;
+        }
+
+        get nextSibling() {
+            if (this.parentNode) {
+                if (this.parentNode.lastChild !== this) {
+                    return this.parentNode.childNodes[this.index + 1];
+                }
+            }
+            return null;
+        }
+
+        get nodeType() {
+            return this._type;
+        }
+
+        get nodeValue() {
+            return this._data;
+        }
+
+        get parentNode() {
+            return this._parent;
+        }
+
+        set parentNode(node) {
+            this._parent = node;
+        }
+
+        get previousSibling() {
+            if (this.parentNode) {
+                if (this.parentNode.firstChild !== this) {
+                    return this.parentNode.childNodes[this.index - 1];
+                }
+            }
+            return null;
+        }
+
+        appendChild(node) {
+            if (!node) return null;
+            if (node.parentNode)
+                node.parentNode.removeChild(node);
+            this.childNodes.push(node);
+            node.parentNode = this;
+            return node;
+        }
+
+
+        /**
+         * Checks if node is a descendant of this,
+         * or a descendant of its childNodes, etc
+         */
+        contains(node) {
+            if (!node) return false;
+            let searchNode = this._search(node);
+            return searchNode ? true : false;
+        }
+
+        getNodeByValue(value) {
+            return this._search(value, "VALUE")[0];
+        }
+
+        getNodeByType(type) {
+            return this._search(type, "TYPE");
+        }
+
+        removeChild(node) {
+            let refNode;
+            if (this.contains(node)) {
+                // Since contains() tries to find node on all descendants,
+                // detach only from the immediate parent
+                let parentNode = node.parentNode;
+                refNode = parentNode.childNodes.splice(node.index, 1);
+                refNode.parentNode = null;
+            }
+            if (!refNode) {
+                throw `NodeNotFound ${node}`
+            }
+            return refNode;
+        }
+
+        _search(term, criteria) {
+            let results = [];
+            let searchFn = (candidate) => {
+                if (criteria) {
+                    switch(criteria) {
+                        case "VALUE":
+                            if (candidate.nodeValue === term) {
+                                results.push(candidate);
+                            }
+                            break;
+                        case "TYPE":
+                            if (candidate.nodeType === term) {
+                                results.push(candidate);
+                            }
+                            break;
+                    }
+                } else {
+                    if (candidate === term) {
+                        results.push(candidate);
+                    }
+                }
+            }
+
+            this._walk(searchFn, this._traverseBreadthFirst);
+            return results;
+        }
+
+        // start walking from root and all child nodes
+        _traverseBreadthFirst(callback) {
+            let queue = new Queue();
+            queue.enqueue(this);
+
+            let currentNode = queue.dequeue();
+
+            while(currentNode) {
+                for (let i = 0, length = currentNode.childNodes.length; i < length; i++) {
+                    queue.enqueue(currentNode.childNodes[i]);
+                }
+
+                callback(currentNode);
+                currentNode = queue.dequeue();
+            }
+        }
+
+        // start walking from bottom to root
+        _traverseDepthFirst(callback) {
+            let recurse = (currentNode) => {
+                for (let i = 0, length = currentNode.childNodes.length; i < length; i++) {
+                    recurse(currentNode.childNodes[i]);
+                }
+
+                callback(currentNode);
+            };
+            recurse(this);
+        }
+
+        _walk(callback, traversal) {
+            traversal.call(this, callback);
+        }
     }
 );
 
@@ -119,16 +289,13 @@ var Queue = GObject.registerClass(
 );
 
 var Tree = GObject.registerClass(
-    class Tree extends GObject.Object {
+    class Tree extends Node {
         _init(forgeWm) {
-            super._init();
-            this._forgeWm = forgeWm;
-
-            // Attach the root node
             let rootBin = new St.Bin();
+            super._init(NODE_TYPES.ROOT, rootBin);
+            this._forgeWm = forgeWm;
+            this.layout = LAYOUT_TYPES.ROOT;
             rootBin.show();
-            this._root = new Node(NODE_TYPES.ROOT, rootBin);
-            this._root.layout = LAYOUT_TYPES.ROOT;
             global.window_group.add_child(rootBin);
 
             this._initWorkspaces();
@@ -150,7 +317,7 @@ var Tree = GObject.registerClass(
         addMonitor(workspaceNodeData) {
             let monitors = global.display.get_n_monitors();
             for (let mi = 0; mi < monitors; mi++) {
-                let monitorWsNode = this.addNode(workspaceNodeData, NODE_TYPES.MONITOR, `mo${mi}${workspaceNodeData}`);
+                let monitorWsNode = this.createNode(workspaceNodeData, NODE_TYPES.MONITOR, `mo${mi}${workspaceNodeData}`);
                 monitorWsNode.layout = LAYOUT_TYPES.HSPLIT;
             }
             Logger.debug(`initialized monitors: ${monitors}`);
@@ -169,7 +336,7 @@ var Tree = GObject.registerClass(
 
             Logger.debug(`adding workspace: ${workspaceNodeData}`);
 
-            let newWsNode = this.addNode(this._root._data, NODE_TYPES.WORKSPACE, workspaceNodeData);
+            let newWsNode = this.createNode(this.nodeValue, NODE_TYPES.WORKSPACE, workspaceNodeData);
             let workspace = wsManager.get_workspace_by_index(wsIndex);
             newWsNode.layout = LAYOUT_TYPES.HSPLIT;
 
@@ -193,37 +360,26 @@ var Tree = GObject.registerClass(
         }
 
         get nodeWorkpaces() {
-            let nodeWorkspaces = [];
-            let criteriaMatchFn = (node) => {
-                if (node._type === NODE_TYPES.WORKSPACE) {
-                    nodeWorkspaces.push(node);
-                }
-            }
-
-            this._walkFrom(this._root, criteriaMatchFn, this._traverseBreadthFirst);
+            let nodeWorkspaces = this.getNodeByType(NODE_TYPES.WORKSPACE);
             return nodeWorkspaces;
         }
 
         get nodeWindows() {
-            let nodeWindows = [];
-            let criteriaMatchFn = (node) => {
-                if (node._type === NODE_TYPES.WINDOW) {
-                    nodeWindows.push(node);
-                }
-            }
-
-            this._walkFrom(this._root, criteriaMatchFn, this._traverseBreadthFirst);
+            let nodeWindows = this.getNodeByType(NODE_TYPES.WINDOW);
             return nodeWindows;
         }
 
-        addNode(toData, type, data) {
+        /**
+         * Creates a new Node and attaches it to a parent toData.
+         * Parent can be MONITOR or CON types only.
+         */
+        createNode(toData, type, data) {
             let parentNode = this.findNode(toData);
             let child;
 
             if (parentNode) {
                 child = new Node(type, data);
-                parentNode._nodes.push(child);
-                child._parent = parentNode;
+                parentNode.appendChild(child);
                 Logger.trace(`adding node ${type}: ${data} to ${toData}`);
             }
             return child;
@@ -240,15 +396,7 @@ var Tree = GObject.registerClass(
          *
          */
         findNode(data) {
-            let searchNode;
-            let criteriaMatchFn = (node) => {
-                if (node._data === data) {
-                    searchNode = node;
-                }
-            };
-
-            this._walk(criteriaMatchFn, this._traverseBreadthFirst);
-
+            let searchNode = this.getNodeByValue(data);
             return searchNode;
         }
 
@@ -258,7 +406,7 @@ var Tree = GObject.registerClass(
         findNodeByActor(windowActor) {
             let searchNode;
             let criteriaMatchFn = (node) => {
-                if (node._type === NODE_TYPES.WINDOW && 
+                if (node.nodeType === NODE_TYPES.WINDOW && 
                     node._actor === windowActor) {
                     searchNode = node;
                 }
@@ -267,20 +415,6 @@ var Tree = GObject.registerClass(
             this._walk(criteriaMatchFn, this._traverseDepthFirst);
 
             return searchNode;
-        }
-
-        _findNodeIndex(items, node) {
-            let index;
-
-            for (let i = 0; i < items.length; i++) {
-                let nodeItem = items[i];
-                if (nodeItem._data === node._data) {
-                    index = i;
-                    break;
-                }
-            }
-
-            return index;
         }
 
         /**
@@ -296,9 +430,9 @@ var Tree = GObject.registerClass(
 
             let criteriaFn = (node) => {
                 if (nodeAtPointer) return;
-                if (node._data !== metaWindow &&
-                    node._type === NODE_TYPES.WINDOW &&
-                    !node._data.minimized) {
+                if (node.nodeValue !== metaWindow &&
+                    node.nodeType === NODE_TYPES.WINDOW &&
+                    !node.nodeValue.minimized) {
                     let metaRect = node.rect;
                     if (!metaRect) return;
                     let atPointer = Utils.rectContainsPoint(
@@ -308,7 +442,7 @@ var Tree = GObject.registerClass(
                 }
             }
 
-            this._walkFrom(monWsNode, criteriaFn, this._traverseDepthFirst);
+            monWsNode._walk(criteriaFn, monWsNode._traverseDepthFirst);
             return nodeAtPointer;
         }
 
@@ -317,16 +451,16 @@ var Tree = GObject.registerClass(
          */
         getTiledChildren(items) {
             let filterFn = (node) => {
-                if (node._type === NODE_TYPES.WINDOW) {
+                if (node.nodeType === NODE_TYPES.WINDOW) {
                     let floating = node.mode === Window.WINDOW_MODES.FLOAT;
                     // A Node[Window]._data is a Meta.Window
-                    if (!node._data.minimized && !floating) {
+                    if (!node.nodeValue.minimized && !floating) {
                         return true;
                     }
                 }
                 // handle split containers
-                if (node._type === NODE_TYPES.CON) {
-                    return this.getTiledChildren(node._nodes).length > 0;
+                if (node.nodeType === NODE_TYPES.CON) {
+                    return this.getTiledChildren(node.childNodes).length > 0;
                 }
                 return false;
             };
@@ -355,9 +489,9 @@ var Tree = GObject.registerClass(
             Logger.debug(`next:position ${position}`);
 
             // 1. If any of these top level nodes,
-            if (node._type === NODE_TYPES.ROOT ||
-                node._type === NODE_TYPES.WORKSPACE ||
-                node._type === NODE_TYPES.MONITOR) {
+            if (node.nodeType === NODE_TYPES.ROOT ||
+                node.nodeType === NODE_TYPES.WORKSPACE ||
+                node.nodeType === NODE_TYPES.MONITOR) {
                 // TODO focus on the next node window
                 Logger.trace(`next:${node._type}`);
                 return null;
@@ -367,18 +501,18 @@ var Tree = GObject.registerClass(
             let prevNode = node;
 
             // 2. Walk through the siblings of this node
-            while (node && node._type != NODE_TYPES.WORKSPACE) {
-                let nodeParent = node._parent;
+            while (node && node.nodeType != NODE_TYPES.WORKSPACE) {
+                let nodeParent = node.parentNode;
                 Logger.trace(`node-parent-data ${nodeParent._data}`);
                 Logger.trace(`node-data ${node._data}`);
 
                 // 2.a Handle the top level monitor siblings
                 // This is to support moving focus to the next monitor available
                 // based on the direction
-                if (node && node._type === NODE_TYPES.MONITOR) {
-                    if (prevNode._type === NODE_TYPES.WINDOW) {
+                if (node && node.nodeType === NODE_TYPES.MONITOR) {
+                    if (prevNode.nodeType === NODE_TYPES.WINDOW) {
                         let targetMonitor = global.display.
-                            get_monitor_neighbor_index(prevNode._data.get_monitor(),
+                            get_monitor_neighbor_index(prevNode.nodeValue.get_monitor(),
                                 (previous ? Meta.DisplayDirection.LEFT :
                                     Meta.DisplayDirection.RIGHT));
                         Logger.trace(`next: targetMonitor ${targetMonitor}`);
@@ -399,11 +533,11 @@ var Tree = GObject.registerClass(
                 // go to the parent's siblings
                 if (horizontal && nodeParent.layout === LAYOUT_TYPES.HSPLIT ||
                     !horizontal && nodeParent.layout === LAYOUT_TYPES.VSPLIT) {
-                    if (nodeParent && nodeParent._nodes && nodeParent._nodes.length > 1) {
-                        let currentIndex = this._findNodeIndex(nodeParent._nodes, node);
+                    if (nodeParent && nodeParent.childNodes && nodeParent.childNodes.length > 1) {
+                        let currentIndex = node.index;
                         let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
-                        if (nextIndex !== -1 && !(nextIndex > nodeParent._nodes.length - 1)) {
-                            next = nodeParent._nodes[nextIndex];
+                        if (nextIndex !== -1 && !(nextIndex > nodeParent.childNodes.length - 1)) {
+                            next = nodeParent.childNodes[nextIndex];
                             Logger.trace(`next:${node._type}`);
                             if (next) return next;
                         }
@@ -418,9 +552,9 @@ var Tree = GObject.registerClass(
         nextVisible(node, direction) {
             if (!node) return null;
             let next = this.next(node, direction);
-            if (next && next._type === NODE_TYPES.WINDOW
-                && next._data
-                && next._data.minimized) {
+            if (next && next.nodeType === NODE_TYPES.WINDOW
+                && next.nodeValue
+                && next.nodeValue.minimized) {
                 next = this.nextVisible(next, direction);
             }
             return next;
@@ -431,7 +565,7 @@ var Tree = GObject.registerClass(
          */
         split(node, orientation) {
             if (!node) return;
-            let type = node._type;
+            let type = node.nodeType;
 
             if (type === NODE_TYPES.WINDOW &&
                 node.mode === Window.WINDOW_MODES.FLOAT) {
@@ -446,8 +580,8 @@ var Tree = GObject.registerClass(
                 return;
             }
 
-            let parentNode = node._parent;
-            let numChildren = parentNode._nodes.length;
+            let parentNode = node.parentNode;
+            let numChildren = parentNode.childNodes.length;
 
             // toggle the split
             if (numChildren === 1 &&
@@ -465,7 +599,7 @@ var Tree = GObject.registerClass(
             Logger.trace(`tree-split: parent node ${parentNode._type} ${parentNode._data}, children ${numChildren}`);
             Logger.trace(`tree-split: node ${node._data} has children? ${node._nodes.length}`);
             Logger.debug(`tree-split: pushing down ${type} ${node._data.get_wm_class()} to CON`);
-            let currentIndex = this._findNodeIndex(parentNode._nodes, node);
+            let currentIndex = node.index;
             let container = new St.Bin();
             let newConNode = new Node(NODE_TYPES.CON, container);
             // Take the direction of the parent
@@ -474,9 +608,9 @@ var Tree = GObject.registerClass(
                     LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;
             newConNode.rect = node.rect;
             newConNode.percent = node.percent;
-            newConNode._parent = parentNode;
-            parentNode._nodes[currentIndex] = newConNode;
-            this.addNode(container, node._type, node._data);
+            newConNode.parentNode = parentNode;
+            parentNode.childNodes[currentIndex] = newConNode;
+            this.createNode(container, node._type, node._data);
             this.attachNode = newConNode;
             Logger.trace(`tree-split: container parent ${newConNode._parent._data} has children? ${newConNode._parent._nodes.length}`);
         }
@@ -487,28 +621,28 @@ var Tree = GObject.registerClass(
                 return;
             // Swap the items in the array
             let parentForFrom = fromNode ?
-                fromNode._parent : undefined;
-            let parentForTo = toNode._parent;
+                fromNode.parentNode : undefined;
+            let parentForTo = toNode.parentNode;
             if (parentForTo && parentForFrom) {
-                let nextIndex = this._findNodeIndex(parentForTo._nodes, toNode);
-                let focusIndex = this._findNodeIndex(parentForFrom._nodes, fromNode);
-                parentForTo._nodes[nextIndex] = fromNode;
-                fromNode._parent = parentForTo;
-                parentForFrom._nodes[focusIndex] = toNode;
-                toNode._parent = parentForFrom;
+                let nextIndex = toNode.index;
+                let focusIndex = fromNode.index;
+                parentForTo.childNodes[nextIndex] = fromNode;
+                fromNode.parentNode = parentForTo;
+                parentForFrom.childNodes[focusIndex] = toNode;
+                toNode.parentNode = parentForFrom;
                 let percent = fromNode.percent;
                 fromNode.percent = toNode.percent;
                 toNode.percent = percent;
                 if (focus) {
-                    fromNode._data.raise();
-                    fromNode._data.focus(global.get_current_time());
+                    fromNode.nodeValue.raise();
+                    fromNode.nodeValue.focus(global.get_current_time());
                 }
             }
         }
 
         _swappable(node) {
             if (!node) return false;
-            if (node._type === NODE_TYPES.WINDOW &&
+            if (node.nodeType === NODE_TYPES.WINDOW &&
                 node.mode !== Window.WINDOW_MODES.FLOAT) {
                 return true;
             }
@@ -516,33 +650,18 @@ var Tree = GObject.registerClass(
         }
 
         removeNode(node) {
-            let parentNode = node._parent;
-            let nodeIndex;
-            let success = false;
-
-            if (parentNode) {
-                Logger.trace(`removing ${node._type} from ${parentNode._data}`);
-                nodeIndex = this._findNodeIndex(parentNode._nodes, node);
-                if (nodeIndex === undefined) {
-                    // do nothing
-                } else {
-                    if (parentNode._nodes.splice(nodeIndex, 1)) {
-                        success = true;
-                    }
-                }
-            }
-
+            let oldChild = this.removeChild(node);
             if (node === this.attachNode) {
                 this.attachNode = null;
             }
 
-            return success;
+            return oldChild ? true : false;
         }
 
         render(from) {
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             // TODO - render from the current active workspace for performance
-            this.renderNode(this._root);
+            this.renderNode(this);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`render end`);
             Logger.debug(`--------------------------`);
@@ -552,7 +671,8 @@ var Tree = GObject.registerClass(
         cleanTree() {
             let orphanCons = [];
             let criteriaFn = (node) => {
-                if (node._nodes.length === 0 && node._type === NODE_TYPES.CON) {
+                if (node.childNodes.length === 0 &&
+                    node.nodeType === NODE_TYPES.CON) {
                     orphanCons.push(node);
                 }
             }
@@ -567,7 +687,7 @@ var Tree = GObject.registerClass(
             });
             orphanCons.length = 0;
             if (orphans > 0) {
-                this.renderNode(this._root);
+                this.renderNode(this);
             }
         }
 
@@ -719,59 +839,16 @@ var Tree = GObject.registerClass(
             return sizes;
         }
 
-        findFirstNodeWindowFrom(topNode, direction) {
-            if (!topNode) return undefined;
-
-            let nodeWindow;
-            let criteriaFn = (node) => {
-                if (nodeWindow) return; // if already found return
-                if (node._type === NODE_TYPES.WINDOW &&
-                    !node._data.minimized) {
-                    nodeWindow = node;
-                }
-            };
-
-            let traversal = this._traverseBreadthFirst;
-            // TODO, improve this logic in the future
-            if (direction && direction.toLowerCase() === "bottom") {
-                traversal = this._traverseDepthFirst;
+        findFirstNodeWindowFrom(topNode, _direction) {
+            let results = topNode.getNodeByType(NODE_TYPES.WINDOW);
+            if (results.length > 0) {
+                return results[0];
             }
-
-            this._walkFrom(topNode, criteriaFn, traversal);
-
-            return nodeWindow;
+            return null;
         }
 
         findNodeWindowFrom(nodeWindow, topNode) {
-            if (!topNode) return undefined;
-            let found = false;
-            let criteriaFn = (node) => {
-                if (found) return;
-                if (nodeWindow._data === node._data) {
-                    found = true;
-                }
-            };
-
-            this._walkFrom(topNode, criteriaFn, this._traverseBreadthFirst);
-            return found;
-        }
-
-        // start walking from root and all child nodes
-        _traverseBreadthFirst(callback, startNode) {
-            let queue = new Queue();
-            let beginNode = startNode ? startNode : this._root;
-            queue.enqueue(beginNode);
-
-            let currentNode = queue.dequeue();
-
-            while(currentNode) {
-                for (let i = 0, length = currentNode._nodes.length; i < length; i++) {
-                    queue.enqueue(currentNode._nodes[i]);
-                }
-
-                callback(currentNode);
-                currentNode = queue.dequeue();
-            }
+            return topNode.contains(nodeWindow);
         }
 
         resetSiblingPercent(parentNode) {
@@ -780,27 +857,6 @@ var Tree = GObject.registerClass(
             children.forEach((n) => {
                 n.percent = 0.0;
             });
-        }
-
-        // start walking from bottom to root
-        _traverseDepthFirst(callback, startNode) {
-            let recurse = (currentNode) => {
-                for (let i = 0, length = currentNode._nodes.length; i < length; i++) {
-                    recurse(currentNode._nodes[i]);
-                }
-
-                callback(currentNode);
-            };
-            let beginNode = startNode ? startNode : this._root;
-            recurse(beginNode);
-        }
-
-        _walk(callback, traversal) {
-            traversal.call(this, callback);
-        }
-
-        _walkFrom(node, callback, traversal) {
-            traversal.call(this, callback, node);
         }
     }
 );

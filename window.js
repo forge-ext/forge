@@ -64,7 +64,7 @@ var ForgeWindowManager = GObject.registerClass(
         _applyNodeWindowMode(action, metaWindow) {
             let nodeWindow = this.findNodeWindow(metaWindow);
             if (!nodeWindow || !(action || action.mode)) return;
-            if (nodeWindow._type !== Tree.NODE_TYPES.WINDOW) return;
+            if (nodeWindow.nodeType !== Tree.NODE_TYPES.WINDOW) return;
             action.mode = action.mode.toUpperCase();
 
             let floatFlag = action.mode === WINDOW_MODES.FLOAT;
@@ -122,7 +122,6 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                         let focusNodeWindow = this.findNodeWindow(focusWindow);
                         if (focusNodeWindow) {
-                            focusNodeWindow.grabbed = false;
                             focusNodeWindow.initRect = null;
                         }
                     }
@@ -161,10 +160,10 @@ var ForgeWindowManager = GObject.registerClass(
                     this.hideWindowBorders();
                     let focusNodeWindow = this._tree.findNode(this.focusMetaWindow);
                     if (focusNodeWindow) {
-                        if (this._tree.getTiledChildren(focusNodeWindow._parent._nodes).length === 0) {
-                            this._tree.resetSiblingPercent(focusNodeWindow._parent._parent);
+                        if (this._tree.getTiledChildren(focusNodeWindow.parentNode.childNodes).length === 0) {
+                            this._tree.resetSiblingPercent(focusNodeWindow.parentNode.parentNode);
                         }
-                        this._tree.resetSiblingPercent(focusNodeWindow._parent);
+                        this._tree.resetSiblingPercent(focusNodeWindow.parentNode);
                     }
                     this.renderTree("minimize");
                     Logger.debug(`minimized ${this.focusMetaWindow.title}`);
@@ -172,7 +171,7 @@ var ForgeWindowManager = GObject.registerClass(
                 shellWm.connect("unminimize", () => {
                     let focusNodeWindow = this._tree.findNode(this.focusMetaWindow);
                     if (focusNodeWindow) {
-                        this._tree.resetSiblingPercent(focusNodeWindow._parent);
+                        this._tree.resetSiblingPercent(focusNodeWindow.parentNode);
                     }
                     this.renderTree("unminimize");
                     Logger.debug(`unminimize`);
@@ -269,10 +268,10 @@ var ForgeWindowManager = GObject.registerClass(
                     };
                     this.move(focusWindow, moveRect);
                     // TODO move to Tree
-                    let existParent = focusNodeWindow._parent;
-                    if (this._tree.getTiledChildren(existParent._nodes).length <= 1) {
+                    let existParent = focusNodeWindow.parentNode;
+                    if (this._tree.getTiledChildren(existParent.childNodes).length <= 1) {
                         existParent.percent = 0.0;
-                        this._tree.resetSiblingPercent(existParent._parent);
+                        this._tree.resetSiblingPercent(existParent.parentNode);
                     }
                     this._tree.resetSiblingPercent(existParent);
                     this.renderTree("move-resize");
@@ -304,18 +303,18 @@ var ForgeWindowManager = GObject.registerClass(
                             return;
                         }
 
-                        let nodeType = nextFocusNode._type;
+                        let nodeType = nextFocusNode.nodeType;
 
                         switch(nodeType) {
                             case Tree.NODE_TYPES.WINDOW:
-                                if (this.floatingWindow(nextFocusNode) || nextFocusNode._data.minimized) {
+                                if (this.floatingWindow(nextFocusNode) || nextFocusNode.nodeValue.minimized) {
                                     Logger.warn(`focus: window is minimized or floating`);
                                     focusNext(nextFocusNode);
                                 } else {
                                     // TODO, maybe put the code block below in a new function
-                                    nextFocusNode._data.raise();
-                                    nextFocusNode._data.activate(global.get_current_time());
-                                    nextFocusNode._data.focus(global.get_current_time());
+                                    nextFocusNode.nodeValue.raise();
+                                    nextFocusNode.nodeValue.activate(global.get_current_time());
+                                    nextFocusNode.nodeValue.focus(global.get_current_time());
                                 }
                                 break;
                             case Tree.NODE_TYPES.CON:
@@ -324,13 +323,13 @@ var ForgeWindowManager = GObject.registerClass(
                                 if (nextFocusNode) {
                                     // Always try to find the next window
                                     if (this.floatingWindow(nextFocusNode) ||
-                                        nextFocusNode._data.minimized) {
+                                        nextFocusNode.nodeValue.minimized) {
                                         Logger.warn(`focus: window is minimized or floating`);
                                         focusNext(nextFocusNode);
                                     } else {
-                                        nextFocusNode._data.raise();
-                                        nextFocusNode._data.activate(global.get_current_time());
-                                        nextFocusNode._data.focus(global.get_current_time());
+                                        nextFocusNode.nodeValue.raise();
+                                        nextFocusNode.nodeValue.activate(global.get_current_time());
+                                        nextFocusNode.nodeValue.focus(global.get_current_time());
                                     }
                                 }
                                 break;
@@ -349,8 +348,8 @@ var ForgeWindowManager = GObject.registerClass(
                             }
                             // FIXME, when the window focuses on hover always
                             // move the pointer
-                            this._tree.attachNode = nextFocusNode._parent;
-                            Logger.trace(`focus: next attachNode ${this._tree.attachNode._type} ${this._tree.attachNode}`);
+                            this._tree.attachNode = nextFocusNode.parentNode;
+                            Logger.trace(`focus: next attachNode ${this._tree.attachNode.nodeType} ${this._tree.attachNode}`);
                         }
                     }
 
@@ -360,11 +359,11 @@ var ForgeWindowManager = GObject.registerClass(
                 case "Swap":
                     let swapDirection = Utils.resolveDirection(action.direction);
                     let nextSwapNode = this._tree.next(focusNodeWindow, swapDirection);
-                    Logger.trace(`swap: next ${nextSwapNode ? nextSwapNode._type : undefined}`);
+                    Logger.trace(`swap: next ${nextSwapNode ? nextSwapNode.nodeType : undefined}`);
                     if (!nextSwapNode) {
                         return;
                     }
-                    let nodeSwapType = nextSwapNode._type;
+                    let nodeSwapType = nextSwapNode.nodeType;
 
                     switch(nodeSwapType) {
                         case Tree.NODE_TYPES.WINDOW:
@@ -374,15 +373,16 @@ var ForgeWindowManager = GObject.registerClass(
                             nextSwapNode = this._tree.findFirstNodeWindowFrom(nextSwapNode, "bottom");
                             break;
                     }
-                    let isNextNodeWin = nextSwapNode && nextSwapNode._data && nextSwapNode._type ===
-                        Tree.NODE_TYPES.WINDOW;
+                    let isNextNodeWin = nextSwapNode &&
+                        nextSwapNode.nodeValue &&
+                        nextSwapNode.nodeType === Tree.NODE_TYPES.WINDOW;
                     if (isNextNodeWin) {
                         // FIXME, this prevents a serious GC bug for now
                         if (!this.sameParentMonitor(focusNodeWindow, nextSwapNode)) {
                             Logger.warn(`swap: not same monitor, do not swap`);
                             return;
                         }
-                        Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode._data.get_wm_class() : "undefined"}`);
+                        Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"}`);
                         this._tree.swap(focusNodeWindow, nextSwapNode);
                         this.renderTree("swap");
                     } 
@@ -395,13 +395,13 @@ var ForgeWindowManager = GObject.registerClass(
                     this.showBorderFocusWindow();
                     break;
                 case "LayoutToggle":
-                    let currentLayout = focusNodeWindow._parent.layout;
+                    let currentLayout = focusNodeWindow.parentNode.layout;
                     if (currentLayout === Tree.LAYOUT_TYPES.HSPLIT) {
-                        focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES.VSPLIT;
+                        focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
                     } else {
-                        focusNodeWindow._parent.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                        focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
                     }
-                    this._tree.attachNode = focusNodeWindow._parent;
+                    this._tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-toggle");
                     this.showBorderFocusWindow();
                     break;
@@ -615,7 +615,7 @@ var ForgeWindowManager = GObject.registerClass(
                 let globalWsNum = wsManager.get_n_workspaces();
                 Logger.trace(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
                 // empty out the root children nodes
-                this._tree._root._nodes.length = 0;
+                this._tree.childNodes.length = 0;
                 this._tree.attachNode = undefined;
                 // initialize the workspaces and monitors id strings
                 this._tree._initWorkspaces();
@@ -623,16 +623,16 @@ var ForgeWindowManager = GObject.registerClass(
 
                 for (let i = 0; i < this._tree.nodeWorkpaces.length; i++) {
                     let existingWsNode = this._tree.nodeWorkpaces[i];
-                    let monitors = existingWsNode._nodes;
-                    Logger.trace(`  ${existingWsNode._data}`);
+                    let monitors = existingWsNode.childNodes;
+                    Logger.trace(`  ${existingWsNode.nodeValue}`);
                     for (let m = 0; m < monitors.length; m++) {
-                        let windows  = monitors[m]._nodes;
+                        let windows  = monitors[m].childNodes;
                         for (let w = 0; w < windows.length; w++) {
                             let nodeWindow = windows[w];
-                            if (nodeWindow && nodeWindow._data)
+                            if (nodeWindow && nodeWindow.nodeValue)
                                 this.updateMetaWorkspaceMonitor("reload-tree",
-                                    nodeWindow._data.get_monitor(),
-                                    nodeWindow._data);
+                                    nodeWindow.nodeValue.get_monitor(),
+                                    nodeWindow.nodeValue);
                         }
                     }
                 }
@@ -644,11 +644,11 @@ var ForgeWindowManager = GObject.registerClass(
 
         sameParentMonitor(firstNode, secondNode) {
             if (!firstNode || !secondNode) return false;
-            if (!firstNode._data || !secondNode._data) return false;
-            if (!firstNode._data.get_workspace()) return false;
-            if (!secondNode._data.get_workspace()) return false;
-            let firstMonWs = `mo${firstNode._data.get_monitor()}ws${firstNode._data.get_workspace().index()}`;
-            let secondMonWs = `mo${secondNode._data.get_monitor()}ws${secondNode._data.get_workspace().index()}`;
+            if (!firstNode.nodeValue || !secondNode.nodeValue) return false;
+            if (!firstNode.nodeValue.get_workspace()) return false;
+            if (!secondNode.nodeValue.get_workspace()) return false;
+            let firstMonWs = `mo${firstNode.nodeValue.get_monitor()}ws${firstNode.nodeValue.get_workspace().index()}`;
+            let secondMonWs = `mo${secondNode.nodeValue.get_monitor()}ws${secondNode.nodeValue.get_workspace().index()}`;
             return firstMonWs === secondMonWs;
         }
 
@@ -671,7 +671,7 @@ var ForgeWindowManager = GObject.registerClass(
             }
             let monitorCount = global.display.get_n_monitors();
             let nodeWindow = this.findNodeWindow(metaWindow);
-            let tiled = this._tree.getTiledChildren(nodeWindow._parent._nodes);
+            let tiled = this._tree.getTiledChildren(nodeWindow.parentNode.childNodes);
 
             if (windowActor.border && focusBorderEnabled) {
                 if (!maximized() ||
@@ -686,9 +686,9 @@ var ForgeWindowManager = GObject.registerClass(
                 splitBorderEnabled &&
                 tilingModeEnabled &&
                 !this.floatingWindow(nodeWindow) &&
-                nodeWindow._parent._nodes.length === 1 &&
-                (nodeWindow._parent._type === Tree.NODE_TYPES.CON ||
-                    nodeWindow._parent._type === Tree.NODE_TYPES.MONITOR)) {
+                nodeWindow.parentNode.childNodes.length === 1 &&
+                (nodeWindow.parentNode.nodeType === Tree.NODE_TYPES.CON ||
+                    nodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR)) {
                 if (!windowActor.splitBorder) {
                     let splitBorder = new St.Bin({style_class: "window-split-direction-horizontal"});
                     global.window_group.add_child(splitBorder);
@@ -697,7 +697,7 @@ var ForgeWindowManager = GObject.registerClass(
                 } 
 
                 let splitBorder = windowActor.splitBorder;
-                if (nodeWindow._parent.layout === Tree.LAYOUT_TYPES.VSPLIT) {
+                if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.VSPLIT) {
                     splitBorder.set_style_class_name("window-split-direction-vertical");
                 } else {
                     splitBorder.set_style_class_name("window-split-direction-horizontal");
@@ -769,14 +769,14 @@ var ForgeWindowManager = GObject.registerClass(
                         Logger.warn(`track-window: nothing to attach to for ${metaWindow.get_title()}`);
                         return;
                     }
-                    Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode._data}`);
+                    Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`);
 
-                    let childNodes = this._tree.getTiledChildren(parentFocusNode._nodes);
+                    let childNodes = this._tree.getTiledChildren(parentFocusNode.childNodes);
                     childNodes.forEach((n) => {
                         n.percent = 0.0;
                     });
 
-                    let newNodeWindow = this._tree.addNode(parentFocusNode._data, Tree.NODE_TYPES.WINDOW, 
+                    let newNodeWindow = this._tree.createNode(parentFocusNode.nodeValue, Tree.NODE_TYPES.WINDOW, 
                         metaWindow);
                     if (newNodeWindow) {
                         if (metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
@@ -884,35 +884,35 @@ var ForgeWindowManager = GObject.registerClass(
             let nodeWindow;
             nodeWindow = this._tree.findNodeByActor(actor);
             if (nodeWindow) {
-                let parentNode = nodeWindow._parent;
+                let parentNode = nodeWindow.parentNode;
                 // If parent has only this window, remove the parent instead
-                if (parentNode._nodes.length === 1 && parentNode._type !==
+                if (parentNode.childNodes.length === 1 && parentNode.nodeType !==
                     Tree.NODE_TYPES.MONITOR) {
-                    let existParent = parentNode._parent;
+                    let existParent = parentNode.parentNode;
                     this._tree.removeNode(parentNode);
-                    if (this._tree.getTiledChildren(existParent._nodes).length === 0) {
+                    if (this._tree.getTiledChildren(existParent.childNodes).length === 0) {
                         existParent.percent = 0.0;
-                        this._tree.resetSiblingPercent(existParent._parent);
+                        this._tree.resetSiblingPercent(existParent.parentNode);
                     }
                     this._tree.resetSiblingPercent(existParent);
                 } else {
-                    let existParent = nodeWindow._parent;
+                    let existParent = nodeWindow.parentNode;
                     this._tree.removeNode(nodeWindow);
-                    if (this._tree.getTiledChildren(existParent._nodes).length === 0) {
+                    if (this._tree.getTiledChildren(existParent.childNodes).length === 0) {
                         existParent.percent = 0.0;
-                        this._tree.resetSiblingPercent(existParent._parent);
+                        this._tree.resetSiblingPercent(existParent.parentNode);
                     }
                     this._tree.resetSiblingPercent(existParent);
                 }
-                Logger.debug(`window destroyed ${nodeWindow._data.get_wm_class()}`);
+                Logger.debug(`window destroyed ${nodeWindow.nodeValue.get_wm_class()}`);
                 this.renderTree("window-destroy");
             }
 
             // find the next attachNode here
             let focusNodeWindow = this._tree.findNode(this.focusMetaWindow);
             if (focusNodeWindow) {
-                this._tree.attachNode = focusNodeWindow._parent;
-                Logger.trace(`on-destroy: finding next attach node ${this._tree.attachNode._type}`);
+                this._tree.attachNode = focusNodeWindow.parentNode;
+                Logger.trace(`on-destroy: finding next attach node ${this._tree.attachNode.nodeType}`);
             }
 
             Logger.debug(`window-destroy`);
@@ -928,17 +928,17 @@ var ForgeWindowManager = GObject.registerClass(
                 let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`; 
                 let metaMonWsNode = this._tree.findNode(metaMonWs);
                 if (existNodeWindow) {
-                    if (existNodeWindow._parent && metaMonWsNode) {
+                    if (existNodeWindow.parentNode && metaMonWsNode) {
                         // Uses the existing workspace, monitor that the metaWindow
                         // belongs to.
                         let containsWindow = this._tree.findNodeWindowFrom(existNodeWindow, metaMonWsNode);
                         if (!containsWindow) {
                             Logger.warn("window is not in same monitor-workspace");
                             // handle cleanup of resize percentages
-                            let existParent = existNodeWindow._parent;
+                            let existParent = existNodeWindow.parentNode;
                             this._tree.removeNode(existNodeWindow);
                             this._tree.resetSiblingPercent(existParent);
-                            let movedNodeWindow = this._tree.addNode(metaMonWs,
+                            let movedNodeWindow = this._tree.createNode(metaMonWs,
                                 Tree.NODE_TYPES.WINDOW, metaWindow);
                             movedNodeWindow.mode = existNodeWindow.mode;
                         }
@@ -967,12 +967,12 @@ var ForgeWindowManager = GObject.registerClass(
             let focusNodeWindow = this.findNodeWindow(focusWindow);
             if (!focusNodeWindow) return;
 
-            if (focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
+            if (focusNodeWindow.grabMode && focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
                 let grabOp = global.display.get_grab_op();
                 let initGrabOp = focusNodeWindow.initGrabOp;
                 let direction = Utils.directionFromGrab(grabOp);
                 let orientation = Utils.orientationFromGrab(grabOp);
-                let parentNodeForFocus = focusNodeWindow._parent;
+                let parentNodeForFocus = focusNodeWindow.parentNode;
                 let position = Utils.positionFromGrabOp(grabOp);
                 // normalize the rect without gaps
                 let currentRect = Utils.removeGapOnRect(
@@ -991,12 +991,12 @@ var ForgeWindowManager = GObject.registerClass(
 
                 Logger.trace(`update-position-size: ${grabOp}`);
                 let sameParent = resizePairForWindow ?
-                    resizePairForWindow._parent === focusNodeWindow._parent : false;
+                    resizePairForWindow.parentNode === focusNodeWindow.parentNode : false;
 
                 if (orientation === Tree.ORIENTATION_TYPES.HORIZONTAL) {
                     if (sameParent) {
                         // use the window or con pairs
-                        if (this._tree.getTiledChildren(parentNodeForFocus._nodes).length <= 1) {
+                        if (this._tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
                             Logger.warn(`not valid for resize`);
                             return;
                         }
@@ -1025,19 +1025,19 @@ var ForgeWindowManager = GObject.registerClass(
                     } else {
                         // use the parent pairs (con to another con or window)
                         if (resizePairForWindow) {
-                            if (this._tree.getTiledChildren(resizePairForWindow._parent._nodes).length <= 1) {
+                            if (this._tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
                                 Logger.warn(`not valid for resize`);
                                 return;
                             }
                             let firstWindowRect = focusNodeWindow.initRect;
-                            let index = this._tree._findNodeIndex(resizePairForWindow._parent._nodes, resizePairForWindow);
+                            let index = resizePairForWindow.index;
                             if (position === Tree.POSITION.BEFORE) {
                                 // Find the opposite node
                                 index = index + 1;
                             } else {
                                 index = index - 1;
                             }
-                            parentNodeForFocus = resizePairForWindow._parent._nodes[index];
+                            parentNodeForFocus = resizePairForWindow.parentNode.childNodes[index];
                             firstRect = parentNodeForFocus.rect;
                             secondRect = resizePairForWindow.rect;
                             if (!firstRect || !secondRect) {
@@ -1045,7 +1045,7 @@ var ForgeWindowManager = GObject.registerClass(
                                 return;
                             }
 
-                            parentRect = parentNodeForFocus._parent.rect;
+                            parentRect = parentNodeForFocus.parentNode.rect;
                             let changePx = currentRect.width - firstWindowRect.width;
                             let firstPercent = (firstRect.width + changePx) / parentRect.width;
                             let secondPercent = (secondRect.width - changePx) / parentRect.width;
@@ -1057,7 +1057,7 @@ var ForgeWindowManager = GObject.registerClass(
                 } else if (orientation === Tree.ORIENTATION_TYPES.VERTICAL) {
                     if (sameParent) {
                         // use the window or con pairs
-                        if (this._tree.getTiledChildren(parentNodeForFocus._nodes).length <= 1) {
+                        if (this._tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
                             Logger.warn(`not valid for resize`);
                             return;
                         }
@@ -1083,19 +1083,19 @@ var ForgeWindowManager = GObject.registerClass(
                     } else {
                         // use the parent pairs (con to another con or window)
                         if (resizePairForWindow) {
-                            if (this._tree.getTiledChildren(resizePairForWindow._parent._nodes).length <= 1) {
+                            if (this._tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
                                 Logger.warn(`not valid for resize`);
                                 return;
                             }
                             let firstWindowRect = focusNodeWindow.initRect;
-                            let index = this._tree._findNodeIndex(resizePairForWindow._parent._nodes, resizePairForWindow);
+                            let index = resizePairForWindow.index;
                             if (position === Tree.POSITION.BEFORE) {
                                 // Find the opposite node
                                 index = index + 1;
                             } else {
                                 index = index - 1;
                             }
-                            parentNodeForFocus = resizePairForWindow._parent._nodes[index];
+                            parentNodeForFocus = resizePairForWindow.parentNode.childNodes[index];
                             firstRect = parentNodeForFocus.rect;
                             secondRect = resizePairForWindow.rect;
                             if (!firstRect || !secondRect) {
@@ -1103,7 +1103,7 @@ var ForgeWindowManager = GObject.registerClass(
                                 return;
                             }
 
-                            parentRect = parentNodeForFocus._parent.rect;
+                            parentRect = parentNodeForFocus.parentNode.rect;
                             let changePx = currentRect.height - firstWindowRect.height;
                             let firstPercent = (firstRect.height + changePx) / parentRect.height;
                             let secondPercent = (secondRect.height - changePx) / parentRect.height;
