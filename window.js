@@ -97,7 +97,7 @@ var ForgeWindowManager = GObject.registerClass(
                     this.updateMetaWorkspaceMonitor("window-entered-monitor", monitor, metaWindow);
                 }),
                 display.connect("window-left-monitor", () => {
-                    Logger.debug(`window-left-monitor`);
+                    Logger.debug("window-left-monitor");
                 }),
                 display.connect("grab-op-end", (_, _display, _metaWindow, grabOp) => {
                     // handle window swapping
@@ -191,17 +191,19 @@ var ForgeWindowManager = GObject.registerClass(
                 globalWsm.connect("workspace-added", (_, wsIndex) => {
                     let added = this._tree.addWorkspace(wsIndex);
                     Logger.debug(`${added ? "workspace-added" : "workspace-add-skipped"} ${wsIndex}`);
+                    this.renderTree("workspace-added");
                 }),
                 globalWsm.connect("workspace-removed", (_, wsIndex) => {
                     let removed = this._tree.removeWorkspace(wsIndex);
                     Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
+                    this.renderTree("workspace-removed");
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
                     this.hideWindowBorders();
-                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 350, () => {
+                    GLib.timeout_add(GLib.PRIORITY_LOW, 350, () => {
                         this.showBorderFocusWindow();
                     });
-                    Logger.debug(`workspace-switched`);
+                    this.renderTree("workspace-switched");
                 }),
             ];
 
@@ -280,12 +282,12 @@ var ForgeWindowManager = GObject.registerClass(
                     let moveDirection = Utils.resolveDirection(action.direction);
                     let moveToNext = (focusNodeWindow, direction) => {
                         let nextMoveNode = this._tree.next(focusNodeWindow, direction);
-                        Logger.trace(`move: next ${nextMoveNode ? nextMoveNode._type : undefined}`);
+                        Logger.trace(`move: next ${nextMoveNode ? nextMoveNode.nodeType : undefined}`);
                         if (!nextMoveNode) {
                             return;
                         }
 
-                        switch(nextMoveNode._type) {
+                        switch(nextMoveNodenodeType) {
                             case Tree.NODE_TYPES.WINDOW:
                                 break;
                             default:
@@ -298,7 +300,7 @@ var ForgeWindowManager = GObject.registerClass(
                     let focusDirection = Utils.resolveDirection(action.direction);
                     let focusNext = (focusNodeWindow) => {
                         let nextFocusNode = this._tree.next(focusNodeWindow, focusDirection);
-                        Logger.trace(`focus: next ${nextFocusNode ? nextFocusNode._type : undefined}`);
+                        Logger.trace(`focus: next ${nextFocusNode ? nextFocusNode.nodeType : undefined}`);
                         if (!nextFocusNode) {
                             return;
                         }
@@ -609,37 +611,35 @@ var ForgeWindowManager = GObject.registerClass(
          * TODO: move this to tree.js
          */
         reloadTree(from) {
-            GLib.idle_add(GLib.PRIORITY_LOW, () => {
-                let treeWorkspaces = this._tree.nodeWorkpaces;
-                let wsManager = global.workspace_manager;
-                let globalWsNum = wsManager.get_n_workspaces();
-                Logger.trace(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
-                // empty out the root children nodes
-                this._tree.childNodes.length = 0;
-                this._tree.attachNode = undefined;
-                // initialize the workspaces and monitors id strings
-                this._tree._initWorkspaces();
-                this.trackCurrentWindows();
+            let treeWorkspaces = this._tree.nodeWorkpaces;
+            let wsManager = global.workspace_manager;
+            let globalWsNum = wsManager.get_n_workspaces();
+            Logger.trace(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
+            // empty out the root children nodes
+            this._tree.childNodes.length = 0;
+            this._tree.attachNode = undefined;
+            // initialize the workspaces and monitors id strings
+            this._tree._initWorkspaces();
+            this.trackCurrentWindows();
 
-                for (let i = 0; i < this._tree.nodeWorkpaces.length; i++) {
-                    let existingWsNode = this._tree.nodeWorkpaces[i];
-                    let monitors = existingWsNode.childNodes;
-                    Logger.trace(`  ${existingWsNode.nodeValue}`);
-                    for (let m = 0; m < monitors.length; m++) {
-                        let windows  = monitors[m].childNodes;
-                        for (let w = 0; w < windows.length; w++) {
-                            let nodeWindow = windows[w];
-                            if (nodeWindow && nodeWindow.nodeValue)
-                                this.updateMetaWorkspaceMonitor("reload-tree",
-                                    nodeWindow.nodeValue.get_monitor(),
-                                    nodeWindow.nodeValue);
-                        }
+            for (let i = 0; i < this._tree.nodeWorkpaces.length; i++) {
+                let existingWsNode = this._tree.nodeWorkpaces[i];
+                let monitors = existingWsNode.childNodes;
+                Logger.trace(`  ${existingWsNode.nodeValue}`);
+                for (let m = 0; m < monitors.length; m++) {
+                    let windows  = monitors[m].childNodes;
+                    for (let w = 0; w < windows.length; w++) {
+                        let nodeWindow = windows[w];
+                        if (nodeWindow && nodeWindow.nodeValue)
+                            this.updateMetaWorkspaceMonitor("reload-tree",
+                                nodeWindow.nodeValue.get_monitor(),
+                                nodeWindow.nodeValue);
                     }
                 }
-                Logger.debug(`windowmgr:reload-tree ${from ? "from " + from : ""}`);
-                this.renderTree("reload-tree");
-                this.showBorderFocusWindow();
-            });
+            }
+            Logger.debug(`windowmgr:reload-tree ${from ? "from " + from : ""}`);
+            this.renderTree("reload-tree");
+            this.showBorderFocusWindow();
         }
 
         sameParentMonitor(firstNode, secondNode) {
@@ -658,6 +658,8 @@ var ForgeWindowManager = GObject.registerClass(
             if (!metaWindow) return;
             let windowActor = metaWindow.get_compositor_private();
             if (!windowActor) return;
+            let nodeWindow = this.findNodeWindow(metaWindow);
+            if (!nodeWindow) return;
 
             let borders = [];
             let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
@@ -670,7 +672,6 @@ var ForgeWindowManager = GObject.registerClass(
                     gap === 0;
             }
             let monitorCount = global.display.get_n_monitors();
-            let nodeWindow = this.findNodeWindow(metaWindow);
             let tiled = this._tree.getTiledChildren(nodeWindow.parentNode.childNodes);
 
             if (windowActor.border && focusBorderEnabled) {
@@ -682,8 +683,7 @@ var ForgeWindowManager = GObject.registerClass(
             }
 
             // handle the split border
-            if (nodeWindow &&
-                splitBorderEnabled &&
+            if (splitBorderEnabled &&
                 tilingModeEnabled &&
                 !this.floatingWindow(nodeWindow) &&
                 nodeWindow.parentNode.childNodes.length === 1 &&
@@ -936,11 +936,8 @@ var ForgeWindowManager = GObject.registerClass(
                             Logger.warn("window is not in same monitor-workspace");
                             // handle cleanup of resize percentages
                             let existParent = existNodeWindow.parentNode;
-                            this._tree.removeNode(existNodeWindow);
                             this._tree.resetSiblingPercent(existParent);
-                            let movedNodeWindow = this._tree.createNode(metaMonWs,
-                                Tree.NODE_TYPES.WINDOW, metaWindow);
-                            movedNodeWindow.mode = existNodeWindow.mode;
+                            metaMonWsNode.appendChild(existNodeWindow);
                         }
                     }
                 }

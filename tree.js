@@ -179,7 +179,8 @@ var Node = GObject.registerClass(
          */
         contains(node) {
             if (!node) return false;
-            let searchNode = this._search(node);
+            let searchNode = this.getNodeByValue(node.nodeValue);
+            Logger.trace(`contains: ${searchNode}`);
             return searchNode ? true : false;
         }
 
@@ -701,39 +702,39 @@ var Tree = GObject.registerClass(
             
             // Render the Root, Workspace and Monitor
             // For now, we let them render their children recursively
-            if (node._type === NODE_TYPES.ROOT) {
-                Logger.debug(`render root ${node._data}`);
-                node._nodes.forEach((child) => {
+            if (node.nodeType === NODE_TYPES.ROOT) {
+                Logger.debug(`render root ${node.nodeValue}`);
+                node.childNodes.forEach((child) => {
                     this.renderNode(child);
                 });
             }
 
-            if (node._type === NODE_TYPES.WORKSPACE) {
-                Logger.debug(`render workspace ${node._data}`);
-                node._nodes.forEach((child) => {
+            if (node.nodeType === NODE_TYPES.WORKSPACE) {
+                Logger.debug(`*---- render workspace ${node.nodeValue} ----*`);
+                node.childNodes.forEach((child) => {
                     this.renderNode(child);
                 });
             }
 
             let params = {};
 
-            if (node._type === NODE_TYPES.MONITOR ||
-                node._type === NODE_TYPES.CON) {
+            if (node.nodeType === NODE_TYPES.MONITOR ||
+                node.nodeType === NODE_TYPES.CON) {
                 // The workarea from Meta.Window's assigned monitor 
                 // is important so it computes to `remove` the panel size
                 // really well. However, this type of workarea would only
                 // appear if there is window present on the monitor.
 
                 // If monitor, get the workarea
-                if (node._type === NODE_TYPES.MONITOR) {
+                if (node.nodeType === NODE_TYPES.MONITOR) {
                     let nodeWinOnContainer = this.findFirstNodeWindowFrom(node);
-                    let monitorArea = nodeWinOnContainer && nodeWinOnContainer._data ?
-                        nodeWinOnContainer._data.get_work_area_current_monitor() : null;
+                    let monitorArea = nodeWinOnContainer && nodeWinOnContainer.nodeValue ?
+                        nodeWinOnContainer.nodeValue.get_work_area_current_monitor() : null;
                     if (!monitorArea) return; // there is no visible child window
                     node.rect = monitorArea;
                 }
 
-                let tiledChildren = this.getTiledChildren(node._nodes);
+                let tiledChildren = this.getTiledChildren(node.childNodes);
                 let sizes = this.computeSizes(node, tiledChildren);
 
                 params.sizes = sizes;
@@ -749,14 +750,14 @@ var Tree = GObject.registerClass(
             }
 
             // TODO - move the border rendering here from window.js?
-            if (node._type === NODE_TYPES.WINDOW) {
+            if (node.nodeType === NODE_TYPES.WINDOW) {
                 if (!node.rect) node.rect = node.get_work_area_current_monitor();
                 let nodeWidth = node.rect.width;
                 let nodeHeight = node.rect.height;
                 let nodeX = node.rect.x;
                 let nodeY = node.rect.y;
 
-                let gap = this._forgeWm.calculateGaps(node._data);
+                let gap = this._forgeWm.calculateGaps(node.nodeValue);
                 nodeX += gap;
                 nodeY += gap;
                 // TODO - detect inbetween windows and adjust accordingly 
@@ -764,13 +765,13 @@ var Tree = GObject.registerClass(
                 nodeWidth -= gap * 2;
                 nodeHeight -= gap * 2;
 
-                Logger.debug(`render-window: ${node._data.get_wm_class()}:${node._data.get_title()}`);
-                Logger.debug(` layout: ${node._parent.layout}`);
+                Logger.debug(`render-window: ${node.nodeValue.get_wm_class()}:${node.nodeValue.get_title()}`);
+                Logger.debug(` layout: ${node.parentNode.layout}`);
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                this._forgeWm.move(node._data, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
-                if (node._data.firstRender)
-                    node._data.firstRender = false;
+                this._forgeWm.move(node.nodeValue, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
+                if (node.nodeValue.firstRender)
+                    node.nodeValue.firstRender = false;
             }
         }
 
