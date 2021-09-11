@@ -277,6 +277,24 @@ var ForgeWindowManager = GObject.registerClass(
                     this._tree.resetSiblingPercent(existParent);
                     this.renderTree("move-resize");
                     break;
+                case "Move":
+                    let moveDirection = Utils.resolveDirection(action.direction);
+                    let moveToNext = (focusNodeWindow, direction) => {
+                        let nextMoveNode = this._tree.next(focusNodeWindow, direction);
+                        Logger.trace(`move: next ${nextMoveNode ? nextMoveNode._type : undefined}`);
+                        if (!nextMoveNode) {
+                            return;
+                        }
+
+                        switch(nextMoveNode._type) {
+                            case Tree.NODE_TYPES.WINDOW:
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    moveToNext(focusNodeWindow, moveDirection);
+                    break;
                 case "Focus":
                     let focusDirection = Utils.resolveDirection(action.direction);
                     let focusNext = (focusNodeWindow) => {

@@ -158,8 +158,6 @@ var Keybindings = GObject.registerClass(
 
         buildBindingDefinitions() {
             this._bindings = {
-                "focus-border-toggle": () => {
-                },
                 "window-toggle-float": () => {
                     let actions = [
                         {
@@ -256,6 +254,50 @@ var Keybindings = GObject.registerClass(
                     let actions = [
                         {
                             name : "Swap",
+                            direction: "Right"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-move-left": () => {
+                    let actions = [
+                        {
+                            name : "Move",
+                            direction: "Left"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-move-down": () => {
+                    let actions = [
+                        {
+                            name : "Move",
+                            direction: "Down"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-move-up": () => {
+                    let actions = [
+                        {
+                            name : "Move",
+                            direction: "Up"
+                        },
+                    ];
+                    actions.forEach((action) => {
+                        this.forgeWm.command(action);
+                    });
+                },
+                "window-move-right": () => {
+                    let actions = [
+                        {
+                            name : "Move",
                             direction: "Right"
                         },
                     ];
