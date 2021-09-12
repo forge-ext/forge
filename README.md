@@ -7,7 +7,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 
 ## Features
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm.
-- Vim-like keybindings for navigation/swapping windows.
+- Vim-like keybindings for navigation/swapping windows/moving windows in the containers.
 - Support for floating windows, smart gaps and focus hint.
 - Customizable shortcuts in extension preferences.
 - Some support for multi-display.
@@ -28,6 +28,10 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 | Swap active window right | `<Ctrl> + <Super> + l` |
 | Swap active window up | `<Ctrl> + <Super> + k` |
 | Swap active window down | `<Ctrl> + <Super> + j` |
+| Move active window left | `<Shift> + <Super> + h` |
+| Move active window right | `<Shift> + <Super> + l` |
+| Move active window up | `<Shift> + <Super> + k` |
+| Move active window down | `<Shift> + <Super> + j` |
 | Split container horizontally | `<Super> + z` |
 | Split container vertically | `<Super> + v` |
 | Toggle split container | `<Super> + g` |
