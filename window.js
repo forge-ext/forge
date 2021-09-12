@@ -110,7 +110,7 @@ var ForgeWindowManager = GObject.registerClass(
                     if (nodeWinAtPointer &&
                         // Swap only when grabbed by the mouse
                         grabOp === Meta.GrabOp.WINDOW_BASE) {
-                        this._tree.swap(nodeWinPrev, nodeWinAtPointer);
+                        this._tree.swapPairs(nodeWinPrev, nodeWinAtPointer);
                     }
 
                     this.unfreezeRender();
@@ -280,119 +280,22 @@ var ForgeWindowManager = GObject.registerClass(
                     break;
                 case "Move":
                     let moveDirection = Utils.resolveDirection(action.direction);
-                    let moveToNext = (focusNodeWindow, direction) => {
-                        let nextMoveNode = this._tree.next(focusNodeWindow, direction);
-                        Logger.trace(`move: next ${nextMoveNode ? nextMoveNode.nodeType : undefined}`);
-                        if (!nextMoveNode) {
-                            return;
-                        }
-
-                        switch(nextMoveNodenodeType) {
-                            case Tree.NODE_TYPES.WINDOW:
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    moveToNext(focusNodeWindow, moveDirection);
+                    this._tree.move(focusNodeWindow, moveDirection);
+                    this.renderTree("move-window");
                     break;
                 case "Focus":
                     let focusDirection = Utils.resolveDirection(action.direction);
-                    let focusNext = (focusNodeWindow) => {
-                        let nextFocusNode = this._tree.next(focusNodeWindow, focusDirection);
-                        Logger.trace(`focus: next ${nextFocusNode ? nextFocusNode.nodeType : undefined}`);
-                        if (!nextFocusNode) {
-                            return;
-                        }
-
-                        let nodeType = nextFocusNode.nodeType;
-
-                        switch(nodeType) {
-                            case Tree.NODE_TYPES.WINDOW:
-                                if (this.floatingWindow(nextFocusNode) || nextFocusNode.nodeValue.minimized) {
-                                    Logger.warn(`focus: window is minimized or floating`);
-                                    focusNext(nextFocusNode);
-                                } else {
-                                    // TODO, maybe put the code block below in a new function
-                                    nextFocusNode.nodeValue.raise();
-                                    nextFocusNode.nodeValue.activate(global.get_current_time());
-                                    nextFocusNode.nodeValue.focus(global.get_current_time());
-                                }
-                                break;
-                            case Tree.NODE_TYPES.CON:
-                            case Tree.NODE_TYPES.MONITOR:
-                                nextFocusNode = this._tree.findFirstNodeWindowFrom(nextFocusNode, "bottom");
-                                if (nextFocusNode) {
-                                    // Always try to find the next window
-                                    if (this.floatingWindow(nextFocusNode) ||
-                                        nextFocusNode.nodeValue.minimized) {
-                                        Logger.warn(`focus: window is minimized or floating`);
-                                        focusNext(nextFocusNode);
-                                    } else {
-                                        nextFocusNode.nodeValue.raise();
-                                        nextFocusNode.nodeValue.activate(global.get_current_time());
-                                        nextFocusNode.nodeValue.focus(global.get_current_time());
-                                    }
-                                }
-                                break;
-                        }
-
-                        if (nextFocusNode) {
-                            // Great found the next node window,
-                            // check if same monitor as before, else warp the pointer
-                            if (!this.sameParentMonitor(focusNodeWindow, nextFocusNode)) {
-                                // TODO warp the pointer here to the new monitor
-                                // and make it configurable
-                                let movePointerAlongWithMonitor = true;
-                                if (movePointerAlongWithMonitor) {
-                                    this.movePointerWith(nextFocusNode);
-                                }
-                            }
-                            // FIXME, when the window focuses on hover always
-                            // move the pointer
-                            this._tree.attachNode = nextFocusNode.parentNode;
-                            Logger.trace(`focus: next attachNode ${this._tree.attachNode.nodeType} ${this._tree.attachNode}`);
-                        }
-                    }
-
-                    focusNext(focusNodeWindow);
-
+                    this._tree.focus(focusNodeWindow, focusDirection);
                     break;
                 case "Swap":
                     let swapDirection = Utils.resolveDirection(action.direction);
-                    let nextSwapNode = this._tree.next(focusNodeWindow, swapDirection);
-                    Logger.trace(`swap: next ${nextSwapNode ? nextSwapNode.nodeType : undefined}`);
-                    if (!nextSwapNode) {
-                        return;
-                    }
-                    let nodeSwapType = nextSwapNode.nodeType;
-
-                    switch(nodeSwapType) {
-                        case Tree.NODE_TYPES.WINDOW:
-                            break;
-                        case Tree.NODE_TYPES.CON:
-                        case Tree.NODE_TYPES.MONITOR:
-                            nextSwapNode = this._tree.findFirstNodeWindowFrom(nextSwapNode, "bottom");
-                            break;
-                    }
-                    let isNextNodeWin = nextSwapNode &&
-                        nextSwapNode.nodeValue &&
-                        nextSwapNode.nodeType === Tree.NODE_TYPES.WINDOW;
-                    if (isNextNodeWin) {
-                        // FIXME, this prevents a serious GC bug for now
-                        if (!this.sameParentMonitor(focusNodeWindow, nextSwapNode)) {
-                            Logger.warn(`swap: not same monitor, do not swap`);
-                            return;
-                        }
-                        Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"}`);
-                        this._tree.swap(focusNodeWindow, nextSwapNode);
-                        this.renderTree("swap");
-                    } 
+                    this._tree.swap(focusNodeWindow, swapDirection);
+                    this.renderTree("swap");
                     break;
                 case "Split":
                     let orientation = action.orientation ? action.orientation.
                         toUpperCase() : Tree.ORIENTATION_TYPES.NONE;
-                    this._tree.split(this.findNodeWindow(focusWindow), orientation);
+                    this._tree.split(focusNodeWindow, orientation);
                     this.renderTree("split");
                     this.showBorderFocusWindow();
                     break;

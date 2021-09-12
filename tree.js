@@ -207,6 +207,9 @@ var Node = GObject.registerClass(
             return refNode;
         }
 
+        /**
+         * Backend for getNodeBy[attribute]. It is similar to DOM.getElementBy functions
+         */
         _search(term, criteria) {
             let results = [];
             let searchFn = (candidate) => {
@@ -447,6 +450,63 @@ var Tree = GObject.registerClass(
             return nodeAtPointer;
         }
 
+        focus(node, direction) {
+            let nextFocusNode = this.next(node, direction);
+            Logger.trace(`focus: next ${nextFocusNode ? nextFocusNode.nodeType : undefined}`);
+            if (!nextFocusNode) {
+                return;
+            }
+
+            let nodeType = nextFocusNode.nodeType;
+
+            switch(nodeType) {
+                case NODE_TYPES.WINDOW:
+                    if (this._forgeWm.floatingWindow(nextFocusNode) || nextFocusNode.nodeValue.minimized) {
+                        Logger.warn(`focus: window is minimized or floating`);
+                        this.focus(nextFocusNode, direction);
+                    } else {
+                        // TODO, maybe put the code block below in a new function
+                        nextFocusNode.nodeValue.raise();
+                        nextFocusNode.nodeValue.activate(global.get_current_time());
+                        nextFocusNode.nodeValue.focus(global.get_current_time());
+                    }
+                    break;
+                case NODE_TYPES.CON:
+                case NODE_TYPES.MONITOR:
+                    nextFocusNode = this.findFirstNodeWindowFrom(nextFocusNode, "bottom");
+                    if (nextFocusNode) {
+                        // Always try to find the next window
+                        if (this._forgeWm.floatingWindow(nextFocusNode) ||
+                            nextFocusNode.nodeValue.minimized) {
+                            Logger.warn(`focus: window is minimized or floating`);
+                            this.focus(nextFocusNode);
+                        } else {
+                            nextFocusNode.nodeValue.raise();
+                            nextFocusNode.nodeValue.activate(global.get_current_time());
+                            nextFocusNode.nodeValue.focus(global.get_current_time());
+                        }
+                    }
+                    break;
+            }
+
+            if (nextFocusNode) {
+                // Great found the next node window,
+                // check if same monitor as before, else warp the pointer
+                if (!this._forgeWm.sameParentMonitor(node, nextFocusNode)) {
+                    // TODO warp the pointer here to the new monitor
+                    // and make it configurable
+                    let movePointerAlongWithMonitor = true;
+                    if (movePointerAlongWithMonitor) {
+                        this._forgeWm.movePointerWith(nextFocusNode);
+                    }
+                }
+                // FIXME, when the window focuses on hover always
+                // move the pointer
+                this.attachNode = nextFocusNode.parentNode;
+                Logger.trace(`focus: next attachNode ${this.attachNode.nodeType} ${this.attachNode}`);
+            }
+        }
+
         /**
          * Obtains the non-floating, non-minimized list of nodes
          */
@@ -467,6 +527,21 @@ var Tree = GObject.registerClass(
             };
 
             return items.filter(filterFn);
+        }
+
+        move(node, direction) {
+            let next = this.next(node, direction);
+            if (!next) {
+                return;
+            }
+            Logger.trace(`move: next ${next ? next.nodeType : undefined}`);
+
+            switch(next.nodeType) {
+                case NODE_TYPES.WINDOW:
+                    break;
+                default:
+                    break;
+            }
         }
 
         /**
@@ -616,7 +691,37 @@ var Tree = GObject.registerClass(
             Logger.trace(`tree-split: container parent ${newConNode._parent._data} has children? ${newConNode._parent._nodes.length}`);
         }
 
-        swap(fromNode, toNode, focus = true) {
+        swap(node, direction) {
+            let nextSwapNode = this.next(node, direction);
+            Logger.trace(`swap: next ${nextSwapNode ? nextSwapNode.nodeType : undefined}`);
+            if (!nextSwapNode) {
+                return;
+            }
+            let nodeSwapType = nextSwapNode.nodeType;
+
+            switch(nodeSwapType) {
+                case NODE_TYPES.WINDOW:
+                    break;
+                case NODE_TYPES.CON:
+                case NODE_TYPES.MONITOR:
+                    nextSwapNode = this.findFirstNodeWindowFrom(nextSwapNode, "bottom");
+                    break;
+            }
+            let isNextNodeWin = nextSwapNode &&
+                nextSwapNode.nodeValue &&
+                nextSwapNode.nodeType === NODE_TYPES.WINDOW;
+            if (isNextNodeWin) {
+                // FIXME, this prevents a serious GC bug for now
+                if (!this._forgeWm.sameParentMonitor(node, nextSwapNode)) {
+                    Logger.warn(`swap: not same monitor, do not swap`);
+                    return;
+                }
+                Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"}`);
+                this.swapPairs(node, nextSwapNode);
+            } 
+        }
+
+        swapPairs(fromNode, toNode, focus = true) {
             if (!(this._swappable(fromNode) &&
                 this._swappable(toNode)))
                 return;
@@ -660,13 +765,17 @@ var Tree = GObject.registerClass(
         }
 
         render(from) {
+            if (this.rendering)
+                return;
+            this.rendering = true;
+            Logger.debug(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             // TODO - render from the current active workspace for performance
             this.renderNode(this);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
-            Logger.debug(`render end`);
-            Logger.debug(`--------------------------`);
+            Logger.debug(`<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`);
             this.cleanTree();
+            this.rendering = false;
         }
 
         cleanTree() {
@@ -769,9 +878,11 @@ var Tree = GObject.registerClass(
                 Logger.debug(` layout: ${node.parentNode.layout}`);
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                this._forgeWm.move(node.nodeValue, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
-                if (node.nodeValue.firstRender)
-                    node.nodeValue.firstRender = false;
+                GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                    this._forgeWm.move(node.nodeValue, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
+                    if (node.nodeValue.firstRender)
+                        node.nodeValue.firstRender = false;
+                });
             }
         }
 
