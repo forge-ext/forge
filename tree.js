@@ -100,6 +100,10 @@ var Node = GObject.registerClass(
             return this._nodes;
         }
 
+        set childNodes(nodes) {
+            this._nodes = nodes;
+        }
+
         get firstChild() {
             if (this._nodes && this._nodes.length >= 1) {
                 return this._nodes[0];
@@ -190,6 +194,32 @@ var Node = GObject.registerClass(
 
         getNodeByType(type) {
             return this._search(type, "TYPE");
+        }
+
+        /**
+         * @param childNode - is a child of this
+         */
+        insertBefore(newNode, childNode) {
+            if (!newNode) return null;
+            if (!childNode) {
+                this.appendChild(newNode);
+                return newNode;
+            }
+            if (childNode.parentNode !== this) return null;
+            newNode.parentNode.removeChild(newNode);
+            let index = childNode.index;
+            Logger.trace(`insert-before: child ${index}, items ${this.childNodes.length}`);
+
+            if (childNode.index === 0) {
+                Logger.trace(`insert-append to start`);
+                this.childNodes.unshift(newNode);
+            } else if (childNode.index > 0) {
+                Logger.trace(`insert-splice`);
+                this.childNodes.splice(index, 0, newNode);
+            }
+            newNode.parentNode = this;
+
+            return newNode;
         }
 
         removeChild(node) {
@@ -359,7 +389,7 @@ var Tree = GObject.registerClass(
                 Logger.debug(`workspace-node ${workspaceNodeData} does not exist`);
                 return false;
             }
-            this.removeNode(existingWsNode);
+            this.removeChild(existingWsNode);
             return true;
         }
 
@@ -473,7 +503,7 @@ var Tree = GObject.registerClass(
                     break;
                 case NODE_TYPES.CON:
                 case NODE_TYPES.MONITOR:
-                    nextFocusNode = this.findFirstNodeWindowFrom(nextFocusNode, "bottom");
+                    nextFocusNode = this.findFirstNodeWindowFrom(nextFocusNode);
                     if (nextFocusNode) {
                         // Always try to find the next window
                         if (this._forgeWm.floatingWindow(nextFocusNode) ||
@@ -531,13 +561,32 @@ var Tree = GObject.registerClass(
 
         move(node, direction) {
             let next = this.next(node, direction);
+            let position = Utils.positionFromDirection(direction);
             if (!next) {
                 return;
             }
-            Logger.trace(`move: next ${next ? next.nodeType : undefined}`);
+            Logger.trace(`move-window: next ${next ? next.nodeType : undefined} ${position}`);
 
             switch(next.nodeType) {
                 case NODE_TYPES.WINDOW:
+                    // If same parent, swap
+                    if (next === node.previousSibling || next === node.nextSibling) {
+                        Logger.trace(`move-window: swap pairs`);
+                        this.swapPairs(node, next);
+                    } else {
+                        if (next.parentNode) {
+                            Logger.trace(`move-window: next parent ${next.parentNode.nodeValue}`);
+                            if (position === POSITION.AFTER) {
+                                next.parentNode.insertBefore(node, next);
+                            } else {
+                                next.parentNode.insertBefore(node, next.nextSibling);
+                            }
+                        }
+                    }
+                    break;
+                case NODE_TYPES.CON:
+                    Logger.trace(`move-to-con`);
+                    next.insertBefore(node, next.firstChild);
                     break;
                 default:
                     break;
@@ -711,7 +760,6 @@ var Tree = GObject.registerClass(
                 nextSwapNode.nodeValue &&
                 nextSwapNode.nodeType === NODE_TYPES.WINDOW;
             if (isNextNodeWin) {
-                // FIXME, this prevents a serious GC bug for now
                 if (!this._forgeWm.sameParentMonitor(node, nextSwapNode)) {
                     Logger.warn(`swap: not same monitor, do not swap`);
                     return;
@@ -755,8 +803,32 @@ var Tree = GObject.registerClass(
             return false;
         }
 
+        /**
+         * Performs cleanup of dangling parents in addition to removing the
+         * node from the parent.
+         */
         removeNode(node) {
-            let oldChild = this.removeChild(node);
+            let oldChild;
+            let parentNode = node.parentNode;
+            // If parent has only this window, remove the parent instead
+            if (parentNode.childNodes.length === 1 &&
+                parentNode.nodeType !== NODE_TYPES.MONITOR) {
+                let existParent = parentNode.parentNode;
+                oldChild = this.removeChild(parentNode);
+                if (this.getTiledChildren(existParent.childNodes).length === 0) {
+                    existParent.percent = 0.0;
+                    this.resetSiblingPercent(existParent.parentNode);
+                }
+                this.resetSiblingPercent(existParent);
+            } else {
+                let existParent = node.parentNode;
+                oldChild = this.removeChild(node);
+                if (this.getTiledChildren(existParent.childNodes).length === 0) {
+                    existParent.percent = 0.0;
+                    this.resetSiblingPercent(existParent.parentNode);
+                }
+                this.resetSiblingPercent(existParent);
+            }
             if (node === this.attachNode) {
                 this.attachNode = null;
             }
@@ -882,6 +954,8 @@ var Tree = GObject.registerClass(
                     this._forgeWm.move(node.nodeValue, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
                     if (node.nodeValue.firstRender)
                         node.nodeValue.firstRender = false;
+
+                    return false;
                 });
             }
         }
@@ -951,16 +1025,12 @@ var Tree = GObject.registerClass(
             return sizes;
         }
 
-        findFirstNodeWindowFrom(topNode, _direction) {
-            let results = topNode.getNodeByType(NODE_TYPES.WINDOW);
+        findFirstNodeWindowFrom(node) {
+            let results = node.getNodeByType(NODE_TYPES.WINDOW);
             if (results.length > 0) {
                 return results[0];
             }
             return null;
-        }
-
-        findNodeWindowFrom(nodeWindow, topNode) {
-            return topNode.contains(nodeWindow);
         }
 
         resetSiblingPercent(parentNode) {

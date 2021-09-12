@@ -202,6 +202,7 @@ var ForgeWindowManager = GObject.registerClass(
                     this.hideWindowBorders();
                     GLib.timeout_add(GLib.PRIORITY_LOW, 350, () => {
                         this.showBorderFocusWindow();
+                        return false;
                     });
                     this.renderTree("workspace-switched");
                 }),
@@ -282,6 +283,7 @@ var ForgeWindowManager = GObject.registerClass(
                     let moveDirection = Utils.resolveDirection(action.direction);
                     this._tree.move(focusNodeWindow, moveDirection);
                     this.renderTree("move-window");
+                    this.showBorderFocusWindow();
                     break;
                 case "Focus":
                     let focusDirection = Utils.resolveDirection(action.direction);
@@ -409,6 +411,38 @@ var ForgeWindowManager = GObject.registerClass(
             );
         };
 
+        rectForMonitor(node, monitor) {
+            if (!node || node && node.nodeType !== Tree.NODE_TYPES.WINDOW) return null;
+            if (!monitor || monitor < 0) return null;
+            let currentWorkArea  = node.nodeValue.get_work_area_current_monitor();
+            let nextWorkArea = node.nodeValue.get_work_area_for_monitor(monitor);
+
+            if (currentWorkArea && nextWorkArea) {
+                let rect = node.rect;
+                let hRatio = 1;
+                let wRatio = 1;
+
+                hRatio = nextWorkArea.height / currentWorkArea.height;
+                wRatio = nextWorkArea.width / currentWorkArea.width;
+                rect.height *= hRatio;
+                rect.width *= wRatio;
+
+                if (nextWorkArea.y < currentWorkArea.y) {
+                    rect.y = ((nextWorkArea.y + rect.y - currentWorkArea.y) / currentWorkArea.height) * nextWorkArea.height;
+                } else if (nextWorkArea.y > currentWorkArea.y) {
+                    rect.y = ((rect.y / currentWorkArea.height) * nextWorkArea.height) + nextWorkArea.y;
+                }
+
+                if (nextWorkArea.x < currentWorkArea.x) {
+                    rect.x = ((nextWorkArea.x + rect.x - currentWorkArea.x) / currentWorkArea.width) * nextWorkArea.width;
+                } else if (nextWorkArea.x > currentWorkArea.x) {
+                    rect.x = ((rect.x / currentWorkArea.width) * nextWorkArea.width) + nextWorkArea.x;
+                }
+                return rect;
+            }
+            return null;
+        }
+
         _removeSignals() {
             if (!this._signalsBound)
                 return;
@@ -503,6 +537,7 @@ var ForgeWindowManager = GObject.registerClass(
             }
             GLib.idle_add(GLib.PRIORITY_LOW, () => {
                 this._tree.render(from);
+                return false;
             });
         }
 
@@ -787,27 +822,8 @@ var ForgeWindowManager = GObject.registerClass(
             let nodeWindow;
             nodeWindow = this._tree.findNodeByActor(actor);
             if (nodeWindow) {
-                let parentNode = nodeWindow.parentNode;
-                // If parent has only this window, remove the parent instead
-                if (parentNode.childNodes.length === 1 && parentNode.nodeType !==
-                    Tree.NODE_TYPES.MONITOR) {
-                    let existParent = parentNode.parentNode;
-                    this._tree.removeNode(parentNode);
-                    if (this._tree.getTiledChildren(existParent.childNodes).length === 0) {
-                        existParent.percent = 0.0;
-                        this._tree.resetSiblingPercent(existParent.parentNode);
-                    }
-                    this._tree.resetSiblingPercent(existParent);
-                } else {
-                    let existParent = nodeWindow.parentNode;
-                    this._tree.removeNode(nodeWindow);
-                    if (this._tree.getTiledChildren(existParent.childNodes).length === 0) {
-                        existParent.percent = 0.0;
-                        this._tree.resetSiblingPercent(existParent.parentNode);
-                    }
-                    this._tree.resetSiblingPercent(existParent);
-                }
                 Logger.debug(`window destroyed ${nodeWindow.nodeValue.get_wm_class()}`);
+                this._tree.removeNode(nodeWindow);
                 this.renderTree("window-destroy");
             }
 
@@ -834,7 +850,7 @@ var ForgeWindowManager = GObject.registerClass(
                     if (existNodeWindow.parentNode && metaMonWsNode) {
                         // Uses the existing workspace, monitor that the metaWindow
                         // belongs to.
-                        let containsWindow = this._tree.findNodeWindowFrom(existNodeWindow, metaMonWsNode);
+                        let containsWindow = metaMonWsNode.contains(existNodeWindow);
                         if (!containsWindow) {
                             Logger.warn("window is not in same monitor-workspace");
                             // handle cleanup of resize percentages
@@ -859,9 +875,6 @@ var ForgeWindowManager = GObject.registerClass(
         updateMetaPositionSize(_metaWindow, from) {
             let focusWindow = this.focusMetaWindow;
             if (!focusWindow) return;
-            if (focusWindow.get_maximized() === 0) {
-                this.renderTree(`${from}`);
-            }
             this.showBorderFocusWindow();
 
             let focusNodeWindow = this.findNodeWindow(focusWindow);

@@ -355,13 +355,14 @@ var Keybindings = GObject.registerClass(
                         ExtensionUtils.openPrefs();
 
                         // Wait for it to appear on TabList
-                        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
+                        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
                             let newPrefsWindow = ExtUtils.findWindowWith(prefsTitle);
                             if (newPrefsWindow) {
                                 newPrefsWindow.get_workspace()
                                     .activate_with_focus(newPrefsWindow,
                                 global.display.get_current_time());
                             }
+                            return false;
                         });
                     }
                 },

@@ -312,3 +312,11 @@ function findWindowWith(title) {
 
     return undefined;
 }
+
+function monitorIndex(monitorValue) {
+    if (!monitorValue) return -1;
+    let wsIndex = monitorValue.indexOf("ws");
+    let indexVal = monitorValue.slice(0, wsIndex);
+    indexVal = indexVal.replace("mo", "");
+    return parseInt(indexVal);
+}
