@@ -26,6 +26,8 @@ build: clean metadata.json schemas
 
 debug:
 	sed -i 's/!loggingEnabled/false/' temp/logger.js
+	sed -i 's/1.0-alpha/99/' temp/metadata.json
+	sed -i 's/1.1-alpha/99/' temp/metadata.json
 
 clean:
 	rm "$(UUID).zip" || echo "Nothing to delete"
