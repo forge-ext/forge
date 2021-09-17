@@ -286,8 +286,9 @@ var ForgeWindowManager = GObject.registerClass(
                     break;
                 case "Move":
                     let moveDirection = Utils.resolveDirection(action.direction);
-                    this._tree.move(focusNodeWindow, moveDirection);
-                    this.renderTree("move-window");
+                    let moved = this._tree.move(focusNodeWindow, moveDirection);
+                    if (moved)
+                        this.renderTree("move-window");
                     this.showBorderFocusWindow();
                     break;
                 case "Focus":

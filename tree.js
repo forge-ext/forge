@@ -184,7 +184,8 @@ var Node = GObject.registerClass(
         contains(node) {
             if (!node) return false;
             let searchNode = this.getNodeByValue(node.nodeValue);
-            Logger.trace(`contains: ${searchNode.nodeValue}`);
+            if (searchNode)
+                Logger.trace(`contains: ${searchNode.nodeValue}`);
             return searchNode ? true : false;
         }
 
@@ -506,6 +507,9 @@ var Tree = GObject.registerClass(
                     break;
                 case NODE_TYPES.CON:
                 case NODE_TYPES.MONITOR:
+                    if (nextFocusNode.contains(node) &&
+                        nodeType === NODE_TYPES.MONITOR)
+                        return;
                     nextFocusNode = this.findFirstNodeWindowFrom(nextFocusNode);
                     if (nextFocusNode) {
                         // Always try to find the next window
@@ -566,9 +570,10 @@ var Tree = GObject.registerClass(
             let next = this.next(node, direction);
             let position = Utils.positionFromDirection(direction);
             if (!next) {
-                return;
+                return false;
             }
             Logger.trace(`move-window: next ${next ? next.nodeType : undefined} ${position}`);
+            let moved = false;
 
             switch(next.nodeType) {
                 case NODE_TYPES.WINDOW:
@@ -576,6 +581,7 @@ var Tree = GObject.registerClass(
                     if (next === node.previousSibling || next === node.nextSibling) {
                         Logger.trace(`move-window: swap pairs`);
                         this.swapPairs(node, next);
+                        moved = true;
                     } else {
                         if (next.parentNode) {
                             Logger.trace(`move-window: next parent ${next.parentNode.nodeValue}`);
@@ -584,18 +590,33 @@ var Tree = GObject.registerClass(
                             } else {
                                 next.parentNode.insertBefore(node, next.nextSibling);
                             }
-                            // TODO reset the previous container
+                            this.resetSiblingPercent(node.parentNode);
+                            this.resetSiblingPercent(next.parentNode);
+                            moved = true;
                         }
                     }
                     break;
                 case NODE_TYPES.CON:
                     Logger.trace(`move-to-con`);
                     next.insertBefore(node, next.firstChild);
-                    // TODO reset the previous container
+                    this.resetSiblingPercent(node.parentNode);
+                    this.resetSiblingPercent(next.parentNode);
+                    moved = true;
+                    break;
+                case NODE_TYPES.MONITOR:
+                    if (node.parentNode !== next) {
+                        if (position === POSITION.AFTER) {
+                            next.appendChild(node);
+                        } else {
+                            next.insertBefore(node, next.firstChild);
+                        }
+                        moved = true;
+                    }
                     break;
                 default:
                     break;
             }
+            return moved;
         }
 
         /**
@@ -633,27 +654,28 @@ var Tree = GObject.registerClass(
             // 2. Walk through the siblings of this node
             while (node && node.nodeType != NODE_TYPES.WORKSPACE) {
                 let nodeParent = node.parentNode;
-                Logger.trace(`node-parent-data ${nodeParent._data}`);
-                Logger.trace(`node-data ${node._data}`);
 
                 // 2.a Handle the top level monitor siblings
                 // This is to support moving focus to the next monitor available
                 // based on the direction
                 if (node && node.nodeType === NODE_TYPES.MONITOR) {
                     if (prevNode.nodeType === NODE_TYPES.WINDOW) {
+                        // TODO add vertical monitor checks
                         let targetMonitor = global.display.
                             get_monitor_neighbor_index(prevNode.nodeValue.get_monitor(),
                                 (previous ? Meta.DisplayDirection.LEFT :
                                     Meta.DisplayDirection.RIGHT));
                         Logger.trace(`next: targetMonitor ${targetMonitor}`);
-                        if (targetMonitor === -1) return null;
-
-                        let targetMoData = `mo${targetMonitor}ws${prevNode._data.get_workspace().index()}`;
-                        next = this.findNode(targetMoData);
-                        Logger.trace(`next:${node._type}`);
+                        if (targetMonitor === -1) {
+                            next = node;
+                        } else {
+                            let targetMoData = `mo${targetMonitor}ws${prevNode.nodeValue.get_workspace().index()}`;
+                            next = this.findNode(targetMoData);
+                            Logger.trace(`next:${node.nodeType}`);
+                        }
                         if (next) return next;
                     } else {
-                        Logger.trace(`next:${node._type}`);
+                        Logger.trace(`next:${node.nodeType}`);
                         return null;
                     }
                 }
@@ -844,12 +866,12 @@ var Tree = GObject.registerClass(
         }
 
         render(from) {
-            Logger.debug(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
+            Logger.debug(`---------------------------------------------`);
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             // TODO - render from the current active workspace for performance
             this.renderNode(this);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
-            Logger.debug(`<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`);
+            Logger.debug(`*********************************************`);
             this.cleanTree();
         }
 
