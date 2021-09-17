@@ -536,9 +536,8 @@ var ForgeWindowManager = GObject.registerClass(
 
         // TODO move this to tree.js
         renderTree(from) {
-            let hasWindows = this._tree.getNodeByType(Tree.NODE_TYPES.WINDOW).length > 0;
             if (this._freezeRender ||
-                !this.ext.settings.get_boolean("tiling-mode-enabled") || !hasWindows) {
+                !this.ext.settings.get_boolean("tiling-mode-enabled")) {
                 Logger.trace(`render frozen`);
                 return;
             }
@@ -794,7 +793,10 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _validWindow(metaWindow) {
-            return metaWindow.get_window_type() === Meta.WindowType.NORMAL;
+            let windowType = metaWindow.get_window_type();
+            return windowType === Meta.WindowType.NORMAL ||
+                windowType === Meta.WindowType.MODAL_DIALOG ||
+                windowType === Meta.WindowType.DIALOG;
         }
 
         _windowDestroy(actor) {
