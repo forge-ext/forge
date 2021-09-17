@@ -150,7 +150,9 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug(`display:showing-desktop-changed`);
                 }),
                 display.connect("workareas-changed", (_display) => {
-                    this.reloadTree("workareas-changed");
+                    if (this._tree.getNodeByType("WINDOW").length > 0) {
+                        this.reloadTree("workareas-changed");
+                    }
                     Logger.debug(`workareas-changed`);
                 }),
             ];
@@ -196,7 +198,10 @@ var ForgeWindowManager = GObject.registerClass(
                 globalWsm.connect("workspace-removed", (_, wsIndex) => {
                     let removed = this._tree.removeWorkspace(wsIndex);
                     Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
-                    this.renderTree("workspace-removed");
+                    GLib.timeout_add(GLib.PRIORITY_LOW, 400, () => {
+                        this.renderTree("workspace-removed");
+                        return false;
+                    });
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
                     this.hideWindowBorders();
@@ -530,12 +535,13 @@ var ForgeWindowManager = GObject.registerClass(
 
         // TODO move this to tree.js
         renderTree(from) {
+            let hasWindows = this._tree.getNodeByType(Tree.NODE_TYPES.WINDOW).length > 0;
             if (this._freezeRender ||
-                !this.ext.settings.get_boolean("tiling-mode-enabled")) {
+                !this.ext.settings.get_boolean("tiling-mode-enabled") || !hasWindows) {
                 Logger.trace(`render frozen`);
                 return;
             }
-            GLib.idle_add(GLib.PRIORITY_LOW, () => {
+            GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
                 this._tree.render(from);
                 return false;
             });
@@ -549,35 +555,21 @@ var ForgeWindowManager = GObject.registerClass(
          * TODO: move this to tree.js
          */
         reloadTree(from) {
-            let treeWorkspaces = this._tree.nodeWorkpaces;
-            let wsManager = global.workspace_manager;
-            let globalWsNum = wsManager.get_n_workspaces();
-            Logger.trace(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
-            // empty out the root children nodes
-            this._tree.childNodes.length = 0;
-            this._tree.attachNode = undefined;
-            // initialize the workspaces and monitors id strings
-            this._tree._initWorkspaces();
-            this.trackCurrentWindows();
-
-            for (let i = 0; i < this._tree.nodeWorkpaces.length; i++) {
-                let existingWsNode = this._tree.nodeWorkpaces[i];
-                let monitors = existingWsNode.childNodes;
-                Logger.trace(`  ${existingWsNode.nodeValue}`);
-                for (let m = 0; m < monitors.length; m++) {
-                    let windows  = monitors[m].childNodes;
-                    for (let w = 0; w < windows.length; w++) {
-                        let nodeWindow = windows[w];
-                        if (nodeWindow && nodeWindow.nodeValue)
-                            this.updateMetaWorkspaceMonitor("reload-tree",
-                                nodeWindow.nodeValue.get_monitor(),
-                                nodeWindow.nodeValue);
-                    }
-                }
-            }
-            Logger.debug(`windowmgr:reload-tree ${from ? "from " + from : ""}`);
-            this.renderTree("reload-tree");
-            this.showBorderFocusWindow();
+            GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                let treeWorkspaces = this._tree.nodeWorkpaces;
+                let wsManager = global.workspace_manager;
+                let globalWsNum = wsManager.get_n_workspaces();
+                Logger.trace(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
+                // empty out the root children nodes
+                this._tree.childNodes.length = 0;
+                this._tree.attachNode = undefined;
+                // initialize the workspaces and monitors id strings
+                this._tree._initWorkspaces();
+                this.trackCurrentWindows();
+                this.renderTree(from);
+                this.showBorderFocusWindow();
+                return false;
+            });
         }
 
         sameParentMonitor(firstNode, secondNode) {
@@ -696,6 +688,11 @@ var ForgeWindowManager = GObject.registerClass(
                 let existNodeWindow = this._tree.findNode(metaWindow);
                 if (!existNodeWindow) {
                     let parentFocusNode = this._tree.attachNode;
+                    // check the parentFocusNode is in the tree
+                    if (parentFocusNode) {
+                        Logger.debug(`checking parentFocusNode if detached from the tree`);
+                        parentFocusNode = this._tree.findNode(parentFocusNode.nodeValue);
+                    }
                     if (!parentFocusNode) {
                         // Else it could be the initial window
                         // get the containing monitor instead
@@ -796,9 +793,7 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _validWindow(metaWindow) {
-            return metaWindow.get_window_type() === Meta.WindowType.NORMAL ||
-                metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
-                metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG;
+            return metaWindow.get_window_type() === Meta.WindowType.NORMAL;
         }
 
         _windowDestroy(actor) {
@@ -823,8 +818,14 @@ var ForgeWindowManager = GObject.registerClass(
             nodeWindow = this._tree.findNodeByActor(actor);
             if (nodeWindow) {
                 Logger.debug(`window destroyed ${nodeWindow.nodeValue.get_wm_class()}`);
+                let render = true;
+                if (nodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR && nodeWindow.parentNode.childNodes.length === 1) {
+                    render = false;
+                }
                 this._tree.removeNode(nodeWindow);
-                this.renderTree("window-destroy");
+
+                if (render)
+                    this.renderTree("window-destroy");
             }
 
             // find the next attachNode here
@@ -875,6 +876,9 @@ var ForgeWindowManager = GObject.registerClass(
         updateMetaPositionSize(_metaWindow, from) {
             let focusWindow = this.focusMetaWindow;
             if (!focusWindow) return;
+            if (focusWindow.get_maximized() === 0) {
+                this.renderTree(from);
+            }
             this.showBorderFocusWindow();
 
             let focusNodeWindow = this.findNodeWindow(focusWindow);

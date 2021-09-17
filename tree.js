@@ -184,16 +184,18 @@ var Node = GObject.registerClass(
         contains(node) {
             if (!node) return false;
             let searchNode = this.getNodeByValue(node.nodeValue);
-            Logger.trace(`contains: ${searchNode}`);
+            Logger.trace(`contains: ${searchNode.nodeValue}`);
             return searchNode ? true : false;
         }
 
         getNodeByValue(value) {
-            return this._search(value, "VALUE")[0];
+            let results = this._search(value, "VALUE");
+            return results && results.length >= 1 ? results[0] : null;
         }
 
         getNodeByType(type) {
-            return this._search(type, "TYPE");
+            let results = this._search(type, "TYPE");
+            return results;
         }
 
         /**
@@ -228,6 +230,7 @@ var Node = GObject.registerClass(
                 // Since contains() tries to find node on all descendants,
                 // detach only from the immediate parent
                 let parentNode = node.parentNode;
+                Logger.trace(`Removing ${node.nodeType} with index ${node.index} from parent ${parentNode.nodeType}`);
                 refNode = parentNode.childNodes.splice(node.index, 1);
                 refNode.parentNode = null;
             }
@@ -348,10 +351,10 @@ var Tree = GObject.registerClass(
         }
 
         // TODO move to monitor.js
-        addMonitor(workspaceNodeData) {
+        addMonitor(workspaceNodeValue) {
             let monitors = global.display.get_n_monitors();
             for (let mi = 0; mi < monitors; mi++) {
-                let monitorWsNode = this.createNode(workspaceNodeData, NODE_TYPES.MONITOR, `mo${mi}${workspaceNodeData}`);
+                let monitorWsNode = this.createNode(workspaceNodeValue, NODE_TYPES.MONITOR, `mo${mi}${workspaceNodeValue}`);
                 monitorWsNode.layout = LAYOUT_TYPES.HSPLIT;
             }
             Logger.debug(`initialized monitors: ${monitors}`);
@@ -360,22 +363,22 @@ var Tree = GObject.registerClass(
         // TODO move to workspace.js
         addWorkspace(wsIndex) {
             let wsManager = global.display.get_workspace_manager();
-            let workspaceNodeData = `ws${wsIndex}`;
+            let workspaceNodeValue = `ws${wsIndex}`;
 
-            let existingWsNode = this.findNode(workspaceNodeData);
+            let existingWsNode = this.findNode(workspaceNodeValue);
             if (existingWsNode) {
-                Logger.debug(`workspace-node ${workspaceNodeData} already exists`);
+                Logger.debug(`workspace-node ${workspaceNodeValue} already exists`);
                 return false;
             }
 
-            Logger.debug(`adding workspace: ${workspaceNodeData}`);
+            Logger.debug(`adding workspace: ${workspaceNodeValue}`);
 
-            let newWsNode = this.createNode(this.nodeValue, NODE_TYPES.WORKSPACE, workspaceNodeData);
+            let newWsNode = this.createNode(this.nodeValue, NODE_TYPES.WORKSPACE, workspaceNodeValue);
             let workspace = wsManager.get_workspace_by_index(wsIndex);
             newWsNode.layout = LAYOUT_TYPES.HSPLIT;
 
             this._forgeWm.bindWorkspaceSignals(workspace);
-            this.addMonitor(workspaceNodeData);
+            this.addMonitor(workspaceNodeValue);
 
             return true;
         }
@@ -581,12 +584,14 @@ var Tree = GObject.registerClass(
                             } else {
                                 next.parentNode.insertBefore(node, next.nextSibling);
                             }
+                            // TODO reset the previous container
                         }
                     }
                     break;
                 case NODE_TYPES.CON:
                     Logger.trace(`move-to-con`);
                     next.insertBefore(node, next.firstChild);
+                    // TODO reset the previous container
                     break;
                 default:
                     break;
@@ -809,26 +814,28 @@ var Tree = GObject.registerClass(
          */
         removeNode(node) {
             let oldChild;
+
+            let cleanUpParent = (existParent) => {
+                if (this.getTiledChildren(existParent.childNodes).length === 0) {
+                    existParent.percent = 0.0;
+                    this.resetSiblingPercent(existParent.parentNode);
+                }
+                this.resetSiblingPercent(existParent);
+            };
+
             let parentNode = node.parentNode;
             // If parent has only this window, remove the parent instead
             if (parentNode.childNodes.length === 1 &&
                 parentNode.nodeType !== NODE_TYPES.MONITOR) {
                 let existParent = parentNode.parentNode;
-                oldChild = this.removeChild(parentNode);
-                if (this.getTiledChildren(existParent.childNodes).length === 0) {
-                    existParent.percent = 0.0;
-                    this.resetSiblingPercent(existParent.parentNode);
-                }
-                this.resetSiblingPercent(existParent);
+                oldChild = existParent.removeChild(parentNode);
+                cleanUpParent(existParent);
             } else {
                 let existParent = node.parentNode;
-                oldChild = this.removeChild(node);
-                if (this.getTiledChildren(existParent.childNodes).length === 0) {
-                    existParent.percent = 0.0;
-                    this.resetSiblingPercent(existParent.parentNode);
-                }
-                this.resetSiblingPercent(existParent);
+                oldChild = existParent.removeChild(node);
+                cleanUpParent(existParent);
             }
+
             if (node === this.attachNode) {
                 this.attachNode = null;
             }
@@ -837,9 +844,6 @@ var Tree = GObject.registerClass(
         }
 
         render(from) {
-            if (this.rendering)
-                return;
-            this.rendering = true;
             Logger.debug(`>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             // TODO - render from the current active workspace for performance
@@ -847,7 +851,6 @@ var Tree = GObject.registerClass(
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`);
             this.cleanTree();
-            this.rendering = false;
         }
 
         cleanTree() {
@@ -880,12 +883,14 @@ var Tree = GObject.registerClass(
          */
         renderNode(node) {
             if (!node) return;
+            Logger.trace(`begin render node ${node.nodeValue}`);
             
             // Render the Root, Workspace and Monitor
             // For now, we let them render their children recursively
             if (node.nodeType === NODE_TYPES.ROOT) {
                 Logger.debug(`render root ${node.nodeValue}`);
                 node.childNodes.forEach((child) => {
+                    Logger.trace(`rendering ${child.nodeValue}`);
                     this.renderNode(child);
                 });
             }
@@ -893,6 +898,7 @@ var Tree = GObject.registerClass(
             if (node.nodeType === NODE_TYPES.WORKSPACE) {
                 Logger.debug(`*---- render workspace ${node.nodeValue} ----*`);
                 node.childNodes.forEach((child) => {
+                    Logger.trace(`rendering ${child.nodeValue}`);
                     this.renderNode(child);
                 });
             }
@@ -905,6 +911,11 @@ var Tree = GObject.registerClass(
                 // is important so it computes to `remove` the panel size
                 // really well. However, this type of workarea would only
                 // appear if there is window present on the monitor.
+                Logger.trace(`inside a con or monitor, rendering ${node.nodeType}`);
+                if (node.childNodes.length === 0) {
+                    Logger.trace(`Do not render empty containers`);
+                    return;
+                }
 
                 // If monitor, get the workarea
                 if (node.nodeType === NODE_TYPES.MONITOR) {
@@ -912,6 +923,7 @@ var Tree = GObject.registerClass(
                     let monitorArea = nodeWinOnContainer && nodeWinOnContainer.nodeValue ?
                         nodeWinOnContainer.nodeValue.get_work_area_current_monitor() : null;
                     if (!monitorArea) return; // there is no visible child window
+                    Logger.trace(`getting workarea`);
                     node.rect = monitorArea;
                 }
 
@@ -926,6 +938,7 @@ var Tree = GObject.registerClass(
                         node.layout === LAYOUT_TYPES.VSPLIT) {
                         this.renderSplit(node, child, params, index);
                     }
+                    Logger.trace(`rendering ${child.nodeValue}`);
                     this.renderNode(child);
                 });
             }
@@ -947,7 +960,7 @@ var Tree = GObject.registerClass(
                 nodeHeight -= gap * 2;
 
                 Logger.debug(`render-window: ${node.nodeValue.get_wm_class()}:${node.nodeValue.get_title()}`);
-                Logger.debug(` layout: ${node.parentNode.layout}`);
+                Logger.debug(` layout: ${node.parentNode.layout}, index: ${node.index}`);
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
                 GLib.idle_add(GLib.PRIORITY_LOW, () => {
@@ -1026,8 +1039,10 @@ var Tree = GObject.registerClass(
         }
 
         findFirstNodeWindowFrom(node) {
+            Logger.trace(`finding at least one node window`);
             let results = node.getNodeByType(NODE_TYPES.WINDOW);
             if (results.length > 0) {
+                Logger.trace(`found results`);
                 return results[0];
             }
             return null;
