@@ -400,12 +400,12 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
 
             let appearanceWindowFrame = new FrameListBox();
             // Gaps Section
-            let gapHeader = createLabel("Gaps");
+            let gapHeader = createLabel(Msgs.prefs_appearance_window_gaps_title);
             this.add(gapHeader);
 
             // Gap Size Base
             let gapSizeRow = new ListBoxRow();
-            let gapSizeLabel = createLabel("Gap Size");
+            let gapSizeLabel = createLabel(Msgs.prefs_appearance_window_gaps_size_label);
             let gapSizeAdjust = new Gtk.Adjustment({
                 lower: 8,
                 step_increment: 8,
@@ -428,7 +428,7 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
 
             // Gap Size Increments
             let gapSizeIncrementRow = new ListBoxRow();
-            let gapSizeIncrementLabel = createLabel("Gap Increment");
+            let gapSizeIncrementLabel = createLabel(Msgs.prefs_appearance_window_gaps_increment_label);
             let gapSizeIncrementAdjust = new Gtk.Adjustment({
                 lower: 0,
                 step_increment: 1,
@@ -451,7 +451,7 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
 
             // Gap Hidden when Single Window
             let gapHiddenWhenSingleRow = new ListBoxRow();
-            let gapHiddenWhenSingleLabel = createLabel("Gap Hidden when Single Window");
+            let gapHiddenWhenSingleLabel = createLabel(Msgs.prefs_appearance_window_gaps_hidden_single_label);
             let gapHiddenWhenSingleSwitch = new Gtk.Switch();
             gapHiddenWhenSingleSwitch.set_active(this.settings.get_boolean("window-gap-hidden-on-single"));
             gapHiddenWhenSingleSwitch.connect("state-set", (_, state) => {
@@ -492,7 +492,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
 
             let shortcutsFrame = new FrameListBox();
             let shortcutHeader = new Gtk.Label({
-                label: `<b>Update Keybindings</b>`,
+                label: `<b>${Msgs.prefs_keyboard_update_keys_title}</b>`,
                 use_markup: true,
                 xalign: 0,
                 hexpand: true
@@ -506,9 +506,9 @@ var KeyboardSettingsPanel = GObject.registerClass(
             });
 
             descriptionBox.add(shortcutHeader);
-            descriptionBox.add(createLabel(`<i>Syntax Example</i>: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
-            descriptionBox.add(createLabel(`<i>Legend</i>: &lt;Super&gt; - Windows key, &lt;Primary&gt; - Control key`));
-            descriptionBox.add(createLabel(`Delete text to unset. Press Return key to accept. Focus out to ignore. <i>Resets</i> to previous value when invalid`));
+            descriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_syntax_label}</i>: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
+            descriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_legend_label}</i>: &lt;Super&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_1_label}, &lt;Primary&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_2_label}`));
+            descriptionBox.add(createLabel(`${Msgs.prefs_keyboard_update_keys_instructions_text} <i>${Msgs.prefs_keyboard_update_keys_resets_label}</i> ${Msgs.prefs_keyboard_update_keys_resets_sub_1_label}`));
             this.add(descriptionBox);
 
             let shortcutGrid = new Gtk.Grid({
@@ -531,11 +531,11 @@ var KeyboardSettingsPanel = GObject.registerClass(
         }
 
         createShortcutHeader(grid) {
-            let headerAction = createLabel(`Action`);
+            let headerAction = createLabel(`${Msgs.prefs_keyboard_update_keys_column_1_header}`);
             headerAction.width_chars = 30;
             grid.attach(headerAction, 0, 0, 1, 1);
-            grid.attach(createLabel(`Shortcut`), 1, 0, 1, 1);
-            grid.attach(createLabel(`Conflicts With`), 2, 0, 1, 1);
+            grid.attach(createLabel(`${Msgs.prefs_keyboard_update_keys_column_2_header}`), 1, 0, 1, 1);
+            grid.attach(createLabel(`${Msgs.prefs_keyboard_update_keys_column_3_header}`), 2, 0, 1, 1);
         }
 
         createShortcutRow(grid, actionName, shortcuts, rowIndex) {
@@ -653,7 +653,7 @@ var DeveloperSettingsPanel = GObject.registerClass(
             let loggingFrameRow = new ListBoxRow();
 
             let loggingLabel = new Gtk.Label({
-                label: `Logging Level`,
+                label: `${Msgs.prefs_development_logging_level_label}`,
                 use_markup: true,
                 xalign: 0,
                 hexpand: true
@@ -699,7 +699,7 @@ var UnderConstructionPanel = GObject.registerClass(
             });
 
             let underConstructionText = new Gtk.Label({
-                label: "Work in Progress",
+                label: `${Msgs.prefs_wip_text} Extension version : ${Msgs.pkg_ext_text}`,
                 hexpand: true
             });
             underConstructionText.set_justify(Gtk.Justification.CENTER);

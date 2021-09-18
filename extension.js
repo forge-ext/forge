@@ -31,9 +31,9 @@ const Logger = Me.imports.logger;
 const Settings = Me.imports.settings;
 const Window = Me.imports.window;
 
-
 function init() {
     Logger.info("init");
+    ExtensionUtils.initTranslations();
     return new Extension();
 }
 

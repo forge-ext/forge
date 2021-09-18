@@ -25,7 +25,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Settings = Me.imports.settings;
 
-const LOG_LEVELS = {
+var LOG_LEVELS = {
     "OFF" : 0,
     "FATAL": 1,
     "ERROR": 2,

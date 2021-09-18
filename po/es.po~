@@ -1,0 +1,130 @@
+# Forge Sample Translation
+
+msgid ""
+msgstr ""
+"Project-Id-Version: Forge\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-18 16:25-0400\n"
+"PO-Revision-Date: 2021-09-18 16:25-0400\n"
+"Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: messages.js:36
+msgid "Forge Settings"
+msgstr "Forge Settings ES"
+
+#: messages.js:37
+msgid "Development in Progress..."
+msgstr "Development in Progress ES"
+
+#: messages.js:38
+msgid "About"
+msgstr ""
+
+#: messages.js:39
+msgid "Appearance"
+msgstr ""
+
+#: messages.js:40
+msgid "Development"
+msgstr ""
+
+#: messages.js:41
+msgid "Experimental"
+msgstr ""
+
+#: messages.js:42
+msgid "Home"
+msgstr ""
+
+#: messages.js:43
+msgid "Keyboard"
+msgstr ""
+
+#: messages.js:45
+msgid "Windows"
+msgstr ""
+
+#: messages.js:46
+msgid "Gaps"
+msgstr ""
+
+#: messages.js:47
+msgid "Gaps Size"
+msgstr ""
+
+#: messages.js:48
+msgid "Gaps Size Increments"
+msgstr ""
+
+#: messages.js:49
+msgid "Gaps Hidden when Single"
+msgstr ""
+
+#: messages.js:51
+msgid "Window Shortcuts"
+msgstr ""
+
+#: messages.js:52
+msgid "Container Shortcuts"
+msgstr ""
+
+#: messages.js:53
+msgid "Focus Shortcuts"
+msgstr ""
+
+#: messages.js:54
+msgid "Other Shortcuts"
+msgstr ""
+
+#: messages.js:56
+msgid "Logger Level"
+msgstr ""
+
+#: messages.js:58
+msgid "Update Keybindings"
+msgstr ""
+
+#: messages.js:59
+msgid "Syntax"
+msgstr ""
+
+#: messages.js:60
+msgid "Legend"
+msgstr ""
+
+#: messages.js:61
+msgid "Windows key"
+msgstr ""
+
+#: messages.js:62
+msgid "Control key"
+msgstr ""
+
+#: messages.js:63
+msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
+msgstr ""
+
+#: messages.js:64
+msgid "Resets"
+msgstr ""
+
+#: messages.js:65
+msgid "to previous value when invalid"
+msgstr ""
+
+#: messages.js:66
+msgid "Action"
+msgstr ""
+
+#: messages.js:67
+msgid "Shortcut"
+msgstr ""
+
+#: messages.js:68
+msgid "Notes"
+msgstr ""

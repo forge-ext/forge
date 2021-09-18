@@ -26,7 +26,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // Dev or Prod mode, see Makefile:debug
-const production = true;
+var production = true;
 
 /**
  * getSettings:

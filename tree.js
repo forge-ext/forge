@@ -1072,6 +1072,7 @@ var Tree = GObject.registerClass(
 
         resetSiblingPercent(parentNode) {
             if (!parentNode) return;
+            Logger.trace(`resetting child-nodes for ${parentNode.nodeType} with id ${parentNode.nodeValue}`);
             let children = parentNode._nodes;
             children.forEach((n) => {
                 n.percent = 0.0;

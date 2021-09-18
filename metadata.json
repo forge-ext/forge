@@ -1,6 +1,7 @@
 {
     "name": "Forge",
     "description": "Tiling and window manager for GNOME",
+    "gettext-domain": "forge",
     "uuid": "forge@jmmaranan.com",
     "settings-schema": "org.gnome.shell.extensions.forge",
     "shell-version": ["3.36", "3.38"],

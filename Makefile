@@ -1,5 +1,7 @@
 UUID = "forge@jmmaranan.com"
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
+MSGSRC = $(wildcard po/*.po)
+MESSAGES = messages.js
 
 .PHONY: all clean install schemas uninstall enable disable log debug
 
@@ -16,7 +18,7 @@ schemas: schemas/gschemas.compiled
 schemas/gschemas.compiled: schemas/*.gschema.xml
 	glib-compile-schemas schemas
 
-build: clean metadata.json schemas
+build: clean metadata.json schemas compilemsgs
 	rm -rf temp
 	mkdir -p temp
 	cp metadata.json temp
@@ -25,11 +27,32 @@ build: clean metadata.json schemas
 	cp *.js temp
 	cp *.css temp
 	cp LICENSE temp
+	mkdir -p temp/locale
+	for msg in $(MSGSRC:.po=.mo); do \
+		msgf=temp/locale/`basename $$msg .mo`; \
+		mkdir -p $$msgf; \
+		mkdir -p $$msgf/LC_MESSAGES; \
+		cp $$msg $$msgf/LC_MESSAGES/forge.mo; \
+	done;
+
+./po/%.mo: ./po/%.po
+	msgfmt -c $< -o $@
 
 debug:
-	sed -i 's/const production = true/const production = false/' temp/settings.js
-	sed -i 's/1.0-alpha/99/' temp/metadata.json
-	sed -i 's/1.1-alpha/99/' temp/metadata.json
+	sed -i 's/var production = true/var production = false/' temp/settings.js
+	sed -i 's/1.0-alpha/3999/' temp/metadata.json
+	sed -i 's/1.1-alpha/4999/' temp/metadata.json
+
+potfile: ./po/forge.pot
+
+./po/forge.pot: $(MESSAGES)
+	mkdir -p po
+	xgettext --from-code=UTF-8 --output=po/forge.pot --package-name "Forge" $(MESSAGES)
+
+compilemsgs: potfile $(MSGSRC:.po=.mo)
+	for msg in $(MSGSRC); do \
+		msgmerge -U $$msg ./po/forge.pot; \
+	done;
 
 clean:
 	rm "$(UUID).zip" || echo "Nothing to delete"

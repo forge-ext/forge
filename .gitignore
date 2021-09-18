@@ -3,5 +3,6 @@ temp
 gschemas.compiled
 *.zip
 *.exe
-
+*.mo
+po/forge.pot
 .vscode
