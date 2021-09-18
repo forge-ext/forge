@@ -416,7 +416,7 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
             let appearanceWindowFrame = new FrameListBox();
             // Gaps Section
             let gapHeader = createLabel(Msgs.prefs_appearance_window_gaps_title);
-            this.add(gapHeader);
+            this.append(gapHeader);
 
             // Gap Size Base
             let gapSizeRow = new ListBoxRow();
