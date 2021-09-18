@@ -48,6 +48,7 @@ class Extension {
         this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
 
         if (this.sameSession) {
+            Logger.debug(`enable: still in same session`);
             this.sameSession = false;
             return;
         }
@@ -62,6 +63,7 @@ class Extension {
 
         this.forgeWm.enable();
         this.keybindings.enable();
+        Logger.info(`enable: finalized vars`);
     }
 
     disable() {
@@ -69,6 +71,7 @@ class Extension {
 
         if (SessionMode.isLocked) {
             this.sameSession = true;
+            Logger.debug(`disable: still in same session`);
             return;
         }
 
@@ -78,6 +81,7 @@ class Extension {
         if (this.keybindings)
             this.keybindings.disable();
 
+        Logger.info(`disable: cleaning up vars`);
         this.forgeWm = null;
         this.keybindings = null;
         this.settings = null;
