@@ -573,7 +573,6 @@ var Tree = GObject.registerClass(
                 return false;
             }
             Logger.trace(`move-window: next ${next ? next.nodeType : undefined} ${position}`);
-            let moved = false;
 
             switch(next.nodeType) {
                 case NODE_TYPES.WINDOW:
@@ -581,7 +580,6 @@ var Tree = GObject.registerClass(
                     if (next === node.previousSibling || next === node.nextSibling) {
                         Logger.trace(`move-window: swap pairs`);
                         this.swapPairs(node, next);
-                        moved = true;
                     } else {
                         if (next.parentNode) {
                             Logger.trace(`move-window: next parent ${next.parentNode.nodeValue}`);
@@ -592,7 +590,6 @@ var Tree = GObject.registerClass(
                             }
                             this.resetSiblingPercent(node.parentNode);
                             this.resetSiblingPercent(next.parentNode);
-                            moved = true;
                         }
                     }
                     break;
@@ -601,22 +598,33 @@ var Tree = GObject.registerClass(
                     next.insertBefore(node, next.firstChild);
                     this.resetSiblingPercent(node.parentNode);
                     this.resetSiblingPercent(next.parentNode);
-                    moved = true;
                     break;
                 case NODE_TYPES.MONITOR:
-                    if (node.parentNode !== next) {
+                    if (next.contains(node)) {
                         if (position === POSITION.AFTER) {
                             next.appendChild(node);
                         } else {
                             next.insertBefore(node, next.firstChild);
                         }
-                        moved = true;
+                    } else {
+                        let targetMonRect = this._forgeWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
+                        if (!targetMonRect) return false;
+                        this.resetSiblingPercent(node);
+                        this.resetSiblingPercent(next);
+                        if (position === POSITION.AFTER) {
+                            next.insertBefore(node, next.firstChild);
+                        } else {
+                            next.appendChild(node);
+                        }
+                        // TODO optimize the placement
+                        this._forgeWm.move(node.nodeValue, targetMonRect);
+                        this._forgeWm.movePointerWith(node);
                     }
                     break;
                 default:
                     break;
             }
-            return moved;
+            return true;
         }
 
         /**

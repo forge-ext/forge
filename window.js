@@ -417,11 +417,11 @@ var ForgeWindowManager = GObject.registerClass(
             );
         };
 
-        rectForMonitor(node, monitor) {
+        rectForMonitor(node, targetMonitor) {
             if (!node || node && node.nodeType !== Tree.NODE_TYPES.WINDOW) return null;
-            if (!monitor || monitor < 0) return null;
+            if (targetMonitor < 0) return null;
             let currentWorkArea  = node.nodeValue.get_work_area_current_monitor();
-            let nextWorkArea = node.nodeValue.get_work_area_for_monitor(monitor);
+            let nextWorkArea = node.nodeValue.get_work_area_for_monitor(targetMonitor);
 
             if (currentWorkArea && nextWorkArea) {
                 let rect = node.rect;
