@@ -31,6 +31,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 // Application imports
 const Logger = Me.imports.logger;
+const Msgs = Me.imports.messages;
 const Settings = Me.imports.settings;
 
 function init() {}
@@ -64,7 +65,7 @@ var PrefsWidget = GObject.registerClass(
                 this.accelGroup = new Gtk.AccelGroup();
                 let prefsAccelGroup = this.accelGroup;
                 let topLevel = this.get_toplevel();
-                topLevel.set_title("Forge Preferences");
+                topLevel.set_title(Msgs.prefs_title);
                 topLevel.get_titlebar().pack_start(this.leftHeaderBox);
                 topLevel.add_accel_group(prefsAccelGroup);
                 topLevel.set_type_hint(Gdk.WindowTypeHint.DIALOG);
@@ -164,26 +165,27 @@ var PrefsWidget = GObject.registerClass(
 
             // Main Settings
             let generalSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
-            generalSettingsBox.addStackRow("Home", "Home", `${Me.path}/icons/prefs/preferences-desktop-apps-symbolic.svg`);
-            generalSettingsBox.addStackRow("Appearance", "Appearance", `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
-            generalSettingsBox.addStackRow("Keyboard", "Keyboard", `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
-            generalSettingsBox.addStackRow("Development", "Development", `${Me.path}/icons/prefs/code-context-symbolic.svg`);
-            // generalSettingsBox.addStackRow("Experimental", "Experimental", `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
-            generalSettingsBox.addStackRow("About", "About", `${Me.path}/icons/prefs/forge-logo-symbolic.svg`);
+            generalSettingsBox.addStackRow("Home", Msgs.prefs_general_home, `${Me.path}/icons/prefs/preferences-desktop-apps-symbolic.svg`);
+            generalSettingsBox.addStackRow("Appearance", Msgs.prefs_general_appearance, `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
+            generalSettingsBox.addStackRow("Keyboard", Msgs.prefs_general_keyboard, `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
+            if (!Settings.production) {
+                generalSettingsBox.addStackRow("Development", Msgs.prefs_general_development, `${Me.path}/icons/prefs/code-context-symbolic.svg`);
+                generalSettingsBox.addStackRow("Experimental", Msgs.prefs_general_experimental, `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
+                generalSettingsBox.addStackRow("About", Msgs.prefs_general_about, `${Me.path}/icons/prefs/forge-logo-symbolic.svg`);
+            }
             this.settingsStack.add_named(generalSettingsBox, "General");
 
             // Appearance
             let appearanceSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
-            appearanceSettingsBox.addStackRow("Windows", "Windows", `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
-            // appearanceSettingsBox.addStackRow("Focus Hint", "Focus Hint", `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
+            appearanceSettingsBox.addStackRow("Windows", Msgs.prefs_appearance_windows, `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
             this.settingsStack.add_named(appearanceSettingsBox, "AppearanceSettings");
 
             // Keyboard
             let keyboardSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
-            keyboardSettingsBox.addStackRow("Window Shortcuts", "Window Shortcuts", `${Me.path}/icons/prefs/window-duplicate-symbolic.svg`);
-            keyboardSettingsBox.addStackRow("Container Shortcuts", "Container Shortcuts", `${Me.path}/icons/prefs/view-dual-symbolic.svg`);
-            keyboardSettingsBox.addStackRow("Focus Shortcuts", "Focus Shortcuts", `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
-            keyboardSettingsBox.addStackRow("Other Shortcuts", "Other Shortcuts", `${Me.path}/icons/prefs/view-grid-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Window Shortcuts", Msgs.prefs_keyboard_window_shortcuts, `${Me.path}/icons/prefs/window-duplicate-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Container Shortcuts", Msgs.prefs_keyboard_container_shortcuts, `${Me.path}/icons/prefs/view-dual-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Focus Shortcuts", Msgs.prefs_keyboard_focus_shortcuts, `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Other Shortcuts", Msgs.prefs_keyboard_other_shortcuts, `${Me.path}/icons/prefs/view-grid-symbolic.svg`);
             this.settingsStack.add_named(keyboardSettingsBox, "KeyboardSettings");
         }
 
@@ -191,15 +193,16 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Appearance"), "Appearance");
             this.settingsPagesStack.add_named(new AppearanceWindowSettingsPanel(this), "Windows");
-            // this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Focus Hint"), "Focus Hint");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "window-"), "Window Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "focus-"), "Focus Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "prefs-"), "Other Shortcuts");
-            this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
-            // this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Experimental"), "Experimental");
-            this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "About"), "About");
+            if (!Settings.production) {
+                this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
+                this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Experimental"), "Experimental");
+                this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "About"), "About");
+            }
         }
     }
 );
@@ -269,7 +272,7 @@ var ScrollStackBox = GObject.registerClass(
             });
             listBox.connect("row-selected", (_self, row) => {
                 let listRow = row.get_children()[0];
-                this.prefsWidget.topLevel.set_title(`Forge Preferences - ${listRow.label_name}`);
+                this.prefsWidget.topLevel.set_title(`${Msgs.prefs_title} - ${listRow.label_name}`);
                 // Always check if the listbox row has children
                 // Autoload when no children, else activate the next child
                 if (!listRow.child_name) {

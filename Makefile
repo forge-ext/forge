@@ -8,6 +8,8 @@ all: build install enable restart
 # When developing locally
 dev: build debug install enable restart log
 
+prod: build install enable restart log
+
 schemas: schemas/gschemas.compiled
 	touch $@
 
@@ -25,7 +27,7 @@ build: clean metadata.json schemas
 	cp LICENSE temp
 
 debug:
-	sed -i 's/!loggingEnabled/false/' temp/logger.js
+	sed -i 's/const production = true/const production = false/' temp/settings.js
 	sed -i 's/1.0-alpha/99/' temp/metadata.json
 	sed -i 's/1.1-alpha/99/' temp/metadata.json
 

@@ -36,6 +36,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
 const Logger = Me.imports.logger;
+const Msgs = Me.imports.messages;
 const Window = Me.imports.window;
 const ExtUtils = Me.imports.utils;
 
@@ -346,17 +347,18 @@ var Keybindings = GObject.registerClass(
                     this.forgeWm.command(action);
                 },
                 "prefs-open": () => {
-                    let prefsTitle = "Forge Preferences";
-                    let existWindow = ExtUtils.findWindowWith(prefsTitle);
+                    let existWindow = ExtUtils.findWindowWith(Msgs.prefs_title);
                     if (existWindow && existWindow.get_workspace()) {
                         existWindow.get_workspace().activate_with_focus(existWindow,
                             global.display.get_current_time());
+                        Logger.warn("prefs is already open");
                     } else {
+                        Logger.debug("opening prefs");
                         ExtensionUtils.openPrefs();
 
                         // Wait for it to appear on TabList
-                        GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-                            let newPrefsWindow = ExtUtils.findWindowWith(prefsTitle);
+                        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                            let newPrefsWindow = ExtUtils.findWindowWith(Msgs.prefs_title);
                             if (newPrefsWindow) {
                                 newPrefsWindow.get_workspace()
                                     .activate_with_focus(newPrefsWindow,
