@@ -209,6 +209,7 @@ var Node = GObject.registerClass(
          */
         insertBefore(newNode, childNode) {
             if (!newNode) return null;
+            if (newNode === childNode) return null;
             if (!childNode) {
                 this.appendChild(newNode);
                 return newNode;
@@ -610,12 +611,14 @@ var Tree = GObject.registerClass(
                     break;
                 case NODE_TYPES.MONITOR:
                     if (next.contains(node)) {
+                        Logger.trace("within same monitor");
                         if (position === POSITION.AFTER) {
                             next.appendChild(node);
                         } else {
                             next.insertBefore(node, next.firstChild);
                         }
                     } else {
+                        Logger.trace("different monitor");
                         let targetMonRect = this._forgeWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
                         if (!targetMonRect) return false;
                         if (position === POSITION.AFTER) {
