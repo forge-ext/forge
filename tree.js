@@ -514,7 +514,6 @@ var Tree = GObject.registerClass(
                 case NODE_TYPES.MONITOR:
                     if (type === NODE_TYPES.MONITOR && nextFocusNode.contains(node)) {
                         this.attachNode = nextFocusNode;
-                        this._forgeWm.movePointerWith(node);
                         return;
                     } else {
                         let focusNodeWindow = (nextFocusNode, direction, position) => {
@@ -537,12 +536,13 @@ var Tree = GObject.registerClass(
                             return nodeWindow;
                         };
                         nextFocusNode = focusNodeWindow(nextFocusNode, direction, position);
+                        if (nextFocusNode)
+                            this._forgeWm.movePointerWith(nextFocusNode);
                     }
                     break;
             }
 
             if (!nextFocusNode) return;
-            this._forgeWm.movePointerWith(nextFocusNode);
             let metaWindow = nextFocusNode.nodeValue;
             metaWindow.raise();
             metaWindow.focus(global.display.get_current_time());
