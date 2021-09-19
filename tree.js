@@ -536,8 +536,6 @@ var Tree = GObject.registerClass(
                             return nodeWindow;
                         };
                         nextFocusNode = focusNodeWindow(nextFocusNode, direction, position);
-                        if (nextFocusNode && type === NODE_TYPES.MONITOR)
-                            this._forgeWm.movePointerWith(nextFocusNode);
                     }
                     break;
             }
@@ -547,6 +545,12 @@ var Tree = GObject.registerClass(
             metaWindow.raise();
             metaWindow.focus(global.display.get_current_time());
             metaWindow.activate(global.display.get_current_time());
+
+            let monitorArea = metaWindow.get_work_area_current_monitor();
+            let ptr = this._forgeWm.getPointer();
+            if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
+                this._forgeWm.movePointerWith(nextFocusNode);
+            }
         }
 
         /**
@@ -704,7 +708,7 @@ var Tree = GObject.registerClass(
                         let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue.get_workspace().index()}`;
                         Logger.trace(`tree-next: found monitor ${monWs}`);
                         monitorNode = this.findNode(monWs);
-                        Logger.trace(`tree-next: found node ${next ? next.nodeValue : "not found"}`);
+                        Logger.trace(`tree-next: found node ${monitorNode ? monitorNode.nodeValue : "not found"}`);
                     }
                     return monitorNode;
                 }
@@ -727,6 +731,17 @@ var Tree = GObject.registerClass(
             }
 
             return next;
+        }
+
+        findAncestorMonitor(node) {
+            while (node && node.nodeType !== NODE_TYPES.WORKSPACE) {
+                if (node.parentNode && node.parentNode.nodeType === NODE_TYPES.MONITOR) {
+                    return node.parentNode;
+                } else if (node.nodeType === NODE_TYPES.MONITOR) {
+                    return node;
+                }
+                node = node.parentNode;
+            }
         }
 
         nextVisible(node, direction) {

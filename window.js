@@ -1071,6 +1071,10 @@ var ForgeWindowManager = GObject.registerClass(
             }
         }
 
+        getPointer() {
+            return global.get_pointer();
+        }
+
         minimizedWindow(node) {
             if (!node) return false;
             return (node._type === Tree.NODE_TYPES.WINDOW
