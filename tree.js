@@ -900,7 +900,7 @@ var Tree = GObject.registerClass(
             Logger.debug(`number of windows to apply: ${tiledChildren.length}`);
             tiledChildren.forEach((w) => {
                 Logger.debug(`rendering ${w.nodeType}`);
-                this._forgeWm.move(w.nodeValue, w.rect);
+                this._forgeWm.move(w.nodeValue, w.renderRect);
                 if (w.nodeValue.firstRender)
                     w.nodeValue.firstRender = false;
             });
@@ -1012,7 +1012,7 @@ var Tree = GObject.registerClass(
                 Logger.debug(` layout: ${node.parentNode.layout}, index: ${node.index}`);
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                node.rect = {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight};
+                node.renderRect = {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight};
                 node.mode = Window.WINDOW_MODES.TILE;
             }
         }
