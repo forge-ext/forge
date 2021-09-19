@@ -88,7 +88,7 @@ var Node = GObject.registerClass(
             this._parent = null;
             this._nodes = []; // Child elements of this node
             this._floats = []; // handle the floating window children of this node
-            this.mode = Window.WINDOW_MODES.TILE;
+            this.mode = Window.WINDOW_MODES.DEFAULT;
             this.percent = 0.0;
 
             if (this._type === NODE_TYPES.WINDOW) {
@@ -189,6 +189,11 @@ var Node = GObject.registerClass(
             return searchNode ? true : false;
         }
 
+        getNodeByMode(mode) {
+            let results = this._search(mode, "MODE");
+            return results;
+        }
+
         getNodeByValue(value) {
             let results = this._search(value, "VALUE");
             return results && results.length >= 1 ? results[0] : null;
@@ -259,6 +264,10 @@ var Node = GObject.registerClass(
                                 results.push(candidate);
                             }
                             break;
+                        case "MODE":
+                            if (candidate.mode === term) {
+                                results.push(candidate);
+                            }
                     }
                 } else {
                     if (candidate === term) {
@@ -609,16 +618,16 @@ var Tree = GObject.registerClass(
                     } else {
                         let targetMonRect = this._forgeWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
                         if (!targetMonRect) return false;
-                        this.resetSiblingPercent(node);
-                        this.resetSiblingPercent(next);
                         if (position === POSITION.AFTER) {
                             next.insertBefore(node, next.firstChild);
                         } else {
                             next.appendChild(node);
                         }
-                        // TODO optimize the placement
-                        this._forgeWm.move(node.nodeValue, targetMonRect);
+                        let rect = targetMonRect;
+                        this._forgeWm.move(node.nodeValue, rect);
                         this._forgeWm.movePointerWith(node);
+                        this.resetSiblingPercent(node);
+                        this.resetSiblingPercent(next);
                     }
                     break;
                 default:
@@ -876,11 +885,22 @@ var Tree = GObject.registerClass(
         render(from) {
             Logger.debug(`---------------------------------------------`);
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
-            // TODO - render from the current active workspace for performance
-            this.renderNode(this);
+            this.processNode(this);
+            this.cleanTree();
+            this.apply();
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`*********************************************`);
-            this.cleanTree();
+        }
+
+        apply() {
+            let tiledChildren = this.getNodeByMode(Window.WINDOW_MODES.TILE).filter((t) => t.nodeType === NODE_TYPES.WINDOW);
+            Logger.debug(`number of windows to apply: ${tiledChildren.length}`);
+            tiledChildren.forEach((w) => {
+                Logger.debug(`rendering ${w.nodeType}`);
+                this._forgeWm.move(w.nodeValue, w.rect);
+                if (w.nodeValue.firstRender)
+                    w.nodeValue.firstRender = false;
+            });
         }
 
         cleanTree() {
@@ -902,34 +922,31 @@ var Tree = GObject.registerClass(
             });
             orphanCons.length = 0;
             if (orphans > 0) {
-                this.renderNode(this);
+                this.processNode(this);
             }
         }
 
         /**
          *
-         * Credits: Do the i3-like rendering
+         * Credits: Do the i3-like calculations
          *
          */
-        renderNode(node) {
+        processNode(node) {
             if (!node) return;
-            Logger.trace(`begin render node ${node.nodeValue}`);
+            Logger.trace(`begin processing node ${node.nodeValue}`);
             
             // Render the Root, Workspace and Monitor
             // For now, we let them render their children recursively
             if (node.nodeType === NODE_TYPES.ROOT) {
-                Logger.debug(`render root ${node.nodeValue}`);
                 node.childNodes.forEach((child) => {
-                    Logger.trace(`rendering ${child.nodeValue}`);
-                    this.renderNode(child);
+                    this.processNode(child);
                 });
             }
 
             if (node.nodeType === NODE_TYPES.WORKSPACE) {
-                Logger.debug(`*---- render workspace ${node.nodeValue} ----*`);
+                Logger.debug(`*---- processing workspace ${node.nodeValue} ----*`);
                 node.childNodes.forEach((child) => {
-                    Logger.trace(`rendering ${child.nodeValue}`);
-                    this.renderNode(child);
+                    this.processNode(child);
                 });
             }
 
@@ -943,7 +960,7 @@ var Tree = GObject.registerClass(
                 // appear if there is window present on the monitor.
                 Logger.trace(`inside a con or monitor, rendering ${node.nodeType}`);
                 if (node.childNodes.length === 0) {
-                    Logger.trace(`Do not render empty containers`);
+                    Logger.debug(`Do not process empty containers`);
                     return;
                 }
 
@@ -953,7 +970,7 @@ var Tree = GObject.registerClass(
                     let monitorArea = nodeWinOnContainer && nodeWinOnContainer.nodeValue ?
                         nodeWinOnContainer.nodeValue.get_work_area_current_monitor() : null;
                     if (!monitorArea) return; // there is no visible child window
-                    Logger.trace(`getting workarea`);
+                    Logger.trace(`processing workarea`);
                     node.rect = monitorArea;
                 }
 
@@ -966,10 +983,9 @@ var Tree = GObject.registerClass(
                     // A monitor can contain a window or container child
                     if (node.layout === LAYOUT_TYPES.HSPLIT ||
                         node.layout === LAYOUT_TYPES.VSPLIT) {
-                        this.renderSplit(node, child, params, index);
+                        this.processSplit(node, child, params, index);
                     }
-                    Logger.trace(`rendering ${child.nodeValue}`);
-                    this.renderNode(child);
+                    this.processNode(child);
                 });
             }
 
@@ -989,22 +1005,17 @@ var Tree = GObject.registerClass(
                 nodeWidth -= gap * 2;
                 nodeHeight -= gap * 2;
 
-                Logger.debug(`render-window: ${node.nodeValue.get_wm_class()}:${node.nodeValue.get_title()}`);
+                Logger.debug(`processing window: ${node.nodeValue.get_wm_class()}:${node.nodeValue.get_title()}`);
                 Logger.debug(` layout: ${node.parentNode.layout}, index: ${node.index}`);
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                GLib.idle_add(GLib.PRIORITY_LOW, () => {
-                    this._forgeWm.move(node.nodeValue, {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight});
-                    if (node.nodeValue.firstRender)
-                        node.nodeValue.firstRender = false;
-
-                    return false;
-                });
+                node.rect = {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight};
+                node.mode = Window.WINDOW_MODES.TILE;
             }
         }
 
-        renderSplit(node, child, params, index) {
-            Logger.debug(`render container ${node._data}`);
+        processSplit(node, child, params, index) {
+            Logger.debug(`processing container ${node._data}`);
             let splitHorizontally = node.layout === LAYOUT_TYPES.HSPLIT;
             let nodeRect = node.rect;
             let nodeWidth;

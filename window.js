@@ -41,7 +41,8 @@ const Utils = Me.imports.utils;
 
 var WINDOW_MODES = Utils.createEnum([
     'FLOAT',
-    'TILE'
+    'TILE',
+    'DEFAULT'
 ]);
 
 // Simplify the grab modes
