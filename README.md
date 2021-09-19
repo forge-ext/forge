@@ -11,7 +11,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 - Support for floating windows, smart gaps and focus hint.
 - Customizable shortcuts in extension preferences.
 - Some support for multi-display.
-- Should work in gnome-shell versions 3.36+ and soon fully on 40 [See #39](https://github.com/jmmaranan/forge/issues/39).
+- Works on GNOME 3.36+ and 40. X11 and Wayland.
 
 ## Forge Keybinding Defaults
 
