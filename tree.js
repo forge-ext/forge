@@ -536,7 +536,7 @@ var Tree = GObject.registerClass(
                             return nodeWindow;
                         };
                         nextFocusNode = focusNodeWindow(nextFocusNode, direction, position);
-                        if (nextFocusNode)
+                        if (nextFocusNode && type === NODE_TYPES.MONITOR)
                             this._forgeWm.movePointerWith(nextFocusNode);
                     }
                     break;
