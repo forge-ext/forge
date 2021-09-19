@@ -495,63 +495,58 @@ var Tree = GObject.registerClass(
         }
 
         focus(node, direction) {
+            let position = Utils.positionFromDirection(direction);
+
+            // The next focus node is always going to be a node window for now
             let nextFocusNode = this.next(node, direction);
-            Logger.trace(`focus: next ${nextFocusNode ? nextFocusNode.nodeType : undefined}`);
+            Logger.trace(`tree-focus: next ${nextFocusNode ? nextFocusNode.nodeType : undefined}`);
+
             if (!nextFocusNode) {
                 return;
             }
 
-            let nodeType = nextFocusNode.nodeType;
+            let type = nextFocusNode.nodeType;
 
-            switch(nodeType) {
+            switch(type) {
                 case NODE_TYPES.WINDOW:
-                    if (this._forgeWm.floatingWindow(nextFocusNode) || nextFocusNode.nodeValue.minimized) {
-                        Logger.warn(`focus: window is minimized or floating`);
-                        this.focus(nextFocusNode, direction);
-                    } else {
-                        // TODO, maybe put the code block below in a new function
-                        nextFocusNode.nodeValue.raise();
-                        nextFocusNode.nodeValue.activate(global.get_current_time());
-                        nextFocusNode.nodeValue.focus(global.get_current_time());
-                    }
                     break;
                 case NODE_TYPES.CON:
                 case NODE_TYPES.MONITOR:
-                    if (nextFocusNode.contains(node) &&
-                        nodeType === NODE_TYPES.MONITOR)
+                    if (type === NODE_TYPES.MONITOR && nextFocusNode.contains(node)) {
+                        this.attachNode = nextFocusNode;
+                        this._forgeWm.movePointerWith(node);
                         return;
-                    nextFocusNode = this.findFirstNodeWindowFrom(nextFocusNode);
-                    if (nextFocusNode) {
-                        // Always try to find the next window
-                        if (this._forgeWm.floatingWindow(nextFocusNode) ||
-                            nextFocusNode.nodeValue.minimized) {
-                            Logger.warn(`focus: window is minimized or floating`);
-                            this.focus(nextFocusNode);
-                        } else {
-                            nextFocusNode.nodeValue.raise();
-                            nextFocusNode.nodeValue.activate(global.get_current_time());
-                            nextFocusNode.nodeValue.focus(global.get_current_time());
-                        }
+                    } else {
+                        let focusNodeWindow = (nextFocusNode, direction, position) => {
+                            let tiled = nextFocusNode.getNodeByType(NODE_TYPES.WINDOW).filter((w) => w.mode === Window.WINDOW_MODES.TILE);
+                            let nodeWindow;
+                            if (tiled.length === 0) {
+                                this.focus(nextFocusNode, direction);
+                            } else {
+                                if (position === POSITION.AFTER) {
+                                    nextFocusNode = nextFocusNode.firstChild;
+                                } else {
+                                    nextFocusNode = nextFocusNode.lastChild;
+                                }
+                                if (nextFocusNode.nodeType === NODE_TYPES.CON) {
+                                    nodeWindow = focusNodeWindow(nextFocusNode, direction, position);
+                                } else {
+                                    nodeWindow = nextFocusNode;
+                                }
+                            }
+                            return nodeWindow;
+                        };
+                        nextFocusNode = focusNodeWindow(nextFocusNode, direction, position);
                     }
                     break;
             }
 
-            if (nextFocusNode) {
-                // Great found the next node window,
-                // check if same monitor as before, else warp the pointer
-                if (!this._forgeWm.sameParentMonitor(node, nextFocusNode)) {
-                    // TODO warp the pointer here to the new monitor
-                    // and make it configurable
-                    let movePointerAlongWithMonitor = true;
-                    if (movePointerAlongWithMonitor) {
-                        this._forgeWm.movePointerWith(nextFocusNode);
-                    }
-                }
-                // FIXME, when the window focuses on hover always
-                // move the pointer
-                this.attachNode = nextFocusNode.parentNode;
-                Logger.trace(`focus: next attachNode ${this.attachNode.nodeType} ${this.attachNode}`);
-            }
+            if (!nextFocusNode) return;
+            this._forgeWm.movePointerWith(nextFocusNode);
+            let metaWindow = nextFocusNode.nodeValue;
+            metaWindow.raise();
+            metaWindow.focus(global.display.get_current_time());
+            metaWindow.activate(global.display.get_current_time());
         }
 
         /**
@@ -656,68 +651,81 @@ var Tree = GObject.registerClass(
             let previous = position === POSITION.BEFORE;
             let next;
 
-            Logger.debug(`next:orientation ${orientation}`);
-            Logger.debug(`next:position ${position}`);
+            Logger.debug(`tree-next:orientation ${orientation}, position ${position}`);
+            Logger.debug(`tree-next: parent is ${node.parentNode.nodeType}`);
 
             // 1. If any of these top level nodes,
             if (node.nodeType === NODE_TYPES.ROOT ||
-                node.nodeType === NODE_TYPES.WORKSPACE ||
-                node.nodeType === NODE_TYPES.MONITOR) {
-                // TODO focus on the next node window
-                Logger.trace(`next:${node._type}`);
+                node.nodeType === NODE_TYPES.WORKSPACE) {
+                Logger.trace(`tree-next: ${node.nodeType} is not valid for next`);
                 return null;
             }
 
-            // Remember the current focus node window
-            let prevNode = node;
-
-            // 2. Walk through the siblings of this node
+            // 2. If the position is AFTER, and same orientation
             while (node && node.nodeType != NODE_TYPES.WORKSPACE) {
-                let nodeParent = node.parentNode;
-
-                // 2.a Handle the top level monitor siblings
-                // This is to support moving focus to the next monitor available
-                // based on the direction
-                if (node && node.nodeType === NODE_TYPES.MONITOR) {
-                    if (prevNode.nodeType === NODE_TYPES.WINDOW) {
-                        // TODO add vertical monitor checks
-                        let targetMonitor = global.display.
-                            get_monitor_neighbor_index(prevNode.nodeValue.get_monitor(),
-                                (previous ? Meta.DisplayDirection.LEFT :
-                                    Meta.DisplayDirection.RIGHT));
-                        Logger.trace(`next: targetMonitor ${targetMonitor}`);
-                        if (targetMonitor === -1) {
-                            next = node;
+                if (horizontal) {
+                    if (node.parentNode.layout === LAYOUT_TYPES.HSPLIT) {
+                        if (!previous) {
+                            next = node.nextSibling;
                         } else {
-                            let targetMoData = `mo${targetMonitor}ws${prevNode.nodeValue.get_workspace().index()}`;
-                            next = this.findNode(targetMoData);
-                            Logger.trace(`next:${node.nodeType}`);
+                            next = node.previousSibling;
                         }
-                        if (next) return next;
-                    } else {
-                        Logger.trace(`next:${node.nodeType}`);
-                        return null;
+                    }
+                } else {
+                    if (node.parentNode.layout == LAYOUT_TYPES.VSPLIT) {
+                        if (!previous) {
+                            next = node.nextSibling;
+                        } else {
+                            next = node.previousSibling;
+                        }
+                    }
+                }
+                // 2. if next is null, it can be either of a few things
+                // 2.a check if the current parent is a monitor and the current node is at the edge
+                // The monitor index is not always in order so we get the adjacent monitor based on the direction
+                let nextMonitor = (node, position, orientation) => {
+                    // Use the built in logic to determine adjacent monitors
+                    let monitorNode = null;
+                    if (node.parentNode.nodeType === NODE_TYPES.MONITOR) {
+                        let monitorDirection = Utils.directionFrom(position, orientation);
+                        let targetMonitor = -1;
+                        let nodeWindow;
+                        if (node.nodeType === NODE_TYPES.WINDOW) {
+                            nodeWindow = node;
+                        } else if (node.nodeType === NODE_TYPES.CON) {
+                            let results = node.getNodeByType(NODE_TYPES.WINDOW);
+                            if (results && results.length > 0) {
+                                nodeWindow = results[0];
+                            }
+                        }
+                        if (!nodeWindow) return null;
+                        targetMonitor = global.display.get_monitor_neighbor_index(nodeWindow.nodeValue.get_monitor(), monitorDirection);
+                        if (targetMonitor < 0) return null;
+                        let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue.get_workspace().index()}`;
+                        Logger.trace(`tree-next: found monitor ${monWs}`);
+                        monitorNode = this.findNode(monWs);
+                        Logger.trace(`tree-next: found node ${next ? next.nodeValue : "not found"}`);
+                    }
+                    return monitorNode;
+                }
+
+                if (!next) {
+                    if (node.parentNode.nodeType === NODE_TYPES.MONITOR) {
+                        next = nextMonitor(node, position, orientation);
+                    }
+                } else {
+                    if (next.nodeType === NODE_TYPES.MONITOR) {
+                        next = nextMonitor(node, position, orientation);
                     }
                 }
 
-                // 2.b Else check for the next sibling or parent
-                // if the direction is opposite the parent layout,
-                // go to the parent's siblings
-                if (horizontal && nodeParent.layout === LAYOUT_TYPES.HSPLIT ||
-                    !horizontal && nodeParent.layout === LAYOUT_TYPES.VSPLIT) {
-                    if (nodeParent && nodeParent.childNodes && nodeParent.childNodes.length > 1) {
-                        let currentIndex = node.index;
-                        let nextIndex = previous ? currentIndex - 1 : currentIndex + 1;
-                        if (nextIndex !== -1 && !(nextIndex > nodeParent.childNodes.length - 1)) {
-                            next = nodeParent.childNodes[nextIndex];
-                            Logger.trace(`next:${node._type}`);
-                            if (next) return next;
-                        }
-                    }
-                }
-                node = nodeParent;
+                Logger.trace(`tree-next: ${next ? next.nodeType : "null"}`);
+
+                if (next) return next;
+
+                node = node.parentNode;
             }
-            Logger.trace(`next:type ${next ? next._type : "undefined"}`);
+
             return next;
         }
 
@@ -808,6 +816,7 @@ var Tree = GObject.registerClass(
                 nextSwapNode.nodeType === NODE_TYPES.WINDOW;
             if (isNextNodeWin) {
                 if (!this._forgeWm.sameParentMonitor(node, nextSwapNode)) {
+                    // TODO, there is a freeze bug if there are not in same monitor.
                     Logger.warn(`swap: not same monitor, do not swap`);
                     return;
                 }

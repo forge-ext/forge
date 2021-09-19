@@ -203,6 +203,22 @@ function resolveDirection(directionString) {
     return null;
 }
 
+function directionFrom(position, orientaton) {
+    if (position === Tree.POSITION.AFTER) {
+        if (orientaton === Tree.ORIENTATION_TYPES.HORIZONTAL) {
+            return Meta.DisplayDirection.RIGHT;
+        } else {
+            return Meta.DisplayDirection.DOWN;
+        }
+    } else if (position === Tree.POSITION.BEFORE) {
+        if (orientaton === Tree.ORIENTATION_TYPES.HORIZONTAL) {
+            return Meta.DisplayDirection.LEFT;
+        } else {
+            return Meta.DisplayDirection.UP;
+        }
+    }
+}
+
 function rectContainsPoint(rect, pointP) {
     return rect.x <= pointP[0] && pointP[0] <= rect.x + rect.width &&
         rect.y <= pointP[1] && pointP[1] <= rect.y + rect.height;
@@ -311,6 +327,18 @@ function findWindowWith(title) {
     }
 
     return undefined;
+}
+
+function oppositeDirectionOf(direction) {
+    if (direction === Meta.MotionDirection.LEFT) {
+        return Meta.MotionDirection.RIGHT;
+    } else if (direction === Meta.MotionDirection.RIGHT) {
+        return Meta.MotionDirection.LEFT;
+    } else if (direction === Meta.MotionDirection.UP) {
+        return Meta.MotionDirection.DOWN;
+    } else if (direction === Meta.MotionDirection.DOWN) {
+        return Meta.MotionDirection.UP;
+    }
 }
 
 function monitorIndex(monitorValue) {
