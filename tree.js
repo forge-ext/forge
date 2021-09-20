@@ -509,6 +509,20 @@ var Tree = GObject.registerClass(
 
             switch(type) {
                 case NODE_TYPES.WINDOW:
+                    if (nextFocusNode.nodeValue.minimized) {
+                        this.focus(nextFocusNode, direction);
+                    } else {
+                        let metaWindow = nextFocusNode.nodeValue;
+                        metaWindow.raise();
+                        metaWindow.focus(global.display.get_current_time());
+                        metaWindow.activate(global.display.get_current_time());
+
+                        let monitorArea = metaWindow.get_work_area_current_monitor();
+                        let ptr = this._forgeWm.getPointer();
+                        if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
+                            this._forgeWm.movePointerWith(nextFocusNode);
+                        }
+                    }
                     break;
                 case NODE_TYPES.CON:
                 case NODE_TYPES.MONITOR:
@@ -516,8 +530,9 @@ var Tree = GObject.registerClass(
                         this.attachNode = nextFocusNode;
                         return;
                     } else {
-                        let focusNodeWindow = (nextFocusNode, direction, position) => {
-                            let tiled = nextFocusNode.getNodeByType(NODE_TYPES.WINDOW).filter((w) => w.mode === Window.WINDOW_MODES.TILE);
+                        let getNodeWindow = (nextFocusNode, direction, position) => {
+                            let tiled = nextFocusNode.getNodeByType(NODE_TYPES.WINDOW)
+                                .filter((w) => w.mode === Window.WINDOW_MODES.TILE);
                             let nodeWindow;
                             if (tiled.length === 0) {
                                 this.focus(nextFocusNode, direction);
@@ -528,28 +543,27 @@ var Tree = GObject.registerClass(
                                     nextFocusNode = nextFocusNode.lastChild;
                                 }
                                 if (nextFocusNode.nodeType === NODE_TYPES.CON) {
-                                    nodeWindow = focusNodeWindow(nextFocusNode, direction, position);
+                                    nodeWindow = getNodeWindow(nextFocusNode, direction, position);
                                 } else {
                                     nodeWindow = nextFocusNode;
                                 }
                             }
                             return nodeWindow;
                         };
-                        nextFocusNode = focusNodeWindow(nextFocusNode, direction, position);
+                        nextFocusNode = getNodeWindow(nextFocusNode, direction, position);
+                        if (!nextFocusNode) return;
+                        let metaWindow = nextFocusNode.nodeValue;
+                        metaWindow.raise();
+                        metaWindow.focus(global.display.get_current_time());
+                        metaWindow.activate(global.display.get_current_time());
+
+                        let monitorArea = metaWindow.get_work_area_current_monitor();
+                        let ptr = this._forgeWm.getPointer();
+                        if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
+                            this._forgeWm.movePointerWith(nextFocusNode);
+                        }
                     }
                     break;
-            }
-
-            if (!nextFocusNode) return;
-            let metaWindow = nextFocusNode.nodeValue;
-            metaWindow.raise();
-            metaWindow.focus(global.display.get_current_time());
-            metaWindow.activate(global.display.get_current_time());
-
-            let monitorArea = metaWindow.get_work_area_current_monitor();
-            let ptr = this._forgeWm.getPointer();
-            if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
-                this._forgeWm.movePointerWith(nextFocusNode);
             }
         }
 
@@ -575,6 +589,12 @@ var Tree = GObject.registerClass(
             return items.filter(filterFn);
         }
 
+        /**
+         * Move a given node into a direction
+         *
+         * TODO, handle minimized or floating windows
+         *
+         */
         move(node, direction) {
             let next = this.next(node, direction);
             let position = Utils.positionFromDirection(direction);
@@ -920,11 +940,15 @@ var Tree = GObject.registerClass(
         }
 
         apply() {
-            let tiledChildren = this.getNodeByMode(Window.WINDOW_MODES.TILE).filter((t) => t.nodeType === NODE_TYPES.WINDOW);
+            let tiledChildren = this.getNodeByMode(Window.WINDOW_MODES.TILE)
+                .filter((t) => t.nodeType === NODE_TYPES.WINDOW);
             Logger.debug(`number of windows to apply: ${tiledChildren.length}`);
             tiledChildren.forEach((w) => {
                 Logger.debug(`rendering ${w.nodeType}`);
-                this._forgeWm.move(w.nodeValue, w.renderRect);
+
+                if (w.renderRect)
+                    this._forgeWm.move(w.nodeValue, w.renderRect);
+
                 if (w.nodeValue.firstRender)
                     w.nodeValue.firstRender = false;
             });
