@@ -494,81 +494,56 @@ var Tree = GObject.registerClass(
             return nodeAtPointer;
         }
 
+        /**
+         * Focuses on the next node, if metaWindow and tiled, raise it
+         */
         focus(node, direction) {
-            let position = Utils.positionFromDirection(direction);
-
             // The next focus node is always going to be a node window for now
-            let nextFocusNode = this.next(node, direction);
-            Logger.trace(`tree-focus: next ${nextFocusNode ? nextFocusNode.nodeType : undefined}`);
+            let next = this.next(node, direction);
+            Logger.trace(`tree-focus: next ${next ? next.nodeType : undefined}`);
 
-            if (!nextFocusNode) {
-                return;
+            if (!next) {
+                return null;
             }
 
-            let type = nextFocusNode.nodeType;
+            let type = next.nodeType;
 
             switch(type) {
                 case NODE_TYPES.WINDOW:
-                    if (nextFocusNode.nodeValue.minimized) {
-                        this.focus(nextFocusNode, direction);
-                    } else {
-                        let metaWindow = nextFocusNode.nodeValue;
-                        metaWindow.raise();
-                        metaWindow.focus(global.display.get_current_time());
-                        metaWindow.activate(global.display.get_current_time());
-
-                        let monitorArea = metaWindow.get_work_area_current_monitor();
-                        let ptr = this._forgeWm.getPointer();
-                        if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
-                            this._forgeWm.movePointerWith(nextFocusNode);
-                        }
-                    }
                     break;
                 case NODE_TYPES.CON:
                 case NODE_TYPES.MONITOR:
-                    if (type === NODE_TYPES.MONITOR && nextFocusNode.contains(node)) {
-                        this.attachNode = nextFocusNode;
-                        return;
+                    let conChildren = next.getNodeByType(NODE_TYPES.WINDOW)
+                        .filter((w) => w.mode === Window.WINDOW_MODES.TILE &&
+                            !w.nodeValue.minimized);
+                    if (conChildren.length === 0) {
+                        this.focus(next, direction);
                     } else {
-                        let getNodeWindow = (nextFocusNode, direction, position) => {
-                            let tiled = nextFocusNode.getNodeByType(NODE_TYPES.WINDOW)
-                                .filter((w) => w.mode === Window.WINDOW_MODES.TILE);
-                            let nodeWindow;
-                            if (tiled.length === 0) {
-                                this.focus(nextFocusNode, direction);
-                            } else {
-                                if (position === POSITION.AFTER) {
-                                    nextFocusNode = nextFocusNode.firstChild;
-                                } else {
-                                    nextFocusNode = nextFocusNode.lastChild;
-                                }
-                                if (nextFocusNode.nodeType === NODE_TYPES.CON) {
-                                    nodeWindow = getNodeWindow(nextFocusNode, direction, position);
-                                } else {
-                                    nodeWindow = nextFocusNode;
-                                }
-                            }
-                            return nodeWindow;
-                        };
-                        nextFocusNode = getNodeWindow(nextFocusNode, direction, position);
-                        if (!nextFocusNode) return;
-                        let metaWindow = nextFocusNode.nodeValue;
-                        metaWindow.raise();
-                        metaWindow.focus(global.display.get_current_time());
-                        metaWindow.activate(global.display.get_current_time());
-
-                        let monitorArea = metaWindow.get_work_area_current_monitor();
-                        let ptr = this._forgeWm.getPointer();
-                        if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
-                            this._forgeWm.movePointerWith(nextFocusNode);
-                        }
+                        next = conChildren[0];
                     }
                     break;
             }
+
+            if (!next) return null;
+            let metaWindow = next.nodeValue;
+            if (metaWindow.minimized) {
+                this.focus(next, direction);
+            }
+            metaWindow.raise();
+            metaWindow.focus(global.display.get_current_time());
+            metaWindow.activate(global.display.get_current_time());
+
+            let monitorArea = metaWindow.get_work_area_current_monitor();
+            let ptr = this._forgeWm.getPointer();
+            if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
+                this._forgeWm.movePointerWith(next);
+            }
+            return next;
         }
 
         /**
          * Obtains the non-floating, non-minimized list of nodes
+         * Useful for calculating the rect areas
          */
         getTiledChildren(items) {
             let filterFn = (node) => {
