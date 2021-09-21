@@ -527,16 +527,17 @@ var Tree = GObject.registerClass(
             if (!next) return null;
             let metaWindow = next.nodeValue;
             if (metaWindow.minimized) {
-                this.focus(next, direction);
-            }
-            metaWindow.raise();
-            metaWindow.focus(global.display.get_current_time());
-            metaWindow.activate(global.display.get_current_time());
+                next = this.focus(next, direction);
+            } else {
+                metaWindow.raise();
+                metaWindow.focus(global.display.get_current_time());
+                metaWindow.activate(global.display.get_current_time());
 
-            let monitorArea = metaWindow.get_work_area_current_monitor();
-            let ptr = this._forgeWm.getPointer();
-            if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
-                this._forgeWm.movePointerWith(next);
+                let monitorArea = metaWindow.get_work_area_current_monitor();
+                let ptr = this._forgeWm.getPointer();
+                if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
+                    this._forgeWm.movePointerWith(next);
+                }
             }
             return next;
         }
