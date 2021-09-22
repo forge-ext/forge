@@ -159,14 +159,19 @@ var PrefsWidget = GObject.registerClass(
             this.addBackButtonAccelerator();
         }
 
+        /**
+         * This builds the settings item that has many child panels
+         * Use the GeneralSettings box if single child panel or choose only to show the panel directly
+         */
         buildSettingsList() {
             const leftBoxWidth = 220;
             // TODO - translations!
 
             // Main Settings
             let generalSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
-            generalSettingsBox.addStackRow("Home", Msgs.prefs_general_home, `${Me.path}/icons/prefs/preferences-desktop-apps-symbolic.svg`);
+            generalSettingsBox.addStackRow("Home", Msgs.prefs_general_home, `${Me.path}/icons/prefs/go-home-symbolic.svg`);
             generalSettingsBox.addStackRow("Appearance", Msgs.prefs_general_appearance, `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
+            generalSettingsBox.addStackRow("Workspace", Msgs.prefs_workspace_settings, `${Me.path}/icons/prefs/preferences-desktop-apps-symbolic.svg`);
             generalSettingsBox.addStackRow("Keyboard", Msgs.prefs_general_keyboard, `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
             if (!Settings.production) {
                 generalSettingsBox.addStackRow("Development", Msgs.prefs_general_development, `${Me.path}/icons/prefs/code-context-symbolic.svg`);
@@ -193,6 +198,7 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Appearance"), "Appearance");
             this.settingsPagesStack.add_named(new AppearanceWindowSettingsPanel(this), "Windows");
+            this.settingsPagesStack.add_named(new WorkspaceSettingsPanel(this), "Workspace");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "window-"), "Window Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
@@ -475,6 +481,69 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
             appearanceWindowFrame.add(gapHiddenWhenSingleRow);
 
             this.add(appearanceWindowFrame);
+        }
+    }
+);
+
+var WorkspaceSettingsPanel = GObject.registerClass(
+    class WorkspaceSettingsPanel extends PanelBox {
+        _init(prefsWidget) {
+            super._init(prefsWidget, "Workspace Settings");
+            this.settings = prefsWidget.settings;
+
+            let workspaceHeader = new Gtk.Label({
+                label: `<b>${Msgs.prefs_workspace_settings_title}</b>`,
+                use_markup: true,
+                xalign: 0,
+                hexpand: true
+            });
+
+            let descriptionBox = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 6,
+                spacing: 5,
+                homogeneous: false
+            });
+            descriptionBox.add(workspaceHeader);
+            this.add(descriptionBox);
+
+            let workspaceFrame = new FrameListBox();
+
+            let workspaceAdjustTileRow = new ListBoxRow();
+            let workspaceAdjustTileLabel = createLabel(Msgs.prefs_workspace_settings_skip_tiling_label);
+            let workspaceAdjustTileEntry = new Gtk.Entry();
+
+            workspaceAdjustTileEntry.set_text(this.settings.get_string("workspace-skip-tile"));
+            workspaceAdjustTileEntry.connect("activate", () => {
+                let currEntry = workspaceAdjustTileEntry.get_text();
+                let prevEntry = this.settings.get_string("workspace-skip-tile");
+                if (!currEntry || currEntry && (currEntry.trim().length === 0 || currEntry === "")) {
+                    this.settings.set_string("workspace-skip-tile", "");
+                    return;
+                } else {
+                    let currEntryArr = currEntry.split(",");
+                    let errors = 0;
+
+                    for (let i = 0; i < currEntryArr.length; i++) {
+                        if (isNaN(parseInt(currEntryArr[i]))) {
+                            Logger.warn(`Entry${currEntryArr[i]} is not a valid workspace index`);
+                            errors += 1;
+                        }
+                    }
+
+                    if (errors > 0) {
+                        workspaceAdjustTileEntry.set_text(prevEntry);
+                    } else {
+                        this.settings.set_string("workspace-skip-tile", currEntry);
+                    }
+                }
+            });
+
+            workspaceAdjustTileRow.add(workspaceAdjustTileLabel);
+            workspaceAdjustTileRow.add(workspaceAdjustTileEntry);
+            workspaceFrame.add(workspaceAdjustTileRow);
+
+            this.add(workspaceFrame);
         }
     }
 );

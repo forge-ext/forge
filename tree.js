@@ -342,6 +342,7 @@ var Tree = GObject.registerClass(
             let rootBin = new St.Bin();
             super._init(NODE_TYPES.ROOT, rootBin);
             this._forgeWm = forgeWm;
+            this.settings = this._forgeWm.ext.settings;
             this.layout = LAYOUT_TYPES.ROOT;
             rootBin.show();
             global.window_group.add_child(rootBin);
@@ -1037,7 +1038,14 @@ var Tree = GObject.registerClass(
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
                 node.renderRect = {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight};
-                node.mode = Window.WINDOW_MODES.TILE;
+
+                let skipThisWs = !this._forgeWm.isWorkspaceTiled(node.nodeValue);
+
+                if (!skipThisWs) {
+                    node.mode = Window.WINDOW_MODES.TILE;
+                } else {
+                    node.mode = Window.WINDOW_MODES.DEFAULT;
+                }
             }
         }
 

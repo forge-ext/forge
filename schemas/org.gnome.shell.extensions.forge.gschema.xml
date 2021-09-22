@@ -56,6 +56,11 @@
             <summary>Tiling mode on/off</summary>
         </key>
 
+        <key type="s" name="workspace-skip-tile">
+            <default>''</default>
+            <summary>Skips tiling on the provided workspace indices</summary>
+        </key>
+
         <!-- Development Settings -->
         <key type="u" name="log-level">
             <default>0</default>
