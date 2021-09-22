@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-18 16:30-0400\n"
+"POT-Creation-Date: 2021-09-22 10:08-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -65,65 +65,78 @@ msgid "Gaps Hidden when Single"
 msgstr ""
 
 #: messages.js:51
-msgid "Window Shortcuts"
+msgid "Workspace"
 msgstr ""
 
 #: messages.js:52
-msgid "Container Shortcuts"
+msgid "Update Workspace Settings"
 msgstr ""
 
 #: messages.js:53
-msgid "Focus Shortcuts"
+msgid ""
+"Skip Workspace Tiling. Provide comma-separated workspace indices. E.g. 0,1"
 msgstr ""
 
-#: messages.js:54
-msgid "Other Shortcuts"
+#: messages.js:55
+msgid "Window Shortcuts"
 msgstr ""
 
 #: messages.js:56
-msgid "Logger Level"
+msgid "Container Shortcuts"
+msgstr ""
+
+#: messages.js:57
+msgid "Focus Shortcuts"
 msgstr ""
 
 #: messages.js:58
-msgid "Update Keybindings"
-msgstr ""
-
-#: messages.js:59
-msgid "Syntax"
+msgid "Other Shortcuts"
 msgstr ""
 
 #: messages.js:60
-msgid "Legend"
-msgstr ""
-
-#: messages.js:61
-msgid "Windows key"
+msgid "Logger Level"
 msgstr ""
 
 #: messages.js:62
-msgid "Control key"
+msgid "Update Keybindings"
 msgstr ""
 
 #: messages.js:63
-msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
+msgid "Syntax"
 msgstr ""
 
 #: messages.js:64
-msgid "Resets"
+msgid "Legend"
 msgstr ""
 
 #: messages.js:65
-msgid "to previous value when invalid"
+msgid "Windows key"
 msgstr ""
 
 #: messages.js:66
-msgid "Action"
+msgid "Control key"
 msgstr ""
 
 #: messages.js:67
-msgid "Shortcut"
+msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 
 #: messages.js:68
+msgid "Resets"
+msgstr ""
+
+#: messages.js:69
+msgid "to previous value when invalid"
+msgstr ""
+
+#: messages.js:70
+msgid "Action"
+msgstr ""
+
+#: messages.js:71
+msgid "Shortcut"
+msgstr ""
+
+#: messages.js:72
 msgid "Notes"
 msgstr ""

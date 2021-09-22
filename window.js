@@ -235,6 +235,7 @@ var ForgeWindowManager = GObject.registerClass(
                     case "window-gap-size-increment":
                     case "window-gap-size":
                     case "window-gap-hidden-on-single":
+                    case "workspace-skip-tile":
                         this.renderTree(settingName);
                         break;
                     default:
@@ -741,7 +742,9 @@ var ForgeWindowManager = GObject.registerClass(
                         }),
                         metaWindow.connect("focus", (_metaWindowFocus) => {
                             let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
-                            if ((tilingModeEnabled && !_metaWindowFocus.firstRender) || !tilingModeEnabled)
+                            if ((tilingModeEnabled && !_metaWindowFocus.firstRender) ||
+                                !tilingModeEnabled ||
+                                !this.isWorkspaceTiled(this.focusMetaWindow))
                                 this.showBorderFocusWindow();
 
                             // handle the attach node
@@ -783,6 +786,25 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${metaWindow.get_monitor()}`);
             } 
+        }
+
+        /**
+         * Check if a Meta Window's workspace is skipped for tiling.
+         */
+        isWorkspaceTiled(metaWindow) {
+            if (!metaWindow) return false;
+            let skipWs = this.ext.settings.get_string("workspace-skip-tile");
+            let skipArr = skipWs.split(",");
+            let skipThisWs = false;
+
+            for (let i = 0; i < skipArr.length; i++) {
+                if (skipArr[i] === `${metaWindow.get_workspace().index()}`) {
+                    Logger.warn("workspace skipped for window");
+                    skipThisWs = true;
+                    break;
+                }
+            }
+            return !skipThisWs;
         }
 
         trackCurrentWindows() {
