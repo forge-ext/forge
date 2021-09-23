@@ -188,6 +188,11 @@
             <summary>Toggle window float</summary>
         </key>
 
+        <key type="as" name="workspace-active-tile-toggle">
+            <default><![CDATA[['<Shift><Super>w']]]></default>
+            <summary>Toggle active workspace tiling</summary>
+        </key>
+
         <key type="as" name="prefs-open">
             <default><![CDATA[['<Super>period']]]></default>
             <summary>Open the extension's preferences</summary>

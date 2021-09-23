@@ -188,6 +188,7 @@ var PrefsWidget = GObject.registerClass(
             // Keyboard
             let keyboardSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
             keyboardSettingsBox.addStackRow("Window Shortcuts", Msgs.prefs_keyboard_window_shortcuts, `${Me.path}/icons/prefs/window-duplicate-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Workspace Shortcuts", Msgs.prefs_keyboard_workspace_shortcuts, `${Me.path}/icons/prefs/preferences-desktop-apps-symbolic.svg`);
             keyboardSettingsBox.addStackRow("Container Shortcuts", Msgs.prefs_keyboard_container_shortcuts, `${Me.path}/icons/prefs/view-dual-symbolic.svg`);
             keyboardSettingsBox.addStackRow("Focus Shortcuts", Msgs.prefs_keyboard_focus_shortcuts, `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
             keyboardSettingsBox.addStackRow("Other Shortcuts", Msgs.prefs_keyboard_other_shortcuts, `${Me.path}/icons/prefs/view-grid-symbolic.svg`);
@@ -201,6 +202,7 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new WorkspaceSettingsPanel(this), "Workspace");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "window-"), "Window Shortcuts");
+            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "workspace-"), "Workspace Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "focus-"), "Focus Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "prefs-"), "Other Shortcuts");
@@ -510,10 +512,23 @@ var WorkspaceSettingsPanel = GObject.registerClass(
             let workspaceFrame = new FrameListBox();
 
             let workspaceAdjustTileRow = new ListBoxRow();
+            let workspaceAdjustDescriptBox = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 6,
+                spacing: 5,
+                homogeneous: false
+            });
             let workspaceAdjustTileLabel = createLabel(Msgs.prefs_workspace_settings_skip_tiling_label);
+            let workspaceAdjustTileInstructions = createLabel(Msgs.prefs_workspace_settings_skip_tiling_instructions_text);
+            workspaceAdjustDescriptBox.add(workspaceAdjustTileLabel);
+            workspaceAdjustDescriptBox.add(workspaceAdjustTileInstructions);
+
             let workspaceAdjustTileEntry = new Gtk.Entry();
 
             workspaceAdjustTileEntry.set_text(this.settings.get_string("workspace-skip-tile"));
+            this.settings.connect("changed::workspace-skip-tile", () => {
+                workspaceAdjustTileEntry.set_text(this.settings.get_string("workspace-skip-tile"));
+            });
             workspaceAdjustTileEntry.connect("activate", () => {
                 let currEntry = workspaceAdjustTileEntry.get_text();
                 let prevEntry = this.settings.get_string("workspace-skip-tile");
@@ -539,8 +554,15 @@ var WorkspaceSettingsPanel = GObject.registerClass(
                 }
             });
 
-            workspaceAdjustTileRow.add(workspaceAdjustTileLabel);
-            workspaceAdjustTileRow.add(workspaceAdjustTileEntry);
+            workspaceAdjustTileRow.add(workspaceAdjustDescriptBox);
+            let workspaceAdjustEntryBox = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 6,
+                spacing: 5,
+                homogeneous: false
+            });
+            workspaceAdjustEntryBox.add(workspaceAdjustTileEntry);
+            workspaceAdjustTileRow.add(workspaceAdjustEntryBox);
             workspaceFrame.add(workspaceAdjustTileRow);
 
             this.add(workspaceFrame);

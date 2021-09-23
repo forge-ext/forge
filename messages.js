@@ -50,9 +50,11 @@ var prefs_appearance_window_gaps_hidden_single_label = _("Gaps Hidden when Singl
 
 var prefs_workspace_settings = _("Workspace");
 var prefs_workspace_settings_title = _("Update Workspace Settings");
-var prefs_workspace_settings_skip_tiling_label = _("Skip Workspace Tiling. Provide comma-separated workspace indices. E.g. 0,1");
+var prefs_workspace_settings_skip_tiling_label = _("Skip Workspace Tiling");
+var prefs_workspace_settings_skip_tiling_instructions_text = _("Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to accept");
 
 var prefs_keyboard_window_shortcuts = _("Window Shortcuts");
+var prefs_keyboard_workspace_shortcuts = _("Workspace Shortcuts");
 var prefs_keyboard_container_shortcuts = _("Container Shortcuts");
 var prefs_keyboard_focus_shortcuts = _("Focus Shortcuts");
 var prefs_keyboard_other_shortcuts = _("Other Shortcuts");

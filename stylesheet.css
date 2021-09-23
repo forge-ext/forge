@@ -25,6 +25,12 @@
     border-radius: 3px;
 }
 
+.workspace-skip-tile-indicator {
+    border-width: 2px;
+    border-color: #f48174;
+    border-style: solid;
+}
+
 .search-entry:focus {
     border-color: #ec5e5e;
     border-width: 2px;

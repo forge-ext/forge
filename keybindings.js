@@ -346,6 +346,10 @@ var Keybindings = GObject.registerClass(
                     let action = { name: "GapSize", amount: -1 };
                     this.forgeWm.command(action);
                 },
+                "workspace-active-tile-toggle": () => {
+                    let action = { name: "WorkspaceActiveTileToggle" };
+                    this.forgeWm.command(action);
+                },
                 "prefs-open": () => {
                     let existWindow = ExtUtils.findWindowWith(Msgs.prefs_title);
                     if (existWindow && existWindow.get_workspace()) {

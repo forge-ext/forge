@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-22 10:08-0400\n"
+"POT-Creation-Date: 2021-09-23 17:59-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -73,70 +73,79 @@ msgid "Update Workspace Settings"
 msgstr ""
 
 #: messages.js:53
-msgid ""
-"Skip Workspace Tiling. Provide comma-separated workspace indices. E.g. 0,1"
+msgid "Skip Workspace Tiling"
 msgstr ""
 
-#: messages.js:55
-msgid "Window Shortcuts"
+#: messages.js:54
+msgid ""
+"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
+"accept"
 msgstr ""
 
 #: messages.js:56
-msgid "Container Shortcuts"
+msgid "Window Shortcuts"
 msgstr ""
 
 #: messages.js:57
-msgid "Focus Shortcuts"
+msgid "Workspace Shortcuts"
 msgstr ""
 
 #: messages.js:58
-msgid "Other Shortcuts"
+msgid "Container Shortcuts"
+msgstr ""
+
+#: messages.js:59
+msgid "Focus Shortcuts"
 msgstr ""
 
 #: messages.js:60
-msgid "Logger Level"
+msgid "Other Shortcuts"
 msgstr ""
 
 #: messages.js:62
-msgid "Update Keybindings"
-msgstr ""
-
-#: messages.js:63
-msgid "Syntax"
+msgid "Logger Level"
 msgstr ""
 
 #: messages.js:64
-msgid "Legend"
+msgid "Update Keybindings"
 msgstr ""
 
 #: messages.js:65
-msgid "Windows key"
+msgid "Syntax"
 msgstr ""
 
 #: messages.js:66
-msgid "Control key"
+msgid "Legend"
 msgstr ""
 
 #: messages.js:67
-msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
+msgid "Windows key"
 msgstr ""
 
 #: messages.js:68
-msgid "Resets"
+msgid "Control key"
 msgstr ""
 
 #: messages.js:69
-msgid "to previous value when invalid"
+msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 
 #: messages.js:70
-msgid "Action"
+msgid "Resets"
 msgstr ""
 
 #: messages.js:71
-msgid "Shortcut"
+msgid "to previous value when invalid"
 msgstr ""
 
 #: messages.js:72
+msgid "Action"
+msgstr ""
+
+#: messages.js:73
+msgid "Shortcut"
+msgstr ""
+
+#: messages.js:74
 msgid "Notes"
 msgstr ""
