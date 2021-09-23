@@ -338,6 +338,37 @@ var ForgeWindowManager = GObject.registerClass(
                         gapIncrement = 5;
                     this.ext.settings.set_uint("window-gap-size-increment", gapIncrement);
                     break;
+                case "WorkspaceActiveTileToggle":
+                    let activeWorkspace = global.workspace_manager.get_active_workspace_index();
+                    let skippedWorkspaces = this.ext.settings.get_string("workspace-skip-tile");
+                    let workspaceSkipped = false;
+                    let skippedArr = [];
+                    if (skippedWorkspaces.length === 0) {
+                        skippedArr.push(`${activeWorkspace}`);
+                    } else {
+                        skippedArr = skippedWorkspaces.split(",");
+                        Logger.debug(`Current workspace ${activeWorkspace}. List of skipped ${skippedWorkspaces}`);
+
+                        for (let i = 0; i < skippedArr.length; i++) {
+                            if (skippedArr[i] === `${activeWorkspace}`) {
+                                workspaceSkipped = true;
+                                break;
+                            }
+                        }
+                        if (workspaceSkipped) {
+                            Logger.debug(`workspace is skipped, removing ${activeWorkspace}`);
+                            let indexWs = skippedArr.indexOf(`${activeWorkspace}`);
+                            skippedArr.splice(indexWs, 1);
+                        } else {
+                            Logger.debug(`workspace is not skipped, inserting ${activeWorkspace}`);
+                            skippedArr.push(`${activeWorkspace}`);
+                        }
+                    }
+
+                    Logger.debug(`Updated workspace skipped ${skippedArr.toString()}`);
+                    this.ext.settings.set_string("workspace-skip-tile", skippedArr.toString());
+
+                    break;
                 default:
                     break;
             }
@@ -798,7 +829,7 @@ var ForgeWindowManager = GObject.registerClass(
             let skipThisWs = false;
 
             for (let i = 0; i < skipArr.length; i++) {
-                if (skipArr[i] === `${metaWindow.get_workspace().index()}`) {
+                if (skipArr[i].trim() === `${metaWindow.get_workspace().index()}`) {
                     Logger.warn("workspace skipped for window");
                     skipThisWs = true;
                     break;

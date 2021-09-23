@@ -386,6 +386,7 @@ var Tree = GObject.registerClass(
             Logger.debug(`adding workspace: ${workspaceNodeValue}`);
 
             let newWsNode = this.createNode(this.nodeValue, NODE_TYPES.WORKSPACE, workspaceNodeValue);
+
             let workspace = wsManager.get_workspace_by_index(wsIndex);
             newWsNode.layout = LAYOUT_TYPES.HSPLIT;
 
@@ -393,6 +394,16 @@ var Tree = GObject.registerClass(
             this.addMonitor(workspaceNodeValue);
 
             return true;
+        }
+
+        createWorkspaceIndicator() {
+            // Attach the con indicator for user that the workspace has been skipped tiling.
+            let wsBin = new St.Bin({ style_class: "workspace-skip-tile-indicator" });
+            let wsRect = wsManager.get_workspace_by_index(wsIndex).get_work_area_all_monitors();
+            wsBin.set_position(wsRect.x, wsRect.y);
+            wsBin.set_size(wsRect.width, wsRect.height);
+            global.window_group.add_child(wsBin);
+            return wsBin;
         }
 
         // TODO move to workspace.js
