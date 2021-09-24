@@ -199,7 +199,7 @@ var ForgeWindowManager = GObject.registerClass(
                 globalWsm.connect("workspace-removed", (_, wsIndex) => {
                     let removed = this._tree.removeWorkspace(wsIndex);
                     Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
-                    GLib.timeout_add(GLib.PRIORITY_LOW, 400, () => {
+                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
                         this.renderTree("workspace-removed");
                         return false;
                     });
@@ -252,7 +252,9 @@ var ForgeWindowManager = GObject.registerClass(
                 if (!metaWorkspace.workspaceSignals) {
                     let workspaceSignals = [
                         metaWorkspace.connect("window-added", (_, metaWindow) => {
-                            this.updateMetaWorkspaceMonitor("window-added", metaWindow.get_monitor(), metaWindow);
+                            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+                                this.updateMetaWorkspaceMonitor("window-added", metaWindow.get_monitor(), metaWindow);
+                            });
                         }),
                     ];
                     metaWorkspace.workspaceSignals = workspaceSignals;
