@@ -254,6 +254,7 @@ var ForgeWindowManager = GObject.registerClass(
                         metaWorkspace.connect("window-added", (_, metaWindow) => {
                             GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
                                 this.updateMetaWorkspaceMonitor("window-added", metaWindow.get_monitor(), metaWindow);
+                                return false;
                             });
                         }),
                     ];
