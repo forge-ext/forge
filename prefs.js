@@ -669,26 +669,32 @@ var WorkspaceSettingsPanel = GObject.registerClass(
 
             let descriptionBox = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
-                margin: 6,
+                margin_top: 6,
+                margin_start: 6,
+                margin_end: 6,
+                margin_bottom: 6,
                 spacing: 5,
                 homogeneous: false
             });
-            descriptionBox.add(workspaceHeader);
-            this.add(descriptionBox);
+            descriptionBox.append(workspaceHeader);
+            this.append(descriptionBox);
 
             let workspaceFrame = new FrameListBox();
 
             let workspaceAdjustTileRow = new ListBoxRow();
             let workspaceAdjustDescriptBox = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
-                margin: 6,
+                margin_top: 6,
+                margin_start: 6,
+                margin_end: 6,
+                margin_bottom: 6,
                 spacing: 5,
                 homogeneous: false
             });
             let workspaceAdjustTileLabel = createLabel(Msgs.prefs_workspace_settings_skip_tiling_label);
             let workspaceAdjustTileInstructions = createLabel(Msgs.prefs_workspace_settings_skip_tiling_instructions_text);
-            workspaceAdjustDescriptBox.add(workspaceAdjustTileLabel);
-            workspaceAdjustDescriptBox.add(workspaceAdjustTileInstructions);
+            workspaceAdjustDescriptBox.append(workspaceAdjustTileLabel);
+            workspaceAdjustDescriptBox.append(workspaceAdjustTileInstructions);
 
             let workspaceAdjustTileEntry = new Gtk.Entry();
 
@@ -724,15 +730,18 @@ var WorkspaceSettingsPanel = GObject.registerClass(
             workspaceAdjustTileRow.add(workspaceAdjustDescriptBox);
             let workspaceAdjustEntryBox = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
-                margin: 6,
+                margin_top: 6,
+                margin_start: 6,
+                margin_end: 6,
+                margin_bottom: 6,
                 spacing: 5,
                 homogeneous: false
             });
-            workspaceAdjustEntryBox.add(workspaceAdjustTileEntry);
+            workspaceAdjustEntryBox.append(workspaceAdjustTileEntry);
             workspaceAdjustTileRow.add(workspaceAdjustEntryBox);
             workspaceFrame.add(workspaceAdjustTileRow);
 
-            this.add(workspaceFrame);
+            this.append(workspaceFrame);
         }
     }
 );
