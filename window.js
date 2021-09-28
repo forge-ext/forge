@@ -206,7 +206,7 @@ var ForgeWindowManager = GObject.registerClass(
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
                     this.hideWindowBorders();
-                    GLib.timeout_add(GLib.PRIORITY_LOW, 350, () => {
+                    GLib.timeout_add(GLib.PRIORITY_LOW, 450, () => {
                         this.showBorderFocusWindow();
                         return false;
                     });
@@ -570,14 +570,13 @@ var ForgeWindowManager = GObject.registerClass(
             this._signalsBound = false;
         }
 
-        // TODO move this to tree.js
         renderTree(from) {
             if (this._freezeRender ||
                 !this.ext.settings.get_boolean("tiling-mode-enabled")) {
                 Logger.trace(`render frozen`);
                 return;
             }
-            GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            GLib.idle_add(GLib.PRIORITY_LOW, () => {
                 this._tree.render(from);
                 return false;
             });
