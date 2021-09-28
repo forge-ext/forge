@@ -37,8 +37,8 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 | Toggle split container | `<Super> + g` |
 | Gap increase | `<Ctrl><Super>Plus` |
 | Gap decrease | `<Ctrl><Super>Minus` |
-| Toggle focus hint | `<Super>x` |
-| Toggle active workspace tiling | `<Shift><Super>w` |
+| Toggle focus hint | `<Super> + x` |
+| Toggle active workspace tiling | `<Shift><Super> + w` |
 
 For any conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
