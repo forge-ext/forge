@@ -741,11 +741,6 @@ var ForgeWindowManager = GObject.registerClass(
                     }
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`);
 
-                    let childNodes = this._tree.getTiledChildren(parentFocusNode.childNodes);
-                    childNodes.forEach((n) => {
-                        n.percent = 0.0;
-                    });
-
                     let newNodeWindow = this._tree.createNode(parentFocusNode.nodeValue, Tree.NODE_TYPES.WINDOW, 
                         metaWindow);
                     if (newNodeWindow) {
@@ -757,6 +752,11 @@ var ForgeWindowManager = GObject.registerClass(
                         } else {
                             metaWindow.firstRender = true;
                             newNodeWindow.mode = WINDOW_MODES.TILE;
+
+                            let childNodes = this._tree.getTiledChildren(parentFocusNode.childNodes);
+                            childNodes.forEach((n) => {
+                                n.percent = 0.0;
+                            });
                         }
                     }
                 }

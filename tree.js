@@ -907,7 +907,8 @@ var Tree = GObject.registerClass(
             } else {
                 let existParent = node.parentNode;
                 oldChild = existParent.removeChild(node);
-                cleanUpParent(existParent);
+                if (!this._forgeWm.floatingWindow(node))
+                    cleanUpParent(existParent);
             }
 
             if (node === this.attachNode) {
