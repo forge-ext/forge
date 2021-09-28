@@ -952,7 +952,7 @@ var ForgeWindowManager = GObject.registerClass(
                 let position = Utils.positionFromGrabOp(grabOp);
                 // normalize the rect without gaps
                 let currentRect = Utils.removeGapOnRect(
-                    focusWindow.get_frame_rect(), this.calculateGaps()); 
+                    focusWindow.get_frame_rect(), this.calculateGaps(this.focusMetaWindow)); 
                 let firstRect;
                 let secondRect;
                 let parentRect;
