@@ -825,7 +825,7 @@ var ForgeWindowManager = GObject.registerClass(
          * Check if a Meta Window's workspace is skipped for tiling.
          */
         isWorkspaceTiled(metaWindow) {
-            if (!metaWindow) return false;
+            if (!metaWindow) return true;
             let skipWs = this.ext.settings.get_string("workspace-skip-tile");
             let skipArr = skipWs.split(",");
             let skipThisWs = false;

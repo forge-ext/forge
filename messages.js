@@ -73,3 +73,4 @@ var prefs_keyboard_update_keys_column_1_header = _("Action");
 var prefs_keyboard_update_keys_column_2_header = _("Shortcut");
 var prefs_keyboard_update_keys_column_3_header = _("Notes");
 
+var panel_indicator_button_text = _("Forge Panel Settings");

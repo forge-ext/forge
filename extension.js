@@ -20,6 +20,7 @@
 
 // Gnome imports
 const SessionMode = imports.ui.main.sessionMode;
+const Panel = imports.ui.main.panel;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -28,6 +29,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // Application imports
 const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
+const PanelExt = Me.imports.panel;
 const Settings = Me.imports.settings;
 const Window = Me.imports.window;
 
@@ -40,6 +42,7 @@ function init() {
 class Extension {
     constructor() {
         this.sameSession = false;
+        this.indicator = null;
     }
 
     enable() {
@@ -59,6 +62,11 @@ class Extension {
 
         if (!this.keybindings) {
             this.keybindings = new Keybindings.Keybindings(this);
+        }
+
+        if(!this.indicator) {
+            this.indicator = new PanelExt.PanelIndicator(this.settings, this.forgeWm);
+            Panel.addToStatusArea("ForgeExt", this.indicator);
         }
 
         this.forgeWm.enable();
@@ -85,6 +93,7 @@ class Extension {
         this.forgeWm = null;
         this.keybindings = null;
         this.settings = null;
+        this.indicator = null;
     }
 }
 
