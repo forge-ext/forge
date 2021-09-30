@@ -68,8 +68,6 @@ var PrefsWidget = GObject.registerClass(
                 topLevel.set_title(Msgs.prefs_title);
                 topLevel.get_titlebar().pack_start(this.leftHeaderBox);
                 topLevel.add_accel_group(prefsAccelGroup);
-                topLevel.set_type_hint(Gdk.WindowTypeHint.DIALOG);
-                topLevel.set_modal(true);
 
                 topLevel.connect("key-press-event", (_self, keyevent) => {
                     let [, val] = keyevent.get_keyval();
