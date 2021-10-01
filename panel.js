@@ -28,6 +28,9 @@ const St = imports.gi.St;
 
 // Shell imports
 const Button = imports.ui.panelMenu.Button;
+const PopupMenuItem = imports.ui.popupMenu.PopupMenuItem;
+const PopupSeparatorMenuItem = imports.ui.popupMenu.PopupSeparatorMenuItem;
+const PopupSwitchMenuItem = imports.ui.popupMenu.PopupSwitchMenuItem;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -58,22 +61,25 @@ var PanelIndicator = GObject.registerClass(
             this.buttonWsOff = workspaceIconOff;
 
             this.icon = buttonIcon;
+            this._buildMenu();
 
             this.settings.connect("changed", (_, settingName) => {
                 switch (settingName) {
                     case "tiling-mode-enabled":
                     case "workspace-skip-tile":
-                        this._updateTileIcon();
+                        this.updateTileIcon();
+                        this.tileSwitch.setToggleState(this._isTiled());
+
                 }
             });
 
             this.add_actor(this.icon);
-            this._updateTileIcon();
+            this.updateTileIcon();
         }
 
-        _updateTileIcon() {
-            if (this.settings.get_boolean("tiling-mode-enabled")) {
-                if (this.forgeWm.isWorkspaceTiled(this.forgeWm.focusMetaWindow)) {
+        updateTileIcon() {
+            if (this._isTiled()) {
+                if (this.forgeWm.isCurrentWorkspaceTiled()) {
                     this.icon.gicon = this.buttonOn;
                 } else {
                     this.icon.gicon = this.buttonWsOff;
@@ -82,6 +88,22 @@ var PanelIndicator = GObject.registerClass(
                 this.icon.gicon = this.buttonOff;
             }
 
+        }
+
+        _buildMenu() {
+            // Tiling Mode switch
+            let tileSwitch = new PopupSwitchMenuItem(Msgs.panel_indicator_tile_switch_text, this._isTiled());
+            tileSwitch.connect("toggled", () => {
+                let state = tileSwitch.state;
+                this.settings.set_boolean("tiling-mode-enabled", state);
+                this.updateTileIcon();
+            });
+            this.tileSwitch = tileSwitch;
+            this.menu.addMenuItem(tileSwitch);
+        }
+
+        _isTiled() {
+            return this.settings.get_boolean("tiling-mode-enabled");
         }
     }
 );

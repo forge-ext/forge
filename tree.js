@@ -1051,7 +1051,7 @@ var Tree = GObject.registerClass(
 
                 node.renderRect = {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight};
 
-                let skipThisWs = !this._forgeWm.isWorkspaceTiled(node.nodeValue);
+                let skipThisWs = !this._forgeWm.isActiveWindowWorkspaceTiled(node.nodeValue);
 
                 if (!skipThisWs) {
                     node.mode = Window.WINDOW_MODES.TILE;

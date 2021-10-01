@@ -210,6 +210,7 @@ var ForgeWindowManager = GObject.registerClass(
                         this.showBorderFocusWindow();
                         return false;
                     });
+                    this.ext.indicator.updateTileIcon();
                     this.renderTree("workspace-switched");
                 }),
             ];
@@ -777,7 +778,7 @@ var ForgeWindowManager = GObject.registerClass(
                             let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
                             if ((tilingModeEnabled && !_metaWindowFocus.firstRender) ||
                                 !tilingModeEnabled ||
-                                !this.isWorkspaceTiled(this.focusMetaWindow))
+                                !this.isActiveWindowWorkspaceTiled(this.focusMetaWindow))
                                 this.showBorderFocusWindow();
 
                             // handle the attach node
@@ -824,15 +825,36 @@ var ForgeWindowManager = GObject.registerClass(
         /**
          * Check if a Meta Window's workspace is skipped for tiling.
          */
-        isWorkspaceTiled(metaWindow) {
+        isActiveWindowWorkspaceTiled(metaWindow) {
             if (!metaWindow) return true;
             let skipWs = this.ext.settings.get_string("workspace-skip-tile");
             let skipArr = skipWs.split(",");
             let skipThisWs = false;
 
             for (let i = 0; i < skipArr.length; i++) {
-                if (skipArr[i].trim() === `${metaWindow.get_workspace().index()}`) {
-                    Logger.warn("workspace skipped for window");
+                let wsIndex = metaWindow.get_workspace().index();
+                if (skipArr[i].trim() === `${wsIndex}`) {
+                    Logger.debug(`workspace ${wsIndex} skipped for window ${metaWindow.get_wm_class()}`);
+                    skipThisWs = true;
+                    break;
+                }
+            }
+            return !skipThisWs;
+        }
+
+        /**
+         * Check the current active workspace's tiling mode
+         */
+        isCurrentWorkspaceTiled() {
+            let skipWs = this.ext.settings.get_string("workspace-skip-tile");
+            let skipArr = skipWs.split(",");
+            let skipThisWs = false;
+            let wsMgr = global.workspace_manager;
+            let wsIndex = wsMgr.get_active_workspace_index();
+
+            for (let i = 0; i < skipArr.length; i++) {
+                if (skipArr[i].trim() === `${wsIndex}`) {
+                    Logger.debug(`workspace ${wsIndex} skipped`);
                     skipThisWs = true;
                     break;
                 }
@@ -912,7 +934,7 @@ var ForgeWindowManager = GObject.registerClass(
                         // belongs to.
                         let containsWindow = metaMonWsNode.contains(existNodeWindow);
                         if (!containsWindow) {
-                            Logger.warn("window is not in same monitor-workspace");
+                            Logger.debug(`window ${metaWindow.get_wm_class()} is not in same monitor-workspace ${metaMonWs}`);
                             // handle cleanup of resize percentages
                             let existParent = existNodeWindow.parentNode;
                             this._tree.resetSiblingPercent(existParent);
