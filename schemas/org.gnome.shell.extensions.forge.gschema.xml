@@ -61,6 +61,11 @@
             <summary>Skips tiling on the provided workspace indices</summary>
         </key>
 
+        <key type="b" name="stacked-tiling-mode-enabled">
+            <default>true</default>
+            <summary>Stacked tiling mode on/off</summary>
+        </key>
+
         <!-- Development Settings -->
         <key type="u" name="log-level">
             <default>0</default>
@@ -121,6 +126,11 @@
         <key type="as" name="con-split-vertical">
             <default><![CDATA[['<Super>v']]]></default>
             <summary>Split a container vertically</summary>
+        </key>
+
+        <key type="as" name="con-stacked-layout-toggle">
+            <default><![CDATA[['<Shift><Super>s']]]></default>
+            <summary>Toggle stacked layout</summary>
         </key>
 
         <key type="as" name="window-swap-left">

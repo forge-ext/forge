@@ -51,8 +51,10 @@ var Keybindings = GObject.registerClass(
             this.kbdSettings = ext.kbdSettings;
             this.settings = ext.settings;
             this.buildBindingDefinitions();
+            this._bindSignals();
         }
 
+        // @deprecated
         _acceleratorActivate (action) {
             let grabber = this._grabbers.get(action);
             if(grabber) {
@@ -63,6 +65,7 @@ var Keybindings = GObject.registerClass(
             }
         }
 
+        // @deprecated
         _bindSignals() {
             global.display.connect('accelerator-activated', (_display, action, 
                 _deviceId, _timestamp) => {
@@ -329,6 +332,10 @@ var Keybindings = GObject.registerClass(
                     actions.forEach((action) => {
                         this.forgeWm.command(action);
                     });
+                },
+                "con-stacked-layout-toggle": () => {
+                    let action = { name: "LayoutStackedToggle" };
+                    this.forgeWm.command(action);
                 },
                 "focus-border-toggle": () => {
                     let action = { name: "FocusBorderToggle" };

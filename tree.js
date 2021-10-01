@@ -27,6 +27,7 @@ const St = imports.gi.St;
 
 // Gnome Shell imports
 const DND = imports.ui.dnd;
+const Main = imports.ui.main;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -47,8 +48,8 @@ var NODE_TYPES = Utils.createEnum([
 ]);
 
 var LAYOUT_TYPES = Utils.createEnum([
-    'STACK',
-    'TABS',
+    'STACKED',
+    'TABBED',
     'ROOT',
     'HSPLIT',
     'VSPLIT',
@@ -189,6 +190,11 @@ var Node = GObject.registerClass(
             return searchNode ? true : false;
         }
 
+        getNodeByLayout(layout) {
+            let results = this._search(layout, "LAYOUT");
+            return results;
+        }
+
         getNodeByMode(mode) {
             let results = this._search(mode, "MODE");
             return results;
@@ -269,6 +275,10 @@ var Node = GObject.registerClass(
                             if (candidate.mode === term) {
                                 results.push(candidate);
                             }
+                        case "LAYOUT":
+                            if (candidate.layout && candidate.layout === term) {
+                                results.push(candidate);
+                            }
                     }
                 } else {
                     if (candidate === term) {
@@ -326,6 +336,10 @@ var Queue = GObject.registerClass(
             this._elements = [];
         }
 
+        get length() {
+            return this._elements.length;
+        }
+
         enqueue(item) {
             this._elements.push(item);
         }
@@ -367,7 +381,7 @@ var Tree = GObject.registerClass(
             let monitors = global.display.get_n_monitors();
             for (let mi = 0; mi < monitors; mi++) {
                 let monitorWsNode = this.createNode(workspaceNodeValue, NODE_TYPES.MONITOR, `mo${mi}${workspaceNodeValue}`);
-                monitorWsNode.layout = LAYOUT_TYPES.HSPLIT;
+                monitorWsNode.layout = this._forgeWm.determineSplitLayout();
             }
             Logger.debug(`initialized monitors: ${monitors}`);
         }
@@ -612,7 +626,11 @@ var Tree = GObject.registerClass(
                     break;
                 case NODE_TYPES.CON:
                     Logger.trace(`move-to-con`);
-                    next.insertBefore(node, next.firstChild);
+                    if (next.layout === LAYOUT_TYPES.STACKED) {
+                        next.appendChild(node);
+                    } else {
+                        next.insertBefore(node, next.firstChild);
+                    }
                     this.resetSiblingPercent(node.parentNode);
                     this.resetSiblingPercent(next.parentNode);
                     break;
@@ -684,7 +702,8 @@ var Tree = GObject.registerClass(
                         }
                     }
                 } else {
-                    if (node.parentNode.layout == LAYOUT_TYPES.VSPLIT) {
+                    if (node.parentNode.layout === LAYOUT_TYPES.VSPLIT ||
+                        node.parentNode.layout === LAYOUT_TYPES.STACKED) {
                         if (!previous) {
                             next = node.nextSibling;
                         } else {
@@ -915,6 +934,11 @@ var Tree = GObject.registerClass(
                 this.attachNode = null;
             }
 
+            if (node.deco) {
+                Main.layoutManager.removeChrome(node.deco);
+                node.deco = null;
+            }
+
             return oldChild ? true : false;
         }
 
@@ -935,8 +959,10 @@ var Tree = GObject.registerClass(
             tiledChildren.forEach((w) => {
                 Logger.debug(`rendering ${w.nodeType}`);
 
-                if (w.renderRect)
-                    this._forgeWm.move(w.nodeValue, w.renderRect);
+                if (w.renderRect) {
+                    let metaWin = w.nodeValue;
+                    this._forgeWm.move(metaWin, w.renderRect);
+                }
 
                 if (w.nodeValue.firstRender)
                     w.nodeValue.firstRender = false;
@@ -1018,12 +1044,18 @@ var Tree = GObject.registerClass(
                 let sizes = this.computeSizes(node, tiledChildren);
 
                 params.sizes = sizes;
+                params.rect = node.rect;
+                params.x = node.rect.x;
+                params.y = node.rect.y;
+                params.stackedHeight = 35;
 
                 tiledChildren.forEach((child, index) => {
                     // A monitor can contain a window or container child
                     if (node.layout === LAYOUT_TYPES.HSPLIT ||
                         node.layout === LAYOUT_TYPES.VSPLIT) {
                         this.processSplit(node, child, params, index);
+                    } else if (node.layout === LAYOUT_TYPES.STACKED) {
+                        this.processStacked(node, child, params, index);
                     }
                     this.processNode(child);
                 });
@@ -1031,13 +1063,14 @@ var Tree = GObject.registerClass(
 
             // TODO - move the border rendering here from window.js?
             if (node.nodeType === NODE_TYPES.WINDOW) {
-                if (!node.rect) node.rect = node.get_work_area_current_monitor();
+                if (!node.rect) node.rect = node.nodeValue.get_work_area_current_monitor();
                 let nodeWidth = node.rect.width;
                 let nodeHeight = node.rect.height;
                 let nodeX = node.rect.x;
                 let nodeY = node.rect.y;
 
                 let gap = this._forgeWm.calculateGaps(node.nodeValue);
+
                 nodeX += gap;
                 nodeY += gap;
                 // TODO - detect inbetween windows and adjust accordingly 
@@ -1062,15 +1095,18 @@ var Tree = GObject.registerClass(
         }
 
         processSplit(node, child, params, index) {
-            Logger.debug(`processing container ${node._data}`);
-            let splitHorizontally = node.layout === LAYOUT_TYPES.HSPLIT;
+            Logger.debug(`processing split container ${node._data}`);
+
+            let layout = node.layout;
+            Logger.debug(` layout: ${layout}`);
+
             let nodeRect = node.rect;
             let nodeWidth;
             let nodeHeight;
             let nodeX;
             let nodeY;
 
-            if (splitHorizontally) {
+            if (layout === LAYOUT_TYPES.HSPLIT) {
                 // Divide the parent container's width 
                 // depending on number of children. And use this
                 // to setup each child window's width.
@@ -1085,7 +1121,7 @@ var Tree = GObject.registerClass(
                     }
                 }
                 nodeY = nodeRect.y;
-            } else { // split vertically
+            } else if (layout === LAYOUT_TYPES.VSPLIT) { // split vertically
                 // Conversely for vertical split, divide the parent container's height 
                 // depending on number of children. And use this
                 // to setup each child window's height.
@@ -1101,13 +1137,39 @@ var Tree = GObject.registerClass(
                     }
                 }
             }
-            Logger.debug(` layout: ${node.layout}`);
+
             child.rect = {
                 x: nodeX,
                 y: nodeY,
                 width: nodeWidth,
                 height: nodeHeight
             };
+        }
+
+        processStacked(node, child, params, index) {
+            Logger.debug(`processing stacked container ${node._data}`);
+
+            let layout = node.layout;
+            Logger.debug(` layout: ${layout}`);
+
+            let nodeWidth = params.rect.width;
+            let nodeHeight = params.rect.height;
+            let nodeX = params.x;
+            let nodeY = params.y;
+
+            if (layout === LAYOUT_TYPES.STACKED) {
+                if (node.childNodes.length > 1) {
+                    nodeY += (params.stackedHeight * index);
+                    nodeHeight -= (params.stackedHeight * index);
+                }
+
+                child.rect = {
+                    x: nodeX,
+                    y: nodeY,
+                    width: nodeWidth,
+                    height: nodeHeight
+                }
+            }
         }
 
         computeSizes(node, childItems) {

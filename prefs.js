@@ -171,9 +171,9 @@ var PrefsWidget = GObject.registerClass(
             generalSettingsBox.addStackRow("Appearance", Msgs.prefs_general_appearance, `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
             generalSettingsBox.addStackRow("Workspace", Msgs.prefs_workspace_settings, `${Me.path}/icons/prefs/preferences-desktop-apps-symbolic.svg`);
             generalSettingsBox.addStackRow("Keyboard", Msgs.prefs_general_keyboard, `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
+            generalSettingsBox.addStackRow("Experimental", Msgs.prefs_general_experimental, `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
             if (!Settings.production) {
                 generalSettingsBox.addStackRow("Development", Msgs.prefs_general_development, `${Me.path}/icons/prefs/code-context-symbolic.svg`);
-                generalSettingsBox.addStackRow("Experimental", Msgs.prefs_general_experimental, `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
                 generalSettingsBox.addStackRow("About", Msgs.prefs_general_about, `${Me.path}/icons/prefs/forge-logo-symbolic.svg`);
             }
             this.settingsStack.add_named(generalSettingsBox, "General");
@@ -204,9 +204,9 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "focus-"), "Focus Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "prefs-"), "Other Shortcuts");
+            this.settingsPagesStack.add_named(new ExperimentalSettingsPanel(this, "Experimental"), "Experimental");
             if (!Settings.production) {
                 this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
-                this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Experimental"), "Experimental");
                 this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "About"), "About");
             }
         }
@@ -770,6 +770,55 @@ var DeveloperSettingsPanel = GObject.registerClass(
             developmentFrame.add(loggingFrameRow);
             developmentFrame.show();
             this.add(developmentFrame);
+        }
+    }
+);
+
+var ExperimentalSettingsPanel = GObject.registerClass(
+    class ExperimentalSettingsPanel extends PanelBox {
+        _init(prefsWidget) {
+            super._init(prefsWidget, "ExperimentalSettings");
+            this.settings = prefsWidget.settings;
+
+            let experimentalHeader = new Gtk.Label({
+                label: `<b>${Msgs.prefs_experimental_settings_title}</b>`,
+                use_markup: true,
+                xalign: 0,
+                hexpand: true
+            });
+
+            let descriptionBox = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 6,
+                spacing: 5,
+                homogeneous: false
+            });
+
+            descriptionBox.add(experimentalHeader);
+
+            this.add(descriptionBox);
+
+            let experimentalFrame = new FrameListBox();
+            let experimentStackedTilingRow = new ListBoxRow();
+
+            let experimentStackedTilingLabel = createLabel(Msgs.prefs_experimental_stacked_tiling_label);
+            let experimentStackedTilingSwitch = new Gtk.Switch();
+            experimentStackedTilingSwitch.set_active(this.settings.get_boolean("stacked-tiling-mode-enabled"));
+            experimentStackedTilingSwitch.connect("state-set", (_, state) => {
+                this.settings.set_boolean("stacked-tiling-mode-enabled", state);
+            });
+            this.settings.connect("changed", (_, keyName) => {
+                if (keyName === "stacked-tiling-mode-enabled") {
+                    experimentStackedTilingSwitch.set_active(this.settings.get_boolean("stacked-tiling-mode-enabled"));
+                }
+            });
+
+            experimentStackedTilingRow.add(experimentStackedTilingLabel);
+            experimentStackedTilingRow.add(experimentStackedTilingSwitch);
+
+            experimentalFrame.add(experimentStackedTilingRow);
+
+            this.add(experimentalFrame);
         }
     }
 );

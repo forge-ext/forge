@@ -31,6 +31,14 @@
     border-style: solid;
 }
 
+.layout-stacked-decoration {
+    border-width: 1px;
+    border-color: #ec5e5e;
+    border-style: solid;
+    border-radius: 1px;
+    background-color: rgba(236,94,94, 0.5);
+}
+
 .search-entry:focus {
     border-color: #ec5e5e;
     border-width: 2px;

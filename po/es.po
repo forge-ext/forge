@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-30 20:24-0400\n"
+"POT-Creation-Date: 2021-10-03 18:13-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -107,53 +107,65 @@ msgid "Logger Level"
 msgstr ""
 
 #: messages.js:64
-msgid "Update Keybindings"
+msgid ""
+"CAUTION: These settings when enabled are buggy or can cause the shell to "
+"crash"
 msgstr ""
 
 #: messages.js:65
-msgid "Syntax"
-msgstr ""
-
-#: messages.js:66
-msgid "Legend"
+msgid ""
+"Stacked Tiling Mode (Stack windows on top of each other while still being "
+"tiled)"
 msgstr ""
 
 #: messages.js:67
-msgid "Windows key"
+msgid "Update Keybindings"
 msgstr ""
 
 #: messages.js:68
-msgid "Control key"
+msgid "Syntax"
 msgstr ""
 
 #: messages.js:69
-msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
+msgid "Legend"
 msgstr ""
 
 #: messages.js:70
-msgid "Resets"
+msgid "Windows key"
 msgstr ""
 
 #: messages.js:71
-msgid "to previous value when invalid"
+msgid "Control key"
 msgstr ""
 
 #: messages.js:72
-msgid "Action"
+msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 
 #: messages.js:73
-msgid "Shortcut"
+msgid "Resets"
 msgstr ""
 
 #: messages.js:74
-msgid "Notes"
+msgid "to previous value when invalid"
+msgstr ""
+
+#: messages.js:75
+msgid "Action"
 msgstr ""
 
 #: messages.js:76
-msgid "Forge Panel Settings"
+msgid "Shortcut"
 msgstr ""
 
 #: messages.js:77
+msgid "Notes"
+msgstr ""
+
+#: messages.js:79
+msgid "Forge Panel Settings"
+msgstr ""
+
+#: messages.js:80
 msgid "Tile Mode"
 msgstr ""
