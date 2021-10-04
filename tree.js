@@ -854,7 +854,13 @@ var Tree = GObject.registerClass(
                     break;
                 case NODE_TYPES.CON:
                 case NODE_TYPES.MONITOR:
-                    nextSwapNode = this.findFirstNodeWindowFrom(nextSwapNode, "bottom");
+                let childWindowNodes = this.getNodeByMode(Window.WINDOW_MODES.TILE)
+                    .filter((t) => t.nodeType === NODE_TYPES.WINDOW);
+                    if (nextSwapNode.layout === LAYOUT_TYPES.STACKED) {
+                        nextSwapNode = childWindowNodes[childWindowNodes.length - 1];
+                    } else {
+                        nextSwapNode = childWindowNodes[0];
+                    }
                     break;
             }
             let isNextNodeWin = nextSwapNode &&
@@ -868,7 +874,8 @@ var Tree = GObject.registerClass(
                 }
                 Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"}`);
                 this.swapPairs(node, nextSwapNode);
-            } 
+            }
+            return nextSwapNode;
         }
 
         swapPairs(fromNode, toNode, focus = true) {
