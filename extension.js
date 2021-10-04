@@ -89,6 +89,11 @@ class Extension {
         if (this.keybindings)
             this.keybindings.disable();
 
+        if (this.indicator) {
+            this.indicator.destroy();
+            this.indicator = null;
+        }
+
         Logger.info(`disable: cleaning up vars`);
         this.forgeWm = null;
         this.keybindings = null;

@@ -85,18 +85,22 @@ var ForgeWindowManager = GObject.registerClass(
 
         queueEvent(eventObj) {
             Logger.trace(`queuing event ${eventObj.name}`);
-            if (this.eventQueue.length === 0) {
-                this.eventQueue.enqueue(eventObj);
-                GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
-                    let currEventObj = this.eventQueue.dequeue();
+            this.eventQueue.enqueue(eventObj);
+
+            if (!this._queueSourceId) {
+                this._queueSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
+                    const currEventObj = this.eventQueue.dequeue();
                     if (currEventObj) {
                         currEventObj.callback();
                         Logger.trace(`firing callback ${currEventObj.name}!`);
                     }
-                    return this.eventQueue.length !== 0;
+                    const result = this.eventQueue.length !== 0;
+                    if (!result) {
+                        Logger.trace(`queue-event done: removing ${this._queueSourceId}`);
+                        this._queueSourceId = 0;
+                    }
+                    return result;
                 });
-            } else {
-                this.eventQueue.enqueue(eventObj);
             }
         }
 
@@ -222,17 +226,23 @@ var ForgeWindowManager = GObject.registerClass(
                 globalWsm.connect("workspace-removed", (_, wsIndex) => {
                     let removed = this._tree.removeWorkspace(wsIndex);
                     Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
-                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
-                        this.renderTree("workspace-removed");
-                        return false;
-                    });
+                    if (!this._wsRemoveSrcId) {
+                        this._wsRemoveSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
+                            this.renderTree("workspace-removed");
+                            this._wsRemoveSrcId = 0;
+                            return false;
+                        });
+                    }
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
                     this.hideWindowBorders();
-                    GLib.timeout_add(GLib.PRIORITY_LOW, 450, () => {
-                        this.showBorderFocusWindow();
-                        return false;
-                    });
+                    if (!this._wsSwitchedSrcId) {
+                        this._wsSwitchedSrcId = GLib.timeout_add(GLib.PRIORITY_LOW, 450, () => {
+                            this.showBorderFocusWindow();
+                            this._wsSwitchedSrcId = 0;
+                            return false;
+                        });
+                    }
                     this.ext.indicator.updateTileIcon();
                     this.renderTree("workspace-switched");
                 }),
@@ -295,10 +305,13 @@ var ForgeWindowManager = GObject.registerClass(
                 if (!metaWorkspace.workspaceSignals) {
                     let workspaceSignals = [
                         metaWorkspace.connect("window-added", (_, metaWindow) => {
-                            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
-                                this.updateMetaWorkspaceMonitor("window-added", metaWindow.get_monitor(), metaWindow);
-                                return false;
-                            });
+                            if (!this._wsWindowAddSrcId) {
+                                this._wsWindowAddSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+                                    this.updateMetaWorkspaceMonitor("window-added", metaWindow.get_monitor(), metaWindow);
+                                    this._wsWindowAddSrcId = 0;
+                                    return false;
+                                });
+                            }
                         }),
                     ];
                     metaWorkspace.workspaceSignals = workspaceSignals;
@@ -335,6 +348,7 @@ var ForgeWindowManager = GObject.registerClass(
                     this.renderTree("move-resize");
                     break;
                 case "Move":
+                    this.unfreezeRender();
                     let moveDirection = Utils.resolveDirection(action.direction);
                     let moved = this._tree.move(focusNodeWindow, moveDirection);
                     if (moved)
@@ -461,6 +475,7 @@ var ForgeWindowManager = GObject.registerClass(
                             lastChild.nodeValue.activate(global.display.get_current_time());
                         }
                     }
+                    this.unfreezeRender();
                     this._tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-stacked-toggle");
                     this.showBorderFocusWindow();
@@ -678,10 +693,14 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.trace(`render frozen`);
                 return;
             }
-            GLib.idle_add(GLib.PRIORITY_LOW, () => {
-                this._tree.render(from);
-                return false;
-            });
+            
+            if (!this._renderTreeSrcId) {
+                this._renderTreeSrcId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                    this._tree.render(from);
+                    this._renderTreeSrcId = 0;
+                    return false;
+                });
+            }
         }
 
         /**
@@ -692,21 +711,24 @@ var ForgeWindowManager = GObject.registerClass(
          * TODO: move this to tree.js
          */
         reloadTree(from) {
-            GLib.idle_add(GLib.PRIORITY_LOW, () => {
-                let treeWorkspaces = this._tree.nodeWorkpaces;
-                let wsManager = global.workspace_manager;
-                let globalWsNum = wsManager.get_n_workspaces();
-                Logger.trace(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
-                // empty out the root children nodes
-                this._tree.childNodes.length = 0;
-                this._tree.attachNode = undefined;
-                // initialize the workspaces and monitors id strings
-                this._tree._initWorkspaces();
-                this.trackCurrentWindows();
-                this.renderTree(from);
-                this.showBorderFocusWindow();
-                return false;
-            });
+            if (!this._reloadTreeSrcId) {
+                this._reloadTreeSrcId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                    let treeWorkspaces = this._tree.nodeWorkpaces;
+                    let wsManager = global.workspace_manager;
+                    let globalWsNum = wsManager.get_n_workspaces();
+                    Logger.trace(`tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`);
+                    // empty out the root children nodes
+                    this._tree.childNodes.length = 0;
+                    this._tree.attachNode = undefined;
+                    // initialize the workspaces and monitors id strings
+                    this._tree._initWorkspaces();
+                    this.trackCurrentWindows();
+                    this.renderTree(from);
+                    this.showBorderFocusWindow();
+                    this._reloadTreeSrcId = 0;
+                    return false;
+                });
+            }
         }
 
         sameParentMonitor(firstNode, secondNode) {
@@ -887,6 +909,10 @@ var ForgeWindowManager = GObject.registerClass(
                             if (focusNodeWindow) {
                                 // handle the attach node
                                 this._tree.attachNode = focusNodeWindow._parent;
+                                let childWindows = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
+                                childWindows.forEach((node) => {
+                                    node.nodeValue.raise();
+                                });
                                 // handle the stacked focus window
                                 if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
                                     focusNodeWindow.parentNode.appendChild(focusNodeWindow);
@@ -894,12 +920,6 @@ var ForgeWindowManager = GObject.registerClass(
                                     this.queueEvent({name: "render-focus-stack", callback: () => {
                                         this.renderTree("focus-stacked");
                                     }});
-                                } else {
-                                    // handle the focus window, siblings and subchildren of sibling cons
-                                    let childWindows = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
-                                    childWindows.forEach((node) => {
-                                        node.nodeValue.raise();
-                                    });
                                 }
                             }
 

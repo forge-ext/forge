@@ -1044,9 +1044,6 @@ var Tree = GObject.registerClass(
                 let sizes = this.computeSizes(node, tiledChildren);
 
                 params.sizes = sizes;
-                params.rect = node.rect;
-                params.x = node.rect.x;
-                params.y = node.rect.y;
                 params.stackedHeight = 35;
 
                 tiledChildren.forEach((child, index) => {
@@ -1152,10 +1149,10 @@ var Tree = GObject.registerClass(
             let layout = node.layout;
             Logger.debug(` layout: ${layout}`);
 
-            let nodeWidth = params.rect.width;
-            let nodeHeight = params.rect.height;
-            let nodeX = params.x;
-            let nodeY = params.y;
+            let nodeWidth = node.rect.width;
+            let nodeHeight = node.rect.height;
+            let nodeX = node.rect.x;
+            let nodeY = node.rect.y;
 
             if (layout === LAYOUT_TYPES.STACKED) {
                 if (node.childNodes.length > 1) {

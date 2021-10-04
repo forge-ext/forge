@@ -368,15 +368,18 @@ var Keybindings = GObject.registerClass(
                         ExtensionUtils.openPrefs();
 
                         // Wait for it to appear on TabList
-                        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
-                            let newPrefsWindow = ExtUtils.findWindowWith(Msgs.prefs_title);
-                            if (newPrefsWindow) {
-                                newPrefsWindow.get_workspace()
-                                    .activate_with_focus(newPrefsWindow,
-                                global.display.get_current_time());
-                            }
-                            return false;
-                        });
+                        if (!this._prefsOpenSrcId) {
+                            this._prefsOpenSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                                const newPrefsWindow = ExtUtils.findWindowWith(Msgs.prefs_title);
+                                if (newPrefsWindow) {
+                                    newPrefsWindow.get_workspace()
+                                        .activate_with_focus(newPrefsWindow,
+                                    global.display.get_current_time());
+                                }
+                                this._prefsOpenSrcId = 0;
+                                return false;
+                            });
+                        }
                     }
                 },
             };
