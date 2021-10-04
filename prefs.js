@@ -1083,14 +1083,17 @@ var ExperimentalSettingsPanel = GObject.registerClass(
 
             let descriptionBox = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
-                margin: 6,
+                margin_top: 6,
+                margin_start: 6,
+                margin_end: 6,
+                margin_bottom: 6,
                 spacing: 5,
                 homogeneous: false
             });
 
-            descriptionBox.add(experimentalHeader);
+            descriptionBox.append(experimentalHeader);
 
-            this.add(descriptionBox);
+            this.append(descriptionBox);
 
             let experimentalFrame = new FrameListBox();
             let experimentStackedTilingRow = new ListBoxRow();
@@ -1129,7 +1132,7 @@ var ExperimentalSettingsPanel = GObject.registerClass(
             experimentTabbedTilingRow.add(experimentTabbedTilingSwitch);
 
             experimentalFrame.add(experimentTabbedTilingRow);
-            this.add(experimentalFrame);
+            this.append(experimentalFrame);
         }
     }
 );
