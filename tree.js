@@ -854,8 +854,8 @@ var Tree = GObject.registerClass(
                     break;
                 case NODE_TYPES.CON:
                 case NODE_TYPES.MONITOR:
-                let childWindowNodes = this.getNodeByMode(Window.WINDOW_MODES.TILE)
-                    .filter((t) => t.nodeType === NODE_TYPES.WINDOW);
+                    let childWindowNodes = nextSwapNode.getNodeByMode(Window.WINDOW_MODES.TILE)
+                        .filter((t) => t.nodeType === NODE_TYPES.WINDOW);
                     if (nextSwapNode.layout === LAYOUT_TYPES.STACKED) {
                         nextSwapNode = childWindowNodes[childWindowNodes.length - 1];
                     } else {
@@ -863,6 +863,7 @@ var Tree = GObject.registerClass(
                     }
                     break;
             }
+
             let isNextNodeWin = nextSwapNode &&
                 nextSwapNode.nodeValue &&
                 nextSwapNode.nodeType === NODE_TYPES.WINDOW;
@@ -872,7 +873,7 @@ var Tree = GObject.registerClass(
                     Logger.warn(`swap: not same monitor, do not swap`);
                     return;
                 }
-                Logger.debug(`swap:next ${isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"}`);
+                Logger.debug(`swap: result ${isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"}`);
                 this.swapPairs(node, nextSwapNode);
             }
             return nextSwapNode;

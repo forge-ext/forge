@@ -377,12 +377,10 @@ var ForgeWindowManager = GObject.registerClass(
                 case "Swap":
                     this.unfreezeRender();
                     let swapDirection = Utils.resolveDirection(action.direction);
-                    let nextSwap = this._tree.swap(focusNodeWindow, swapDirection);
-                    if (nextSwap && nextSwap.nodeType === Tree.NODE_TYPES.WINDOW) {
-                        nextSwap.nodeValue.raise();
-                    }
-                    focusNodeWindow.nodeValue.activate(global.display.get_current_time());
+                    this._tree.swap(focusNodeWindow, swapDirection);
+                    focusNodeWindow.nodeValue.raise();
                     this.renderTree("swap");
+                    focusNodeWindow.nodeValue.focus(global.display.get_current_time());
                     break;
                 case "Split":
                     if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
@@ -1080,6 +1078,7 @@ var ForgeWindowManager = GObject.registerClass(
                 this._tree.removeNode(nodeWindow);
 
                 if (render)
+                    this.unfreezeRender();
                     this.renderTree("window-destroy");
             }
 
