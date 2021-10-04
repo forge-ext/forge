@@ -14,6 +14,9 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 - Tiling support per workspace
 - Works on GNOME 3.36+ and 40. X11 and Wayland.
 
+## Experimental
+- Stacked tiling layout (NEW!)
+
 ## Forge Keybinding Defaults
 
 | Action | Shortcut |
@@ -40,6 +43,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 | Gap decrease | `<Ctrl> + <Super> + Minus` |
 | Toggle focus hint | `<Super> + x` |
 | Toggle active workspace tiling | `<Shift> + <Super> + w` |
+| Toggle stacked layout | `<Shift> + <Super> + s` |
 
 For any conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
