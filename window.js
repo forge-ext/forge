@@ -88,7 +88,7 @@ var ForgeWindowManager = GObject.registerClass(
             this.eventQueue.enqueue(eventObj);
 
             if (!this._queueSourceId) {
-                this._queueSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
+                this._queueSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
                     const currEventObj = this.eventQueue.dequeue();
                     if (currEventObj) {
                         currEventObj.callback();
@@ -130,6 +130,7 @@ var ForgeWindowManager = GObject.registerClass(
                     if (grabOp === Meta.GrabOp.WINDOW_BASE) {
                         if (focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.STACKED) {
                             // handle window swapping
+                            // TODO - add a modifier before swapping (like when the <Super> is pressed?)
                             let pointerCoord = global.get_pointer();
                             Logger.trace(`grab-end:pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
                             let nodeWinAtPointer = this._tree.findNodeWindowAtPointer(
@@ -139,6 +140,7 @@ var ForgeWindowManager = GObject.registerClass(
                                 this._tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
                             }
                         } else {
+                            // Checking for STACKED layout
                             focusNodeWindow.parentNode.appendChild(focusNodeWindow);
                             focusNodeWindow.nodeValue.raise();
                             focusNodeWindow.nodeValue.activate(global.display.get_current_time());
