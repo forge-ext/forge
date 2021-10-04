@@ -123,6 +123,7 @@ var ForgeWindowManager = GObject.registerClass(
                     Logger.debug("window-left-monitor");
                 }),
                 display.connect("grab-op-end", (_, _display, _metaWindow, grabOp) => {
+                    this.unfreezeRender();
                     let focusWindow = this.focusMetaWindow;
                     if (!focusWindow) return;
                     let focusNodeWindow = this.findNodeWindow(focusWindow);
@@ -143,8 +144,6 @@ var ForgeWindowManager = GObject.registerClass(
                             focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                         }
                     }
-
-                    this.unfreezeRender();
 
                     if (focusWindow.get_maximized() === 0) {
                         this.renderTree("grab-op-end");
@@ -376,9 +375,11 @@ var ForgeWindowManager = GObject.registerClass(
                     }})
                     break;
                 case "Swap":
+                    this.unfreezeRender();
                     let swapDirection = Utils.resolveDirection(action.direction);
                     this._tree.swap(focusNodeWindow, swapDirection);
                     this.renderTree("swap");
+                    focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                     break;
                 case "Split":
                     if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
@@ -682,6 +683,37 @@ var ForgeWindowManager = GObject.registerClass(
                         windowActor.splitBorder = undefined;
                     }
                 }
+            }
+
+
+            if (this._renderTreeSrcId) {
+                GLib.Source.remove(this._renderTreeSrcId);
+                this._renderTreeSrcId = 0;
+            }
+
+            if (this._reloadTreeSrcId) {
+                GLib.Source.remove(this._reloadTreeSrcId);
+                this._reloadTreeSrcId = 0;
+            }
+
+            if (this._wsWindowAddSrcId) {
+                GLib.Source.remove(this._wsWindowAddSrcId);
+                this._wsWindowAddSrcId = 0;
+            }
+
+            if (this._wsRemoveSrcId) {
+                GLib.Source.remove(this._wsRemoveSrcId);
+                this._wsRemoveSrcId = 0;
+            }
+
+            if (this._wsSwitchedSrcId) {
+                GLib.Source.remove(this._wsSwitchedSrcId);
+                this._wsSwitchedSrcId = 0;
+            }
+
+            if (this._queueSourceId) {
+                GLib.Source.remove(this._queueSourceId);
+                this._queueSourceId = 0;
             }
 
             this._signalsBound = false;

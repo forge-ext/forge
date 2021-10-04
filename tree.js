@@ -545,7 +545,11 @@ var Tree = GObject.registerClass(
                     if (conChildren.length === 0) {
                         this.focus(next, direction);
                     } else {
-                        next = conChildren[0];
+                        if (next.layout !== LAYOUT_TYPES.STACKED) {
+                            next = conChildren[0];
+                        } else {
+                            next = conChildren[conChildren.length - 1];
+                        }
                     }
                     break;
             }

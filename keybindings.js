@@ -51,7 +51,6 @@ var Keybindings = GObject.registerClass(
             this.kbdSettings = ext.kbdSettings;
             this.settings = ext.settings;
             this.buildBindingDefinitions();
-            this._bindSignals();
         }
 
         // @deprecated
@@ -96,11 +95,12 @@ var Keybindings = GObject.registerClass(
                 Main.wm.removeKeybinding(key);
             }
 
-            Logger.debug(`keybindings:disable`);
-        }
+            if (this._prefsOpenSrcId) {
+                GLib.Source.remove(this._prefsOpenSrcId);
+                this._prefsOpenSrcId = 0;
+            }
 
-        checkConflict(shortcut) {
-            return false;
+            Logger.debug(`keybindings:disable`);
         }
 
         // @deprecated
