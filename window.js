@@ -803,6 +803,11 @@ var ForgeWindowManager = GObject.registerClass(
                     gap === 0 && tiled.length === 1 && monitorCount > 1 ||
                     gap === 0 && tiled.length > 1 ||
                     this.floatingWindow(nodeWindow))
+                    if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
+                        windowActor.border.set_style_class_name("window-stacked-border");
+                    } else {
+                        windowActor.border.set_style_class_name("window-clone-border");
+                    }
                     borders.push(windowActor.border);
             }
 
