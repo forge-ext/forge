@@ -18,8 +18,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 - Stacked tiling layout (NEW!)
 - Tabbed tiling layout (WIP!)
 
-![image](https://user-images.githubusercontent.com/348125/136031359-1b42c920-23e6-42ce-a009-47c46e3d0e9a.png)
-
+![image](https://user-images.githubusercontent.com/348125/136070822-4350c7ea-3c31-4ad8-99de-16ee4b0f4d2c.png)
 
 ## Forge Keybinding Defaults
 
