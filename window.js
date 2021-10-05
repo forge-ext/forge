@@ -127,37 +127,37 @@ var ForgeWindowManager = GObject.registerClass(
                     let focusWindow = this.focusMetaWindow;
                     if (!focusWindow) return;
                     let focusNodeWindow = this.findNodeWindow(focusWindow);
-                    if (grabOp === Meta.GrabOp.WINDOW_BASE) {
-                        if (focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.STACKED &&
-                            focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.TABBED) {
-                            // handle window swapping
-                            // TODO - add a modifier before swapping (like when the <Super> is pressed?)
-                            let pointerCoord = global.get_pointer();
-                            Logger.trace(`grab-end:pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
-                            let nodeWinAtPointer = this._tree.findNodeWindowAtPointer(
-                                this.focusMetaWindow, pointerCoord);
-                            Logger.debug(`node at pointer ${nodeWinAtPointer}`);
-                            if (nodeWinAtPointer) {
-                                this._tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
+                    if (focusNodeWindow) {
+                        if (grabOp === Meta.GrabOp.WINDOW_BASE) {
+                            if (focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.STACKED &&
+                                focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.TABBED) {
+                                // handle window swapping
+                                // TODO - add a modifier before swapping (like when the <Super> is pressed?)
+                                let pointerCoord = global.get_pointer();
+                                Logger.trace(`grab-end:pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
+                                let nodeWinAtPointer = this._tree.findNodeWindowAtPointer(
+                                    this.focusMetaWindow, pointerCoord);
+                                Logger.debug(`node at pointer ${nodeWinAtPointer}`);
+                                if (nodeWinAtPointer) {
+                                    this._tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
+                                }
+                            } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED){
+                                // Checking for STACKED layout
+                                focusNodeWindow.parentNode.appendChild(focusNodeWindow);
+                                focusNodeWindow.nodeValue.raise();
+                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
+                            } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
+                                focusNodeWindow.nodeValue.raise();
+                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                             }
-                        } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED){
-                            // Checking for STACKED layout
-                            focusNodeWindow.parentNode.appendChild(focusNodeWindow);
-                            focusNodeWindow.nodeValue.raise();
-                            focusNodeWindow.nodeValue.activate(global.display.get_current_time());
-                        } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
-                            focusNodeWindow.nodeValue.raise();
-                            focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                         }
+                        focusNodeWindow.initRect = null;
                     }
 
                     if (focusWindow.get_maximized() === 0) {
                         this.renderTree("grab-op-end");
                     }
 
-                    if (focusNodeWindow) {
-                        focusNodeWindow.initRect = null;
-                    }
                     Logger.debug(`grab op end`);
                 }),
                 display.connect("grab-op-begin", (_, _display, _metaWindow, grabOp) => {
@@ -169,7 +169,7 @@ var ForgeWindowManager = GObject.registerClass(
                         let focusNodeWindow = this.findNodeWindow(focusWindow);
                         let resizing = Utils.grabMode(grabOp) === GRAB_TYPES.RESIZING;
                         Logger.debug(`grabOp ${grabOp}`);
-                        if (resizing) {
+                        if (resizing && focusNodeWindow) {
                             focusNodeWindow.grabMode = GRAB_TYPES.RESIZING;
                             focusNodeWindow.initGrabOp = grabOp;
                             focusNodeWindow.initRect = Utils.removeGapOnRect(
