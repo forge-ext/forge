@@ -1214,6 +1214,7 @@ var Tree = GObject.registerClass(
                 }
                 nodeY = nodeRect.y;
                 child.nodeValue.unmake_above();
+                child.backgroundTab = true;
 
                 if (child.nodeValue === this._forgeWm.focusMetaWindow ||
                     this.lastTabFocus && this.lastTabFocus === child.nodeValue) {
@@ -1222,6 +1223,7 @@ var Tree = GObject.registerClass(
                     nodeX = node.rect.x;
                     nodeWidth = node.rect.width;
                     child.nodeValue.make_above();
+                    child.backgroundTab = false;
                 }
 
                 child.rect = {

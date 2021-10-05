@@ -839,12 +839,15 @@ var ForgeWindowManager = GObject.registerClass(
                     this.floatingWindow(nodeWindow))
                     if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
                         windowActor.border.set_style_class_name("window-stacked-border");
+                        borders.push(windowActor.border);
                     } else if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
                         windowActor.border.set_style_class_name("window-tabbed-border");
+                        if (!nodeWindow.backgroundTab)
+                            borders.push(windowActor.border);
                     } else {
                         windowActor.border.set_style_class_name("window-clone-border");
+                        borders.push(windowActor.border);
                     }
-                    borders.push(windowActor.border);
             }
 
             // handle the split border
