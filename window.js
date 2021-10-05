@@ -356,9 +356,35 @@ var ForgeWindowManager = GObject.registerClass(
                 case "Move":
                     this.unfreezeRender();
                     let moveDirection = Utils.resolveDirection(action.direction);
+                    let prev = focusNodeWindow;
                     let moved = this._tree.move(focusNodeWindow, moveDirection);
-                    if (moved)
+                    if (!focusNodeWindow) {
+                        focusNodeWindow = this.findNodeWindow(this.focusMetaWindow);
+                    }
+                    this.queueEvent({name: "move", callback: () => {
+                        if (this.eventQueue.length <= 0) {
+                            Logger.info("move queue is last, unfreezing render");
+                            this.unfreezeRender();
+                            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
+                                focusNodeWindow.parentNode.appendChild(focusNodeWindow);
+                                focusNodeWindow.nodeValue.raise();
+                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
+                                this.renderTree("move-stacked-queue");
+                            }
+                            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
+                                focusNodeWindow.nodeValue.raise();
+                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
+                                if (prev)
+                                    prev.parentNode.lastTabFocus = prev.nodeValue;
+                                this.renderTree("move-tabbed-queue");
+                            }
+                        }
+                    }})
+                    if (moved) {
+                        if (prev)
+                            prev.parentNode.lastTabFocus = prev.nodeValue;
                         this.renderTree("move-window");
+                    }
                     this.showBorderFocusWindow();
                     break;
                 case "Focus":
@@ -1193,8 +1219,7 @@ var ForgeWindowManager = GObject.registerClass(
             if (!focusNodeWindow) return;
 
             if (focusNodeWindow.grabMode &&
-                focusNodeWindow.grabMode === GRAB_TYPES.RESIZING &&
-                focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.TABBED) {
+                focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
                 let grabOp = global.display.get_grab_op();
                 let initGrabOp = focusNodeWindow.initGrabOp;
                 let direction = Utils.directionFromGrab(grabOp);

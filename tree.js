@@ -1202,13 +1202,14 @@ var Tree = GObject.registerClass(
 
             if (layout === LAYOUT_TYPES.TABBED) {
                 // Use the HSPLIT calculations
-                nodeWidth = params.sizes[index];
+                let tabWidth = node.rect.width / node.childNodes.length;
+                nodeWidth = tabWidth;
                 nodeHeight = nodeRect.height;
                 nodeX = nodeRect.x;
                 if (index != 0) {
                     let i = 1;
                     while (i <= index) {
-                        nodeX += params.sizes[i - 1];
+                        nodeX += tabWidth;
                         i++;
                     }
                 }
@@ -1218,10 +1219,8 @@ var Tree = GObject.registerClass(
                 child.backgroundTab = true;
 
                 let tiledChildren = node.getNodeByType(NODE_TYPES.WINDOW)
-                    .filter(
-                        t => t.mode === Window.WINDOW_MODES.TILE &&
-                        !t.nodeValue.minimized
-                    );
+                    .filter((t) => t.mode === Window.WINDOW_MODES.TILE &&
+                        !t.nodeValue.minimized);
 
                 if (tiledChildren.length > 1 &&
                     (child.nodeValue === this._forgeWm.focusMetaWindow ||
@@ -1274,7 +1273,7 @@ var Tree = GObject.registerClass(
         resetSiblingPercent(parentNode) {
             if (!parentNode) return;
             Logger.trace(`resetting child-nodes for ${parentNode.nodeType} with id ${parentNode.nodeValue}`);
-            let children = parentNode._nodes;
+            let children = parentNode.childNodes;
             children.forEach((n) => {
                 n.percent = 0.0;
             });
