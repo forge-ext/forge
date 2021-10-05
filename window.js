@@ -496,12 +496,12 @@ var ForgeWindowManager = GObject.registerClass(
                         return;
 
                     // TODO for now do not allow multiple levels of stacked tiles
-                    let childWindowNodes = [];
+                    let stackedWindowNodes = [];
                     focusNodeWindow.parentNode.childNodes.forEach((node) => {
-                        Array.prototype.push.apply(childWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.STACKED));
+                        Array.prototype.push.apply(stackedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.STACKED));
                     });
                     if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
-                        if (childWindowNodes.length > 0) {
+                        if (stackedWindowNodes.length > 0) {
                             Logger.warn(`stacked-tiling: do not allow multiple levels of stacking for now`);
                             return;
                         }
@@ -529,6 +529,16 @@ var ForgeWindowManager = GObject.registerClass(
                     this.showBorderFocusWindow();
                     break;
                 case "LayoutTabbedToggle":
+                    let tabbedWindowNodes = [];
+                    focusNodeWindow.parentNode.childNodes.forEach((node) => {
+                        Array.prototype.push.apply(tabbedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.TABBED));
+                    });
+                    if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
+                        if (tabbedWindowNodes.length > 0) {
+                            Logger.warn(`tabbed-tiling: do not allow multiple levels of tabbing for now`);
+                            return;
+                        }
+                    }
                     if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
                         let tiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
