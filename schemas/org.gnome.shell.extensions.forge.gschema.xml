@@ -133,6 +133,11 @@
             <summary>Toggle stacked layout</summary>
         </key>
 
+        <key type="as" name="con-tabbed-layout-toggle">
+            <default><![CDATA[['<Shift><Super>t']]]></default>
+            <summary>Toggle tabbed layout</summary>
+        </key>
+
         <key type="as" name="window-swap-left">
             <default><![CDATA[['<Ctrl><Super>h']]]></default>
             <summary>Swap window left</summary>

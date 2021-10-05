@@ -165,6 +165,8 @@ function orientationFromDirection(direction) {
 function orientationFromLayout(layout) {
     switch(layout) {
         case Tree.LAYOUT_TYPES.HSPLIT:
+        case Tree.LAYOUT_TYPES.TABBED:
+        case Tree.LAYOUT_TYPES.STACKED:
             return Tree.ORIENTATION_TYPES.HORIZONTAL;
         case Tree.LAYOUT_TYPES.VSPLIT:
             return Tree.ORIENTATION_TYPES.VERTICAL;

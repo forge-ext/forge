@@ -38,6 +38,13 @@
     border-radius: 3px;
 }
 
+.window-tabbed-border {
+    border-width: 3px;
+    border-color: #11c7e0;
+    border-style: solid;
+    border-radius: 3px;
+}
+
 .search-entry:focus {
     border-color: #ec5e5e;
     border-width: 2px;

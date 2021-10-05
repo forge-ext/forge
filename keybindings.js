@@ -337,6 +337,10 @@ var Keybindings = GObject.registerClass(
                     let action = { name: "LayoutStackedToggle" };
                     this.forgeWm.command(action);
                 },
+                "con-tabbed-layout-toggle": () => {
+                    let action = { name: "LayoutTabbedToggle" };
+                    this.forgeWm.command(action);
+                },
                 "focus-border-toggle": () => {
                     let action = { name: "FocusBorderToggle" };
                     this.forgeWm.command(action);

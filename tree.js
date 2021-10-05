@@ -97,6 +97,10 @@ var Node = GObject.registerClass(
             }
         }
 
+        get windowActor() {
+            return this._actor;
+        }
+
         get childNodes() {
             return this._nodes;
         }
@@ -698,7 +702,8 @@ var Tree = GObject.registerClass(
             // 2. If the position is AFTER, and same orientation
             while (node && node.nodeType != NODE_TYPES.WORKSPACE) {
                 if (horizontal) {
-                    if (node.parentNode.layout === LAYOUT_TYPES.HSPLIT) {
+                    if (node.parentNode.layout === LAYOUT_TYPES.HSPLIT ||
+                        node.parentNode.layout === LAYOUT_TYPES.TABBED) {
                         if (!previous) {
                             next = node.nextSibling;
                         } else {
@@ -1065,6 +1070,8 @@ var Tree = GObject.registerClass(
                         this.processSplit(node, child, params, index);
                     } else if (node.layout === LAYOUT_TYPES.STACKED) {
                         this.processStacked(node, child, params, index);
+                    } else if (node.layout === LAYOUT_TYPES.TABBED) {
+                        this.processTabbed(node, child, params, index);
                     }
                     this.processNode(child);
                 });
@@ -1156,7 +1163,7 @@ var Tree = GObject.registerClass(
         }
 
         processStacked(node, child, params, index) {
-            Logger.debug(`processing stacked container ${node._data}`);
+            Logger.debug(`processing stacked container ${node.nodeValue}`);
 
             let layout = node.layout;
             Logger.debug(` layout: ${layout}`);
@@ -1179,6 +1186,52 @@ var Tree = GObject.registerClass(
                     height: nodeHeight
                 }
             }
+        }
+
+        processTabbed(node, child, params, index) {
+            Logger.debug(`processing tabbed container ${node.nodeValue}`);
+
+            let layout = node.layout;
+            Logger.debug(` layout: ${layout}`);
+
+            let nodeRect = node.rect;
+            let nodeWidth;
+            let nodeHeight;
+            let nodeX;
+            let nodeY;
+
+            if (layout === LAYOUT_TYPES.TABBED) {
+                // Use the HSPLIT calculations
+                nodeWidth = params.sizes[index];
+                nodeHeight = nodeRect.height;
+                nodeX = nodeRect.x;
+                if (index != 0) {
+                    let i = 1;
+                    while (i <= index) {
+                        nodeX += params.sizes[i - 1];
+                        i++;
+                    }
+                }
+                nodeY = nodeRect.y;
+                child.nodeValue.unmake_above();
+
+                if (child.nodeValue === this._forgeWm.focusMetaWindow ||
+                    this.lastTabFocus && this.lastTabFocus === child.nodeValue) {
+                    nodeY = node.rect.y + params.stackedHeight;
+                    nodeHeight = node.rect.height - params.stackedHeight;
+                    nodeX = node.rect.x;
+                    nodeWidth = node.rect.width;
+                    child.nodeValue.make_above();
+                }
+
+                child.rect = {
+                    x: nodeX,
+                    y: nodeY,
+                    width: nodeWidth,
+                    height: nodeHeight
+                };
+            }
+
         }
 
         computeSizes(node, childItems) {

@@ -88,7 +88,7 @@ var ForgeWindowManager = GObject.registerClass(
             this.eventQueue.enqueue(eventObj);
 
             if (!this._queueSourceId) {
-                this._queueSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+                this._queueSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
                     const currEventObj = this.eventQueue.dequeue();
                     if (currEventObj) {
                         currEventObj.callback();
@@ -128,7 +128,8 @@ var ForgeWindowManager = GObject.registerClass(
                     if (!focusWindow) return;
                     let focusNodeWindow = this.findNodeWindow(focusWindow);
                     if (grabOp === Meta.GrabOp.WINDOW_BASE) {
-                        if (focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.STACKED) {
+                        if (focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.STACKED &&
+                            focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.TABBED) {
                             // handle window swapping
                             // TODO - add a modifier before swapping (like when the <Super> is pressed?)
                             let pointerCoord = global.get_pointer();
@@ -139,9 +140,12 @@ var ForgeWindowManager = GObject.registerClass(
                             if (nodeWinAtPointer) {
                                 this._tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
                             }
-                        } else {
+                        } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED){
                             // Checking for STACKED layout
                             focusNodeWindow.parentNode.appendChild(focusNodeWindow);
+                            focusNodeWindow.nodeValue.raise();
+                            focusNodeWindow.nodeValue.activate(global.display.get_current_time());
+                        } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
                             focusNodeWindow.nodeValue.raise();
                             focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                         }
@@ -373,6 +377,12 @@ var ForgeWindowManager = GObject.registerClass(
                                 focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                                 this.renderTree("focus-stacked-queue");
                             }
+                            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
+                                focusNodeWindow.nodeValue.raise();
+                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
+                                this._tree.lastTabFocus = focusNodeWindow.nodeValue;
+                                this.renderTree("focus-tabbed-queue");
+                            }
                         }
                     }})
                     break;
@@ -473,6 +483,13 @@ var ForgeWindowManager = GObject.registerClass(
                     if (currentLayout === Tree.LAYOUT_TYPES.STACKED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
                     } else {
+                        if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
+                            let tiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
+                                .filter((w) => w.mode === WINDOW_MODES.TILE &&
+                                    !w.nodeValue.minimized);
+                            tiledChildren.forEach(t => t.nodeValue.unmake_above());
+                            this._tree.lastTabFocus = null;
+                        }
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.STACKED;
                         let lastChild = focusNodeWindow.parentNode.lastChild;
                         if (lastChild.nodeType === Tree.NODE_TYPES.WINDOW) {
@@ -482,6 +499,23 @@ var ForgeWindowManager = GObject.registerClass(
                     this.unfreezeRender();
                     this._tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-stacked-toggle");
+                    this.showBorderFocusWindow();
+                    break;
+                case "LayoutTabbedToggle":
+                    if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
+                        focusNodeWindow.parentNode.layout = this.determineSplitLayout();
+                        let tiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
+                            .filter((w) => w.mode === WINDOW_MODES.TILE &&
+                                !w.nodeValue.minimized);
+                        tiledChildren.forEach(t => t.nodeValue.unmake_above());
+                        this._tree.lastTabFocus = null;
+                    } else {
+                        focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.TABBED;
+                        this._tree.lastTabFocus = focusNodeWindow.nodeValue;
+                    }
+                    this.unfreezeRender();
+                    this._tree.attachNode = focusNodeWindow.parentNode;
+                    this.renderTree("layout-tabbed-toggle");
                     this.showBorderFocusWindow();
                     break;
                 default:
@@ -805,6 +839,8 @@ var ForgeWindowManager = GObject.registerClass(
                     this.floatingWindow(nodeWindow))
                     if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
                         windowActor.border.set_style_class_name("window-stacked-border");
+                    } else if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
+                        windowActor.border.set_style_class_name("window-tabbed-border");
                     } else {
                         windowActor.border.set_style_class_name("window-clone-border");
                     }
@@ -956,6 +992,13 @@ var ForgeWindowManager = GObject.registerClass(
                                     focusNodeWindow.nodeValue.raise();
                                     this.queueEvent({name: "render-focus-stack", callback: () => {
                                         this.renderTree("focus-stacked");
+                                    }});
+                                }
+                                if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
+                                    focusNodeWindow.nodeValue.raise();
+                                    this._tree.lastTabFocus = focusNodeWindow.nodeValue;
+                                    this.queueEvent({name: "render-focus-tab", callback: () => {
+                                        this.renderTree("focus-tabbed");
                                     }});
                                 }
                             }
@@ -1142,7 +1185,9 @@ var ForgeWindowManager = GObject.registerClass(
             let focusNodeWindow = this.findNodeWindow(focusWindow);
             if (!focusNodeWindow) return;
 
-            if (focusNodeWindow.grabMode && focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
+            if (focusNodeWindow.grabMode &&
+                focusNodeWindow.grabMode === GRAB_TYPES.RESIZING &&
+                focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.TABBED) {
                 let grabOp = global.display.get_grab_op();
                 let initGrabOp = focusNodeWindow.initGrabOp;
                 let direction = Utils.directionFromGrab(grabOp);
