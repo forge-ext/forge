@@ -1213,16 +1213,25 @@ var Tree = GObject.registerClass(
                     }
                 }
                 nodeY = nodeRect.y;
-                child.nodeValue.unmake_above();
+                if (child.nodeType === NODE_TYPES.WINDOW)
+                    child.nodeValue.unmake_above();
                 child.backgroundTab = true;
 
-                if (child.nodeValue === this._forgeWm.focusMetaWindow ||
-                    this.lastTabFocus && this.lastTabFocus === child.nodeValue) {
+                let tiledChildren = node.getNodeByType(NODE_TYPES.WINDOW)
+                    .filter(
+                        t => t.mode === Window.WINDOW_MODES.TILE &&
+                        !t.nodeValue.minimized
+                    );
+
+                if (tiledChildren.length > 1 &&
+                    (child.nodeValue === this._forgeWm.focusMetaWindow ||
+                    node.lastTabFocus && node.lastTabFocus === child.nodeValue)) {
                     nodeY = node.rect.y + params.stackedHeight;
                     nodeHeight = node.rect.height - params.stackedHeight;
                     nodeX = node.rect.x;
                     nodeWidth = node.rect.width;
-                    child.nodeValue.make_above();
+                    if (child.nodeType === NODE_TYPES.WINDOW);
+                        child.nodeValue.make_above();
                     child.backgroundTab = false;
                 }
 

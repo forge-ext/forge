@@ -328,6 +328,7 @@ var ForgeWindowManager = GObject.registerClass(
         command(action) {
             let focusWindow = this.focusMetaWindow;
             let focusNodeWindow = this.findNodeWindow(focusWindow);
+            if (!focusNodeWindow) return;
             let currentLayout = focusNodeWindow.parentNode.layout;
 
             switch(action.name) {
@@ -380,7 +381,7 @@ var ForgeWindowManager = GObject.registerClass(
                             if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
                                 focusNodeWindow.nodeValue.raise();
                                 focusNodeWindow.nodeValue.activate(global.display.get_current_time());
-                                this._tree.lastTabFocus = focusNodeWindow.nodeValue;
+                                focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
                                 this.renderTree("focus-tabbed-queue");
                             }
                         }
@@ -488,7 +489,7 @@ var ForgeWindowManager = GObject.registerClass(
                                 .filter((w) => w.mode === WINDOW_MODES.TILE &&
                                     !w.nodeValue.minimized);
                             tiledChildren.forEach(t => t.nodeValue.unmake_above());
-                            this._tree.lastTabFocus = null;
+                            focusNodeWindow.parentNode.lastTabFocus = null;
                         }
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.STACKED;
                         let lastChild = focusNodeWindow.parentNode.lastChild;
@@ -508,10 +509,10 @@ var ForgeWindowManager = GObject.registerClass(
                             .filter((w) => w.mode === WINDOW_MODES.TILE &&
                                 !w.nodeValue.minimized);
                         tiledChildren.forEach(t => t.nodeValue.unmake_above());
-                        this._tree.lastTabFocus = null;
+                        focusNodeWindow.parentNode.lastTabFocus = null;
                     } else {
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.TABBED;
-                        this._tree.lastTabFocus = focusNodeWindow.nodeValue;
+                        focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
                     }
                     this.unfreezeRender();
                     this._tree.attachNode = focusNodeWindow.parentNode;
@@ -841,13 +842,16 @@ var ForgeWindowManager = GObject.registerClass(
                         windowActor.border.set_style_class_name("window-stacked-border");
                         borders.push(windowActor.border);
                     } else if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
-                        windowActor.border.set_style_class_name("window-tabbed-border");
-                        if (!nodeWindow.backgroundTab)
-                            borders.push(windowActor.border);
+                        if (!nodeWindow.backgroundTab) {
+                            windowActor.border.set_style_class_name("window-tabbed-border");
+                        } else {
+                            windowActor.border.set_style_class_name("window-tabbed-bg-border");
+                        }
                     } else {
                         windowActor.border.set_style_class_name("window-clone-border");
                         borders.push(windowActor.border);
                     }
+                    borders.push(windowActor.border);
             }
 
             // handle the split border
@@ -999,7 +1003,7 @@ var ForgeWindowManager = GObject.registerClass(
                                 }
                                 if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
                                     focusNodeWindow.nodeValue.raise();
-                                    this._tree.lastTabFocus = focusNodeWindow.nodeValue;
+                                    focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
                                     this.queueEvent({name: "render-focus-tab", callback: () => {
                                         this.renderTree("focus-tabbed");
                                     }});

@@ -45,6 +45,16 @@
     border-radius: 3px;
 }
 
+.window-tabbed-bg-border {
+    border-width: 4px;
+    border-color: #11c7e0;
+    border-style: solid;
+    border-radius: 4px;
+    border-left-width: 0;
+    border-bottom-width: 0;
+    border-right-width: 0;
+}
+
 .search-entry:focus {
     border-color: #ec5e5e;
     border-width: 2px;
