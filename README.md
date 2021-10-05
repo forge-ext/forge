@@ -14,7 +14,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 - Tiling support per workspace
 - Works on GNOME 3.36+ and 40. X11 and Wayland.
 
-## Experimental
+## Experimental Features
 - Stacked tiling layout (NEW!)
 - Tabbed tiling layout (WIP!)
 
