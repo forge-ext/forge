@@ -701,6 +701,21 @@ var Tree = GObject.registerClass(
 
             // 2. If the position is AFTER, and same orientation
             while (node && node.nodeType != NODE_TYPES.WORKSPACE) {
+                // If it reached the parent monitor node, check if the focus window
+                // is last or first child of the monitor node - if it is, check for any neighbor monitors
+                if (node.nodeType === NODE_TYPES.MONITOR) {
+                    let focusNodeWindow = this.findNode(this._forgeWm.focusMetaWindow);
+                    if (node.firstChild === focusNodeWindow ||
+                        node.lastChild === focusNodeWindow) {
+                        // attempt to find the next monitor
+                        next = this.nextMonitor(focusNodeWindow, position, orientation);
+                        return next;
+                    } else {
+                        // Return the monitor as a selection for the calling APIs
+                        return node;
+                    }
+                }
+
                 if (horizontal) {
                     if (node.parentNode.layout === LAYOUT_TYPES.HSPLIT ||
                         node.parentNode.layout === LAYOUT_TYPES.TABBED) {
@@ -720,54 +735,33 @@ var Tree = GObject.registerClass(
                         }
                     }
                 }
-                // 2. if next is null, it can be either of a few things
-                // 2.a check if the current parent is a monitor and the current node is at the edge
-                // The monitor index is not always in order so we get the adjacent monitor based on the direction
-                let nextMonitor = (node, position, orientation) => {
-                    // Use the built in logic to determine adjacent monitors
-                    let monitorNode = null;
-                    if (node.parentNode.nodeType === NODE_TYPES.MONITOR) {
-                        let monitorDirection = Utils.directionFrom(position, orientation);
-                        let targetMonitor = -1;
-                        let nodeWindow;
-                        if (node.nodeType === NODE_TYPES.WINDOW) {
-                            nodeWindow = node;
-                        } else if (node.nodeType === NODE_TYPES.CON) {
-                            let results = node.getNodeByType(NODE_TYPES.WINDOW);
-                            if (results && results.length > 0) {
-                                nodeWindow = results[0];
-                            }
-                        }
-                        if (!nodeWindow) return null;
-                        targetMonitor = global.display.get_monitor_neighbor_index(nodeWindow.nodeValue.get_monitor(), monitorDirection);
-                        if (targetMonitor < 0) return null;
-                        let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue.get_workspace().index()}`;
-                        Logger.trace(`tree-next: found monitor ${monWs}`);
-                        monitorNode = this.findNode(monWs);
-                        Logger.trace(`tree-next: found node ${monitorNode ? monitorNode.nodeValue : "not found"}`);
-                    }
-                    return monitorNode;
-                }
-
-                if (!next) {
-                    if (node.parentNode.nodeType === NODE_TYPES.MONITOR) {
-                        next = nextMonitor(node, position, orientation);
-                    }
-                } else {
-                    if (next.nodeType === NODE_TYPES.MONITOR) {
-                        next = nextMonitor(node, position, orientation);
-                    }
-                }
 
                 Logger.trace(`tree-next: ${next ? next.nodeType : "null"}`);
 
                 if (next) return next;
 
                 node = node.parentNode;
+                Logger.trace(`tree-next: continuing with ${node.nodeType}`);
             }
 
             return next;
         }
+
+        nextMonitor(nodeWindow, position, orientation) {
+            if (!nodeWindow) return null;
+            // Use the built in logic to determine adjacent monitors
+            let monitorNode = null;
+            let monitorDirection = Utils.directionFrom(position, orientation);
+            let targetMonitor = -1;
+            targetMonitor = global.display.get_monitor_neighbor_index(nodeWindow.nodeValue.get_monitor(), monitorDirection);
+            Logger.trace(`tree-next: targetMonitor is ${targetMonitor} on direction ${monitorDirection}`);
+            if (targetMonitor < 0) return null;
+            let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue.get_workspace().index()}`;
+            Logger.trace(`tree-next: found monitor ${monWs}`);
+            monitorNode = this.findNode(monWs);
+            Logger.trace(`tree-next: found node ${monitorNode ? monitorNode.nodeValue : "not found"}`);
+            return monitorNode;
+        } 
 
         findAncestorMonitor(node) {
             while (node && node.nodeType !== NODE_TYPES.WORKSPACE) {

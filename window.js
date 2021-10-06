@@ -422,8 +422,8 @@ var ForgeWindowManager = GObject.registerClass(
                     focusNodeWindow.nodeValue.focus(global.display.get_current_time());
                     break;
                 case "Split":
-                    if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
-                        Logger.warn(`split not allowed on ${focusNodeWindow.parentNode.layout}`);
+                    if (currentLayout === Tree.LAYOUT_TYPES.STACKED || currentLayout === Tree.LAYOUT_TYPES.TABBED) {
+                        Logger.warn(`split not allowed on ${currentLayout}`);
                         return;
                     }
                     let orientation = action.orientation ? action.orientation.
@@ -500,6 +500,7 @@ var ForgeWindowManager = GObject.registerClass(
                     focusNodeWindow.parentNode.childNodes.forEach((node) => {
                         Array.prototype.push.apply(stackedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.STACKED));
                     });
+
                     if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
                         if (stackedWindowNodes.length > 0) {
                             Logger.warn(`stacked-tiling: do not allow multiple levels of stacking for now`);
@@ -507,14 +508,15 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                     }
 
+                    let stackedTiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
+                        .filter((w) => w.mode === WINDOW_MODES.TILE &&
+                            !w.nodeValue.minimized);
+                    stackedTiledChildren.forEach(t => t.nodeValue.unmake_above());
+
                     if (currentLayout === Tree.LAYOUT_TYPES.STACKED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
                     } else {
                         if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
-                            let tiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
-                                .filter((w) => w.mode === WINDOW_MODES.TILE &&
-                                    !w.nodeValue.minimized);
-                            tiledChildren.forEach(t => t.nodeValue.unmake_above());
                             focusNodeWindow.parentNode.lastTabFocus = null;
                         }
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.STACKED;
@@ -529,16 +531,24 @@ var ForgeWindowManager = GObject.registerClass(
                     this.showBorderFocusWindow();
                     break;
                 case "LayoutTabbedToggle":
+                    // TODO add experimental toggle
+
                     let tabbedWindowNodes = [];
                     focusNodeWindow.parentNode.childNodes.forEach((node) => {
                         Array.prototype.push.apply(tabbedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.TABBED));
                     });
+
                     if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
                         if (tabbedWindowNodes.length > 0) {
                             Logger.warn(`tabbed-tiling: do not allow multiple levels of tabbing for now`);
                             return;
                         }
                     }
+
+                    let tabbedTiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
+                        .filter((w) => w.mode === WINDOW_MODES.TILE &&
+                            !w.nodeValue.minimized);
+                    tabbedTiledChildren.forEach(t => t.nodeValue.unmake_above());
                     if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
                         let tiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
