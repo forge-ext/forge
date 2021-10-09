@@ -949,10 +949,7 @@ var ForgeWindowManager = GObject.registerClass(
                             if (focusNodeWindow) {
                                 // handle the attach node
                                 this._tree.attachNode = focusNodeWindow._parent;
-                                let childWindows = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
-                                childWindows.forEach((node) => {
-                                    node.nodeValue.raise();
-                                });
+                                //
                                 // handle the stacked focus window
                                 if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
                                     focusNodeWindow.parentNode.appendChild(focusNodeWindow);
