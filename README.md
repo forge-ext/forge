@@ -15,8 +15,8 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 - Works on GNOME 3.36+ and 40. X11 and Wayland.
 
 ## Experimental Features
-- Stacked tiling layout (NEW!)
-- Tabbed tiling layout (WIP!)
+- Stacked tiling layout (NEW!) - Can be turned off in preferences
+- Tabbed tiling layout (NEW!) - Can be turned off in preferences
 
 ![image](https://user-images.githubusercontent.com/348125/136071134-ba8aa7b7-8403-4b15-9818-d43f4143a813.png)
 
@@ -47,6 +47,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 | Toggle focus hint | `<Super> + x` |
 | Toggle active workspace tiling | `<Shift> + <Super> + w` |
 | Toggle stacked layout | `<Shift> + <Super> + s` |
+| Toggle tabbed layout | `<Shift> + <Super> + t` |
 
 For any conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
