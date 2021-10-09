@@ -528,37 +528,70 @@ var Tree = GObject.registerClass(
          * Focuses on the next node, if metaWindow and tiled, raise it
          */
         focus(node, direction) {
-            // The next focus node is always going to be a node window for now
+            if (!node) return null;
             let next = this.next(node, direction);
             Logger.trace(`tree-focus: next ${next ? next.nodeType : undefined}`);
 
-            if (!next) {
-                return null;
-            }
+            if (!next) return null;
 
             let type = next.nodeType;
+            let position = Utils.positionFromDirection(direction);
+            const previous = position === POSITION.BEFORE;
 
             switch(type) {
                 case NODE_TYPES.WINDOW:
                     break;
                 case NODE_TYPES.CON:
-                case NODE_TYPES.MONITOR:
-                    let conChildren = next.getNodeByType(NODE_TYPES.WINDOW)
-                        .filter((w) => w.mode === Window.WINDOW_MODES.TILE &&
-                            !w.nodeValue.minimized);
-                    if (conChildren.length === 0) {
-                        this.focus(next, direction);
+                    const tiledConWindows = next.getNodeByType(NODE_TYPES.WINDOW)
+                        .filter((w) => w.mode === Window.WINDOW_MODES.TILE);
+                    if (next.layout === LAYOUT_TYPES.STACKED) {
+                        next = next.lastChild;
                     } else {
-                        if (next.layout !== LAYOUT_TYPES.STACKED) {
-                            next = conChildren[0];
+                        if (tiledConWindows.length > 1) {
+                            if (previous) {
+                                next = tiledConWindows[tiledConWindows.length - 1]
+                            } else {
+                                next = tiledConWindows[0];
+                            }
                         } else {
-                            next = conChildren[conChildren.length - 1];
+                            next = tiledConWindows[0];
+                        }
+                    }
+                    break;
+                case NODE_TYPES.MONITOR:
+                    if (next.layout === LAYOUT_TYPES.STACKED) {
+                        next = next.lastChild;
+                    } else {
+                        if (previous) {
+                            next = next.lastChild;
+                        } else {
+                            next = next.firstChild;
+                        }
+                    }
+                    if (next.nodeType === NODE_TYPES.CON) {
+                        const tiledConWindows = next.getNodeByType(NODE_TYPES.WINDOW)
+                            .filter((w) => w.mode === Window.WINDOW_MODES.TILE);
+                        if (next.layout === LAYOUT_TYPES.STACKED) {
+                            next = next.lastChild;
+                        } else {
+                            if (tiledConWindows.length > 1) {
+                                if (previous) {
+                                    next = tiledConWindows[tiledConWindows.length - 1]
+                                } else {
+                                    next = tiledConWindows[0];
+                                }
+                            } else {
+                                next = tiledConWindows[0];
+                            }
                         }
                     }
                     break;
             }
 
             if (!next) return null;
+
+            Logger.debug(`tree-focus: possible next ${next.nodeType}`);
+
             let metaWindow = next.nodeValue;
             if (metaWindow.minimized) {
                 next = this.focus(next, direction);
@@ -685,66 +718,47 @@ var Tree = GObject.registerClass(
             if (!node) return null;
             let orientation = Utils.orientationFromDirection(direction);
             let position = Utils.positionFromDirection(direction);
-            let horizontal = orientation === ORIENTATION_TYPES.HORIZONTAL;
             let previous = position === POSITION.BEFORE;
-            let next;
 
-            Logger.debug(`tree-next:orientation ${orientation}, position ${position}`);
-            Logger.debug(`tree-next: parent is ${node.parentNode.nodeType}`);
+            const type = node.nodeType;
 
-            // 1. If any of these top level nodes,
-            if (node.nodeType === NODE_TYPES.ROOT ||
-                node.nodeType === NODE_TYPES.WORKSPACE) {
-                Logger.trace(`tree-next: ${node.nodeType} is not valid for next`);
-                return null;
-            }
-
-            // 2. If the position is AFTER, and same orientation
-            while (node && node.nodeType != NODE_TYPES.WORKSPACE) {
-                // If it reached the parent monitor node, check if the focus window
-                // is last or first child of the monitor node - if it is, check for any neighbor monitors
-                if (node.nodeType === NODE_TYPES.MONITOR) {
-                    let focusNodeWindow = this.findNode(this._forgeWm.focusMetaWindow);
-                    if (node.firstChild === focusNodeWindow ||
-                        node.lastChild === focusNodeWindow) {
-                        // attempt to find the next monitor
-                        next = this.nextMonitor(focusNodeWindow, position, orientation);
-                        return next;
+            switch(type) {
+                case NODE_TYPES.ROOT:
+                    // Root is the top of the tree
+                    if (node.childNodes.length > 1) {
+                        if (previous) {
+                            return node.firstChild;
+                        } else {
+                            return node.lastChild;
+                        }
                     } else {
-                        // Return the monitor as a selection for the calling APIs
-                        return node;
+                        return node.firstChild;
                     }
-                }
-
-                if (horizontal) {
-                    if (node.parentNode.layout === LAYOUT_TYPES.HSPLIT ||
-                        node.parentNode.layout === LAYOUT_TYPES.TABBED) {
-                        if (!previous) {
-                            next = node.nextSibling;
-                        } else {
-                            next = node.previousSibling;
-                        }
-                    }
-                } else {
-                    if (node.parentNode.layout === LAYOUT_TYPES.VSPLIT ||
-                        node.parentNode.layout === LAYOUT_TYPES.STACKED) {
-                        if (!previous) {
-                            next = node.nextSibling;
-                        } else {
-                            next = node.previousSibling;
-                        }
-                    }
-                }
-
-                Logger.trace(`tree-next: ${next ? next.nodeType : "null"}`);
-
-                if (next) return next;
-
-                node = node.parentNode;
-                Logger.trace(`tree-next: continuing with ${node.nodeType}`);
+                case NODE_TYPES.WORKSPACE:
+                    // Let gnome-shell handle this?
+                    break;
+                case NODE_TYPES.MONITOR:
+                    // Find the next monitor
+                    const nodeWindow = this.findFirstNodeWindowFrom(node);
+                    return this.nextMonitor(nodeWindow, position, orientation);
             }
 
-            return next;
+            while (node.nodeType !== NODE_TYPES.WORKSPACE) {
+                if (node.nodeType === NODE_TYPES.MONITOR) {
+                    return this.next(node, direction);
+                }
+                const parentNode = node.parentNode;
+                const parentOrientation = Utils.orientationFromLayout(parentNode.layout);
+
+                if (parentNode.childNodes.length > 1 && orientation === parentOrientation) {
+                    const next = previous ? node.previousSibling : node.nextSibling;
+                    if (next) {
+                        return next;
+                    }
+                }
+                node = node.parentNode;
+                Logger.trace(`tree-next: moving to parent ${node.nodeType}`);
+            }
         }
 
         nextMonitor(nodeWindow, position, orientation) {
