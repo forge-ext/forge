@@ -1237,7 +1237,7 @@ var Tree = GObject.registerClass(
                     nodeHeight = node.rect.height - params.stackedHeight;
                     nodeX = node.rect.x;
                     nodeWidth = node.rect.width;
-                    if (child.nodeType === NODE_TYPES.WINDOW);
+                    if (child.nodeType === NODE_TYPES.WINDOW)
                         child.nodeValue.make_above();
                     child.backgroundTab = false;
                 }

@@ -29,6 +29,7 @@ const St = imports.gi.St;
 
 // Gnome Shell imports
 const DND = imports.ui.dnd;
+const Overview = imports.ui.main.overview;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -127,8 +128,9 @@ var ForgeWindowManager = GObject.registerClass(
                     let focusWindow = this.focusMetaWindow;
                     if (!focusWindow) return;
                     let focusNodeWindow = this.findNodeWindow(focusWindow);
+                    Logger.trace(`grab-op-end: current grab ${grabOp}`);
                     if (focusNodeWindow) {
-                        if (grabOp === Meta.GrabOp.WINDOW_BASE) {
+                        if (grabOp === Meta.GrabOp.WINDOW_BASE || grabOp === Meta.GrabOp.COMPOSITOR) {
                             if (focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.STACKED &&
                                 focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.TABBED) {
                                 // handle window swapping
@@ -141,14 +143,10 @@ var ForgeWindowManager = GObject.registerClass(
                                 if (nodeWinAtPointer) {
                                     this._tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
                                 }
-                            } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED){
-                                // Checking for STACKED layout
-                                focusNodeWindow.parentNode.appendChild(focusNodeWindow);
-                                focusNodeWindow.nodeValue.raise();
-                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
+                            } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
+                                this.updateStackedFocus(focusNodeWindow);
                             } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
-                                focusNodeWindow.nodeValue.raise();
-                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
+                                this.updateTabbedFocus(focusNodeWindow);
                             }
                         }
                         focusNodeWindow.initRect = null;
@@ -319,6 +317,21 @@ var ForgeWindowManager = GObject.registerClass(
                         break;
                 }
             });
+
+            this._overviewSignals = [
+                Overview.connect("hiding", () => {
+                    Logger.trace(`overview: hiding`);
+                    const eventObj = {
+                        name: "focus-after-overview",
+                        callback: () => {
+                            const focusNodeWindow = this._tree.findNode(this.focusMetaWindow);
+                            this.updateStackedFocus(focusNodeWindow);
+                            this.updateTabbedFocus(focusNodeWindow);
+                        }
+                    };
+                    this.queueEvent(eventObj)
+                }),
+            ];
 
             this._signalsBound = true;
         }
@@ -820,6 +833,14 @@ var ForgeWindowManager = GObject.registerClass(
                 this._queueSourceId = 0;
             }
 
+            if (this._overviewSignals) {
+                for (const overviewSignal of this._overviewSignals) {
+                    Overview.disconnect(overviewSignal);
+                }
+                this._overviewSignals.length = 0;
+                this._overviewSignals = null;
+            }
+
             this._signalsBound = false;
         }
 
@@ -1058,22 +1079,8 @@ var ForgeWindowManager = GObject.registerClass(
                             if (focusNodeWindow) {
                                 // handle the attach node
                                 this._tree.attachNode = focusNodeWindow._parent;
-                                //
-                                // handle the stacked focus window
-                                if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
-                                    focusNodeWindow.parentNode.appendChild(focusNodeWindow);
-                                    focusNodeWindow.nodeValue.raise();
-                                    this.queueEvent({name: "render-focus-stack", callback: () => {
-                                        this.renderTree("focus-stacked");
-                                    }});
-                                }
-                                if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
-                                    focusNodeWindow.nodeValue.raise();
-                                    focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
-                                    this.queueEvent({name: "render-focus-tab", callback: () => {
-                                        this.renderTree("focus-tabbed");
-                                    }});
-                                }
+                                this.updateStackedFocus(focusNodeWindow);
+                                this.updateTabbedFocus(focusNodeWindow);
                             }
 
                             Logger.debug(`window:focus`);
@@ -1109,6 +1116,28 @@ var ForgeWindowManager = GObject.registerClass(
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${metaWindow.get_monitor()}`);
             } 
+        }
+
+        updateStackedFocus(focusNodeWindow) {
+            if (!focusNodeWindow) return;
+            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
+                focusNodeWindow.parentNode.appendChild(focusNodeWindow);
+                focusNodeWindow.nodeValue.raise();
+                this.queueEvent({name: "render-focus-stack", callback: () => {
+                    this.renderTree("focus-stacked");
+                }});
+            }
+        }
+
+        updateTabbedFocus(focusNodeWindow) {
+            if (!focusNodeWindow) return;
+            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
+                focusNodeWindow.nodeValue.raise();
+                focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
+                this.queueEvent({name: "render-focus-tab", callback: () => {
+                    this.renderTree("focus-tabbed");
+                }});
+            }
         }
 
         /**
