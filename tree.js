@@ -1075,6 +1075,7 @@ var Tree = GObject.registerClass(
 
                 tiledChildren.forEach((child, index) => {
                     // Perform cleanup before processing
+                    this.cleanupBeforeProcess(child);
                     // A monitor can contain a window or container child
                     if (node.layout === LAYOUT_TYPES.HSPLIT ||
                         node.layout === LAYOUT_TYPES.VSPLIT) {
@@ -1112,9 +1113,11 @@ var Tree = GObject.registerClass(
                 node.renderRect = {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight};
 
                 let skipThisWs = !this._forgeWm.isActiveWindowWorkspaceTiled(node.nodeValue);
+                const layout = node.parentNode.layout;
 
                 if (!skipThisWs) {
-                    node.nodeValue.unmake_above();
+                    if (layout !== LAYOUT_TYPES.STACKED && layout !== LAYOUT_TYPES.TABBED)
+                        node.nodeValue.unmake_above();
                     node.mode = Window.WINDOW_MODES.TILE;
                 } else {
                     node.nodeValue.make_above();
@@ -1272,6 +1275,7 @@ var Tree = GObject.registerClass(
                 if (focusNodeWindow) {
                     if (child !== focusNodeWindow)
                         child.nodeValue.unmake_above();
+                    child.nodeValue.lower();
                 }
             }
         }

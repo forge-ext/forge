@@ -197,6 +197,9 @@ var ForgeWindowManager = GObject.registerClass(
                     }
                     Logger.debug(`workareas-changed`);
                 }),
+                display.connect("modifiers-accelerator-activated", (value) => {
+                    Logger.warn(`mod-acc-activated: ${value}`);
+                }),
             ];
 
             this._windowManagerSignals = [
@@ -561,11 +564,6 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                     }
 
-                    let stackedTiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
-                        .filter((w) => w.mode === WINDOW_MODES.TILE &&
-                            !w.nodeValue.minimized);
-                    stackedTiledChildren.forEach(t => t.nodeValue.unmake_above());
-
                     if (currentLayout === Tree.LAYOUT_TYPES.STACKED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
                     } else {
@@ -589,6 +587,7 @@ var ForgeWindowManager = GObject.registerClass(
                         return;
 
                     let tabbedWindowNodes = [];
+                    currentLayout = focusNodeWindow.parentNode.layout;
                     focusNodeWindow.parentNode.childNodes.forEach((node) => {
                         Array.prototype.push.apply(tabbedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.TABBED));
                     });
@@ -599,11 +598,6 @@ var ForgeWindowManager = GObject.registerClass(
                             return;
                         }
                     }
-
-                    let tabbedTiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
-                        .filter((w) => w.mode === WINDOW_MODES.TILE &&
-                            !w.nodeValue.minimized);
-                    tabbedTiledChildren.forEach(t => t.nodeValue.unmake_above());
 
                     if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
