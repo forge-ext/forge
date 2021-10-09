@@ -63,6 +63,7 @@ var prefs_development_logging_level_label = _("Logger Level");
 
 var prefs_experimental_settings_title = _("CAUTION: These settings when enabled are buggy or can cause the shell to crash");
 var prefs_experimental_stacked_tiling_label = _("Stacked Tiling Mode (Stack windows on top of each other while still being tiled)");
+var prefs_experimental_tabbed_tiling_label = _("Tabbed Tiling Mode (Group tiled windows as tabs)");
 
 var prefs_keyboard_update_keys_title = _("Update Keybindings");
 var prefs_keyboard_update_keys_syntax_label = _("Syntax");

@@ -66,6 +66,11 @@
             <summary>Stacked tiling mode on/off</summary>
         </key>
 
+        <key type="b" name="tabbed-tiling-mode-enabled">
+            <default>true</default>
+            <summary>Tabbed tiling mode on/off</summary>
+        </key>
+
         <!-- Development Settings -->
         <key type="u" name="log-level">
             <default>0</default>

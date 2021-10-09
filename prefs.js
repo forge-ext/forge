@@ -818,6 +818,23 @@ var ExperimentalSettingsPanel = GObject.registerClass(
 
             experimentalFrame.add(experimentStackedTilingRow);
 
+            let experimentTabbedTilingRow = new ListBoxRow();
+            let experimentTabbedTilingLabel = createLabel(Msgs.prefs_experimental_tabbed_tiling_label);
+            let experimentTabbedTilingSwitch = new Gtk.Switch();
+            experimentTabbedTilingSwitch.set_active(this.settings.get_boolean("tabbed-tiling-mode-enabled"));
+            experimentTabbedTilingSwitch.connect("state-set", (_, state) => {
+                this.settings.set_boolean("tabbed-tiling-mode-enabled", state);
+            });
+            this.settings.connect("changed", (_, keyName) => {
+                if (keyName === "tabbed-tiling-mode-enabled") {
+                    experimentTabbedTilingSwitch.set_active(this.settings.get_boolean("tabbed-tiling-mode-enabled"));
+                }
+            });
+
+            experimentTabbedTilingRow.add(experimentTabbedTilingLabel);
+            experimentTabbedTilingRow.add(experimentTabbedTilingSwitch);
+
+            experimentalFrame.add(experimentTabbedTilingRow);
             this.add(experimentalFrame);
         }
     }

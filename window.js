@@ -296,6 +296,25 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                         this.renderTree(settingName);
                         break;
+                    case "tabbed-tiling-mode-enabled":
+                        if (!settings.get_boolean(settingName)) {
+                            let tabbedNodes = this._tree.getNodeByLayout(Tree.LAYOUT_TYPES.TABBED);
+                            tabbedNodes.forEach((node) => {
+                                node.prevLayout = node.layout;
+                                node.layout = this.determineSplitLayout();
+                            });
+                        } else {
+                            let hSplitNodes = this._tree.getNodeByLayout(Tree.LAYOUT_TYPES.HSPLIT);
+                            let vSplitNodes = this._tree.getNodeByLayout(Tree.LAYOUT_TYPES.VSPLIT);
+                            Array.prototype.push.apply(hSplitNodes, vSplitNodes);
+                            hSplitNodes.forEach((node) => {
+                                if (node.prevLayout && node.prevLayout === Tree.LAYOUT_TYPES.TABBED) {
+                                    node.layout = Tree.LAYOUT_TYPES.TABBED;
+                                }
+                            });
+                        }
+                        this.renderTree(settingName);
+                        break;
                     default:
                         break;
                 }
@@ -531,7 +550,8 @@ var ForgeWindowManager = GObject.registerClass(
                     this.showBorderFocusWindow();
                     break;
                 case "LayoutTabbedToggle":
-                    // TODO add experimental toggle
+                    if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled"))
+                        return;
 
                     let tabbedWindowNodes = [];
                     focusNodeWindow.parentNode.childNodes.forEach((node) => {
