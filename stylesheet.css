@@ -55,6 +55,13 @@
     border-right-width: 0;
 }
 
+.window-float-border {
+    border-width: 3px;
+    border-color: #b4a7d6;
+    border-style: solid;
+    border-radius: 3px;
+}
+
 .search-entry:focus {
     border-color: #ec5e5e;
     border-width: 2px;

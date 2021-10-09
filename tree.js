@@ -568,7 +568,8 @@ var Tree = GObject.registerClass(
                             next = next.firstChild;
                         }
                     }
-                    if (next.nodeType === NODE_TYPES.CON) {
+
+                    if (next && next.nodeType === NODE_TYPES.CON) {
                         const tiledConWindows = next.getNodeByType(NODE_TYPES.WINDOW)
                             .filter((w) => w.mode === Window.WINDOW_MODES.TILE);
                         if (next.layout === LAYOUT_TYPES.STACKED) {
@@ -1070,8 +1071,10 @@ var Tree = GObject.registerClass(
 
                 params.sizes = sizes;
                 params.stackedHeight = 35;
+                params.tiledChildren = tiledChildren;
 
                 tiledChildren.forEach((child, index) => {
+                    // Perform cleanup before processing
                     // A monitor can contain a window or container child
                     if (node.layout === LAYOUT_TYPES.HSPLIT ||
                         node.layout === LAYOUT_TYPES.VSPLIT) {
@@ -1111,9 +1114,11 @@ var Tree = GObject.registerClass(
                 let skipThisWs = !this._forgeWm.isActiveWindowWorkspaceTiled(node.nodeValue);
 
                 if (!skipThisWs) {
+                    node.nodeValue.unmake_above();
                     node.mode = Window.WINDOW_MODES.TILE;
                 } else {
-                    node.mode = Window.WINDOW_MODES.DEFAULT;
+                    node.nodeValue.make_above();
+                    node.mode = Window.WINDOW_MODES.FLOAT;
                 }
             }
         }
@@ -1187,6 +1192,10 @@ var Tree = GObject.registerClass(
                     nodeHeight -= (params.stackedHeight * index);
                 }
 
+                if (child.nodeType === NODE_TYPES.WINDOW) {
+                    child.nodeValue.raise();
+                }
+
                 child.rect = {
                     x: nodeX,
                     y: nodeY,
@@ -1210,7 +1219,7 @@ var Tree = GObject.registerClass(
 
             if (layout === LAYOUT_TYPES.TABBED) {
                 // Use the HSPLIT calculations
-                let tabWidth = node.rect.width / node.childNodes.length;
+                let tabWidth = node.rect.width / params.tiledChildren.length;
                 nodeWidth = tabWidth;
                 nodeHeight = nodeRect.height;
                 nodeX = nodeRect.x;
@@ -1222,9 +1231,8 @@ var Tree = GObject.registerClass(
                     }
                 }
                 nodeY = nodeRect.y;
-                if (child.nodeType === NODE_TYPES.WINDOW)
-                    child.nodeValue.unmake_above();
                 child.backgroundTab = true;
+                this.cleanupBeforeProcess(child);
 
                 let tiledChildren = node.getNodeByType(NODE_TYPES.WINDOW)
                     .filter((t) => t.mode === Window.WINDOW_MODES.TILE &&
@@ -1250,6 +1258,22 @@ var Tree = GObject.registerClass(
                 };
             }
 
+        }
+
+        /**
+         *
+         * Handles any generic cleanup mechanism before
+         * processing any container layouts
+         *
+         */
+        cleanupBeforeProcess(child) {
+            if (child.nodeType === NODE_TYPES.WINDOW) {
+                let focusNodeWindow = this.findNode(this._forgeWm.focusMetaWindow);
+                if (focusNodeWindow) {
+                    if (child !== focusNodeWindow)
+                        child.nodeValue.unmake_above();
+                }
+            }
         }
 
         computeSizes(node, childItems) {

@@ -63,24 +63,35 @@ var ForgeWindowManager = GObject.registerClass(
             Logger.info("forge initialized");
         }
 
-        // TODO move this to a new module to handle floating?
-        _applyNodeWindowMode(action, metaWindow) {
+        toggleFloatingMode(action, metaWindow) {
             let nodeWindow = this.findNodeWindow(metaWindow);
             if (!nodeWindow || !(action || action.mode)) return;
             if (nodeWindow.nodeType !== Tree.NODE_TYPES.WINDOW) return;
-            action.mode = action.mode.toUpperCase();
+            const actionMode = action.mode.toUpperCase();
 
-            let floatFlag = action.mode === WINDOW_MODES.FLOAT;
+            let actionFloat = actionMode === WINDOW_MODES.FLOAT;
 
-            if (floatFlag) {
-                let floating = nodeWindow.mode === WINDOW_MODES.FLOAT;
-                if (!floating) {
+            if (actionFloat) {
+                if (!this.floatingWindow(nodeWindow)) {
+                    nodeWindow.nodeValue.make_above();
                     nodeWindow.mode = WINDOW_MODES.FLOAT;
+                    this.queueEvent({
+                        name: "raise-float",
+                        callback: () => {
+                            nodeWindow.nodeValue.raise();
+                        }
+                    });
                 } else {
-                    nodeWindow.mode = WINDOW_MODES.TILE;
+                    if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
+                        nodeWindow.nodeValue.unmake_above();
+                        nodeWindow.mode = WINDOW_MODES.TILE;
+                    }
                 }
             } else {
-                nodeWindow.mode = WINDOW_MODES.TILE;
+                if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
+                    nodeWindow.nodeValue.unmake_above();
+                    nodeWindow.mode = WINDOW_MODES.TILE;
+                }
             }
         }
 
@@ -89,7 +100,7 @@ var ForgeWindowManager = GObject.registerClass(
             this.eventQueue.enqueue(eventObj);
 
             if (!this._queueSourceId) {
-                this._queueSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+                this._queueSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 220, () => {
                     const currEventObj = this.eventQueue.dequeue();
                     if (currEventObj) {
                         currEventObj.callback();
@@ -274,6 +285,7 @@ var ForgeWindowManager = GObject.registerClass(
                     case "window-gap-hidden-on-single":
                     case "workspace-skip-tile":
                         this.renderTree(settingName);
+                        this.showBorderFocusWindow();
                         break;
                     case "stacked-tiling-mode-enabled":
                         if (!settings.get_boolean(settingName)) {
@@ -359,15 +371,13 @@ var ForgeWindowManager = GObject.registerClass(
         // TODO move this in command.js
         command(action) {
             let focusWindow = this.focusMetaWindow;
+            // Do not check if the node window is null, some of the commands do not need the focus window
             let focusNodeWindow = this.findNodeWindow(focusWindow);
-            if (!focusNodeWindow) return;
-            let currentLayout = focusNodeWindow.parentNode.layout;
+            let currentLayout;
 
             switch(action.name) {
-                case "MoveResize":
-                    // TODO validate the parameters for MoveResize
-                    
-                    this._applyNodeWindowMode(action, focusWindow)
+                case "FloatToggle":
+                    this.toggleFloatingMode(action, focusWindow)
 
                     let moveRect = {
                         x: Utils.resolveX(action, focusWindow),
@@ -375,15 +385,18 @@ var ForgeWindowManager = GObject.registerClass(
                         width: Utils.resolveWidth(action, focusWindow),
                         height: Utils.resolveHeight(action, focusWindow),
                     };
+
                     this.move(focusWindow, moveRect);
-                    // TODO move to Tree
+
                     let existParent = focusNodeWindow.parentNode;
+
                     if (this._tree.getTiledChildren(existParent.childNodes).length <= 1) {
                         existParent.percent = 0.0;
                         this._tree.resetSiblingPercent(existParent.parentNode);
                     }
+
                     this._tree.resetSiblingPercent(existParent);
-                    this.renderTree("move-resize");
+                    this.renderTree("float-toggle");
                     break;
                 case "Move":
                     this.unfreezeRender();
@@ -446,6 +459,7 @@ var ForgeWindowManager = GObject.registerClass(
                     }})
                     break;
                 case "Swap":
+                    if (!focusNodeWindow) return;
                     this.unfreezeRender();
                     let swapDirection = Utils.resolveDirection(action.direction);
                     this._tree.swap(focusNodeWindow, swapDirection);
@@ -454,6 +468,7 @@ var ForgeWindowManager = GObject.registerClass(
                     focusNodeWindow.nodeValue.focus(global.display.get_current_time());
                     break;
                 case "Split":
+                    if (!focusNodeWindow) return;
                     if (currentLayout === Tree.LAYOUT_TYPES.STACKED || currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         Logger.warn(`split not allowed on ${currentLayout}`);
                         return;
@@ -465,6 +480,8 @@ var ForgeWindowManager = GObject.registerClass(
                     this.showBorderFocusWindow();
                     break;
                 case "LayoutToggle":
+                    if (!focusNodeWindow) return;
+                    currentLayout = focusNodeWindow.parentNode.layout;
                     if (currentLayout === Tree.LAYOUT_TYPES.HSPLIT) {
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
                     } else if (currentLayout === Tree.LAYOUT_TYPES.VSPLIT) {
@@ -499,36 +516,40 @@ var ForgeWindowManager = GObject.registerClass(
                     let skippedArr = [];
                     if (skippedWorkspaces.length === 0) {
                         skippedArr.push(`${activeWorkspace}`);
+                        this.floatWorkspace(activeWorkspace);
                     } else {
                         skippedArr = skippedWorkspaces.split(",");
-                        Logger.debug(`Current workspace ${activeWorkspace}. List of skipped ${skippedWorkspaces}`);
+                        Logger.debug(`workspace-tile-toggle: current workspace ${activeWorkspace}. List of skipped ${skippedWorkspaces}`);
 
                         for (let i = 0; i < skippedArr.length; i++) {
-                            if (skippedArr[i] === `${activeWorkspace}`) {
+                            if (`${skippedArr[i]}` === `${activeWorkspace}`) {
                                 workspaceSkipped = true;
                                 break;
                             }
                         }
-                        if (workspaceSkipped) {
-                            Logger.debug(`workspace is skipped, removing ${activeWorkspace}`);
+
+                        if (workspaceSkipped) { // tile this workspace
+                            Logger.debug(`workspace-tile-toggle: workspace is skipped, removing ${activeWorkspace}`);
                             let indexWs = skippedArr.indexOf(`${activeWorkspace}`);
                             skippedArr.splice(indexWs, 1);
-                        } else {
-                            Logger.debug(`workspace is not skipped, inserting ${activeWorkspace}`);
+                            this.unfloatWorkspace(activeWorkspace);
+                        } else { // skip tiling workspace
+                            Logger.debug(`workspace-tile-toggle: workspace is not skipped, inserting ${activeWorkspace}`);
                             skippedArr.push(`${activeWorkspace}`);
+                            this.floatWorkspace(activeWorkspace);
                         }
                     }
-
                     Logger.debug(`Updated workspace skipped ${skippedArr.toString()}`);
                     this.ext.settings.set_string("workspace-skip-tile", skippedArr.toString());
-
                     break;
                 case "LayoutStackedToggle":
+                    if (!focusNodeWindow) return;
                     if (!this.ext.settings.get_boolean("stacked-tiling-mode-enabled"))
                         return;
 
                     // TODO for now do not allow multiple levels of stacked tiles
                     let stackedWindowNodes = [];
+                    currentLayout = focusNodeWindow.parentNode.layout;
                     focusNodeWindow.parentNode.childNodes.forEach((node) => {
                         Array.prototype.push.apply(stackedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.STACKED));
                     });
@@ -563,6 +584,7 @@ var ForgeWindowManager = GObject.registerClass(
                     this.showBorderFocusWindow();
                     break;
                 case "LayoutTabbedToggle":
+                    if (!focusNodeWindow) return;
                     if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled"))
                         return;
 
@@ -582,12 +604,9 @@ var ForgeWindowManager = GObject.registerClass(
                         .filter((w) => w.mode === WINDOW_MODES.TILE &&
                             !w.nodeValue.minimized);
                     tabbedTiledChildren.forEach(t => t.nodeValue.unmake_above());
+
                     if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
-                        let tiledChildren = focusNodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
-                            .filter((w) => w.mode === WINDOW_MODES.TILE &&
-                                !w.nodeValue.minimized);
-                        tiledChildren.forEach(t => t.nodeValue.unmake_above());
                         focusNodeWindow.parentNode.lastTabFocus = null;
                     } else {
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.TABBED;
@@ -644,6 +663,12 @@ var ForgeWindowManager = GObject.registerClass(
             return windowsAll;
         }
 
+        getWindowsOnWorkspace(workspaceIndex) {
+            const workspaceNode = this._tree.findNode(`ws${workspaceIndex}`);
+            const workspaceWindows = workspaceNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
+            return workspaceWindows;
+        }
+
         determineSplitLayout() {
             // if the monitor width is less than height, the monitor could be vertical orientation;
             let monitorRect = global.display.get_monitor_geometry(global.display.get_current_monitor());
@@ -653,8 +678,25 @@ var ForgeWindowManager = GObject.registerClass(
             return Tree.LAYOUT_TYPES.HSPLIT;
         }
 
+        floatWorkspace(workspaceIndex) {
+            const workspaceWindows = this.getWindowsOnWorkspace(workspaceIndex);
+            if (!workspaceWindows) return;
+            workspaceWindows.forEach((w) => {
+                w.mode = WINDOW_MODES.FLOAT;
+                w.nodeValue.make_above();
+            });
+        }
+
+        unfloatWorkspace(workspaceIndex) {
+            const workspaceWindows = this.getWindowsOnWorkspace(workspaceIndex);
+            if (!workspaceWindows) return;
+            workspaceWindows.forEach((w) => {
+                w.mode = WINDOW_MODES.TILE;
+                w.nodeValue.unmake_above();
+            });
+        }
+
         hideWindowBorders() {
-            // TODO - use the tree walk to traverse all node windows?
             this._tree.nodeWindows.forEach((nodeWindow) => {
                 if (nodeWindow._actor) { 
                     if (nodeWindow._actor.border) {
@@ -919,26 +961,37 @@ var ForgeWindowManager = GObject.registerClass(
             }
             let monitorCount = global.display.get_n_monitors();
             let tiled = this._tree.getTiledChildren(nodeWindow.parentNode.childNodes);
+            const floatingWindow = this.floatingWindow(nodeWindow);
 
             if (windowActor.border && focusBorderEnabled) {
                 if (!maximized() ||
                     gap === 0 && tiled.length === 1 && monitorCount > 1 ||
-                    gap === 0 && tiled.length > 1 ||
-                    this.floatingWindow(nodeWindow))
+                    gap === 0 && tiled.length > 1 || floatingWindow) {
                     if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
-                        windowActor.border.set_style_class_name("window-stacked-border");
-                        borders.push(windowActor.border);
-                    } else if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
-                        if (!nodeWindow.backgroundTab) {
-                            windowActor.border.set_style_class_name("window-tabbed-border");
+                        if (!floatingWindow) {
+                            windowActor.border.set_style_class_name("window-stacked-border");
                         } else {
-                            windowActor.border.set_style_class_name("window-tabbed-bg-border");
+                            windowActor.border.set_style_class_name("window-float-border");
+                        }
+                    } else if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
+                        if (!floatingWindow) {
+                            if (!nodeWindow.backgroundTab) {
+                                windowActor.border.set_style_class_name("window-tabbed-border");
+                            } else {
+                                windowActor.border.set_style_class_name("window-tabbed-bg-border");
+                            }
+                        } else {
+                            windowActor.border.set_style_class_name("window-float-border");
                         }
                     } else {
-                        windowActor.border.set_style_class_name("window-clone-border");
-                        borders.push(windowActor.border);
+                        if (!floatingWindow) {
+                            windowActor.border.set_style_class_name("window-clone-border");
+                        } else {
+                            windowActor.border.set_style_class_name("window-float-border");
+                        }
                     }
                     borders.push(windowActor.border);
+                }
             }
 
             // handle the split border
@@ -1035,6 +1088,7 @@ var ForgeWindowManager = GObject.registerClass(
                         return;
                     }
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`);
+                    Logger.warn(`track-window: allow-resize ${metaWindow.allows_resize()}`);
 
                     let newNodeWindow = this._tree.createNode(parentFocusNode.nodeValue, Tree.NODE_TYPES.WINDOW, 
                         metaWindow);
@@ -1043,9 +1097,11 @@ var ForgeWindowManager = GObject.registerClass(
                             metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG ||
                             metaWindow.get_transient_for() !== null ||
                             !metaWindow.allows_resize()) {
+                            newNodeWindow.nodeValue.make_above();
                             newNodeWindow.mode = WINDOW_MODES.FLOAT;
                         } else {
                             metaWindow.firstRender = true;
+                            newNodeWindow.nodeValue.unmake_above();
                             newNodeWindow.mode = WINDOW_MODES.TILE;
 
                             let childNodes = this._tree.getTiledChildren(parentFocusNode.childNodes);
@@ -1081,6 +1137,15 @@ var ForgeWindowManager = GObject.registerClass(
                                 this._tree.attachNode = focusNodeWindow._parent;
                                 this.updateStackedFocus(focusNodeWindow);
                                 this.updateTabbedFocus(focusNodeWindow);
+                                if (this.floatingWindow(focusNodeWindow)) {
+                                    this.queueEvent({
+                                        name: "raise-float",
+                                        callback: () => {
+                                            this.renderTree("raise-float-queue");
+                                            focusNodeWindow.nodeValue.raise();
+                                        }
+                                    });
+                                }
                             }
 
                             Logger.debug(`window:focus`);
@@ -1120,8 +1185,9 @@ var ForgeWindowManager = GObject.registerClass(
 
         updateStackedFocus(focusNodeWindow) {
             if (!focusNodeWindow) return;
-            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
-                focusNodeWindow.parentNode.appendChild(focusNodeWindow);
+            const parentNode = focusNodeWindow.parentNode;
+            if (parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
+                parentNode.appendChild(focusNodeWindow);
                 focusNodeWindow.nodeValue.raise();
                 this.queueEvent({name: "render-focus-stack", callback: () => {
                     this.renderTree("focus-stacked");
@@ -1261,6 +1327,20 @@ var ForgeWindowManager = GObject.registerClass(
                             let existParent = existNodeWindow.parentNode;
                             this._tree.resetSiblingPercent(existParent);
                             metaMonWsNode.appendChild(existNodeWindow);
+                            if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
+                                let newNodeWindow = this._tree.findNode(metaWindow);
+                                if (newNodeWindow) {
+                                    newNodeWindow.mode = WINDOW_MODES.TILE;
+                                    metaWindow.unmake_above();
+                                }
+                            } else {
+                                if (this.floatingWindow(existNodeWindow)) {
+                                    existNodeWindow.nodeValue.make_above();
+                                    existNodeWindow.nodeValue.raise();
+                                } else {
+                                    existNodeWindow.nodeValue.unmake_above();
+                                }
+                            }
                         }
                     }
                 }

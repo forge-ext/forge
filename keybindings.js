@@ -165,7 +165,7 @@ var Keybindings = GObject.registerClass(
                 "window-toggle-float": () => {
                     let actions = [
                         {
-                            name : "MoveResize",
+                            name : "FloatToggle",
                             mode: "float",
                             x : "center",
                             y : "center",
