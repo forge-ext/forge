@@ -481,6 +481,7 @@ var ForgeWindowManager = GObject.registerClass(
                     break;
                 case "Split":
                     if (!focusNodeWindow) return;
+                    currentLayout = focusNodeWindow.parentNode.layout;
                     if (currentLayout === Tree.LAYOUT_TYPES.STACKED || currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         Logger.warn(`split not allowed on ${currentLayout}`);
                         return;
