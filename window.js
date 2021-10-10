@@ -138,12 +138,14 @@ var ForgeWindowManager = GObject.registerClass(
                     this.unfreezeRender();
                     let focusWindow = this.focusMetaWindow;
                     if (!focusWindow) return;
-
-                    focusWindow.unmake_above();
-
                     let focusNodeWindow = this.findNodeWindow(focusWindow);
+
+
                     Logger.trace(`grab-op-end: current grab ${grabOp}`);
                     if (focusNodeWindow) {
+                        if (!this.floatingWindow(focusNodeWindow))
+                            focusWindow.unmake_above();
+
                         if (grabOp === Meta.GrabOp.WINDOW_BASE || grabOp === Meta.GrabOp.COMPOSITOR) {
                             if (focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.STACKED &&
                                 focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.TABBED) {
@@ -474,7 +476,8 @@ var ForgeWindowManager = GObject.registerClass(
                     this._tree.swap(focusNodeWindow, swapDirection);
                     focusNodeWindow.nodeValue.raise();
                     this.renderTree("swap");
-                    focusNodeWindow.nodeValue.focus(global.display.get_current_time());
+                    this.updateTabbedFocus(focusNodeWindow);
+                    this.updateStackedFocus(focusNodeWindow);
                     break;
                 case "Split":
                     if (!focusNodeWindow) return;
