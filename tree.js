@@ -972,6 +972,7 @@ var Tree = GObject.registerClass(
             Logger.debug(`---------------------------------------------`);
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             this.processNode(this);
+            this.postProcess(this);
             this.cleanTree();
             this.apply();
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
@@ -1089,7 +1090,6 @@ var Tree = GObject.registerClass(
                 });
             }
 
-            // TODO - move the border rendering here from window.js?
             if (node.nodeType === NODE_TYPES.WINDOW) {
                 if (!node.rect) node.rect = node.nodeValue.get_work_area_current_monitor();
                 let nodeWidth = node.rect.width;
@@ -1097,20 +1097,11 @@ var Tree = GObject.registerClass(
                 let nodeX = node.rect.x;
                 let nodeY = node.rect.y;
 
-                let gap = this._forgeWm.calculateGaps(node.nodeValue);
-
-                nodeX += gap;
-                nodeY += gap;
-                // TODO - detect inbetween windows and adjust accordingly 
-                // Also adjust depending on display scaling
-                nodeWidth -= gap * 2;
-                nodeHeight -= gap * 2;
-
                 Logger.debug(`processing window: ${node.nodeValue.get_wm_class()}:${node.nodeValue.get_title()}`);
                 Logger.debug(` layout: ${node.parentNode.layout}, index: ${node.index}`);
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
-                node.renderRect = {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight};
+                node.renderRect = this.processGap(node);
 
                 let skipThisWs = !this._forgeWm.isActiveWindowWorkspaceTiled(node.nodeValue);
                 const layout = node.parentNode.layout;
@@ -1124,6 +1115,22 @@ var Tree = GObject.registerClass(
                     node.mode = Window.WINDOW_MODES.FLOAT;
                 }
             }
+        }
+
+        processGap(node) {
+            let nodeWidth = node.rect.width;
+            let nodeHeight = node.rect.height;
+            let nodeX = node.rect.x;
+            let nodeY = node.rect.y;
+            let gap = this._forgeWm.calculateGaps(node.nodeValue);
+
+            nodeX += gap;
+            nodeY += gap;
+            // TODO - detect inbetween windows and adjust accordingly
+            // Also adjust depending on display scaling
+            nodeWidth -= gap * 2;
+            nodeHeight -= gap * 2;
+            return {x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight}
         }
 
         processSplit(node, child, params, index) {
@@ -1244,23 +1251,73 @@ var Tree = GObject.registerClass(
                 if (tiledChildren.length > 1 &&
                     (child.nodeValue === this._forgeWm.focusMetaWindow ||
                     node.lastTabFocus && node.lastTabFocus === child.nodeValue)) {
-                    nodeY = node.rect.y + params.stackedHeight;
-                    nodeHeight = node.rect.height - params.stackedHeight;
-                    nodeX = node.rect.x;
-                    nodeWidth = node.rect.width;
-                    if (child.nodeType === NODE_TYPES.WINDOW)
-                        child.nodeValue.make_above();
-                    child.backgroundTab = false;
+                    child.rect = this.renderFrontTab(node, child, params.stackedHeight)
+                } else {
+                    child.rect = {
+                        x: nodeX,
+                        y: nodeY,
+                        width: nodeWidth,
+                        height: nodeHeight
+                    };
                 }
-
-                child.rect = {
-                    x: nodeX,
-                    y: nodeY,
-                    width: nodeWidth,
-                    height: nodeHeight
-                };
             }
+        }
 
+        /**
+         *
+         * Apply any transformations that is not possible during processNode
+         *
+         */
+        postProcess(tree) {
+            if (!tree) return;
+
+            // TODO make configurable
+            let alwaysRenderTab = true;
+
+            if (alwaysRenderTab) {
+                let conChildren = tree.getNodeByType(NODE_TYPES.CON);
+                Array.prototype.push.apply(conChildren, tree.getNodeByType(NODE_TYPES.MONITOR));
+
+                Logger.debug(`post-process: cons ${conChildren.length}`);
+
+                conChildren.forEach((con) => {
+                    if (con.layout === LAYOUT_TYPES.TABBED) {
+                        if (con.childNodes.length > 1) {
+                            const frontTabs = con.childNodes.filter((n) => !n.backgroundTab && n.nodeType === NODE_TYPES.WINDOW);
+                            Logger.debug(`post-process: tabbed front ${frontTabs.length}`);
+                            const conWindows = con.childNodes.filter((n) => n.nodeType === NODE_TYPES.WINDOW);
+                            Logger.debug(`post-process: tabbed windows ${conWindows.length}`);
+                            if (frontTabs.length === 0) {
+                                let child = conWindows[0];
+                                // TODO make stackedHeight configurable
+                                let tabRect = this.renderFrontTab(con, child, 35);
+                                child.rect = tabRect;
+                                child.renderRect = this.processGap(child);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        /**
+         * Apply tab rect calculations to the non-background tab
+         */
+        renderFrontTab(node, child, stackedHeight) {
+            let nodeY = node.rect.y + stackedHeight;
+            let nodeHeight = node.rect.height - stackedHeight;
+            let nodeX = node.rect.x;
+            let nodeWidth = node.rect.width;
+            if (child.nodeType === NODE_TYPES.WINDOW)
+                child.nodeValue.make_above();
+            child.backgroundTab = false;
+
+            return {
+                x: nodeX,
+                y: nodeY,
+                width: nodeWidth,
+                height: nodeHeight
+            }
         }
 
         /**

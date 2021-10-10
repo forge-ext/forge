@@ -138,6 +138,9 @@ var ForgeWindowManager = GObject.registerClass(
                     this.unfreezeRender();
                     let focusWindow = this.focusMetaWindow;
                     if (!focusWindow) return;
+
+                    focusWindow.unmake_above();
+
                     let focusNodeWindow = this.findNodeWindow(focusWindow);
                     Logger.trace(`grab-op-end: current grab ${grabOp}`);
                     if (focusNodeWindow) {
@@ -175,6 +178,9 @@ var ForgeWindowManager = GObject.registerClass(
                     let direction = Utils.directionFromGrab(grabOp);
                     let focusWindow = this.focusMetaWindow;
                     if (focusWindow) {
+                        focusWindow.make_above();
+                        focusWindow.raise();
+
                         let focusNodeWindow = this.findNodeWindow(focusWindow);
                         let resizing = Utils.grabMode(grabOp) === GRAB_TYPES.RESIZING;
                         Logger.debug(`grabOp ${grabOp}`);
@@ -1321,11 +1327,18 @@ var ForgeWindowManager = GObject.registerClass(
                             let existParent = existNodeWindow.parentNode;
                             this._tree.resetSiblingPercent(existParent);
                             metaMonWsNode.appendChild(existNodeWindow);
+
+                            // Ensure that the workspace tiling is honored
                             if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
                                 let newNodeWindow = this._tree.findNode(metaWindow);
                                 if (newNodeWindow) {
                                     newNodeWindow.mode = WINDOW_MODES.TILE;
-                                    metaWindow.unmake_above();
+                                    // This ensures when dragging between monitors,
+                                    // the dragged window is still above:
+                                    if (!global.display.get_grab_op() === Meta.GrabOp.WINDOW_BASE)
+                                        metaWindow.unmake_above();
+                                    this.updateTabbedFocus(newNodeWindow);
+                                    this.updateStackedFocus(newNodeWindow);
                                 }
                             } else {
                                 if (this.floatingWindow(existNodeWindow)) {
