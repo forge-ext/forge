@@ -572,6 +572,7 @@ var ForgeWindowManager = GObject.registerClass(
 
                     if (currentLayout === Tree.LAYOUT_TYPES.STACKED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
+                        this._tree.resetSiblingPercent(focusNodeWindow.parentNode);
                     } else {
                         if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                             focusNodeWindow.parentNode.lastTabFocus = null;
@@ -607,6 +608,7 @@ var ForgeWindowManager = GObject.registerClass(
 
                     if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
+                        this._tree.resetSiblingPercent(focusNodeWindow.parentNode);
                         focusNodeWindow.parentNode.lastTabFocus = null;
                     } else {
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.TABBED;
