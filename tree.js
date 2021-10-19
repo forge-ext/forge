@@ -241,6 +241,29 @@ var Node = GObject.registerClass(
             return newNode;
         }
 
+        isLayout(name) {
+            let layout = this.layout;
+            if (!layout) return false;
+
+            return name === layout;
+        }
+
+        isHSplitLayout() {
+            return this.isLayout(LAYOUT_TYPES.HSPLIT);
+        }
+
+        isVSplitLayout() {
+            return this.isLayout(LAYOUT_TYPES.VSPLIT);
+        }
+
+        isStackedLayout() {
+            return this.isLayout(LAYOUT_TYPES.STACKED);
+        }
+
+        isTabbedLayout() {
+            return this.isLayout(LAYOUT_TYPES.TABBED);
+        }
+
         removeChild(node) {
             let refNode;
             if (this.contains(node)) {
@@ -500,28 +523,29 @@ var Tree = GObject.registerClass(
          * current pointer coordinates;
          */
         findNodeWindowAtPointer(metaWindow, pointer) {
-            let nodeAtPointer;
             if (!metaWindow) return undefined;
             let monWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
             // The searched window should be on the same monitor workspace
             let monWsNode = this.findNode(monWs);
 
-            let criteriaFn = (node) => {
-                if (nodeAtPointer) return;
-                if (node.nodeValue !== metaWindow &&
-                    node.nodeType === NODE_TYPES.WINDOW &&
-                    !node.nodeValue.minimized) {
-                    let metaRect = node.rect;
-                    if (!metaRect) return;
-                    let atPointer = Utils.rectContainsPoint(
-                        metaRect, pointer);
-                    if (atPointer)
-                        nodeAtPointer = node;
-                }
+            const monWindows = monWsNode.getNodeByType(NODE_TYPES.WINDOW)
+                .filter((w) => !w.nodeValue.minimized
+                    && w.mode === Window.WINDOW_MODES.TILE
+                    && w.nodeValue !== metaWindow)
+                .map((w) => w.nodeValue);
+            const sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
+            Logger.trace(`sorted windows ${sortedWindows.length}`)
+
+            for (let w of sortedWindows) {
+                const nodeWin = monWsNode.getNodeByValue(w);
+                const metaRect = nodeWin.rect;
+                const atPointer = Utils.rectContainsPoint(metaRect, pointer);
+                Logger.trace(`At pointer ${atPointer}`);
+                if (atPointer)
+                    return nodeWin;
             }
 
-            monWsNode._walk(criteriaFn, monWsNode._traverseDepthFirst);
-            return nodeAtPointer;
+            return null;
         }
 
         /**

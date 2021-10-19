@@ -190,6 +190,7 @@ var PrefsWidget = GObject.registerClass(
             keyboardSettingsBox.addStackRow("Container Shortcuts", Msgs.prefs_keyboard_container_shortcuts, `${Me.path}/icons/prefs/view-dual-symbolic.svg`);
             keyboardSettingsBox.addStackRow("Focus Shortcuts", Msgs.prefs_keyboard_focus_shortcuts, `${Me.path}/icons/prefs/tool-rectangle-symbolic.svg`);
             keyboardSettingsBox.addStackRow("Other Shortcuts", Msgs.prefs_keyboard_other_shortcuts, `${Me.path}/icons/prefs/view-grid-symbolic.svg`);
+            keyboardSettingsBox.addStackRow("Modifier Keys", Msgs.prefs_keyboard_function_mod_keys, `${Me.path}/icons/prefs/utilities-tweak-tool-symbolic.svg`);
             this.settingsStack.add_named(keyboardSettingsBox, "KeyboardSettings");
         }
 
@@ -204,6 +205,7 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "con-"), "Container Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "focus-"), "Focus Shortcuts");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "prefs-"), "Other Shortcuts");
+            this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "modmask"), "Modifier Keys");
             this.settingsPagesStack.add_named(new ExperimentalSettingsPanel(this, "Experimental"), "Experimental");
             if (!Settings.production) {
                 this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
@@ -579,44 +581,21 @@ var KeyboardSettingsPanel = GObject.registerClass(
             this.schemaName = "org.gnome.shell.extensions.forge.keybindings";
             this.kbdSettings = Settings.getSettings(this.schemaName);
 
-            let shortcutsFrame = new FrameListBox();
-            let shortcutHeader = new Gtk.Label({
-                label: `<b>${Msgs.prefs_keyboard_update_keys_title}</b>`,
-                use_markup: true,
-                xalign: 0,
-                hexpand: true
-            });
-
-            let descriptionBox = new Gtk.Box({
-                orientation: Gtk.Orientation.VERTICAL,
-                margin: 6,
-                spacing: 5,
-                homogeneous: false
-            });
-
-            descriptionBox.add(shortcutHeader);
-            descriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_syntax_label}</i>: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
-            descriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_legend_label}</i>: &lt;Super&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_1_label}, &lt;Primary&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_2_label}`));
-            descriptionBox.add(createLabel(`${Msgs.prefs_keyboard_update_keys_instructions_text} <i>${Msgs.prefs_keyboard_update_keys_resets_label}</i> ${Msgs.prefs_keyboard_update_keys_resets_sub_1_label}`));
-            this.add(descriptionBox);
-
-            let shortcutGrid = new Gtk.Grid({
-                margin: 12,
-                column_spacing: 10,
-                row_spacing: 10
-            });
-
-            this.createShortcutHeader(shortcutGrid);
-            let keys = this.createKeyList(this.schemaName, this.category);
-
-            keys.forEach((key, rowIndex) => {
-                rowIndex += 1; // the header is zero index, bump by 1
-                let shortcuts = this.kbdSettings.get_strv(key).toString(); // <Super>s,<Super>t
-                this.createShortcutRow(shortcutGrid, key, shortcuts, rowIndex);
-            });
-
-            shortcutsFrame.add(shortcutGrid);
-            this.add(shortcutsFrame);
+            switch(this.category) {
+                case "window-":
+                case "con-":
+                case "workspace-":
+                case "prefs-":
+                case "focus-":
+                    this._initializeShortcuts();
+                    break;
+                case "modmask":
+                    this._initializeModMaskOptions();
+                    break;
+                case "options":
+                default:
+                    break;
+            }
         }
 
         createShortcutHeader(grid) {
@@ -728,6 +707,147 @@ var KeyboardSettingsPanel = GObject.registerClass(
             });
 
             return refSettings;
+        }
+
+        _initializeShortcuts() {
+            let shortcutsFrame = new FrameListBox();
+            let shortcutHeader = new Gtk.Label({
+                label: `<b>${Msgs.prefs_keyboard_update_keys_title}</b>`,
+                use_markup: true,
+                xalign: 0,
+                hexpand: true
+            });
+
+            let descriptionBox = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 6,
+                spacing: 5,
+                homogeneous: false
+            });
+
+            descriptionBox.add(shortcutHeader);
+            descriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_syntax_label}</i>: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
+            descriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_legend_label}</i>: &lt;Super&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_1_label}, &lt;Primary&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_2_label}`));
+            descriptionBox.add(createLabel(`${Msgs.prefs_keyboard_update_keys_instructions_text} <i>${Msgs.prefs_keyboard_update_keys_resets_label}</i> ${Msgs.prefs_keyboard_update_keys_resets_sub_1_label}`));
+            this.add(descriptionBox);
+
+            let shortcutGrid = new Gtk.Grid({
+                margin: 12,
+                column_spacing: 10,
+                row_spacing: 10
+            });
+
+            this.createShortcutHeader(shortcutGrid);
+            let keys = this.createKeyList(this.schemaName, this.category);
+
+            keys.forEach((key, rowIndex) => {
+                rowIndex += 1; // the header is zero index, bump by 1
+                let shortcuts = this.kbdSettings.get_strv(key).toString(); // <Super>s,<Super>t
+                this.createShortcutRow(shortcutGrid, key, shortcuts, rowIndex);
+            });
+
+            shortcutsFrame.add(shortcutGrid);
+            this.add(shortcutsFrame);
+        }
+
+        _initializeModMaskOptions() {
+            let modMaskDescriptionBox = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 6,
+                spacing: 5,
+                homogeneous: false
+            });
+
+            modMaskDescriptionBox.add(createLabel(`<b>${Msgs.prefs_keyboard_other_mod_mask_header}</b>`));
+            modMaskDescriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_other_mod_mask_informational1}</i>`));
+            modMaskDescriptionBox.add(createLabel(`${Msgs.prefs_keyboard_other_mod_mask_informational2}`));
+
+            let modMaskFrame = new FrameListBox();
+            let modMaskSwapRowOption = new ListBoxRow();
+            let modMaskSwapLabel = createLabel(`${Msgs.prefs_keyboard_mod_mask_swap_label}`);
+            let modMaskSwapToggleBox =  new Gtk.Box({
+                orientation: Gtk.Orientation.HORIZONTAL,
+                margin: 3,
+                spacing: 3,
+                homogeneous: false
+            });
+
+            const _handleSwapToggle = (button) => {
+                if (button.active === false) return;
+                const toggleLabel = button.label;
+                let labelValue = "Ctrl";
+
+                switch (toggleLabel) {
+                    case `${Msgs.prefs_keyboard_mod_mask_swap_super_label}`:
+                        labelValue = "Super";
+                        break;
+                    case `${Msgs.prefs_keyboard_mod_mask_swap_alt_label}`:
+                        labelValue = "Alt";
+                        break;
+                    case `${Msgs.prefs_keyboard_mod_mask_swap_none_label}`:
+                        labelValue = "";
+                        break;
+                    default:
+                        labelValue = "Ctrl";
+                }
+
+                this.kbdSettings.set_string("mod-mask-mouse-swap", labelValue);
+            }
+
+            let modMaskSwapCtrlToggle = new Gtk.RadioToolButton({
+                label: `${Msgs.prefs_keyboard_mod_mask_swap_ctrl_label}`
+            });
+
+            let modMaskSwapSuperToggle = new Gtk.RadioToolButton({
+                group: modMaskSwapCtrlToggle,
+                label: `${Msgs.prefs_keyboard_mod_mask_swap_super_label}`
+            });
+
+            let modMaskSwapAltToggle = new Gtk.RadioToolButton({
+                group: modMaskSwapCtrlToggle,
+                label: `${Msgs.prefs_keyboard_mod_mask_swap_alt_label}`
+            });
+
+            let modMaskSwapNoneToggle = new Gtk.RadioToolButton({
+                group: modMaskSwapCtrlToggle,
+                label: `${Msgs.prefs_keyboard_mod_mask_swap_none_label}`
+            });
+
+            modMaskSwapCtrlToggle.connect("clicked", _handleSwapToggle.bind(this));
+            modMaskSwapSuperToggle.connect("clicked", _handleSwapToggle.bind(this));
+            modMaskSwapAltToggle.connect("clicked", _handleSwapToggle.bind(this));
+            modMaskSwapNoneToggle.connect("clicked", _handleSwapToggle.bind(this));
+
+            const currentSwapModifier = this.kbdSettings.get_string("mod-mask-mouse-swap");
+
+            // Set the initial toggle value:
+            switch (currentSwapModifier) {
+                case "Ctrl":
+                    modMaskSwapCtrlToggle.active = true;
+                    break;
+                case "Super":
+                    modMaskSwapSuperToggle.active = true;
+                    break;
+                case "Alt":
+                    modMaskSwapAltToggle.active = true;
+                    break;
+                case "":
+                    modMaskSwapNoneToggle.active = true;
+                    break;
+            }
+
+            modMaskSwapToggleBox.add(modMaskSwapCtrlToggle);
+            modMaskSwapToggleBox.add(modMaskSwapSuperToggle);
+            modMaskSwapToggleBox.add(modMaskSwapAltToggle);
+            modMaskSwapToggleBox.add(modMaskSwapNoneToggle);
+
+            modMaskSwapRowOption.add(modMaskSwapLabel);
+            modMaskSwapRowOption.add(modMaskSwapToggleBox);
+
+            modMaskFrame.add(modMaskSwapRowOption);
+
+            this.add(modMaskDescriptionBox);
+            this.add(modMaskFrame);
         }
     }
 );

@@ -19,6 +19,7 @@
 'use strict';
 
 // Gnome imports
+const Gdk = imports.gi.Gdk;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Meta = imports.gi.Meta;
@@ -158,6 +159,41 @@ var Keybindings = GObject.registerClass(
                     action: action
                 });
             }
+        }
+
+        get keymap() {
+            const gdkDisplay = Gdk.DisplayManager.get().get_default_display();
+            const gdkKeyMap = Gdk.Keymap.get_for_display(gdkDisplay);
+            return gdkKeyMap;
+        }
+
+        get modifierState() {
+            return this.keymap.get_modifier_state();
+        }
+
+        isKeyPressed(mask) {
+            let modifierState = this.modifierState;
+            return modifierState === mask;
+        }
+
+        isSuperPressed() {
+            let mask = Gdk.ModifierType.MOD4_MASK;
+            return this.isKeyPressed(mask);
+        }
+
+        isCtrlPressed() {
+            let mask = Gdk.ModifierType.CONTROL_MASK;
+            return this.isKeyPressed(mask);
+        }
+
+        isAltPressed() {
+            let mask = Gdk.ModifierType.MOD1_MASK;
+            return this.isKeyPressed(mask);
+        }
+
+        isShiftPressed() {
+            let mask = Gdk.ModifierType.SHIFT_MASK;
+            return this.isKeyPressed(mask);
         }
 
         buildBindingDefinitions() {

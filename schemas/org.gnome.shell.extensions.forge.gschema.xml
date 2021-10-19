@@ -222,5 +222,14 @@
             <default><![CDATA[['<Super>w']]]></default>
                 <summary>Toggle tiling mode on/off</summary>
         </key>
+
+        <key type="s" name="mod-mask-mouse-swap">
+            <default>'Ctrl'</default>
+            <summary>
+                Default mod mask to allow window swap via mouse. 
+                Options are Ctrl, Super, Alt
+            </summary>
+        </key>
+
     </schema>
 </schemalist>

@@ -62,6 +62,30 @@
     border-radius: 3px;
 }
 
+.window-preview-tile-split {
+    border-width: 1px;
+    border-color: rgba(236,94,94, 0.4);
+    border-style: solid;
+    border-radius: 1px;
+    background-color: rgba(236,94,94, 0.3);
+}
+
+.window-preview-tile-tabbed {
+    border-width: 1px;
+    border-color: rgba(17,199,224, 0.4);
+    border-style: solid;
+    border-radius: 1px;
+    background-color: rgba(17,199,224, 0.3);
+}
+
+.window-preview-tile-stacked {
+    border-width: 1px;
+    border-color: rgba(247,162,43, 0.4);
+    border-style: solid;
+    border-radius: 1px;
+    background-color: rgba(247,162,43, 0.3);
+}
+
 .search-entry:focus {
     border-color: #ec5e5e;
     border-width: 2px;

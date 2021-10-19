@@ -36,6 +36,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // App imports
+const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
 const Tree = Me.imports.tree;
 const Utils = Me.imports.utils;
@@ -58,6 +59,7 @@ var ForgeWindowManager = GObject.registerClass(
         _init(ext) {
             super._init();
             this.ext = ext;
+            this._kbd = this.ext.keybindings;
             this._tree = new Tree.Tree(this);
             this.eventQueue = new Tree.Queue();
             Logger.info("forge initialized");
@@ -134,68 +136,8 @@ var ForgeWindowManager = GObject.registerClass(
                 display.connect("window-left-monitor", () => {
                     Logger.debug("window-left-monitor");
                 }),
-                display.connect("grab-op-end", (_, _display, _metaWindow, grabOp) => {
-                    this.unfreezeRender();
-                    let focusWindow = this.focusMetaWindow;
-                    if (!focusWindow) return;
-                    let focusNodeWindow = this.findNodeWindow(focusWindow);
-
-
-                    Logger.trace(`grab-op-end: current grab ${grabOp}`);
-                    if (focusNodeWindow) {
-                        if (!this.floatingWindow(focusNodeWindow))
-                            focusWindow.unmake_above();
-
-                        if (grabOp === Meta.GrabOp.WINDOW_BASE || grabOp === Meta.GrabOp.COMPOSITOR) {
-                            if (focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.STACKED &&
-                                focusNodeWindow.parentNode.layout !== Tree.LAYOUT_TYPES.TABBED) {
-                                // handle window swapping
-                                // TODO - add a modifier before swapping (like when the <Super> is pressed?)
-                                let pointerCoord = global.get_pointer();
-                                Logger.trace(`grab-end:pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
-                                let nodeWinAtPointer = this._tree.findNodeWindowAtPointer(
-                                    this.focusMetaWindow, pointerCoord);
-                                Logger.debug(`node at pointer ${nodeWinAtPointer}`);
-                                if (nodeWinAtPointer) {
-                                    this._tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
-                                }
-                            } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
-                                this.updateStackedFocus(focusNodeWindow);
-                            } else if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
-                                this.updateTabbedFocus(focusNodeWindow);
-                            }
-                        }
-                        focusNodeWindow.initRect = null;
-                    }
-
-                    if (focusWindow.get_maximized() === 0) {
-                        this.renderTree("grab-op-end");
-                    }
-
-                    Logger.debug(`grab op end`);
-                }),
-                display.connect("grab-op-begin", (_, _display, _metaWindow, grabOp) => {
-                    this.freezeRender();
-                    let orientation = Utils.orientationFromGrab(grabOp);
-                    let direction = Utils.directionFromGrab(grabOp);
-                    let focusWindow = this.focusMetaWindow;
-                    if (focusWindow) {
-                        focusWindow.make_above();
-                        focusWindow.raise();
-
-                        let focusNodeWindow = this.findNodeWindow(focusWindow);
-                        let resizing = Utils.grabMode(grabOp) === GRAB_TYPES.RESIZING;
-                        Logger.debug(`grabOp ${grabOp}`);
-                        if (resizing && focusNodeWindow) {
-                            focusNodeWindow.grabMode = GRAB_TYPES.RESIZING;
-                            focusNodeWindow.initGrabOp = grabOp;
-                            focusNodeWindow.initRect = Utils.removeGapOnRect(
-                                focusWindow.get_frame_rect(),
-                                this.calculateGaps(focusWindow));
-                        }
-                    }
-                    Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
-                }),
+                display.connect("grab-op-begin", this._handleGrabOpBegin.bind(this)),
+                display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
                 display.connect("showing-desktop-changed", () => {
                     Logger.debug(`display:showing-desktop-changed`);
                 }),
@@ -646,6 +588,15 @@ var ForgeWindowManager = GObject.registerClass(
 
         get focusMetaWindow() {
             return global.display.get_focus_window();
+        }
+
+        get kbd() {
+            if (!this._kbd) {
+                this._kbd = new Keybindings.Keybindings(this.ext);
+                this.ext.keybindings = this._kbd;
+            }
+
+            return this._kbd;
         }
 
         get windowsActiveWorkspace() {
@@ -1370,165 +1321,25 @@ var ForgeWindowManager = GObject.registerClass(
          * Useful for updating the active window border, etc.
          */
         updateMetaPositionSize(_metaWindow, from) {
-            let focusWindow = this.focusMetaWindow;
-            if (!focusWindow) return;
-            if (focusWindow.get_maximized() === 0) {
+            let focusMetaWindow = this.focusMetaWindow;
+            if (!focusMetaWindow) return;
+            if (focusMetaWindow.get_maximized() === 0) {
                 this.renderTree(from);
             }
             this.showBorderFocusWindow();
 
-            let focusNodeWindow = this.findNodeWindow(focusWindow);
+            let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
             if (!focusNodeWindow) return;
 
-            if (focusNodeWindow.grabMode &&
-                focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
-                let grabOp = global.display.get_grab_op();
-                let initGrabOp = focusNodeWindow.initGrabOp;
-                let direction = Utils.directionFromGrab(grabOp);
-                let orientation = Utils.orientationFromGrab(grabOp);
-                let parentNodeForFocus = focusNodeWindow.parentNode;
-                let position = Utils.positionFromGrabOp(grabOp);
-                // normalize the rect without gaps
-                let currentRect = Utils.removeGapOnRect(
-                    focusWindow.get_frame_rect(), this.calculateGaps(this.focusMetaWindow)); 
-                let firstRect;
-                let secondRect;
-                let parentRect;
-                let resizePairForWindow;
-
-                if (initGrabOp === Meta.GrabOp.RESIZING_UNKNOWN) {
-                    // the direction is null so do not process yet below.
-                    return;
-                } else {
-                   resizePairForWindow = this._tree.nextVisible(focusNodeWindow, direction);
-                }
-
-                Logger.trace(`update-position-size: ${grabOp}`);
-                let sameParent = resizePairForWindow ?
-                    resizePairForWindow.parentNode === focusNodeWindow.parentNode : false;
-
-                if (orientation === Tree.ORIENTATION_TYPES.HORIZONTAL) {
-                    if (sameParent) {
-                        // use the window or con pairs
-                        if (this._tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
-                            Logger.warn(`not valid for resize`);
-                            return;
-                        }
-
-                        firstRect = focusNodeWindow.initRect;
-                        if (resizePairForWindow) {
-                            if (!this.floatingWindow(resizePairForWindow)
-                                && !this.minimizedWindow(resizePairForWindow)) {
-                                secondRect = resizePairForWindow.rect;
-                            } else {
-                                // TODO try to get the next resize pair?
-                            }
-                        }
-
-                        if (!firstRect || !secondRect) {
-                            Logger.warn(`first and second rect pairs not available`);
-                            return;
-                        }
-
-                        parentRect = parentNodeForFocus.rect;
-                        let changePx = currentRect.width - firstRect.width;
-                        let firstPercent = (firstRect.width + changePx) / parentRect.width;
-                        let secondPercent = (secondRect.width - changePx) / parentRect.width;
-                        focusNodeWindow.percent = firstPercent;
-                        resizePairForWindow.percent = secondPercent;
-                    } else {
-                        // use the parent pairs (con to another con or window)
-                        if (resizePairForWindow) {
-                            if (this._tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
-                                Logger.warn(`not valid for resize`);
-                                return;
-                            }
-                            let firstWindowRect = focusNodeWindow.initRect;
-                            let index = resizePairForWindow.index;
-                            if (position === Tree.POSITION.BEFORE) {
-                                // Find the opposite node
-                                index = index + 1;
-                            } else {
-                                index = index - 1;
-                            }
-                            parentNodeForFocus = resizePairForWindow.parentNode.childNodes[index];
-                            firstRect = parentNodeForFocus.rect;
-                            secondRect = resizePairForWindow.rect;
-                            if (!firstRect || !secondRect) {
-                                Logger.warn(`first and second rect pairs not available`);
-                                return;
-                            }
-
-                            parentRect = parentNodeForFocus.parentNode.rect;
-                            let changePx = currentRect.width - firstWindowRect.width;
-                            let firstPercent = (firstRect.width + changePx) / parentRect.width;
-                            let secondPercent = (secondRect.width - changePx) / parentRect.width;
-                            parentNodeForFocus.percent = firstPercent;
-                            resizePairForWindow.percent = secondPercent;
-                        }
-
-                   }
-                } else if (orientation === Tree.ORIENTATION_TYPES.VERTICAL) {
-                    if (sameParent) {
-                        // use the window or con pairs
-                        if (this._tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
-                            Logger.warn(`not valid for resize`);
-                            return;
-                        }
-                        firstRect = focusNodeWindow.initRect;
-                        if (resizePairForWindow) {
-                            if (!this.floatingWindow(resizePairForWindow)
-                                && !this.minimizedWindow(resizePairForWindow)) {
-                                secondRect = resizePairForWindow.rect;
-                            } else {
-                                // TODO try to get the next resize pair?
-                            }
-                        }
-                        if (!firstRect || !secondRect) {
-                            Logger.warn(`first and second rect pairs not available`);
-                            return;
-                        }
-                        parentRect = parentNodeForFocus.rect;
-                        let changePx = currentRect.height - firstRect.height;
-                        let firstPercent = (firstRect.height + changePx) / parentRect.height;
-                        let secondPercent = (secondRect.height - changePx) / parentRect.height;
-                        focusNodeWindow.percent = firstPercent;
-                        resizePairForWindow.percent = secondPercent;
-                    } else {
-                        // use the parent pairs (con to another con or window)
-                        if (resizePairForWindow) {
-                            if (this._tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
-                                Logger.warn(`not valid for resize`);
-                                return;
-                            }
-                            let firstWindowRect = focusNodeWindow.initRect;
-                            let index = resizePairForWindow.index;
-                            if (position === Tree.POSITION.BEFORE) {
-                                // Find the opposite node
-                                index = index + 1;
-                            } else {
-                                index = index - 1;
-                            }
-                            parentNodeForFocus = resizePairForWindow.parentNode.childNodes[index];
-                            firstRect = parentNodeForFocus.rect;
-                            secondRect = resizePairForWindow.rect;
-                            if (!firstRect || !secondRect) {
-                                Logger.warn(`first and second rect pairs not available`);
-                                return;
-                            }
-
-                            parentRect = parentNodeForFocus.parentNode.rect;
-                            let changePx = currentRect.height - firstWindowRect.height;
-                            let firstPercent = (firstRect.height + changePx) / parentRect.height;
-                            let secondPercent = (secondRect.height - changePx) / parentRect.height;
-                            parentNodeForFocus.percent = firstPercent;
-                            resizePairForWindow.percent = secondPercent;
-                        }
-                    }
+            if (focusNodeWindow.grabMode) {
+                if (focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
+                    this._handleResizing(focusNodeWindow);
+                } else if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING) {
+                    this._handleMoving(focusNodeWindow);
                 }
             }
 
-            Logger.trace(`${from} ${focusWindow.get_wm_class()}`);
+            Logger.trace(`${from} ${focusMetaWindow.get_wm_class()}`);
         }
 
         freezeRender() {
@@ -1573,6 +1384,370 @@ var ForgeWindowManager = GObject.registerClass(
             return (node._type === Tree.NODE_TYPES.WINDOW
                 && node._data
                 && node._data.minimized);
+        }
+
+        swapWindowsUnderPointer(focusNodeWindow) {
+            let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
+            if (nodeWinAtPointer)
+                this._tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
+        }
+
+        /**
+         *
+         * Handle previewing and applying where a drag-drop window is going to be tiled
+         *
+         */
+        moveWindowToPointer(focusNodeWindow, preview = false) {
+            let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
+            if (nodeWinAtPointer) {
+                const targetRect = this._tree.processGap(nodeWinAtPointer);
+                const parentNodeTarget = nodeWinAtPointer.parentNode;
+                // For stacked and tabbed windows, append them to the parent container
+                if (parentNodeTarget.isStackedLayout() || parentNodeTarget.isTabbedLayout()) {
+                    if (!preview) {
+                        parentNodeTarget.appendChild(focusNodeWindow);
+                    } else {
+                        let previewHint = focusNodeWindow.previewHint;
+                        if (previewHint) {
+                            if (parentNodeTarget.isTabbedLayout()) {
+                                previewHint.set_style_class_name("window-preview-tile-tabbed");
+                            } else if (parentNodeTarget.isStackedLayout()) {
+                                previewHint.set_style_class_name("window-preview-tile-stacked");
+                            }
+                            previewHint.set_position(targetRect.x, targetRect.y);
+                            previewHint.set_size(targetRect.width, targetRect.height);
+                            previewHint.show();
+                        }
+                    }
+                } else {
+                    // Attach the window into the parent container depending on where the pointer is
+                    let leftRect = {
+                        x: targetRect.x,
+                        y: targetRect.y,
+                        width: targetRect.width,
+                        height: targetRect.height
+                    };
+                    let rightRect = leftRect;
+
+                    if (parentNodeTarget.isHSplitLayout()) {
+                        Logger.debug("move-pointer: parent target is HSPLIT");
+                        // Divide the window's rect left/right
+                        leftRect = {
+                            x: targetRect.x,
+                            y: targetRect.y,
+                            width: targetRect.width / 2,
+                            height: targetRect.height
+                        }
+
+                        rightRect = {
+                            x: targetRect.x + (targetRect.width / 2),
+                            y: targetRect.y,
+                            width: targetRect.width / 2,
+                            height: targetRect.height
+                        }
+
+                    } else if (parentNodeTarget.isVSplitLayout()) {
+                        Logger.debug("move-pointer: parent target is VSPLIT");
+                        // Divide the window's rect top/bottom
+                        leftRect = {
+                            x: targetRect.x,
+                            y: targetRect.y,
+                            width: targetRect.width,
+                            height: targetRect.height / 2
+                        }
+
+                        rightRect = {
+                            x: targetRect.x,
+                            y: targetRect.y + targetRect.height / 2,
+                            width: targetRect.width,
+                            height: targetRect.height / 2
+                        }
+                    }
+
+                    if (Utils.rectContainsPoint(leftRect, this.getPointer())) {
+                        Logger.debug("move-pointer: point left");
+                        if (!preview) {
+                            parentNodeTarget.insertBefore(focusNodeWindow, nodeWinAtPointer);
+                        } else {
+                            let previewHint = focusNodeWindow.previewHint;
+                            if (previewHint) {
+                                previewHint.set_style_class_name("window-preview-tile-split");
+                                previewHint.set_position(leftRect.x, leftRect.y);
+                                previewHint.set_size(leftRect.width, leftRect.height);
+                                previewHint.show();
+                            }
+                        }
+                    } else if (Utils.rectContainsPoint(rightRect, this.getPointer())) {
+                        Logger.debug("move-pointer: point right");
+                        if (!preview) {
+                            parentNodeTarget.insertBefore(focusNodeWindow, nodeWinAtPointer.nextSibling);
+                        } else {
+                            let previewHint = focusNodeWindow.previewHint;
+                            if (previewHint) {
+                                previewHint.set_style_class_name("window-preview-tile-split");
+                                previewHint.set_position(rightRect.x, rightRect.y);
+                                previewHint.set_size(rightRect.width, rightRect.height);
+                                previewHint.show();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        findNodeWindowAtPointer(focusNodeWindow) {
+            let pointerCoord = global.get_pointer();
+            Logger.trace(`grab-end: pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
+
+            let nodeWinAtPointer = this._tree.findNodeWindowAtPointer(
+                focusNodeWindow.nodeValue, pointerCoord);
+            Logger.debug(`grab-end: node at pointer ${nodeWinAtPointer}`);
+            return nodeWinAtPointer;
+        }
+
+        _handleGrabOpBegin(_, _display, _metaWindow, grabOp) {
+            this.freezeRender();
+            let orientation = Utils.orientationFromGrab(grabOp);
+            let direction = Utils.directionFromGrab(grabOp);
+            let focusMetaWindow = this.focusMetaWindow;
+
+            if (focusMetaWindow) {
+                focusMetaWindow.make_above();
+                focusMetaWindow.raise();
+                const frameRect = focusMetaWindow.get_frame_rect();
+                const gaps = this.calculateGaps(focusMetaWindow);
+
+                let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
+                if (!focusNodeWindow) return;
+
+                focusNodeWindow.grabMode = Utils.grabMode(grabOp);
+                focusNodeWindow.initGrabOp = grabOp;
+                focusNodeWindow.initRect = Utils.removeGapOnRect(frameRect, gaps);
+            }
+            Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
+        }
+
+        _handleGrabOpEnd(_, _display, _metaWindow, grabOp) {
+            this.unfreezeRender();
+            let focusMetaWindow = this.focusMetaWindow;
+            if (!focusMetaWindow) return;
+            let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
+
+            if (focusNodeWindow) {
+                if (focusNodeWindow.previewHint) {
+                    focusNodeWindow.previewHint.hide();
+                    global.window_group.remove_child(focusNodeWindow.previewHint);
+                    focusNodeWindow.previewHint.destroy();
+                    focusNodeWindow.previewHint = null;
+                }
+                if (!this.floatingWindow(focusNodeWindow))
+                    focusMetaWindow.unmake_above();
+
+                // WINDOW_BASE is when grabbing the window decoration
+                // COMPOSITOR is when something like Overview requesting a grab, especially when Super is pressed.
+                if (grabOp === Meta.GrabOp.WINDOW_BASE || grabOp === Meta.GrabOp.COMPOSITOR) {
+                    if (this.allowDragDropSwap()) {
+                        this.swapWindowsUnderPointer(focusNodeWindow);
+                    } else {
+                        // Default to moving windows and re-tiling them
+                        this.moveWindowToPointer(focusNodeWindow);
+                    }
+
+                    this.updateStackedFocus(focusNodeWindow);
+                    this.updateTabbedFocus(focusNodeWindow);
+                }
+
+                focusNodeWindow.initRect = null;
+                focusNodeWindow.grabMode = null;
+                focusNodeWindow.initGrabOp = null;
+            }
+
+            if (focusMetaWindow.get_maximized() === 0) {
+                this.renderTree("grab-op-end");
+            }
+
+            Logger.debug(`grab op end`);
+        }
+
+        allowDragDropSwap() {
+            let swapModifier = this.ext.kbdSettings.get_string("mod-mask-mouse-swap");
+            let swapModifierMask = Utils.translateModifierType(swapModifier);
+            return this.kbd.modifierState === swapModifierMask;
+        }
+
+        _handleResizing(focusNodeWindow) {
+            if (!focusNodeWindow) return;
+            let grabOp = global.display.get_grab_op();
+            let initGrabOp = focusNodeWindow.initGrabOp;
+            let direction = Utils.directionFromGrab(grabOp);
+            let orientation = Utils.orientationFromGrab(grabOp);
+            let parentNodeForFocus = focusNodeWindow.parentNode;
+            let position = Utils.positionFromGrabOp(grabOp);
+            // normalize the rect without gaps
+            let frameRect = this.focusMetaWindow.get_frame_rect();
+            let gaps = this.calculateGaps(this.focusMetaWindow);
+            let currentRect = Utils.removeGapOnRect(frameRect, gaps); 
+            let firstRect;
+            let secondRect;
+            let parentRect;
+            let resizePairForWindow;
+
+            if (initGrabOp === Meta.GrabOp.RESIZING_UNKNOWN) {
+                // the direction is null so do not process yet below.
+                return;
+            } else {
+               resizePairForWindow = this._tree.nextVisible(focusNodeWindow, direction);
+            }
+
+            Logger.trace(`update-position-size: ${grabOp}`);
+            let sameParent = resizePairForWindow ?
+                resizePairForWindow.parentNode === focusNodeWindow.parentNode : false;
+
+            if (orientation === Tree.ORIENTATION_TYPES.HORIZONTAL) {
+                if (sameParent) {
+                    // use the window or con pairs
+                    if (this._tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
+                        Logger.warn(`not valid for resize`);
+                        return;
+                    }
+
+                    firstRect = focusNodeWindow.initRect;
+                    if (resizePairForWindow) {
+                        if (!this.floatingWindow(resizePairForWindow)
+                            && !this.minimizedWindow(resizePairForWindow)) {
+                            secondRect = resizePairForWindow.rect;
+                        } else {
+                            // TODO try to get the next resize pair?
+                        }
+                    }
+
+                    if (!firstRect || !secondRect) {
+                        Logger.warn(`first and second rect pairs not available`);
+                        return;
+                    }
+
+                    parentRect = parentNodeForFocus.rect;
+                    let changePx = currentRect.width - firstRect.width;
+                    let firstPercent = (firstRect.width + changePx) / parentRect.width;
+                    let secondPercent = (secondRect.width - changePx) / parentRect.width;
+                    focusNodeWindow.percent = firstPercent;
+                    resizePairForWindow.percent = secondPercent;
+                } else {
+                    // use the parent pairs (con to another con or window)
+                    if (resizePairForWindow) {
+                        if (this._tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
+                            Logger.warn(`not valid for resize`);
+                            return;
+                        }
+                        let firstWindowRect = focusNodeWindow.initRect;
+                        let index = resizePairForWindow.index;
+                        if (position === Tree.POSITION.BEFORE) {
+                            // Find the opposite node
+                            index = index + 1;
+                        } else {
+                            index = index - 1;
+                        }
+                        parentNodeForFocus = resizePairForWindow.parentNode.childNodes[index];
+                        firstRect = parentNodeForFocus.rect;
+                        secondRect = resizePairForWindow.rect;
+                        if (!firstRect || !secondRect) {
+                            Logger.warn(`first and second rect pairs not available`);
+                            return;
+                        }
+
+                        parentRect = parentNodeForFocus.parentNode.rect;
+                        let changePx = currentRect.width - firstWindowRect.width;
+                        let firstPercent = (firstRect.width + changePx) / parentRect.width;
+                        let secondPercent = (secondRect.width - changePx) / parentRect.width;
+                        parentNodeForFocus.percent = firstPercent;
+                        resizePairForWindow.percent = secondPercent;
+                    }
+               }
+            } else if (orientation === Tree.ORIENTATION_TYPES.VERTICAL) {
+                if (sameParent) {
+                    // use the window or con pairs
+                    if (this._tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
+                        Logger.warn(`not valid for resize`);
+                        return;
+                    }
+                    firstRect = focusNodeWindow.initRect;
+                    if (resizePairForWindow) {
+                        if (!this.floatingWindow(resizePairForWindow)
+                            && !this.minimizedWindow(resizePairForWindow)) {
+                            secondRect = resizePairForWindow.rect;
+                        } else {
+                            // TODO try to get the next resize pair?
+                        }
+                    }
+                    if (!firstRect || !secondRect) {
+                        Logger.warn(`first and second rect pairs not available`);
+                        return;
+                    }
+                    parentRect = parentNodeForFocus.rect;
+                    let changePx = currentRect.height - firstRect.height;
+                    let firstPercent = (firstRect.height + changePx) / parentRect.height;
+                    let secondPercent = (secondRect.height - changePx) / parentRect.height;
+                    focusNodeWindow.percent = firstPercent;
+                    resizePairForWindow.percent = secondPercent;
+                } else {
+                    // use the parent pairs (con to another con or window)
+                    if (resizePairForWindow) {
+                        if (this._tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
+                            Logger.warn(`not valid for resize`);
+                            return;
+                        }
+                        let firstWindowRect = focusNodeWindow.initRect;
+                        let index = resizePairForWindow.index;
+                        if (position === Tree.POSITION.BEFORE) {
+                            // Find the opposite node
+                            index = index + 1;
+                        } else {
+                            index = index - 1;
+                        }
+                        parentNodeForFocus = resizePairForWindow.parentNode.childNodes[index];
+                        firstRect = parentNodeForFocus.rect;
+                        secondRect = resizePairForWindow.rect;
+                        if (!firstRect || !secondRect) {
+                            Logger.warn(`first and second rect pairs not available`);
+                            return;
+                        }
+
+                        parentRect = parentNodeForFocus.parentNode.rect;
+                        let changePx = currentRect.height - firstWindowRect.height;
+                        let firstPercent = (firstRect.height + changePx) / parentRect.height;
+                        let secondPercent = (secondRect.height - changePx) / parentRect.height;
+                        parentNodeForFocus.percent = firstPercent;
+                        resizePairForWindow.percent = secondPercent;
+                    }
+                }
+            }
+        }
+
+        _handleMoving(focusNodeWindow) {
+            if (!focusNodeWindow) return;
+            const nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
+
+            if (nodeWinAtPointer) {
+                if (!focusNodeWindow.previewHint) {
+                    let previewHint = new St.Bin();
+                    global.window_group.add_child(previewHint);
+                    focusNodeWindow.previewHint = previewHint;
+                }
+
+                if (!this.allowDragDropSwap()) {
+                    this.moveWindowToPointer(focusNodeWindow, true);
+                } else {
+                    // Hide the preview hint if the Swap modifier is pressed
+                    if (focusNodeWindow.previewHint) {
+                        focusNodeWindow.previewHint.hide();
+                    }
+                }
+            } else {
+                // Hide the preview hint when there is no window underneath
+                if (focusNodeWindow.previewHint) {
+                    focusNodeWindow.previewHint.hide();
+                }
+            }
         }
     }
 );

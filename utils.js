@@ -22,7 +22,7 @@
 'use strict';
 
 // Gnome imports
-const Clutter = imports.gi;
+const Gdk = imports.gi.Gdk;
 const Gio = imports.gi.Gio;
 const Meta = imports.gi.Meta;
 
@@ -349,4 +349,16 @@ function monitorIndex(monitorValue) {
     let indexVal = monitorValue.slice(0, wsIndex);
     indexVal = indexVal.replace("mo", "");
     return parseInt(indexVal);
+}
+
+function translateModifierType(name) {
+    if (name === "Super" || name === "<Super>") {
+        return Gdk.ModifierType.MOD4_MASK;
+    }
+    if (name === "Ctrl" || name === "<Ctrl>") {
+        return Gdk.ModifierType.CONTROL_MASK;
+    }
+    if (name === "Alt" || name === "<Alt>") {
+        return Gdk.ModifierType.MOD1_MASK;
+    }
 }
