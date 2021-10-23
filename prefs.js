@@ -763,88 +763,86 @@ var KeyboardSettingsPanel = GObject.registerClass(
             modMaskDescriptionBox.add(createLabel(`${Msgs.prefs_keyboard_other_mod_mask_informational2}`));
 
             let modMaskFrame = new FrameListBox();
-            let modMaskSwapRowOption = new ListBoxRow();
-            let modMaskSwapLabel = createLabel(`${Msgs.prefs_keyboard_mod_mask_swap_label}`);
-            let modMaskSwapToggleBox =  new Gtk.Box({
+            let modMaskTileRowOption = new ListBoxRow();
+            let modMaskTileLabel = createLabel(`${Msgs.prefs_keyboard_mod_mask_tile_label}`);
+            let modMaskTileToggleBox =  new Gtk.Box({
                 orientation: Gtk.Orientation.HORIZONTAL,
                 margin: 3,
                 spacing: 3,
                 homogeneous: false
             });
 
-            const _handleSwapToggle = (button) => {
+            const _handleTileToggle = (button) => {
                 if (button.active === false) return;
                 const toggleLabel = button.label;
-                let labelValue = "Ctrl";
+                let labelValue = "Super";
 
                 switch (toggleLabel) {
-                    case `${Msgs.prefs_keyboard_mod_mask_swap_super_label}`:
-                        labelValue = "Super";
+                    case `${Msgs.prefs_keyboard_mod_mask_tile_ctrl_label}`:
+                        labelValue = "Ctrl";
                         break;
-                    case `${Msgs.prefs_keyboard_mod_mask_swap_alt_label}`:
+                    case `${Msgs.prefs_keyboard_mod_mask_tile_alt_label}`:
                         labelValue = "Alt";
                         break;
-                    case `${Msgs.prefs_keyboard_mod_mask_swap_none_label}`:
-                        labelValue = "";
+                    case `${Msgs.prefs_keyboard_mod_mask_tile_none_label}`:
+                        labelValue = "None";
                         break;
-                    default:
-                        labelValue = "Ctrl";
                 }
 
-                this.kbdSettings.set_string("mod-mask-mouse-swap", labelValue);
+                this.kbdSettings.set_string("mod-mask-mouse-tile", labelValue);
             }
 
-            let modMaskSwapCtrlToggle = new Gtk.RadioToolButton({
-                label: `${Msgs.prefs_keyboard_mod_mask_swap_ctrl_label}`
+            let modMaskTileCtrlToggle = new Gtk.RadioToolButton({
+                label: `${Msgs.prefs_keyboard_mod_mask_tile_ctrl_label}`
             });
 
-            let modMaskSwapSuperToggle = new Gtk.RadioToolButton({
-                group: modMaskSwapCtrlToggle,
-                label: `${Msgs.prefs_keyboard_mod_mask_swap_super_label}`
+            let modMaskTileSuperToggle = new Gtk.RadioToolButton({
+                group: modMaskTileCtrlToggle,
+                label: `${Msgs.prefs_keyboard_mod_mask_tile_super_label}`
             });
 
-            let modMaskSwapAltToggle = new Gtk.RadioToolButton({
-                group: modMaskSwapCtrlToggle,
-                label: `${Msgs.prefs_keyboard_mod_mask_swap_alt_label}`
+            let modMaskTileAltToggle = new Gtk.RadioToolButton({
+                group: modMaskTileCtrlToggle,
+                label: `${Msgs.prefs_keyboard_mod_mask_tile_alt_label}`
             });
 
-            let modMaskSwapNoneToggle = new Gtk.RadioToolButton({
-                group: modMaskSwapCtrlToggle,
-                label: `${Msgs.prefs_keyboard_mod_mask_swap_none_label}`
+            let modMaskTileNoneToggle = new Gtk.RadioToolButton({
+                group: modMaskTileCtrlToggle,
+                label: `${Msgs.prefs_keyboard_mod_mask_tile_none_label}`
             });
 
-            modMaskSwapCtrlToggle.connect("clicked", _handleSwapToggle.bind(this));
-            modMaskSwapSuperToggle.connect("clicked", _handleSwapToggle.bind(this));
-            modMaskSwapAltToggle.connect("clicked", _handleSwapToggle.bind(this));
-            modMaskSwapNoneToggle.connect("clicked", _handleSwapToggle.bind(this));
+            modMaskTileCtrlToggle.connect("clicked", _handleTileToggle.bind(this));
+            modMaskTileSuperToggle.connect("clicked", _handleTileToggle.bind(this));
+            modMaskTileAltToggle.connect("clicked", _handleTileToggle.bind(this));
+            modMaskTileNoneToggle.connect("clicked", _handleTileToggle.bind(this));
 
-            const currentSwapModifier = this.kbdSettings.get_string("mod-mask-mouse-swap");
+            const currentTileModifier = this.kbdSettings.get_string("mod-mask-mouse-tile");
 
             // Set the initial toggle value:
-            switch (currentSwapModifier) {
+            switch (currentTileModifier) {
                 case "Ctrl":
-                    modMaskSwapCtrlToggle.active = true;
+                    modMaskTileCtrlToggle.active = true;
                     break;
                 case "Super":
-                    modMaskSwapSuperToggle.active = true;
+                    modMaskTileSuperToggle.active = true;
                     break;
                 case "Alt":
-                    modMaskSwapAltToggle.active = true;
+                    modMaskTileAltToggle.active = true;
                     break;
-                case "":
-                    modMaskSwapNoneToggle.active = true;
+                case "None":
+                    modMaskTileNoneToggle.active = true;
                     break;
             }
 
-            modMaskSwapToggleBox.add(modMaskSwapCtrlToggle);
-            modMaskSwapToggleBox.add(modMaskSwapSuperToggle);
-            modMaskSwapToggleBox.add(modMaskSwapAltToggle);
-            modMaskSwapToggleBox.add(modMaskSwapNoneToggle);
+            modMaskTileToggleBox.add(modMaskTileCtrlToggle);
+            modMaskTileToggleBox.add(modMaskTileSuperToggle);
+            modMaskTileToggleBox.add(modMaskTileAltToggle);
+            modMaskTileToggleBox.add(modMaskTileNoneToggle);
 
-            modMaskSwapRowOption.add(modMaskSwapLabel);
-            modMaskSwapRowOption.add(modMaskSwapToggleBox);
+            modMaskTileRowOption.add(modMaskTileLabel);
+            modMaskTileRowOption.add(modMaskTileToggleBox);
 
-            modMaskFrame.add(modMaskSwapRowOption);
+            modMaskFrame.add(modMaskTileRowOption);
 
             this.add(modMaskDescriptionBox);
             this.add(modMaskFrame);

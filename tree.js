@@ -530,17 +530,17 @@ var Tree = GObject.registerClass(
 
             const monWindows = monWsNode.getNodeByType(NODE_TYPES.WINDOW)
                 .filter((w) => !w.nodeValue.minimized
-                    && w.mode === Window.WINDOW_MODES.TILE
+                    && (w.mode === Window.WINDOW_MODES.TILE)
                     && w.nodeValue !== metaWindow)
                 .map((w) => w.nodeValue);
             const sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
-            Logger.trace(`sorted windows ${sortedWindows.length}`)
+            Logger.debug(`sorted windows ${sortedWindows.length}`)
 
             for (let w of sortedWindows) {
                 const nodeWin = monWsNode.getNodeByValue(w);
                 const metaRect = nodeWin.rect;
                 const atPointer = Utils.rectContainsPoint(metaRect, pointer);
-                Logger.trace(`At pointer ${atPointer}`);
+                Logger.debug(`At pointer ${atPointer}`);
                 if (atPointer)
                     return nodeWin;
             }
@@ -642,8 +642,9 @@ var Tree = GObject.registerClass(
             let filterFn = (node) => {
                 if (node.nodeType === NODE_TYPES.WINDOW) {
                     let floating = node.mode === Window.WINDOW_MODES.FLOAT;
+                    let grabTiling = node.mode === Window.WINDOW_MODES.GRAB_TILE;
                     // A Node[Window]._data is a Meta.Window
-                    if (!node.nodeValue.minimized && !floating) {
+                    if (!node.nodeValue.minimized && !(floating || grabTiling)) {
                         return true;
                     }
                 }

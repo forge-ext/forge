@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-21 09:37-0400\n"
+"POT-Creation-Date: 2021-10-25 11:10-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -107,110 +107,105 @@ msgid "Modifier Keys"
 msgstr ""
 
 #: messages.js:62
-msgid "Drag-Drop Modifier Key Options"
+msgid "Drag-Drop Tiling Modifier Key Options"
 msgstr ""
 
 #: messages.js:63
-msgid ""
-"Change the modifier for <b>swapping or tiling</b> windows via mouse/drag-drop"
+msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
 msgstr ""
 
 #: messages.js:64
-msgid "Select <i>None</i> to disable"
+msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
 msgstr ""
 
 #: messages.js:65
-msgid "Swap Modifier"
-msgstr ""
-
-#: messages.js:66
 msgid "Tile Modifier"
 msgstr ""
 
-#: messages.js:67
+#: messages.js:66
 msgid "Ctrl"
 msgstr ""
 
-#: messages.js:68
+#: messages.js:67
 msgid "Super"
 msgstr ""
 
-#: messages.js:69
+#: messages.js:68
 msgid "Alt"
 msgstr ""
 
-#: messages.js:70
+#: messages.js:69
 msgid "None"
 msgstr ""
 
-#: messages.js:72
+#: messages.js:71
 msgid "Logger Level"
 msgstr ""
 
-#: messages.js:74
+#: messages.js:73
 msgid ""
 "CAUTION: These settings when enabled are buggy or can cause the shell to "
 "crash"
 msgstr ""
 
-#: messages.js:75
+#: messages.js:74
 msgid ""
 "Stacked Tiling Mode (Stack windows on top of each other while still being "
 "tiled)"
 msgstr ""
 
-#: messages.js:76
+#: messages.js:75
 msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
 msgstr ""
 
-#: messages.js:78
+#: messages.js:77
 msgid "Update Keybindings"
 msgstr ""
 
-#: messages.js:79
+#: messages.js:78
 msgid "Syntax"
 msgstr ""
 
-#: messages.js:80
+#: messages.js:79
 msgid "Legend"
 msgstr ""
 
-#: messages.js:81
+#: messages.js:80
 msgid "Windows key"
 msgstr ""
 
-#: messages.js:82
+#: messages.js:81
 msgid "Control key"
 msgstr ""
 
-#: messages.js:83
+#: messages.js:82
 msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 
-#: messages.js:84
+#: messages.js:83
 msgid "Resets"
 msgstr ""
 
-#: messages.js:85
+#: messages.js:84
 msgid "to previous value when invalid"
 msgstr ""
 
-#: messages.js:86
+#: messages.js:85
 msgid "Action"
 msgstr ""
 
-#: messages.js:87
+#: messages.js:86
 msgid "Shortcut"
 msgstr ""
 
-#: messages.js:88
+#: messages.js:87
 msgid "Notes"
 msgstr ""
 
-#: messages.js:90
+#: messages.js:89
 msgid "Forge Panel Settings"
 msgstr ""
 
-#: messages.js:91
+#: messages.js:90
 msgid "Tile Mode"
 msgstr ""

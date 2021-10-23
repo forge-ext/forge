@@ -361,4 +361,7 @@ function translateModifierType(name) {
     if (name === "Alt" || name === "<Alt>") {
         return Gdk.ModifierType.MOD1_MASK;
     }
+    if (name === "Shift" || name === "<Shift>") {
+        return Gdk.ModifierType.SHIFT_MASK;
+    }
 }

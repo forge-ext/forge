@@ -44,6 +44,7 @@ const Utils = Me.imports.utils;
 var WINDOW_MODES = Utils.createEnum([
     'FLOAT',
     'TILE',
+    'GRAB_TILE',
     'DEFAULT'
 ]);
 
@@ -564,6 +565,13 @@ var ForgeWindowManager = GObject.registerClass(
                     this._tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-tabbed-toggle");
                     this.showBorderFocusWindow();
+                    break;
+                case "CancelOperation":
+                    Logger.debug(`trigger cancel operation`);
+                    if (focusNodeWindow.mode === WINDOW_MODES.GRAB_TILE) {
+                        Logger.debug(`cancel-operation: grab-tile/swap`);
+                        this.cancelGrab = true;
+                    }
                     break;
                 default:
                     break;
@@ -1387,6 +1395,10 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         swapWindowsUnderPointer(focusNodeWindow) {
+            if (this.cancelGrab) {
+                Logger.debug(`swap-grab: was cancelled`);
+                return;
+            }
             let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
             if (nodeWinAtPointer)
                 this._tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
@@ -1398,24 +1410,24 @@ var ForgeWindowManager = GObject.registerClass(
          *
          */
         moveWindowToPointer(focusNodeWindow, preview = false) {
-            if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.TILE) return;
+            if (this.cancelGrab) {
+                Logger.debug(`move-grab: was cancelled`);
+                return;
+            }
+            if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
 
             let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
             if (nodeWinAtPointer) {
                 const targetRect = this._tree.processGap(nodeWinAtPointer);
                 const parentNodeTarget = nodeWinAtPointer.parentNode;
                 // For stacked and tabbed windows, append them to the parent container
-                if (parentNodeTarget.isStackedLayout() || parentNodeTarget.isTabbedLayout()) {
+                if (parentNodeTarget.isStackedLayout()) {
                     if (!preview) {
                         parentNodeTarget.appendChild(focusNodeWindow);
                     } else {
                         let previewHint = focusNodeWindow.previewHint;
                         if (previewHint) {
-                            if (parentNodeTarget.isTabbedLayout()) {
-                                previewHint.set_style_class_name("window-preview-tile-tabbed");
-                            } else if (parentNodeTarget.isStackedLayout()) {
-                                previewHint.set_style_class_name("window-preview-tile-stacked");
-                            }
+                            previewHint.set_style_class_name("window-preview-tile-stacked");
                             previewHint.set_position(targetRect.x, targetRect.y);
                             previewHint.set_size(targetRect.width, targetRect.height);
                             previewHint.show();
@@ -1431,7 +1443,7 @@ var ForgeWindowManager = GObject.registerClass(
                     };
                     let rightRect = leftRect;
 
-                    if (parentNodeTarget.isHSplitLayout()) {
+                    if (parentNodeTarget.isHSplitLayout() || parentNodeTarget.isTabbedLayout()) {
                         Logger.debug("move-pointer: parent target is HSPLIT");
                         // Divide the window's rect left/right
                         leftRect = {
@@ -1473,7 +1485,11 @@ var ForgeWindowManager = GObject.registerClass(
                         } else {
                             let previewHint = focusNodeWindow.previewHint;
                             if (previewHint) {
-                                previewHint.set_style_class_name("window-preview-tile-split");
+                                if (parentNodeTarget.isTabbedLayout()) {
+                                    previewHint.set_style_class_name("window-preview-tile-tabbed");
+                                } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
+                                    previewHint.set_style_class_name("window-preview-tile-split");
+                                }
                                 previewHint.set_position(leftRect.x, leftRect.y);
                                 previewHint.set_size(leftRect.width, leftRect.height);
                                 previewHint.show();
@@ -1486,7 +1502,11 @@ var ForgeWindowManager = GObject.registerClass(
                         } else {
                             let previewHint = focusNodeWindow.previewHint;
                             if (previewHint) {
-                                previewHint.set_style_class_name("window-preview-tile-split");
+                                if (parentNodeTarget.isTabbedLayout()) {
+                                    previewHint.set_style_class_name("window-preview-tile-tabbed");
+                                } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
+                                    previewHint.set_style_class_name("window-preview-tile-split");
+                                }
                                 previewHint.set_position(rightRect.x, rightRect.y);
                                 previewHint.set_size(rightRect.width, rightRect.height);
                                 previewHint.show();
@@ -1499,16 +1519,15 @@ var ForgeWindowManager = GObject.registerClass(
 
         findNodeWindowAtPointer(focusNodeWindow) {
             let pointerCoord = global.get_pointer();
-            Logger.trace(`grab-end: pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
+            Logger.trace(`find-window-ptr: pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
 
             let nodeWinAtPointer = this._tree.findNodeWindowAtPointer(
                 focusNodeWindow.nodeValue, pointerCoord);
-            Logger.debug(`grab-end: node at pointer ${nodeWinAtPointer}`);
+            Logger.debug(`find-window-ptr: node window at pointer ${nodeWinAtPointer ? nodeWinAtPointer.nodeValue.get_title() : null}`);
             return nodeWinAtPointer;
         }
 
         _handleGrabOpBegin(_, _display, _metaWindow, grabOp) {
-            this.freezeRender();
             let orientation = Utils.orientationFromGrab(grabOp);
             let direction = Utils.directionFromGrab(grabOp);
             let focusMetaWindow = this.focusMetaWindow;
@@ -1523,6 +1542,11 @@ var ForgeWindowManager = GObject.registerClass(
                 if (!focusNodeWindow) return;
 
                 focusNodeWindow.grabMode = Utils.grabMode(grabOp);
+                if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING && focusNodeWindow.mode === WINDOW_MODES.TILE)
+                    focusNodeWindow.mode = WINDOW_MODES.GRAB_TILE;
+
+                this.renderTree("grab-op-begin");
+                this.freezeRender();
                 focusNodeWindow.initGrabOp = grabOp;
                 focusNodeWindow.initRect = Utils.removeGapOnRect(frameRect, gaps);
             }
@@ -1530,51 +1554,57 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _handleGrabOpEnd(_, _display, _metaWindow, grabOp) {
-            this.unfreezeRender();
             let focusMetaWindow = this.focusMetaWindow;
             if (!focusMetaWindow) return;
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
 
-            if (focusNodeWindow) {
-                if (focusNodeWindow.previewHint) {
-                    focusNodeWindow.previewHint.hide();
-                    global.window_group.remove_child(focusNodeWindow.previewHint);
-                    focusNodeWindow.previewHint.destroy();
-                    focusNodeWindow.previewHint = null;
-                }
+            if (focusNodeWindow && !this.cancelGrab) {
                 if (!this.floatingWindow(focusNodeWindow))
                     focusMetaWindow.unmake_above();
 
                 // WINDOW_BASE is when grabbing the window decoration
                 // COMPOSITOR is when something like Overview requesting a grab, especially when Super is pressed.
                 if (grabOp === Meta.GrabOp.WINDOW_BASE || grabOp === Meta.GrabOp.COMPOSITOR) {
-                    if (this.allowDragDropSwap()) {
-                        this.swapWindowsUnderPointer(focusNodeWindow);
-                    } else {
-                        // Default to moving windows and re-tiling them
+                    if (this.allowDragDropTile()) {
                         this.moveWindowToPointer(focusNodeWindow);
                     }
 
-                    this.updateStackedFocus(focusNodeWindow);
-                    this.updateTabbedFocus(focusNodeWindow);
                 }
-
-                focusNodeWindow.initRect = null;
-                focusNodeWindow.grabMode = null;
-                focusNodeWindow.initGrabOp = null;
             }
+            this._grabCleanup(focusNodeWindow);
+            this.unfreezeRender();
 
             if (focusMetaWindow.get_maximized() === 0) {
                 this.renderTree("grab-op-end");
             }
 
-            Logger.debug(`grab op end`);
+            this.updateStackedFocus(focusNodeWindow);
+            this.updateTabbedFocus(focusNodeWindow);
+
+            Logger.debug(`grab op end ${grabOp}`);
         }
 
-        allowDragDropSwap() {
-            let swapModifier = this.ext.kbdSettings.get_string("mod-mask-mouse-swap");
-            let swapModifierMask = Utils.translateModifierType(swapModifier);
-            return this.kbd.modifierState === swapModifierMask;
+        _grabCleanup(focusNodeWindow) {
+            this.cancelGrab = false;
+            if (!focusNodeWindow) return;
+            focusNodeWindow.initRect = null;
+            focusNodeWindow.grabMode = null;
+            focusNodeWindow.initGrabOp = null;
+
+            if (focusNodeWindow.previewHint) {
+                focusNodeWindow.previewHint.hide();
+                global.window_group.remove_child(focusNodeWindow.previewHint);
+                focusNodeWindow.previewHint.destroy();
+                focusNodeWindow.previewHint = null;
+            }
+
+            if (focusNodeWindow.mode === WINDOW_MODES.GRAB_TILE) {
+                focusNodeWindow.mode = WINDOW_MODES.TILE;
+            }
+        }
+
+        allowDragDropTile() {
+            return this.kbd.allowDragDropTile() || this.kbd.isNonePressed();
         }
 
         _handleResizing(focusNodeWindow) {
@@ -1726,8 +1756,13 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _handleMoving(focusNodeWindow) {
-            if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.TILE) return;
+            if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
             const nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
+            const hidePreview = () => {
+                if (focusNodeWindow.previewHint) {
+                    focusNodeWindow.previewHint.hide();
+                }
+            };
 
             if (nodeWinAtPointer) {
                 if (!focusNodeWindow.previewHint) {
@@ -1736,19 +1771,13 @@ var ForgeWindowManager = GObject.registerClass(
                     focusNodeWindow.previewHint = previewHint;
                 }
 
-                if (!this.allowDragDropSwap()) {
+                if (this.allowDragDropTile()) {
                     this.moveWindowToPointer(focusNodeWindow, true);
                 } else {
-                    // Hide the preview hint if the Swap modifier is pressed
-                    if (focusNodeWindow.previewHint) {
-                        focusNodeWindow.previewHint.hide();
-                    }
+                    hidePreview();
                 }
             } else {
-                // Hide the preview hint when there is no window underneath
-                if (focusNodeWindow.previewHint) {
-                    focusNodeWindow.previewHint.hide();
-                }
+                hidePreview();
             }
         }
     }

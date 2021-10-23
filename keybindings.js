@@ -171,6 +171,12 @@ var Keybindings = GObject.registerClass(
             return this.keymap.get_modifier_state();
         }
 
+        allowDragDropTile() {
+            let tileModifier = this.kbdSettings.get_string("mod-mask-mouse-tile");
+            let tileModifierMask = ExtUtils.translateModifierType(tileModifier);
+            return this.modifierState === tileModifierMask;
+        }
+
         isKeyPressed(mask) {
             let modifierState = this.modifierState;
             return modifierState === mask;
@@ -194,6 +200,11 @@ var Keybindings = GObject.registerClass(
         isShiftPressed() {
             let mask = Gdk.ModifierType.SHIFT_MASK;
             return this.isKeyPressed(mask);
+        }
+
+        isNonePressed() {
+            let tileModifier = this.kbdSettings.get_string("mod-mask-mouse-tile");
+            return tileModifier === "None";
         }
 
         buildBindingDefinitions() {

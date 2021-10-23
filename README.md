@@ -8,7 +8,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 ## Features
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm.
 - Vim-like keybindings for navigation/swapping windows/moving windows in the containers.
-- Drag and drop swapping (via modifier) and tiling.
+- Drag and drop tiling.
 - Support for floating windows, smart gaps and focus hint.
 - Customizable shortcuts in extension preferences.
 - Some support for multi-display.
@@ -16,7 +16,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 - Works on GNOME 3.36+ and 40. X11 and Wayland.
 
 ## Experimental Features
-- Drag and drop tiling (NEW!) - _Cannot_ be turned off at the moment
+- Drag and drop tiling (NEW!)
 - Stacked tiling layout - Can be turned off in preferences
 - Tabbed tiling layout - Can be turned off in preferences
 
@@ -50,7 +50,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 | Toggle active workspace tiling | `<Shift> + <Super> + w` |
 | Toggle stacked layout | `<Shift> + <Super> + s` |
 | Toggle tabbed layout | `<Shift> + <Super> + t` |
-| Activate swap drag-drop | `<Ctrl>` |
+| Activate tile drag-drop | `Start dragging - Mod key configuration in prefs` |
 
 For any conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37

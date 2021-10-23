@@ -59,15 +59,14 @@ var prefs_keyboard_container_shortcuts = _("Container Shortcuts");
 var prefs_keyboard_focus_shortcuts = _("Focus Shortcuts");
 var prefs_keyboard_other_shortcuts = _("Other Shortcuts");
 var prefs_keyboard_function_mod_keys = _("Modifier Keys");
-var prefs_keyboard_other_mod_mask_header = _("Drag-Drop Modifier Key Options");
-var prefs_keyboard_other_mod_mask_informational1 = _("Change the modifier for <b>swapping or tiling</b> windows via mouse/drag-drop");
-var prefs_keyboard_other_mod_mask_informational2 = _("Select <i>None</i> to disable");
-var prefs_keyboard_mod_mask_swap_label = _("Swap Modifier");
+var prefs_keyboard_other_mod_mask_header = _("Drag-Drop Tiling Modifier Key Options");
+var prefs_keyboard_other_mod_mask_informational1 = _("Change the modifier for <b>tiling</b> windows via mouse/drag-drop");
+var prefs_keyboard_other_mod_mask_informational2 = _("Select <i>None</i> to <u>always tile immediately</u> by default");
 var prefs_keyboard_mod_mask_tile_label = _("Tile Modifier");
-var prefs_keyboard_mod_mask_swap_ctrl_label = _("Ctrl");
-var prefs_keyboard_mod_mask_swap_super_label = _("Super");
-var prefs_keyboard_mod_mask_swap_alt_label = _("Alt");
-var prefs_keyboard_mod_mask_swap_none_label = _("None");
+var prefs_keyboard_mod_mask_tile_ctrl_label = _("Ctrl");
+var prefs_keyboard_mod_mask_tile_super_label = _("Super");
+var prefs_keyboard_mod_mask_tile_alt_label = _("Alt");
+var prefs_keyboard_mod_mask_tile_none_label = _("None");
 
 var prefs_development_logging_level_label = _("Logger Level");
 

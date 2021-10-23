@@ -223,13 +223,12 @@
                 <summary>Toggle tiling mode on/off</summary>
         </key>
 
-        <key type="s" name="mod-mask-mouse-swap">
-            <default>'Ctrl'</default>
+        <key type="s" name="mod-mask-mouse-tile">
+            <default>'None'</default>
             <summary>
-                Default mod mask to allow window swap via mouse. 
-                Options are Ctrl, Super, Alt
+                Mod mask to allow window tiling via drag-drop. None means it will tile immediately.
+                Options are Super, Ctrl, Shift, Alt, and None
             </summary>
         </key>
-
     </schema>
 </schemalist>
