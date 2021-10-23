@@ -33,6 +33,18 @@ On navigating `Appearance` parent item,
 
 ## Tiling Mode
 
+When dragging a window,
+- [ ] - On dropping and _also_ pressing the Swap Modifier, should swap the windows.
+- [ ] - On moving and _not_ pressing the Swap modifier, should show a preview hint where the window would be tiled.
+    - [ ] - For split layout, should show preview hint left/right on horizontal, top/bottom on vertical following the mouse pointer.
+    - [ ] - For tabbed layout, should show preview hint same size as the current front window.
+    - [ ] - For stacked layout, should show preview hint same size as the current front window.
+- [ ] - On moving and not pressing the Swap modifier, pressing ESC should cancel the drag/drop and dragged window should go back to its previous position.
+- [ ] - On dropping and not pressing the Swap modifier, should tile the window on the preview hint position shown before dropping.
+- [ ] - On moving, should update the focus hint position unless disabled.
+- [ ] - On dropping to a different monitor, should tile based on the preview hint position shown unless empty monitor.
+    - [ ] - Empty monitors will not show a preview hint.
+
 ## Floating Mode
 
 ## Layout Mode
