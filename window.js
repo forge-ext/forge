@@ -1398,6 +1398,8 @@ var ForgeWindowManager = GObject.registerClass(
          *
          */
         moveWindowToPointer(focusNodeWindow, preview = false) {
+            if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.TILE) return;
+
             let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
             if (nodeWinAtPointer) {
                 const targetRect = this._tree.processGap(nodeWinAtPointer);
@@ -1724,7 +1726,7 @@ var ForgeWindowManager = GObject.registerClass(
         }
 
         _handleMoving(focusNodeWindow) {
-            if (!focusNodeWindow) return;
+            if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.TILE) return;
             const nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
 
             if (nodeWinAtPointer) {
