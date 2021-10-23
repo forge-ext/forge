@@ -896,19 +896,25 @@ var KeyboardSettingsPanel = GObject.registerClass(
 
             let descriptionBox = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
-                margin: 6,
+                margin_start: 6,
+                margin_end: 6,
+                margin_top: 6,
+                margin_bottom: 6,
                 spacing: 5,
                 homogeneous: false
             });
 
-            descriptionBox.add(shortcutHeader);
-            descriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_syntax_label}</i>: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
-            descriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_legend_label}</i>: &lt;Super&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_1_label}, &lt;Primary&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_2_label}`));
-            descriptionBox.add(createLabel(`${Msgs.prefs_keyboard_update_keys_instructions_text} <i>${Msgs.prefs_keyboard_update_keys_resets_label}</i> ${Msgs.prefs_keyboard_update_keys_resets_sub_1_label}`));
-            this.add(descriptionBox);
+            descriptionBox.append(shortcutHeader);
+            descriptionBox.append(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_syntax_label}</i>: &lt;Super&gt;h, &lt;Shift&gt;g, &lt;Shift&gt;&lt;Super&gt;h`));
+            descriptionBox.append(createLabel(`<i>${Msgs.prefs_keyboard_update_keys_legend_label}</i>: &lt;Super&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_1_label}, &lt;Primary&gt; - ${Msgs.prefs_keyboard_update_keys_legend_sub_2_label}`));
+            descriptionBox.append(createLabel(`${Msgs.prefs_keyboard_update_keys_instructions_text} <i>${Msgs.prefs_keyboard_update_keys_resets_label}</i> ${Msgs.prefs_keyboard_update_keys_resets_sub_1_label}`));
+            this.append(descriptionBox);
 
             let shortcutGrid = new Gtk.Grid({
-                margin: 12,
+                margin_start: 12,
+                margin_end: 12,
+                margin_top: 12,
+                margin_bottom: 12,
                 column_spacing: 10,
                 row_spacing: 10
             });
@@ -923,27 +929,33 @@ var KeyboardSettingsPanel = GObject.registerClass(
             });
 
             shortcutsFrame.add(shortcutGrid);
-            this.add(shortcutsFrame);
+            this.append(shortcutsFrame);
         }
 
         _initializeModMaskOptions() {
             let modMaskDescriptionBox = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
-                margin: 6,
+                margin_start: 6,
+                margin_end: 6,
+                margin_top: 6,
+                margin_bottom: 6,
                 spacing: 5,
                 homogeneous: false
             });
 
-            modMaskDescriptionBox.add(createLabel(`<b>${Msgs.prefs_keyboard_other_mod_mask_header}</b>`));
-            modMaskDescriptionBox.add(createLabel(`<i>${Msgs.prefs_keyboard_other_mod_mask_informational1}</i>`));
-            modMaskDescriptionBox.add(createLabel(`${Msgs.prefs_keyboard_other_mod_mask_informational2}`));
+            modMaskDescriptionBox.append(createLabel(`<b>${Msgs.prefs_keyboard_other_mod_mask_header}</b>`));
+            modMaskDescriptionBox.append(createLabel(`<i>${Msgs.prefs_keyboard_other_mod_mask_informational1}</i>`));
+            modMaskDescriptionBox.append(createLabel(`${Msgs.prefs_keyboard_other_mod_mask_informational2}`));
 
             let modMaskFrame = new FrameListBox();
             let modMaskTileRowOption = new ListBoxRow();
             let modMaskTileLabel = createLabel(`${Msgs.prefs_keyboard_mod_mask_tile_label}`);
             let modMaskTileToggleBox =  new Gtk.Box({
                 orientation: Gtk.Orientation.HORIZONTAL,
-                margin: 3,
+                margin_start: 3,
+                margin_end: 3,
+                margin_top: 3,
+                margin_bottom: 3,
                 spacing: 3,
                 homogeneous: false
             });
@@ -957,7 +969,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
                     case `${Msgs.prefs_keyboard_mod_mask_tile_ctrl_label}`:
                         labelValue = "Ctrl";
                         break;
-                    case `${Msgs.prefs_keyboard_mod_mask_tile_alt_label}`:
+                    case `${Msgs.prefs_keyboard_mod_mask_swap_alt_label}`:
                         labelValue = "Alt";
                         break;
                     case `${Msgs.prefs_keyboard_mod_mask_tile_none_label}`:
@@ -1010,18 +1022,18 @@ var KeyboardSettingsPanel = GObject.registerClass(
                     break;
             }
 
-            modMaskTileToggleBox.add(modMaskTileCtrlToggle);
-            modMaskTileToggleBox.add(modMaskTileSuperToggle);
-            modMaskTileToggleBox.add(modMaskTileAltToggle);
-            modMaskTileToggleBox.add(modMaskTileNoneToggle);
+            modMaskTileToggleBox.append(modMaskTileCtrlToggle);
+            modMaskTileToggleBox.append(modMaskTileSuperToggle);
+            modMaskTileToggleBox.append(modMaskTileAltToggle);
+            modMaskTileToggleBox.append(modMaskTileNoneToggle);
 
             modMaskTileRowOption.add(modMaskTileLabel);
             modMaskTileRowOption.add(modMaskTileToggleBox);
 
             modMaskFrame.add(modMaskTileRowOption);
 
-            this.add(modMaskDescriptionBox);
-            this.add(modMaskFrame);
+            this.append(modMaskDescriptionBox);
+            this.append(modMaskFrame);
         }
     }
 );
