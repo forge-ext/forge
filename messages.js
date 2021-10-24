@@ -42,11 +42,19 @@ var prefs_general_experimental = _("Experimental");
 var prefs_general_home = _("Home");
 var prefs_general_keyboard = _("Keyboard");
 
-var prefs_appearance_windows = _("Windows");
+var prefs_appearance_windows = _("Window");
 var prefs_appearance_window_gaps_title = _("Gaps");
 var prefs_appearance_window_gaps_size_label = _("Gaps Size");
 var prefs_appearance_window_gaps_increment_label = _("Gaps Size Increments");
 var prefs_appearance_window_gaps_hidden_single_label = _("Gaps Hidden when Single");
+var prefs_appearance_color = _("Color");
+var prefs_appearance_color_border_size_label = _("Border Size");
+var prefs_appearance_color_border_color_label = _("Border Color");
+var prefs_appearance_color_border_palette_mode = _("Palette Mode");
+var prefs_appearance_color_border_editor_mode = _("Editor Mode");
+var prefs_appearance_color_border_changes_apply = _("Apply Changes");
+var prefs_appearance_color_border_size_reset = _("Reset");
+var prefs_appearance_color_border_color_reset = _("Reset");
 
 var prefs_workspace_settings = _("Workspace");
 var prefs_workspace_settings_title = _("Update Workspace Settings");
@@ -88,3 +96,15 @@ var prefs_keyboard_update_keys_column_3_header = _("Notes");
 
 var panel_indicator_button_text = _("Forge Panel Settings");
 var panel_indicator_tile_switch_text = _("Tile Mode");
+
+var getCssSelectorAsMessage = (selector) => {
+    switch (selector) {
+        case ".window-clone-border":
+        case ".window-primary-border":
+            return _("Primary Focus Hint");
+        case ".window-stacked-border":
+            return _("Stacked Focus Hint");
+        case ".window-tabbed-border":
+            return _("Tabbed Focus Hint");
+    }
+}

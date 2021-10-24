@@ -884,3 +884,4 @@ var stringify = function(node, _options){
   var code = compiler.compile(node);
   return code;
 };
+

@@ -22,6 +22,7 @@
 const Gdk = imports.gi.Gdk;
 const GdkPixbuf = imports.gi.GdkPixbuf;
 const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
 const Gtk = imports.gi.Gtk;
 const GObject = imports.gi.GObject;
 
@@ -30,9 +31,11 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // Application imports
+const Css = Me.imports.css;
 const Logger = Me.imports.logger;
 const Msgs = Me.imports.messages;
 const Settings = Me.imports.settings;
+const Theme = Me.imports.theme;
 
 function init() {}
 
@@ -168,7 +171,7 @@ var PrefsWidget = GObject.registerClass(
             // Main Settings
             let generalSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
             generalSettingsBox.addStackRow("Home", Msgs.prefs_general_home, `${Me.path}/icons/prefs/go-home-symbolic.svg`);
-            generalSettingsBox.addStackRow("Appearance", Msgs.prefs_general_appearance, `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`, "AppearanceSettings");
+            generalSettingsBox.addStackRow("Appearance", Msgs.prefs_general_appearance, `${Me.path}/icons/prefs/color-picker-symbolic.svg`, "AppearanceSettings");
             generalSettingsBox.addStackRow("Workspace", Msgs.prefs_workspace_settings, `${Me.path}/icons/prefs/preferences-desktop-apps-symbolic.svg`);
             generalSettingsBox.addStackRow("Keyboard", Msgs.prefs_general_keyboard, `${Me.path}/icons/prefs/input-keyboard-symbolic.svg`, "KeyboardSettings");
             generalSettingsBox.addStackRow("Experimental", Msgs.prefs_general_experimental, `${Me.path}/icons/prefs/applications-science-symbolic.svg`);
@@ -180,7 +183,8 @@ var PrefsWidget = GObject.registerClass(
 
             // Appearance
             let appearanceSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
-            appearanceSettingsBox.addStackRow("Windows", Msgs.prefs_appearance_windows, `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
+            appearanceSettingsBox.addStackRow("Window", Msgs.prefs_appearance_windows, `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
+            appearanceSettingsBox.addStackRow("Color", Msgs.prefs_appearance_color, `${Me.path}/icons/prefs/color-select-symbolic.svg`);
             this.settingsStack.add_named(appearanceSettingsBox, "AppearanceSettings");
 
             // Keyboard
@@ -197,7 +201,8 @@ var PrefsWidget = GObject.registerClass(
         buildPanelBoxes() {
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Appearance"), "Appearance");
-            this.settingsPagesStack.add_named(new AppearanceWindowSettingsPanel(this), "Windows");
+            this.settingsPagesStack.add_named(new AppearanceWindowSettingsPanel(this), "Window");
+            this.settingsPagesStack.add_named(new AppearanceColorSettingsPanel(this), "Color");
             this.settingsPagesStack.add_named(new WorkspaceSettingsPanel(this), "Workspace");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
             this.settingsPagesStack.add_named(new KeyboardSettingsPanel(this, "window-"), "Window Shortcuts");
@@ -320,16 +325,26 @@ var ScrollStackBox = GObject.registerClass(
 );
 
 var PanelBox = GObject.registerClass(
-    class PanelBox extends Gtk.Box {
+    class PanelBox extends Gtk.ScrolledWindow {
         _init(prefsWidget, title) {
             super._init({
+                valign: Gtk.Align.FILL,
+                vexpand: true
+            });
+            this.prefsWidget = prefsWidget;
+            this.title = title;
+            this.box = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
                 margin: 24,
                 spacing: 20,
                 homogeneous: false
             });
-            this.prefsWidget = prefsWidget;
-            this.title = title;
+
+            Gtk.ScrolledWindow.prototype.add.call(this, this.box);
+        }
+
+        add(widget) {
+            this.box.add(widget);
         }
     }
 );
@@ -483,6 +498,134 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
             appearanceWindowFrame.add(gapHiddenWhenSingleRow);
 
             this.add(appearanceWindowFrame);
+        }
+    }
+);
+
+var AppearanceColorSettingsPanel = GObject.registerClass(
+    class AppearanceColorSettingsPanel extends PanelBox {
+        _init(prefsWidget) {
+            super._init(prefsWidget, "Appearance Color Settings");
+            this.themeMgr = new Theme.ThemeManager(prefsWidget.settings, {
+                prefsMode: true
+            });
+            this._createColorOptionWidget(".window-primary-border");
+            this._createColorOptionWidget(".window-stacked-border");
+            this._createColorOptionWidget(".window-tabbed-border");
+        }
+
+        _createColorOptionWidget(selector) {
+            const theme = this.themeMgr;
+            const labelMessage = Msgs.getCssSelectorAsMessage(selector);
+            const colorScheme = theme.getColorSchemeBySelector(selector);
+            this.add(createLabel(`<b>${labelMessage}</b>`));
+
+            let colorOptionFrame = new FrameListBox();
+            let colorOptionHintSizeRow = new ListBoxRow();
+            let colorOptionHintSizeLabel = createLabel(`${Msgs.prefs_appearance_color_border_size_label}`);
+            let colorOptionHintSizeSpin = Gtk.SpinButton.new_with_range(1, 5, 1);
+            let colorOptionHintSizeReset = new Gtk.Button({
+                label: `${Msgs.prefs_appearance_color_border_size_reset}`,
+                halign: Gtk.Align.END
+            });
+
+            colorOptionHintSizeSpin.max_width_chars = 1
+            colorOptionHintSizeSpin.max_length = 1
+            colorOptionHintSizeSpin.width_chars = 2
+            colorOptionHintSizeSpin.xalign = 1
+            colorOptionHintSizeSpin.value = theme.removePx(theme.getCssProperty(selector, "border-width").value);
+
+            colorOptionHintSizeSpin.connect('value-changed', (widget) => {
+                theme.setCssProperty(selector, "border-width", theme.addPx(widget.value));
+            });
+
+            colorOptionHintSizeReset.connect("clicked", () => {
+                const borderDefault = theme.defaultPalette[colorScheme]["border-width"];
+                theme.setCssProperty(selector, "border-width", theme.addPx(borderDefault));
+                colorOptionHintSizeSpin.value = borderDefault; 
+            });
+
+            colorOptionHintSizeRow.add(colorOptionHintSizeLabel);
+            colorOptionHintSizeRow.add(colorOptionHintSizeSpin);
+            colorOptionHintSizeRow.add(colorOptionHintSizeReset);
+
+            colorOptionFrame.add(colorOptionHintSizeRow);
+
+            let colorOptionHintColorRow = new ListBoxRow();
+            let colorOptionHintColorLabel = createLabel(`${Msgs.prefs_appearance_color_border_color_label}`);
+
+            let colorOptionHintColorPalette = new Gtk.RadioButton({
+                label: `${Msgs.prefs_appearance_color_border_palette_mode}`,
+                halign: Gtk.Align.END,
+                draw_indicator: false
+            });
+
+            let colorOptionHintColorEditor = new Gtk.RadioButton({
+                label: `${Msgs.prefs_appearance_color_border_editor_mode}`,
+                group: colorOptionHintColorPalette,
+                halign: Gtk.Align.END,
+                draw_indicator: false
+            });
+
+            let colorOptionHintColorApply = new Gtk.Button({
+                label: `${Msgs.prefs_appearance_color_border_changes_apply}`,
+                halign: Gtk.Align.END
+            });
+
+            let colorOptionHintColorReset = new Gtk.Button({
+                label: `${Msgs.prefs_appearance_color_border_color_reset}`,
+                halign: Gtk.Align.END
+            });
+
+            colorOptionHintColorPalette.connect('toggled', () => {
+                colorOptionColorChooser.show_editor = !colorOptionHintColorPalette.get_active();
+            });
+
+            colorOptionHintColorEditor.connect('toggled', () => {
+                colorOptionColorChooser.show_editor = colorOptionHintColorEditor.get_active();
+            });
+
+            colorOptionHintColorApply.connect('clicked', () => {
+                theme.setCssProperty(selector, "border-color", colorOptionColorChooser.get_rgba().to_string())
+            });
+
+            colorOptionHintColorReset.connect("clicked", () => {
+                const selectorColor = theme.defaultPalette[colorScheme].color;
+                theme.setCssProperty(selector, "border-color", selectorColor);
+                updateColorChooserValue(selectorColor);
+            });
+
+            let colorOptionColorChooser = new Gtk.ColorChooserWidget({
+                halign: Gtk.Align.CENTER,
+                margin_top: 10,
+                margin_bottom: 10
+            });
+
+            let updateColorChooserValue = (borderColor) => {
+                let gdkRgba = new Gdk.RGBA();
+
+                if (gdkRgba.parse(borderColor)) {
+                    colorOptionColorChooser.set_rgba(gdkRgba);
+                }
+            };
+
+            updateColorChooserValue(theme.getCssProperty(selector, "border-color").value);
+
+            // TODO figure out how to connect the custom (+) color button so the radio buttons can be toggled
+            colorOptionColorChooser.connect('color-activated', (colorRgba) => {
+                theme.setCssProperty(selector, "border-color", colorRgba.to_string())
+            });
+
+            colorOptionHintColorRow.add(colorOptionHintColorLabel);
+            colorOptionHintColorRow.add(colorOptionHintColorPalette);
+            colorOptionHintColorRow.add(colorOptionHintColorEditor);
+            colorOptionHintColorRow.add(colorOptionHintColorApply);
+            colorOptionHintColorRow.add(colorOptionHintColorReset);
+
+            colorOptionFrame.add(colorOptionHintColorRow);
+            colorOptionFrame.add(colorOptionColorChooser);
+
+            this.add(colorOptionFrame);
         }
     }
 );

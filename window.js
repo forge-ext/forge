@@ -38,6 +38,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
+const Theme = Me.imports.theme;
 const Tree = Me.imports.tree;
 const Utils = Me.imports.utils;
 
@@ -63,6 +64,7 @@ var ForgeWindowManager = GObject.registerClass(
             this._kbd = this.ext.keybindings;
             this._tree = new Tree.Tree(this);
             this.eventQueue = new Tree.Queue();
+            this.theme = new Theme.ThemeManager(this.ext.settings);
             Logger.info("forge initialized");
         }
 
@@ -278,6 +280,9 @@ var ForgeWindowManager = GObject.registerClass(
                             });
                         }
                         this.renderTree(settingName);
+                        break;
+                    case "css-updated":
+                        this.theme.reloadStylesheet();
                         break;
                     default:
                         break;
@@ -927,6 +932,7 @@ var ForgeWindowManager = GObject.registerClass(
             let monitorCount = global.display.get_n_monitors();
             let tiled = this._tree.getTiledChildren(nodeWindow.parentNode.childNodes);
             const floatingWindow = this.floatingWindow(nodeWindow);
+            let inset = 3; 
 
             if (windowActor.border && focusBorderEnabled) {
                 if (!maximized() ||
@@ -956,6 +962,8 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                     }
                     borders.push(windowActor.border);
+                } else {
+                    inset = 0;
                 }
             }
 
@@ -983,11 +991,6 @@ var ForgeWindowManager = GObject.registerClass(
             }
 
             let rect = metaWindow.get_frame_rect();
-            let inset = 2; // whether to put border inside the window when 0-gapped or maximized
-
-            if (maximized()) {
-                inset = 0;
-            }
 
             borders.forEach((border) => {
                 border.set_size(rect.width + (inset * 2), rect.height + (inset * 2));
@@ -1780,6 +1783,7 @@ var ForgeWindowManager = GObject.registerClass(
                 hidePreview();
             }
         }
+
     }
 );
 

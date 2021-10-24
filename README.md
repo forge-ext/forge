@@ -76,3 +76,4 @@ User is encouraged to bind the following:
 Thank you to: 
 - Michael Stapelberg/contributors for i3.
 - System76/contributors for pop-shell.
+- ReworkCSS/contributors for css-parse/css-stringify.

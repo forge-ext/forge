@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-25 11:10-0400\n"
+"POT-Creation-Date: 2021-10-25 11:27-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -45,7 +45,7 @@ msgid "Keyboard"
 msgstr ""
 
 #: messages.js:45
-msgid "Windows"
+msgid "Window"
 msgstr ""
 
 #: messages.js:46
@@ -64,148 +64,188 @@ msgstr ""
 msgid "Gaps Hidden when Single"
 msgstr ""
 
+#: messages.js:50
+msgid "Color"
+msgstr ""
+
 #: messages.js:51
-msgid "Workspace"
+msgid "Border Size"
 msgstr ""
 
 #: messages.js:52
-msgid "Update Workspace Settings"
+msgid "Border Color"
 msgstr ""
 
 #: messages.js:53
-msgid "Skip Workspace Tiling"
+msgid "Palette Mode"
 msgstr ""
 
 #: messages.js:54
+msgid "Editor Mode"
+msgstr ""
+
+#: messages.js:55
+msgid "Apply Changes"
+msgstr ""
+
+#: messages.js:56 messages.js:57
+msgid "Reset"
+msgstr ""
+
+#: messages.js:59
+msgid "Workspace"
+msgstr ""
+
+#: messages.js:60
+msgid "Update Workspace Settings"
+msgstr ""
+
+#: messages.js:61
+msgid "Skip Workspace Tiling"
+msgstr ""
+
+#: messages.js:62
 msgid ""
 "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
 "accept"
 msgstr ""
 
-#: messages.js:56
+#: messages.js:64
 msgid "Window Shortcuts"
 msgstr ""
 
-#: messages.js:57
+#: messages.js:65
 msgid "Workspace Shortcuts"
 msgstr ""
 
-#: messages.js:58
+#: messages.js:66
 msgid "Container Shortcuts"
 msgstr ""
 
-#: messages.js:59
+#: messages.js:67
 msgid "Focus Shortcuts"
 msgstr ""
 
-#: messages.js:60
+#: messages.js:68
 msgid "Other Shortcuts"
 msgstr ""
 
-#: messages.js:61
+#: messages.js:69
 msgid "Modifier Keys"
 msgstr ""
 
-#: messages.js:62
+#: messages.js:70
 msgid "Drag-Drop Tiling Modifier Key Options"
 msgstr ""
 
-#: messages.js:63
+#: messages.js:71
 msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
 msgstr ""
 
-#: messages.js:64
+#: messages.js:72
 msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
 msgstr ""
 
-#: messages.js:65
+#: messages.js:73
 msgid "Tile Modifier"
 msgstr ""
 
-#: messages.js:66
+#: messages.js:74
 msgid "Ctrl"
 msgstr ""
 
-#: messages.js:67
+#: messages.js:75
 msgid "Super"
 msgstr ""
 
-#: messages.js:68
+#: messages.js:76
 msgid "Alt"
 msgstr ""
 
-#: messages.js:69
+#: messages.js:77
 msgid "None"
 msgstr ""
 
-#: messages.js:71
+#: messages.js:79
 msgid "Logger Level"
 msgstr ""
 
-#: messages.js:73
+#: messages.js:81
 msgid ""
 "CAUTION: These settings when enabled are buggy or can cause the shell to "
 "crash"
 msgstr ""
 
-#: messages.js:74
+#: messages.js:82
 msgid ""
 "Stacked Tiling Mode (Stack windows on top of each other while still being "
 "tiled)"
 msgstr ""
 
-#: messages.js:75
+#: messages.js:83
 msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
 msgstr ""
 
-#: messages.js:77
+#: messages.js:85
 msgid "Update Keybindings"
 msgstr ""
 
-#: messages.js:78
+#: messages.js:86
 msgid "Syntax"
 msgstr ""
 
-#: messages.js:79
+#: messages.js:87
 msgid "Legend"
 msgstr ""
 
-#: messages.js:80
+#: messages.js:88
 msgid "Windows key"
 msgstr ""
 
-#: messages.js:81
+#: messages.js:89
 msgid "Control key"
 msgstr ""
 
-#: messages.js:82
+#: messages.js:90
 msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 
-#: messages.js:83
+#: messages.js:91
 msgid "Resets"
 msgstr ""
 
-#: messages.js:84
+#: messages.js:92
 msgid "to previous value when invalid"
 msgstr ""
 
-#: messages.js:85
+#: messages.js:93
 msgid "Action"
 msgstr ""
 
-#: messages.js:86
+#: messages.js:94
 msgid "Shortcut"
 msgstr ""
 
-#: messages.js:87
+#: messages.js:95
 msgid "Notes"
 msgstr ""
 
-#: messages.js:89
+#: messages.js:97
 msgid "Forge Panel Settings"
 msgstr ""
 
-#: messages.js:90
+#: messages.js:98
 msgid "Tile Mode"
+msgstr ""
+
+#: messages.js:104
+msgid "Primary Focus Hint"
+msgstr ""
+
+#: messages.js:106
+msgid "Stacked Focus Hint"
+msgstr ""
+
+#: messages.js:108
+msgid "Tabbed Focus Hint"
 msgstr ""
