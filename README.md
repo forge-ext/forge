@@ -17,6 +17,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 
 ## Experimental Features
 - Drag and drop tiling (NEW!)
+- Update hint color scheme from Preferences (NEW!)
 - Stacked tiling layout - Can be turned off in preferences
 - Tabbed tiling layout - Can be turned off in preferences
 

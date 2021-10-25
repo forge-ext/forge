@@ -31,6 +31,19 @@ On navigating `Appearance` parent item,
 
 ## Window Effects
 
+When changing Preferences on Appearance > Colors:
+- [ ] - Tiled Focus Hint updates border size and color
+- [ ] - Tiled Focus Hint color updates also updates preview tiled hint
+- [ ] - Tiled Focus Hint color updates also updates overview and workspace thumbnail hints
+- [ ] - Tiled Focus Hint updates can be reset
+- [ ] - Floated Focus Hint updates border size and color
+- [ ] - Stacked Focus Hint updates border size and color
+- [ ] - Stacked Focus Hint color updates also updates preview stacked hint
+- [ ] - Stacked Focus Hint updates can be reset
+- [ ] - Tabbed Focus Hint updates border size and color
+- [ ] - Tabbed Focus Hint color updates also updates preview tabbed hint
+- [ ] - Tabbed Focus Hint updates can be reset
+
 ## Tiling Mode
 
 When dragging a window,
