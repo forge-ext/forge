@@ -70,6 +70,12 @@ var ForgeWindowManager = GObject.registerClass(
 
         toggleFloatingMode(action, metaWindow) {
             let nodeWindow = this.findNodeWindow(metaWindow);
+
+            if (this.isFloatingExempt(nodeWindow)) {
+                Logger.warn(`float-toggle: do not tile a floating exception`);
+                return;
+            } 
+
             if (!nodeWindow || !(action || action.mode)) return;
             if (nodeWindow.nodeType !== Tree.NODE_TYPES.WINDOW) return;
             const actionMode = action.mode.toUpperCase();
@@ -336,6 +342,7 @@ var ForgeWindowManager = GObject.registerClass(
 
             switch(action.name) {
                 case "FloatToggle":
+
                     this.toggleFloatingMode(action, focusWindow)
 
                     let moveRect = {
@@ -1064,7 +1071,8 @@ var ForgeWindowManager = GObject.registerClass(
                         if (metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
                             metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG ||
                             metaWindow.get_transient_for() !== null ||
-                            !metaWindow.allows_resize()) {
+                            !metaWindow.allows_resize() ||
+                            this.isFloatingExempt(newNodeWindow)) {
                             newNodeWindow.nodeValue.make_above();
                             newNodeWindow.mode = WINDOW_MODES.FLOAT;
                         } else {
@@ -1784,6 +1792,23 @@ var ForgeWindowManager = GObject.registerClass(
             }
         }
 
+        isFloatingExempt(nodeWindow) {
+            if (!nodeWindow) return false;
+            if (!nodeWindow.nodeType === Tree.NODE_TYPES.WINDOW) return false;
+            const windowTitle = nodeWindow.nodeValue.title;
+            if (!windowTitle || windowTitle === "" || windowTitle.length === 0) return false;
+
+            if (!this.knownFloats) {
+                this.knownFloats = [
+                    {
+                        title: "Forge Settings"
+                    }
+                ]
+            }
+
+            const knownFloats = this.knownFloats;
+            return knownFloats.filter((kf) => windowTitle.includes(kf.title)).length > 0;
+        }
     }
 );
 
