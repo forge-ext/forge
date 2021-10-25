@@ -506,7 +506,7 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
     class AppearanceColorSettingsPanel extends PanelBox {
         _init(prefsWidget) {
             super._init(prefsWidget, "Appearance Color Settings");
-            this.themeMgr = new Theme.ThemeManager(prefsWidget.settings, {
+            this.themeMgr = new Theme.ThemeManager(prefsWidget.settings, new Settings.ConfigManager(), {
                 prefsMode: true
             });
             this._createColorOptionWidget(".window-tiled-border");

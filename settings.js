@@ -20,6 +20,8 @@
 
 // Gnome imports
 const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
+const GObject = imports.gi.GObject;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -27,6 +29,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 
 // Dev or Prod mode, see Makefile:debug
 var production = true;
+
+const Logger = Me.imports.logger;
 
 /**
  * getSettings:
@@ -80,3 +84,67 @@ function getSettingsSchema(schema) {
     return settingsSchema;
 }
 
+var ConfigManager = GObject.registerClass(
+    class ConfigManager extends GObject.Object {
+        _init() {
+            this._confDir = GLib.get_user_config_dir();
+        }
+
+        get confDir() {
+            return `${this._confDir}/forge`;
+        }
+
+        get defaultStylesheetFile() {
+            const defaultStylesheet = GLib.build_filenamev([
+                `${Me.dir.get_path()}`,
+                `stylesheet.css`
+            ]);
+
+            Logger.debug(`default-stylesheet: ${defaultStylesheet}`);
+
+            const defaultStylesheetFile = Gio.File.new_for_path(defaultStylesheet);
+            if (defaultStylesheetFile.query_exists(null)) {
+                return defaultStylesheetFile;
+            }
+
+            return null;
+        }
+
+        get stylesheetFile() {
+            const stylesheetDir = `${this.confDir}/stylesheet`;
+            // TODO - implement profile for styles and config
+            const profile = "forge";
+            const profileDirPath = `${stylesheetDir}/${profile}`;
+            const stylesheet = GLib.build_filenamev([
+                profileDirPath,
+                `stylesheet.css`
+            ]);
+
+            Logger.debug(`custom-stylesheet: ${stylesheet}`);
+
+            const stylesheetFile = Gio.File.new_for_path(stylesheet);
+            if (stylesheetFile.query_exists(null)) {
+                return stylesheetFile;
+            } else {
+                const profileDir = Gio.File.new_for_path(profileDirPath);
+                if (!profileDir.query_exists(null)) {
+                    if (profileDir.make_directory_with_parents(null)) {
+                        const createdStream = stylesheetFile.create(Gio.FileCreateFlags.NONE, null);
+                        const defaultContents = this.loadFileContents(this.defaultStylesheetFile);
+                        createdStream.write_all(defaultContents, null);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        loadFileContents(configFile) {
+            let [success, contents] = configFile.load_contents(null);
+            if (success) {
+                const stringContents = imports.byteArray.toString(contents);
+                return stringContents;
+            }
+        }
+    }
+);

@@ -31,6 +31,7 @@ const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
 const PanelExt = Me.imports.panel;
 const Settings = Me.imports.settings;
+const Theme = Me.imports.theme;
 const Window = Me.imports.window;
 
 function init() {
@@ -49,6 +50,8 @@ class Extension {
         Logger.info("enable");
         this.settings = Settings.getSettings();
         this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
+        this.configMgr = new Settings.ConfigManager();
+        this.theme = new Theme.ThemeManager(this.settings, this.configMgr);
 
         if (this.sameSession) {
             Logger.debug(`enable: still in same session`);
@@ -71,6 +74,7 @@ class Extension {
 
         this.forgeWm.enable();
         this.keybindings.enable();
+        this.theme.reloadStylesheet();
         Logger.info(`enable: finalized vars`);
     }
 
@@ -99,6 +103,8 @@ class Extension {
         this.keybindings = null;
         this.settings = null;
         this.indicator = null;
+        this.configMgr = null;
+        this.theme = null;
     }
 }
 

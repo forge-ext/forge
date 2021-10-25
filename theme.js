@@ -33,11 +33,12 @@ const Logger = Me.imports.logger;
 
 var ThemeManager = GObject.registerClass(
     class ThemeManager extends GObject.Object {
-        _init(settings, options = { prefsMode: false }) {
+        _init(settings, configMgr, options = { prefsMode: false }) {
             this.extensionPath = `${Me.dir.get_path()}`;
-            this._importCss();
             this.settings = settings;
+            this.configMgr = configMgr;
             this.options = options;
+            this._importCss();
             this.defaultPalette = this.getDefaultPalette();
         }
 
@@ -122,12 +123,11 @@ var ThemeManager = GObject.registerClass(
          * Returns the AST for stylesheet.css
          */
         _importCss() {
-            const cssPath = GLib.build_filenamev([
-                this.extensionPath,
-                "stylesheet.css",
-            ]);
-            const cssFile = Gio.File.new_for_path(cssPath);
-            Logger.debug(`${cssPath}`);
+            let cssFile = this.configMgr.stylesheetFile;
+            if (!cssFile) {
+                cssFile = this.configMgr.defaultStylesheetFile;
+            }
+
             let [success, contents] = cssFile.load_contents(null);
             if (success) {
                 const cssContents = imports.byteArray.toString(contents);
@@ -144,11 +144,12 @@ var ThemeManager = GObject.registerClass(
                 Logger.warn(`There is no current CSS AST`);
                 return;
             }
-            const cssPath = GLib.build_filenamev([
-                this.extensionPath,
-                "stylesheet.css",
-            ]);
-            const cssFile = Gio.File.new_for_path(cssPath);
+
+            let cssFile = this.configMgr.stylesheetFile;
+            if (!cssFile) {
+                cssFile = this.configMgr.defaultStylesheetFile;
+            }
+
             const cssContents = Css.stringify(this.cssAst);
             const PERMISSIONS_MODE = 0o744;
 
@@ -180,22 +181,18 @@ var ThemeManager = GObject.registerClass(
             } else {
                 const uuid = Me.metadata.uuid;
                 const St = imports.gi.St;
-                let stylesheetNames = ["stylesheet.css"];
+                const stylesheetFile = this.configMgr.stylesheetFile;
+                const defaultStylesheetFile = this.configMgr.defaultStylesheetFile;
                 let theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-                for (let i = 0; i < stylesheetNames.length; i++) {
-                    try {
-                        let stylesheetFile = Me.dir.get_child(stylesheetNames[i]);
-                        theme.unload_stylesheet(stylesheetFile);
-                        theme.load_stylesheet(stylesheetFile);
-                        Logger.debug("stylesheet reloaded");
-                        Me.stylesheet = stylesheetFile;
-                        break;
-                    } catch (e) {
-                        if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND))
-                            continue; // not an error
-                        Logger.error(`${uuid} - ${e}`);
-                        return;
-                    }
+                try {
+                    theme.unload_stylesheet(defaultStylesheetFile);
+                    theme.unload_stylesheet(stylesheetFile);
+                    theme.load_stylesheet(stylesheetFile);
+                    Logger.debug("stylesheet reloaded");
+                    Me.stylesheet = stylesheetFile;
+                } catch (e) {
+                    Logger.error(`${uuid} - ${e}`);
+                    return;
                 }
             }
         }

@@ -64,7 +64,7 @@ var ForgeWindowManager = GObject.registerClass(
             this._kbd = this.ext.keybindings;
             this._tree = new Tree.Tree(this);
             this.eventQueue = new Tree.Queue();
-            this.theme = new Theme.ThemeManager(this.ext.settings);
+            this.theme = this.ext.theme;
             Logger.info("forge initialized");
         }
 
