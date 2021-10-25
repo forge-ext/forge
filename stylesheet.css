@@ -1,4 +1,4 @@
-.primary {
+.tiled {
     color: rgba(236,94,94,1);
     opacity: 1;
     border-width: 3px;
@@ -23,7 +23,7 @@
 }
 
 .window-clone-border,
-.window-primary-border,
+.window-tiled-border,
 .workspace-thumbnail-indicator {
     border-width: 3px;
     border-color: rgba(236,94,94,1);

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-25 11:27-0400\n"
+"POT-Creation-Date: 2021-10-25 13:00-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -239,7 +239,7 @@ msgid "Tile Mode"
 msgstr ""
 
 #: messages.js:104
-msgid "Primary Focus Hint"
+msgid "Tiled Focus Hint"
 msgstr ""
 
 #: messages.js:106

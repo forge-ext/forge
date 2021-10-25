@@ -963,7 +963,7 @@ var ForgeWindowManager = GObject.registerClass(
                         }
                     } else {
                         if (!floatingWindow) {
-                            windowActor.border.set_style_class_name("window-clone-border");
+                            windowActor.border.set_style_class_name("window-tiled-border");
                         } else {
                             windowActor.border.set_style_class_name("window-float-border");
                         }
@@ -1143,7 +1143,7 @@ var ForgeWindowManager = GObject.registerClass(
                 }
 
                 if (!windowActor.border) {
-                    let border = new St.Bin({style_class: "window-clone-border"});
+                    let border = new St.Bin({style_class: "window-tiled-border"});
 
                     if (global.window_group)
                         global.window_group.add_child(border);

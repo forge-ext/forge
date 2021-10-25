@@ -509,7 +509,7 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
             this.themeMgr = new Theme.ThemeManager(prefsWidget.settings, {
                 prefsMode: true
             });
-            this._createColorOptionWidget(".window-primary-border");
+            this._createColorOptionWidget(".window-tiled-border");
             this._createColorOptionWidget(".window-stacked-border");
             this._createColorOptionWidget(".window-tabbed-border");
         }

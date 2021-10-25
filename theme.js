@@ -51,7 +51,7 @@ var ThemeManager = GObject.registerClass(
 
         getDefaultPalette() {
             return {
-                "primary": this.getDefaults("primary"),
+                "tiled": this.getDefaults("tiled"),
                 "secondary": this.getDefaults("secondary"),
                 "stacked": this.getDefaults("stacked"),
                 "tabbed": this.getDefaults("tabbed"),
@@ -87,9 +87,9 @@ var ThemeManager = GObject.registerClass(
                     (r) => r.selectors.filter((s) => s === selector).length > 0
                 );
                 Logger.debug(`matched rules ${matchRules.length}`);
-                return matchRules.length > 0 ? matchRules[0] : null;
+                return matchRules.length > 0 ? matchRules[0] : {};
             }
-            return null;
+            return {};
         }
 
         getCssProperty(selector, propertyName) {
@@ -101,10 +101,10 @@ var ThemeManager = GObject.registerClass(
                 );
                 return matchDeclarations.length > 0
                     ? matchDeclarations[0]
-                    : null;
+                    : {};
             }
 
-            return null;
+            return {};
         }
 
         setCssProperty(selector, propertyName, propertyValue) {

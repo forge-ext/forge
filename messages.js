@@ -100,8 +100,8 @@ var panel_indicator_tile_switch_text = _("Tile Mode");
 var getCssSelectorAsMessage = (selector) => {
     switch (selector) {
         case ".window-clone-border":
-        case ".window-primary-border":
-            return _("Primary Focus Hint");
+        case ".window-tiled-border":
+            return _("Tiled Focus Hint");
         case ".window-stacked-border":
             return _("Stacked Focus Hint");
         case ".window-tabbed-border":
