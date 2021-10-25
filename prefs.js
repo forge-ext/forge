@@ -510,6 +510,8 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
                 prefsMode: true
             });
             this._createColorOptionWidget(".window-tiled-border");
+            this._createColorOptionWidget(".window-floated-border");
+            this._createColorOptionWidget(".window-split-border");
             this._createColorOptionWidget(".window-stacked-border");
             this._createColorOptionWidget(".window-tabbed-border");
         }
@@ -585,13 +587,29 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
                 colorOptionColorChooser.show_editor = colorOptionHintColorEditor.get_active();
             });
 
+            const updateCssColors = (rgbaString) => {
+                const rgba = new Gdk.RGBA();
+
+                if (rgba.parse(rgbaString)) {
+                    const previewBorderRgba = rgba.copy();
+                    const previewBackgroundRgba = rgba.copy();
+
+                    previewBorderRgba.alpha = 0.3;
+                    previewBackgroundRgba.alpha = 0.2;
+
+                    theme.setCssProperty(selector, "border-color", rgba.to_string())
+                    theme.setCssProperty(`.window-tilepreview-${colorScheme}`, "border-color", previewBorderRgba.to_string())
+                    theme.setCssProperty(`.window-tilepreview-${colorScheme}`, "background-color", previewBackgroundRgba.to_string())
+                }
+            };
+
             colorOptionHintColorApply.connect('clicked', () => {
-                theme.setCssProperty(selector, "border-color", colorOptionColorChooser.get_rgba().to_string())
+                updateCssColors(colorOptionColorChooser.get_rgba().to_string());
             });
 
             colorOptionHintColorReset.connect("clicked", () => {
                 const selectorColor = theme.defaultPalette[colorScheme].color;
-                theme.setCssProperty(selector, "border-color", selectorColor);
+                updateCssColors(selectorColor);
                 updateColorChooserValue(selectorColor);
             });
 

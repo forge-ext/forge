@@ -52,7 +52,8 @@ var ThemeManager = GObject.registerClass(
         getDefaultPalette() {
             return {
                 "tiled": this.getDefaults("tiled"),
-                "secondary": this.getDefaults("secondary"),
+                "split": this.getDefaults("split"),
+                "floated": this.getDefaults("floated"),
                 "stacked": this.getDefaults("stacked"),
                 "tabbed": this.getDefaults("tabbed"),
             }
@@ -60,7 +61,7 @@ var ThemeManager = GObject.registerClass(
 
         /**
          * The scheme name is in between the CSS selector name
-         * E.g. window-primary-color should return primary
+         * E.g. window-tiled-color should return `tiled`
          */
         getColorSchemeBySelector(selector) {
             if (!selector.includes("-")) return null;

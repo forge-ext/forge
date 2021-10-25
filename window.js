@@ -937,38 +937,43 @@ var ForgeWindowManager = GObject.registerClass(
                     gap === 0;
             }
             let monitorCount = global.display.get_n_monitors();
-            let tiled = this._tree.getTiledChildren(nodeWindow.parentNode.childNodes);
-            const floatingWindow = this.floatingWindow(nodeWindow);
+            let tiledChildren = this._tree.getTiledChildren(nodeWindow.parentNode.childNodes);
             let inset = 3; 
 
-            if (windowActor.border && focusBorderEnabled) {
+            const floatingWindow = this.floatingWindow(nodeWindow);
+            const tiledBorder = windowActor.border;
+
+            if (tiledBorder && focusBorderEnabled) {
                 if (!maximized() ||
-                    gap === 0 && tiled.length === 1 && monitorCount > 1 ||
-                    gap === 0 && tiled.length > 1 || floatingWindow) {
-                    if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
-                        if (!floatingWindow) {
-                            windowActor.border.set_style_class_name("window-stacked-border");
-                        } else {
-                            windowActor.border.set_style_class_name("window-float-border");
-                        }
-                    } else if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
-                        if (!floatingWindow) {
-                            if (!nodeWindow.backgroundTab) {
-                                windowActor.border.set_style_class_name("window-tabbed-border");
+                    gap === 0 && tiledChildren.length === 1 && monitorCount > 1 ||
+                    gap === 0 && tiledChildren.length > 1 || floatingWindow) {
+                    if (tilingModeEnabled) {
+                        if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
+                            if (!floatingWindow) {
+                                tiledBorder.set_style_class_name("window-stacked-border");
                             } else {
-                                windowActor.border.set_style_class_name("window-tabbed-bg-border");
+                                tiledBorder.set_style_class_name("window-floated-border");
+                            }
+                        } else if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
+                            if (!floatingWindow) {
+                                tiledBorder.set_style_class_name("window-tabbed-border");
+                                if (nodeWindow.backgroundTab) {
+                                    tiledBorder.add_style_class_name("window-tabbed-bg");
+                                }
+                            } else {
+                                tiledBorder.set_style_class_name("window-floated-border");
                             }
                         } else {
-                            windowActor.border.set_style_class_name("window-float-border");
+                            if (!floatingWindow) {
+                                tiledBorder.set_style_class_name("window-tiled-border");
+                            } else {
+                                tiledBorder.set_style_class_name("window-floated-border");
+                            }
                         }
                     } else {
-                        if (!floatingWindow) {
-                            windowActor.border.set_style_class_name("window-tiled-border");
-                        } else {
-                            windowActor.border.set_style_class_name("window-float-border");
-                        }
+                        tiledBorder.set_style_class_name("window-floated-border");
                     }
-                    borders.push(windowActor.border);
+                    borders.push(tiledBorder);
                 } else {
                     inset = 0;
                 }
@@ -982,17 +987,20 @@ var ForgeWindowManager = GObject.registerClass(
                 (nodeWindow.parentNode.nodeType === Tree.NODE_TYPES.CON ||
                     nodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR)) {
                 if (!windowActor.splitBorder) {
-                    let splitBorder = new St.Bin({style_class: "window-split-direction-horizontal"});
+                    let splitBorder = new St.Bin({style_class: "window-split-border"});
                     global.window_group.add_child(splitBorder);
                     windowActor.splitBorder = splitBorder;
                     Logger.debug(`focus-border: create split border`);
                 } 
 
                 let splitBorder = windowActor.splitBorder;
+                splitBorder.remove_style_class_name("window-split-vertical");
+                splitBorder.remove_style_class_name("window-split-horizontal");
+
                 if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.VSPLIT) {
-                    splitBorder.set_style_class_name("window-split-direction-vertical");
+                    splitBorder.add_style_class_name("window-split-vertical");
                 } else {
-                    splitBorder.set_style_class_name("window-split-direction-horizontal");
+                    splitBorder.add_style_class_name("window-split-horizontal");
                 }
                 borders.push(splitBorder);
             }
@@ -1438,7 +1446,7 @@ var ForgeWindowManager = GObject.registerClass(
                     } else {
                         let previewHint = focusNodeWindow.previewHint;
                         if (previewHint) {
-                            previewHint.set_style_class_name("window-preview-tile-stacked");
+                            previewHint.set_style_class_name("window-tilepreview-stacked");
                             previewHint.set_position(targetRect.x, targetRect.y);
                             previewHint.set_size(targetRect.width, targetRect.height);
                             previewHint.show();
@@ -1497,9 +1505,9 @@ var ForgeWindowManager = GObject.registerClass(
                             let previewHint = focusNodeWindow.previewHint;
                             if (previewHint) {
                                 if (parentNodeTarget.isTabbedLayout()) {
-                                    previewHint.set_style_class_name("window-preview-tile-tabbed");
+                                    previewHint.set_style_class_name("window-tilepreview-tabbed");
                                 } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
-                                    previewHint.set_style_class_name("window-preview-tile-split");
+                                    previewHint.set_style_class_name("window-tilepreview-tiled");
                                 }
                                 previewHint.set_position(leftRect.x, leftRect.y);
                                 previewHint.set_size(leftRect.width, leftRect.height);
@@ -1514,9 +1522,9 @@ var ForgeWindowManager = GObject.registerClass(
                             let previewHint = focusNodeWindow.previewHint;
                             if (previewHint) {
                                 if (parentNodeTarget.isTabbedLayout()) {
-                                    previewHint.set_style_class_name("window-preview-tile-tabbed");
+                                    previewHint.set_style_class_name("window-tilepreview-tabbed");
                                 } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
-                                    previewHint.set_style_class_name("window-preview-tile-split");
+                                    previewHint.set_style_class_name("window-tilepreview-tiled");
                                 }
                                 previewHint.set_position(rightRect.x, rightRect.y);
                                 previewHint.set_size(rightRect.width, rightRect.height);

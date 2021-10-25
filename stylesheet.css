@@ -4,7 +4,7 @@
     border-width: 3px;
 }
 
-.secondary {
+.split {
     color: rgba(255,246,108,1);
     opacity: 1;
     border-width: 3px;
@@ -22,6 +22,12 @@
     border-width: 3px;
 }
 
+.floated {
+    color: rgba(180,167,214,1);
+    border-width: 3px;
+    opacity: 1;
+}
+
 .window-clone-border,
 .window-tiled-border,
 .workspace-thumbnail-indicator {
@@ -31,24 +37,23 @@
     border-radius: 3px;
 }
 
-.window-split-direction-horizontal {
+.window-split-border {
     border-width: 3px;
     border-color: rgba(255,246,108,1);
-    border-left-width: 0;
-    border-top-width: 0;
-    border-bottom-width: 0;
     border-style: solid;
     border-radius: 3px;
 }
 
-.window-split-direction-vertical {
-    border-width: 3px;
-    border-color: rgba(255,246,108,1);
+.window-split-horizontal {
+    border-left-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+}
+
+.window-split-vertical {
     border-left-width: 0;
     border-top-width: 0;
     border-right-width: 0;
-    border-style: solid;
-    border-radius: 3px;
 }
 
 .window-stacked-border {
@@ -65,24 +70,20 @@
     border-radius: 3px;
 }
 
-.window-tabbed-bg-border {
-    border-width: 3px;
-    border-color: rgba(17,199,224,1);
-    border-style: solid;
-    border-radius: 3px;
+.window-tabbed-bg {
     border-left-width: 0;
     border-bottom-width: 0;
     border-right-width: 0;
 }
 
-.window-float-border {
+.window-floated-border {
     border-width: 3px;
     border-color: rgba(180,167,214,1);
     border-style: solid;
     border-radius: 3px;
 }
 
-.window-preview-tile-split {
+.window-tilepreview-tiled {
     border-width: 1px;
     border-color: rgba(236,94,94,0.4);
     border-style: solid;
@@ -90,7 +91,7 @@
     background-color: rgba(236,94,94,0.3);
 }
 
-.window-preview-tile-stacked {
+.window-tilepreview-stacked {
     border-width: 1px;
     border-color: rgba(247,162,43,0.4);
     border-style: solid;
@@ -98,7 +99,7 @@
     background-color: rgba(247,162,43,0.3);
 }
 
-.window-preview-tile-tabbed {
+.window-tilepreview-tabbed {
     border-width: 1px;
     border-color: rgba(17,199,224,0.4);
     border-style: solid;

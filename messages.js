@@ -99,12 +99,15 @@ var panel_indicator_tile_switch_text = _("Tile Mode");
 
 var getCssSelectorAsMessage = (selector) => {
     switch (selector) {
-        case ".window-clone-border":
         case ".window-tiled-border":
-            return _("Tiled Focus Hint");
+            return _("Tiled Focus Hint and Preview");
+        case ".window-floated-border":
+            return _("Floated Focus Hint");
+        case ".window-split-border":
+            return _("Split Direction Hint");
         case ".window-stacked-border":
-            return _("Stacked Focus Hint");
+            return _("Stacked Focus Hint and Preview");
         case ".window-tabbed-border":
-            return _("Tabbed Focus Hint");
+            return _("Tabbed Focus Hint and Preview");
     }
 }
