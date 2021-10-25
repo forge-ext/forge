@@ -30,6 +30,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // Application imports
 const Css = Me.imports.css;
 const Logger = Me.imports.logger;
+const Settings = Me.imports.settings;
 
 var ThemeManager = GObject.registerClass(
     class ThemeManager extends GObject.Object {
@@ -124,7 +125,7 @@ var ThemeManager = GObject.registerClass(
          */
         _importCss() {
             let cssFile = this.configMgr.stylesheetFile;
-            if (!cssFile) {
+            if (!cssFile || !Settings.production) {
                 cssFile = this.configMgr.defaultStylesheetFile;
             }
 
@@ -146,7 +147,7 @@ var ThemeManager = GObject.registerClass(
             }
 
             let cssFile = this.configMgr.stylesheetFile;
-            if (!cssFile) {
+            if (!cssFile || !Settings.production) {
                 cssFile = this.configMgr.defaultStylesheetFile;
             }
 
@@ -183,11 +184,16 @@ var ThemeManager = GObject.registerClass(
                 const St = imports.gi.St;
                 const stylesheetFile = this.configMgr.stylesheetFile;
                 const defaultStylesheetFile = this.configMgr.defaultStylesheetFile;
+                const production = Settings.production;
                 let theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
                 try {
                     theme.unload_stylesheet(defaultStylesheetFile);
                     theme.unload_stylesheet(stylesheetFile);
-                    theme.load_stylesheet(stylesheetFile);
+                    if (production) {
+                        theme.load_stylesheet(stylesheetFile);
+                    } else {
+                        theme.load_stylesheet(defaultStylesheetFile);
+                    }
                     Logger.debug("stylesheet reloaded");
                     Me.stylesheet = stylesheetFile;
                 } catch (e) {

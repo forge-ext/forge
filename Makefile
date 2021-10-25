@@ -27,6 +27,7 @@ build: clean metadata.json schemas compilemsgs
 	cp *.js temp
 	cp *.css temp
 	cp LICENSE temp
+	cp css/index.js temp/css.js
 	mkdir -p temp/locale
 	for msg in $(MSGSRC:.po=.mo); do \
 		msgf=temp/locale/`basename $$msg .mo`; \
