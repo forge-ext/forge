@@ -525,7 +525,7 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
             let colorOptionFrame = new FrameListBox();
             let colorOptionHintSizeRow = new ListBoxRow();
             let colorOptionHintSizeLabel = createLabel(`${Msgs.prefs_appearance_color_border_size_label}`);
-            let colorOptionHintSizeSpin = Gtk.SpinButton.new_with_range(1, 5, 1);
+            let colorOptionHintSizeSpin = Gtk.SpinButton.new_with_range(1, 6, 1);
             let colorOptionHintSizeReset = new Gtk.Button({
                 label: `${Msgs.prefs_appearance_color_border_size_reset}`,
                 halign: Gtk.Align.END
@@ -593,13 +593,23 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
                 if (rgba.parse(rgbaString)) {
                     const previewBorderRgba = rgba.copy();
                     const previewBackgroundRgba = rgba.copy();
+                    const overviewBackgroundRgba = rgba.copy();
 
                     previewBorderRgba.alpha = 0.3;
                     previewBackgroundRgba.alpha = 0.2;
+                    overviewBackgroundRgba.alpha = 0.5
 
+                    // The primary color updates the focus hint:
                     theme.setCssProperty(selector, "border-color", rgba.to_string())
-                    theme.setCssProperty(`.window-tilepreview-${colorScheme}`, "border-color", previewBorderRgba.to_string())
-                    theme.setCssProperty(`.window-tilepreview-${colorScheme}`, "background-color", previewBackgroundRgba.to_string())
+
+                    // Then the overview app icons, search and search results:
+                    theme.setCssProperty(".search-entry:focus", "border-color", rgba.to_string());
+                    theme.setCssProperty(".kbd-shortcut:focus", "border-color", rgba.to_string());
+                    theme.setCssProperty(".search-provider-icon:focus", "background-color", overviewBackgroundRgba.to_string());
+
+                    // And then finally the preview when doing drag/drop tiling:
+                    theme.setCssProperty(`.window-tilepreview-${colorScheme}`, "border-color", previewBorderRgba.to_string());
+                    theme.setCssProperty(`.window-tilepreview-${colorScheme}`, "background-color", previewBackgroundRgba.to_string());
                 }
             };
 

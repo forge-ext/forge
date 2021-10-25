@@ -53,12 +53,12 @@ var ThemeManager = GObject.registerClass(
 
         getDefaultPalette() {
             return {
-                "tiled": this.getDefaults("tiled"),
-                "split": this.getDefaults("split"),
-                "floated": this.getDefaults("floated"),
-                "stacked": this.getDefaults("stacked"),
-                "tabbed": this.getDefaults("tabbed"),
-            }
+                tiled: this.getDefaults("tiled"),
+                split: this.getDefaults("split"),
+                floated: this.getDefaults("floated"),
+                stacked: this.getDefaults("stacked"),
+                tabbed: this.getDefaults("tabbed"),
+            };
         }
 
         /**
@@ -69,16 +69,23 @@ var ThemeManager = GObject.registerClass(
             if (!selector.includes("-")) return null;
             let firstDash = selector.indexOf("-");
             let secondDash = selector.indexOf("-", firstDash + 1);
-            const scheme = selector.substr(firstDash + 1, (secondDash - firstDash - 1));
-            Logger.debug(`first ${firstDash}, second ${secondDash}, scheme ${scheme}`);
+            const scheme = selector.substr(
+                firstDash + 1,
+                secondDash - firstDash - 1
+            );
+            Logger.debug(
+                `first ${firstDash}, second ${secondDash}, scheme ${scheme}`
+            );
             return scheme;
         }
 
         getDefaults(color) {
             return {
-                "color": this.getCssProperty(`.${color}`, "color").value,
-                "border-width": this.removePx(this.getCssProperty(`.${color}`, "border-width").value),
-                "opacity": this.getCssProperty(`.${color}`, "opacity").value,
+                color: this.getCssProperty(`.${color}`, "color").value,
+                "border-width": this.removePx(
+                    this.getCssProperty(`.${color}`, "border-width").value
+                ),
+                opacity: this.getCssProperty(`.${color}`, "opacity").value,
             };
         }
 
@@ -102,9 +109,7 @@ var ThemeManager = GObject.registerClass(
                 const matchDeclarations = cssRule.declarations.filter(
                     (d) => d.property === propertyName
                 );
-                return matchDeclarations.length > 0
-                    ? matchDeclarations[0]
-                    : {};
+                return matchDeclarations.length > 0 ? matchDeclarations[0] : {};
             }
 
             return {};
@@ -183,9 +188,12 @@ var ThemeManager = GObject.registerClass(
                 const uuid = Me.metadata.uuid;
                 const St = imports.gi.St;
                 const stylesheetFile = this.configMgr.stylesheetFile;
-                const defaultStylesheetFile = this.configMgr.defaultStylesheetFile;
+                const defaultStylesheetFile =
+                    this.configMgr.defaultStylesheetFile;
                 const production = Settings.production;
-                let theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+                let theme = St.ThemeContext.get_for_stage(
+                    global.stage
+                ).get_theme();
                 try {
                     theme.unload_stylesheet(defaultStylesheetFile);
                     theme.unload_stylesheet(stylesheetFile);
