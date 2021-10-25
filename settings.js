@@ -100,7 +100,7 @@ var ConfigManager = GObject.registerClass(
                 `stylesheet.css`
             ]);
 
-            Logger.debug(`default-stylesheet: ${defaultStylesheet}`);
+            Logger.trace(`default-stylesheet: ${defaultStylesheet}`);
 
             const defaultStylesheetFile = Gio.File.new_for_path(defaultStylesheet);
             if (defaultStylesheetFile.query_exists(null)) {
@@ -120,7 +120,7 @@ var ConfigManager = GObject.registerClass(
                 `stylesheet.css`
             ]);
 
-            Logger.debug(`custom-stylesheet: ${stylesheet}`);
+            Logger.trace(`custom-stylesheet: ${stylesheet}`);
 
             const stylesheetFile = Gio.File.new_for_path(stylesheet);
             if (stylesheetFile.query_exists(null)) {

@@ -194,16 +194,18 @@ var ThemeManager = GObject.registerClass(
                 let theme = St.ThemeContext.get_for_stage(
                     global.stage
                 ).get_theme();
+
                 try {
                     theme.unload_stylesheet(defaultStylesheetFile);
                     theme.unload_stylesheet(stylesheetFile);
                     if (production) {
                         theme.load_stylesheet(stylesheetFile);
+                        Me.stylesheet = stylesheetFile;
                     } else {
                         theme.load_stylesheet(defaultStylesheetFile);
+                        Me.stylesheet = defaultStylesheetFile;
                     }
-                    Logger.debug("stylesheet reloaded");
-                    Me.stylesheet = stylesheetFile;
+                    Logger.debug(`stylesheet reloaded ${Me.stylesheet.get_path()}`);
                 } catch (e) {
                     Logger.error(`${uuid} - ${e}`);
                     return;
