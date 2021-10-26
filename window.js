@@ -721,6 +721,9 @@ var ForgeWindowManager = GObject.registerClass(
 
             if (currentWorkArea && nextWorkArea) {
                 let rect = node.rect;
+                if (!rect && node.mode === WINDOW_MODES.FLOAT) {
+                    rect = node.nodeValue.get_frame_rect();
+                }
                 let hRatio = 1;
                 let wRatio = 1;
 
