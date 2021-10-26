@@ -335,11 +335,11 @@ var PanelBox = GObject.registerClass(
                 homogeneous: false
             });
 
-            Gtk.ScrolledWindow.prototype.add.call(this, this.box);
+            Gtk.ScrolledWindow.prototype.set_child.call(this, this.box);
         }
 
-        add(widget) {
-            this.box.add(widget);
+        append(widget) {
+            this.box.append(widget);
         }
     }
 );
@@ -512,7 +512,7 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
             const theme = this.themeMgr;
             const labelMessage = Msgs.getCssSelectorAsMessage(selector);
             const colorScheme = theme.getColorSchemeBySelector(selector);
-            this.add(createLabel(`<b>${labelMessage}</b>`));
+            this.append(createLabel(`<b>${labelMessage}</b>`));
 
             let colorOptionFrame = new FrameListBox();
             let colorOptionHintSizeRow = new ListBoxRow();
@@ -548,17 +548,15 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
             let colorOptionHintColorRow = new ListBoxRow();
             let colorOptionHintColorLabel = createLabel(`${Msgs.prefs_appearance_color_border_color_label}`);
 
-            let colorOptionHintColorPalette = new Gtk.RadioButton({
+            let colorOptionHintColorPalette = new Gtk.ToggleButton({
                 label: `${Msgs.prefs_appearance_color_border_palette_mode}`,
                 halign: Gtk.Align.END,
-                draw_indicator: false
             });
 
-            let colorOptionHintColorEditor = new Gtk.RadioButton({
+            let colorOptionHintColorEditor = new Gtk.ToggleButton({
                 label: `${Msgs.prefs_appearance_color_border_editor_mode}`,
                 group: colorOptionHintColorPalette,
                 halign: Gtk.Align.END,
-                draw_indicator: false
             });
 
             let colorOptionHintColorApply = new Gtk.Button({
@@ -649,7 +647,7 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
             colorOptionFrame.add(colorOptionHintColorRow);
             colorOptionFrame.add(colorOptionColorChooser);
 
-            this.add(colorOptionFrame);
+            this.append(colorOptionFrame);
         }
     }
 );
@@ -980,21 +978,21 @@ var KeyboardSettingsPanel = GObject.registerClass(
                 this.kbdSettings.set_string("mod-mask-mouse-tile", labelValue);
             }
 
-            let modMaskTileCtrlToggle = new Gtk.RadioToolButton({
+            let modMaskTileCtrlToggle = new Gtk.ToggleButton({
                 label: `${Msgs.prefs_keyboard_mod_mask_tile_ctrl_label}`
             });
 
-            let modMaskTileSuperToggle = new Gtk.RadioToolButton({
+            let modMaskTileSuperToggle = new Gtk.ToggleButton({
                 group: modMaskTileCtrlToggle,
                 label: `${Msgs.prefs_keyboard_mod_mask_tile_super_label}`
             });
 
-            let modMaskTileAltToggle = new Gtk.RadioToolButton({
+            let modMaskTileAltToggle = new Gtk.ToggleButton({
                 group: modMaskTileCtrlToggle,
                 label: `${Msgs.prefs_keyboard_mod_mask_tile_alt_label}`
             });
 
-            let modMaskTileNoneToggle = new Gtk.RadioToolButton({
+            let modMaskTileNoneToggle = new Gtk.ToggleButton({
                 group: modMaskTileCtrlToggle,
                 label: `${Msgs.prefs_keyboard_mod_mask_tile_none_label}`
             });

@@ -1566,7 +1566,7 @@ var WindowManager = GObject.registerClass(
             return nodeWinAtPointer;
         }
 
-        _handleGrabOpBegin(_, _display, _metaWindow, grabOp) {
+        _handleGrabOpBegin(_display, _metaWindow, grabOp) {
             let orientation = Utils.orientationFromGrab(grabOp);
             let direction = Utils.directionFromGrab(grabOp);
             let focusMetaWindow = this.focusMetaWindow;
@@ -1592,7 +1592,7 @@ var WindowManager = GObject.registerClass(
             Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
         }
 
-        _handleGrabOpEnd(_, _display, _metaWindow, grabOp) {
+        _handleGrabOpEnd(_display, _metaWindow, grabOp) {
             let focusMetaWindow = this.focusMetaWindow;
             if (!focusMetaWindow) return;
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
