@@ -1362,6 +1362,7 @@ var ForgeWindowManager = GObject.registerClass(
             if (!focusNodeWindow) return;
 
             if (focusNodeWindow.grabMode) {
+                focusNodeWindow.nodeValue.raise();
                 if (focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
                     this._handleResizing(focusNodeWindow);
                 } else if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING) {

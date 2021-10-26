@@ -1377,8 +1377,9 @@ var Tree = GObject.registerClass(
             let totalSize = orientation ===
                 ORIENTATION_TYPES.HORIZONTAL ?
                 node.rect.width : node.rect.height;
+            let grabTiled = node.getNodeByMode(Window.WINDOW_MODES.GRAB_TILE).length > 0;
             childItems.forEach((childNode, index) => {
-                let percent = childNode.percent && childNode.percent > 0.0 ?
+                let percent = childNode.percent && childNode.percent > 0.0 && !grabTiled ?
                     childNode.percent : 1.0 / childItems.length;
                 Logger.trace(`percent ${percent}, c${childNode._type}`);
                 sizes[index] = Math.floor(percent * totalSize);
