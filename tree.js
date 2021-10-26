@@ -524,16 +524,25 @@ var Tree = GObject.registerClass(
          */
         findNodeWindowAtPointer(metaWindow, pointer) {
             if (!metaWindow) return undefined;
-            let monWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-            // The searched window should be on the same monitor workspace
-            let monWsNode = this.findNode(monWs);
+            const currentMonitor = global.display.get_current_monitor();
+            const currentWorkspace = global.display.get_workspace_manager().get_active_workspace_index();
+            let pointerMonWs = `mo${currentMonitor}ws${currentWorkspace}`;
+            let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+            let monWsNode = this.findNode(pointerMonWs);
+
+            Logger.debug(`current-pointer-monitor-workspace: ${pointerMonWs}`);
+            Logger.debug(`current-window-monitor-workspace: ${metaMonWs}`);
 
             const monWindows = monWsNode.getNodeByType(NODE_TYPES.WINDOW)
                 .filter((w) => !w.nodeValue.minimized
                     && (w.mode === Window.WINDOW_MODES.TILE)
-                    && w.nodeValue !== metaWindow)
+                    && w.nodeValue !== metaWindow
+                    // The searched window should be on the same monitor workspace
+                    // This ensures that Forge already updated the workspace node tree:
+                    && pointerMonWs === metaMonWs)
                 .map((w) => w.nodeValue);
             const sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
+
             Logger.debug(`sorted windows ${sortedWindows.length}`)
 
             for (let w of sortedWindows) {

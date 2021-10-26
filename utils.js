@@ -49,22 +49,22 @@ function createEnum(anArray) {
     return Object.freeze(enumObj);
 }
 
-function resolveX(action, metaWindow) {
+function resolveX(rectRequest, metaWindow) {
     let metaRect = metaWindow.get_frame_rect();
     let monitorRect = metaWindow.get_work_area_current_monitor();
     let val = metaRect.x;
-    let x = action.x;
+    let x = rectRequest.x;
     switch (typeof x) {
         case 'string': //center,
             switch (x) {
                 case 'center':
-                    val = (monitorRect.width * 0.5) - (this.resolveWidth(action, metaWindow) * 0.5);
+                    val = (monitorRect.width * 0.5) - (this.resolveWidth(rectRequest, metaWindow) * 0.5);
                     break;
                 case 'left':
                     val = 0;
                     break;
                 case 'right':
-                    val = monitorRect.width - this.resolveWidth(action, metaWindow);
+                    val = monitorRect.width - this.resolveWidth(rectRequest, metaWindow);
                     break;
                 default:
                     break;
@@ -81,22 +81,22 @@ function resolveX(action, metaWindow) {
     return val;
 }
 
-function resolveY(action, metaWindow) {
+function resolveY(rectRequest, metaWindow) {
     let metaRect = metaWindow.get_frame_rect();
     let monitorRect = metaWindow.get_work_area_current_monitor();
     let val = metaRect.y;
-    let y = action.y;
+    let y = rectRequest.y;
     switch (typeof y) {
         case 'string': //center,
             switch (y) {
                 case 'center':
-                    val = (monitorRect.height * 0.5) - (this.resolveHeight(action, metaWindow) * 0.5);
+                    val = (monitorRect.height * 0.5) - (this.resolveHeight(rectRequest, metaWindow) * 0.5);
                     break;
                 case 'top':
                     val = 0;
                     break;
                 case 'bottom': // inverse of y=0
-                    val = monitorRect.height - this.resolveHeight(action, metaWindow);
+                    val = monitorRect.height - this.resolveHeight(rectRequest, metaWindow);
                     break;
                 default:
                     break;
@@ -113,11 +113,11 @@ function resolveY(action, metaWindow) {
     return val;
 }
 
-function resolveWidth(action, metaWindow) {
+function resolveWidth(rectRequest, metaWindow) {
     let metaRect = metaWindow.get_frame_rect();
     let monitorRect = metaWindow.get_work_area_current_monitor();
     let val = metaRect.width;
-    let width = action.width;
+    let width = rectRequest.width;
     switch (typeof width) {
         case 'number':
             if (Number.isInteger(width) && width != 1) {
@@ -134,11 +134,11 @@ function resolveWidth(action, metaWindow) {
     return val;
 }
 
-function resolveHeight(action, metaWindow) {
+function resolveHeight(rectRequest, metaWindow) {
     let metaRect = metaWindow.get_frame_rect();
     let monitorRect = metaWindow.get_work_area_current_monitor();
     let val = metaRect.height;
-    let height = action.height;
+    let height = rectRequest.height;
     switch (typeof height) {
         case 'number':
             if (Number.isInteger(height) && height != 1) {

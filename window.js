@@ -344,12 +344,18 @@ var ForgeWindowManager = GObject.registerClass(
                 case "FloatToggle":
 
                     this.toggleFloatingMode(action, focusWindow)
+                    const rectRequest = {
+                        x: action.x,
+                        y: action.y,
+                        width: action.width,
+                        height: action.height
+                    }
 
                     let moveRect = {
-                        x: Utils.resolveX(action, focusWindow),
-                        y: Utils.resolveY(action, focusWindow),
-                        width: Utils.resolveWidth(action, focusWindow),
-                        height: Utils.resolveHeight(action, focusWindow),
+                        x: Utils.resolveX(rectRequest, focusWindow),
+                        y: Utils.resolveY(rectRequest, focusWindow),
+                        width: Utils.resolveWidth(rectRequest, focusWindow),
+                        height: Utils.resolveHeight(rectRequest, focusWindow),
                     };
 
                     this.move(focusWindow, moveRect);
@@ -1314,16 +1320,10 @@ var ForgeWindowManager = GObject.registerClass(
 
                             // Ensure that the workspace tiling is honored
                             if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
-                                let newNodeWindow = this._tree.findNode(metaWindow);
-                                if (newNodeWindow) {
-                                    newNodeWindow.mode = WINDOW_MODES.TILE;
-                                    // This ensures when dragging between monitors,
-                                    // the dragged window is still above:
-                                    if (!global.display.get_grab_op() === Meta.GrabOp.WINDOW_BASE)
-                                        metaWindow.unmake_above();
-                                    this.updateTabbedFocus(newNodeWindow);
-                                    this.updateStackedFocus(newNodeWindow);
-                                }
+                                if (!global.display.get_grab_op() === Meta.GrabOp.WINDOW_BASE)
+                                    metaWindow.unmake_above();
+                                this.updateTabbedFocus(existNodeWindow);
+                                this.updateStackedFocus(existNodeWindow);
                             } else {
                                 if (this.floatingWindow(existNodeWindow)) {
                                     existNodeWindow.nodeValue.make_above();
