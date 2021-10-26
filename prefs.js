@@ -602,6 +602,10 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
                     // The primary color updates the focus hint:
                     theme.setCssProperty(selector, "border-color", rgba.to_string())
 
+                    // Only apply below on the primary/tiled scheme
+                    if (colorScheme !== "tiled")
+                        return;
+
                     // Then the overview app icons, search and search results:
                     theme.setCssProperty(".search-entry:focus", "border-color", rgba.to_string());
                     theme.setCssProperty(".kbd-shortcut:focus", "border-color", rgba.to_string());
