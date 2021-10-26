@@ -48,7 +48,7 @@ var Keybindings = GObject.registerClass(
             this._grabbers = new Map();
             // this._bindSignals();
             this.ext = ext;
-            this.forgeWm = ext.forgeWm;
+            this.extWm = ext.extWm;
             this.kbdSettings = ext.kbdSettings;
             this.settings = ext.settings;
             this.buildBindingDefinitions();
@@ -110,7 +110,7 @@ var Keybindings = GObject.registerClass(
                 config.shortcut.forEach((shortcut) => {
                     this.listenFor(shortcut, () => {
                         config.actions.forEach((action) => {
-                            this.forgeWm.command(action);
+                            this.extWm.command(action);
                         });
                     });
                 });
@@ -221,7 +221,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-focus-left": () => {
@@ -232,7 +232,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-focus-down": () => {
@@ -243,7 +243,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-focus-up": () => {
@@ -254,7 +254,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-focus-right": () => {
@@ -265,7 +265,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-swap-left": () => {
@@ -276,7 +276,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-swap-down": () => {
@@ -287,7 +287,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-swap-up": () => {
@@ -298,7 +298,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-swap-right": () => {
@@ -309,7 +309,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-move-left": () => {
@@ -320,7 +320,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-move-down": () => {
@@ -331,7 +331,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-move-up": () => {
@@ -342,7 +342,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "window-move-right": () => {
@@ -353,7 +353,7 @@ var Keybindings = GObject.registerClass(
                         },
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "con-split-layout-toggle": () => {
@@ -361,7 +361,7 @@ var Keybindings = GObject.registerClass(
                         { name: "LayoutToggle" }
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "con-split-vertical": () => {
@@ -369,7 +369,7 @@ var Keybindings = GObject.registerClass(
                         { name: "Split", orientation: "vertical" }
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "con-split-horizontal": () => {
@@ -377,36 +377,36 @@ var Keybindings = GObject.registerClass(
                         { name: "Split", orientation: "horizontal" }
                     ];
                     actions.forEach((action) => {
-                        this.forgeWm.command(action);
+                        this.extWm.command(action);
                     });
                 },
                 "con-stacked-layout-toggle": () => {
                     let action = { name: "LayoutStackedToggle" };
-                    this.forgeWm.command(action);
+                    this.extWm.command(action);
                 },
                 "con-tabbed-layout-toggle": () => {
                     let action = { name: "LayoutTabbedToggle" };
-                    this.forgeWm.command(action);
+                    this.extWm.command(action);
                 },
                 "focus-border-toggle": () => {
                     let action = { name: "FocusBorderToggle" };
-                    this.forgeWm.command(action);
+                    this.extWm.command(action);
                 },
                 "prefs-tiling-toggle": () => {
                     let action = { name: "TilingModeToggle" };
-                    this.forgeWm.command(action);
+                    this.extWm.command(action);
                 },
                 "window-gap-size-increase": () => {
                     let action = { name: "GapSize", amount: 1 };
-                    this.forgeWm.command(action);
+                    this.extWm.command(action);
                 },
                 "window-gap-size-decrease": () => {
                     let action = { name: "GapSize", amount: -1 };
-                    this.forgeWm.command(action);
+                    this.extWm.command(action);
                 },
                 "workspace-active-tile-toggle": () => {
                     let action = { name: "WorkspaceActiveTileToggle" };
-                    this.forgeWm.command(action);
+                    this.extWm.command(action);
                 },
                 "prefs-open": () => {
                     let existWindow = ExtUtils.findWindowWith(Msgs.prefs_title);

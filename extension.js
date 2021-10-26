@@ -59,8 +59,8 @@ class Extension {
             return;
         }
 
-        if (!this.forgeWm) {
-            this.forgeWm = new Window.ForgeWindowManager(this);
+        if (!this.extWm) {
+            this.extWm = new Window.WindowManager(this);
         }
 
         if (!this.keybindings) {
@@ -68,11 +68,11 @@ class Extension {
         }
 
         if(!this.indicator) {
-            this.indicator = new PanelExt.PanelIndicator(this.settings, this.forgeWm);
+            this.indicator = new PanelExt.PanelIndicator(this.settings, this.extWm);
             Panel.addToStatusArea("ForgeExt", this.indicator);
         }
 
-        this.forgeWm.enable();
+        this.extWm.enable();
         this.keybindings.enable();
         this.theme.reloadStylesheet();
         Logger.info(`enable: finalized vars`);
@@ -87,8 +87,8 @@ class Extension {
             return;
         }
 
-        if (this.forgeWm)
-            this.forgeWm.disable();
+        if (this.extWm)
+            this.extWm.disable();
 
         if (this.keybindings)
             this.keybindings.disable();
@@ -99,7 +99,7 @@ class Extension {
         }
 
         Logger.info(`disable: cleaning up vars`);
-        this.forgeWm = null;
+        this.extWm = null;
         this.keybindings = null;
         this.settings = null;
         this.indicator = null;

@@ -88,7 +88,6 @@ var Node = GObject.registerClass(
             this._data = data; 
             this._parent = null;
             this._nodes = []; // Child elements of this node
-            this._floats = []; // handle the floating window children of this node
             this.mode = Window.WINDOW_MODES.DEFAULT;
             this.percent = 0.0;
 
@@ -379,16 +378,21 @@ var Queue = GObject.registerClass(
 
 var Tree = GObject.registerClass(
     class Tree extends Node {
-        _init(forgeWm) {
+        _init(extWm) {
             let rootBin = new St.Bin();
             super._init(NODE_TYPES.ROOT, rootBin);
-            this._forgeWm = forgeWm;
-            this.settings = this._forgeWm.ext.settings;
+            this._extWm = extWm;
+            this._floats = new Node();
+            this.settings = this.extWm.ext.settings;
             this.layout = LAYOUT_TYPES.ROOT;
             rootBin.show();
             global.window_group.add_child(rootBin);
 
             this._initWorkspaces();
+        }
+
+        get extWm() {
+            return this._extWm;
         }
 
         /**
@@ -408,7 +412,7 @@ var Tree = GObject.registerClass(
             let monitors = global.display.get_n_monitors();
             for (let mi = 0; mi < monitors; mi++) {
                 let monitorWsNode = this.createNode(workspaceNodeValue, NODE_TYPES.MONITOR, `mo${mi}${workspaceNodeValue}`);
-                monitorWsNode.layout = this._forgeWm.determineSplitLayout();
+                monitorWsNode.layout = this.extWm.determineSplitLayout();
             }
             Logger.debug(`initialized monitors: ${monitors}`);
         }
@@ -431,7 +435,7 @@ var Tree = GObject.registerClass(
             let workspace = wsManager.get_workspace_by_index(wsIndex);
             newWsNode.layout = LAYOUT_TYPES.HSPLIT;
 
-            this._forgeWm.bindWorkspaceSignals(workspace);
+            this.extWm.bindWorkspaceSignals(workspace);
             this.addMonitor(workspaceNodeValue);
 
             return true;
@@ -470,18 +474,24 @@ var Tree = GObject.registerClass(
             return nodeWindows;
         }
 
+        get floats() {
+            if (!this._floats)
+                this._floats = new Node();
+            return this._floats;
+        }
+
         /**
          * Creates a new Node and attaches it to a parent toData.
          * Parent can be MONITOR or CON types only.
          */
-        createNode(toData, type, data) {
-            let parentNode = this.findNode(toData);
+        createNode(parentObj, type, value) {
+            let parentNode = this.findNode(parentObj);
             let child;
 
             if (parentNode) {
-                child = new Node(type, data);
+                child = new Node(type, value);
                 parentNode.appendChild(child);
-                Logger.trace(`adding node ${type}: ${data} to ${toData}`);
+                Logger.trace(`adding node ${type}: ${value} to ${parentObj}`);
             }
             return child;
         }
@@ -635,9 +645,9 @@ var Tree = GObject.registerClass(
                 metaWindow.activate(global.display.get_current_time());
 
                 let monitorArea = metaWindow.get_work_area_current_monitor();
-                let ptr = this._forgeWm.getPointer();
+                let ptr = this.extWm.getPointer();
                 if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
-                    this._forgeWm.movePointerWith(next);
+                    this.extWm.movePointerWith(next);
                 }
             }
             return next;
@@ -720,7 +730,7 @@ var Tree = GObject.registerClass(
                         }
                     } else {
                         Logger.trace("different monitor");
-                        let targetMonRect = this._forgeWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
+                        let targetMonRect = this.extWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
                         if (!targetMonRect) return false;
                         if (position === POSITION.AFTER) {
                             next.insertBefore(node, next.firstChild);
@@ -728,8 +738,8 @@ var Tree = GObject.registerClass(
                             next.appendChild(node);
                         }
                         let rect = targetMonRect;
-                        this._forgeWm.move(node.nodeValue, rect);
-                        this._forgeWm.movePointerWith(node);
+                        this.extWm.move(node.nodeValue, rect);
+                        this.extWm.movePointerWith(node);
                         this.resetSiblingPercent(node);
                         this.resetSiblingPercent(next);
                     }
@@ -916,7 +926,7 @@ var Tree = GObject.registerClass(
                 nextSwapNode.nodeValue &&
                 nextSwapNode.nodeType === NODE_TYPES.WINDOW;
             if (isNextNodeWin) {
-                if (!this._forgeWm.sameParentMonitor(node, nextSwapNode)) {
+                if (!this.extWm.sameParentMonitor(node, nextSwapNode)) {
                     // TODO, there is a freeze bug if there are not in same monitor.
                     Logger.warn(`swap: not same monitor, do not swap`);
                     return;
@@ -986,7 +996,7 @@ var Tree = GObject.registerClass(
             } else {
                 let existParent = node.parentNode;
                 oldChild = existParent.removeChild(node);
-                if (!this._forgeWm.floatingWindow(node))
+                if (!this.extWm.floatingWindow(node))
                     cleanUpParent(existParent);
             }
 
@@ -1022,7 +1032,7 @@ var Tree = GObject.registerClass(
 
                 if (w.renderRect) {
                     let metaWin = w.nodeValue;
-                    this._forgeWm.move(metaWin, w.renderRect);
+                    this.extWm.move(metaWin, w.renderRect);
                 }
 
                 if (w.nodeValue.firstRender)
@@ -1137,7 +1147,7 @@ var Tree = GObject.registerClass(
 
                 node.renderRect = this.processGap(node);
 
-                let skipThisWs = !this._forgeWm.isActiveWindowWorkspaceTiled(node.nodeValue);
+                let skipThisWs = !this.extWm.isActiveWindowWorkspaceTiled(node.nodeValue);
                 const layout = node.parentNode.layout;
 
                 if (!skipThisWs) {
@@ -1156,7 +1166,7 @@ var Tree = GObject.registerClass(
             let nodeHeight = node.rect.height;
             let nodeX = node.rect.x;
             let nodeY = node.rect.y;
-            let gap = this._forgeWm.calculateGaps(node.nodeValue);
+            let gap = this.extWm.calculateGaps(node.nodeValue);
 
             nodeX += gap;
             nodeY += gap;
@@ -1283,7 +1293,7 @@ var Tree = GObject.registerClass(
                         !t.nodeValue.minimized);
 
                 if (tiledChildren.length > 1 &&
-                    (child.nodeValue === this._forgeWm.focusMetaWindow ||
+                    (child.nodeValue === this.extWm.focusMetaWindow ||
                     node.lastTabFocus && node.lastTabFocus === child.nodeValue)) {
                     child.rect = this.renderFrontTab(node, child, params.stackedHeight)
                 } else {
@@ -1362,7 +1372,7 @@ var Tree = GObject.registerClass(
          */
         cleanupBeforeProcess(child) {
             if (child.nodeType === NODE_TYPES.WINDOW) {
-                let focusNodeWindow = this.findNode(this._forgeWm.focusMetaWindow);
+                let focusNodeWindow = this.findNode(this.extWm.focusMetaWindow);
                 if (focusNodeWindow) {
                     if (child !== focusNodeWindow)
                         child.nodeValue.unmake_above();

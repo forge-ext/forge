@@ -42,10 +42,10 @@ const Msgs = Me.imports.messages;
 
 var PanelIndicator = GObject.registerClass(
     class PanelIndicator extends Button {
-        _init(settings, forgeWm) {
+        _init(settings, extWm) {
             super._init(0.0, Msgs.panel_indicator_button_text);
             this.settings = settings;
-            this.forgeWm = forgeWm;
+            this.extWm = extWm;
 
             let tileIconOff = Gio.icon_new_for_string(`${Me.path}/icons/panel/focus-windows-symbolic.svg`);
             let tileIconOn = Gio.icon_new_for_string(`${Me.path}/icons/panel/view-dual-symbolic.svg`);
@@ -79,7 +79,7 @@ var PanelIndicator = GObject.registerClass(
 
         updateTileIcon() {
             if (this._isTiled()) {
-                if (this.forgeWm.isCurrentWorkspaceTiled()) {
+                if (this.extWm.isCurrentWorkspaceTiled()) {
                     this.icon.gicon = this.buttonOn;
                 } else {
                     this.icon.gicon = this.buttonWsOff;
