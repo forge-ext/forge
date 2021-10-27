@@ -1166,8 +1166,9 @@ var Tree = GObject.registerClass(
                     metaWindow.make_above();
                     node.mode = Window.WINDOW_MODES.FLOAT;
                 } else {
-                    // When it is a front tab window, do not remove the make_above attribute
-                    if (!node.backgroundTab)
+                    // When it is a front tab window,
+                    // do not remove the make_above attribute
+                    if (node.backgroundTab)
                         metaWindow.unmake_above();
                     node.mode = Window.WINDOW_MODES.TILE;
                 }
@@ -1312,6 +1313,9 @@ var Tree = GObject.registerClass(
                         node.mode !== Window.WINDOW_MODES.FLOAT) {
                     child.rect = this.renderFrontTab(node, child, params.stackedHeight)
                 } else {
+                    if (tiledChildren.length === 1) {
+                        child.backgroundTab = false;
+                    }
                     child.rect = {
                         x: nodeX,
                         y: nodeY,
@@ -1361,7 +1365,11 @@ var Tree = GObject.registerClass(
                              * Pick a front tab window in the list of tabbed windows if not in focus
                              */
                             if (frontTabs.length === 0) {
-                                const child = tabbedWindows[0];;
+                                // FIXME - when one of the tabbed windows has a transient float dialog,
+                                // the front tab does not raise on the correct tabbed window.
+                                // Most apps tested do not set transient parents on their modal dialogs
+                                // So this is likely fixed when TABBED tabs are changed to St.Widget
+                                let child = tabbedWindows[tabbedWindows.length - 1]; // for now pick the last child
                                 let tabRect = this.renderFrontTab(con, child, 35);
                                 child.rect = tabRect;
                                 child.renderRect = this.processGap(child);
@@ -1382,6 +1390,7 @@ var Tree = GObject.registerClass(
             let nodeWidth = node.rect.width;
             if (child.nodeType === NODE_TYPES.WINDOW) {
                 const metaWindow = child.nodeValue;
+                metaWindow.make_above();
                 metaWindow.raise();
             }
             child.backgroundTab = false;
