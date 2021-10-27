@@ -1147,27 +1147,29 @@ var Tree = GObject.registerClass(
 
             if (node.nodeType === NODE_TYPES.WINDOW) {
                 if (!node.rect) node.rect = node.nodeValue.get_work_area_current_monitor();
+                let metaWindow = node.nodeValue;
                 let nodeWidth = node.rect.width;
                 let nodeHeight = node.rect.height;
                 let nodeX = node.rect.x;
                 let nodeY = node.rect.y;
 
-                Logger.debug(`processing window: ${node.nodeValue.get_wm_class()}:${node.nodeValue.get_title()}`);
+                Logger.debug(`processing window: ${metaWindow.get_wm_class()}:${metaWindow.get_title()}`);
                 Logger.debug(` layout: ${node.parentNode.layout}, index: ${node.index}`);
                 Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
 
                 node.renderRect = this.processGap(node);
 
-                let skipThisWs = !this.extWm.isActiveWindowWorkspaceTiled(node.nodeValue);
-                const layout = node.parentNode.layout;
+                let workspaceTiled = this.extWm.isActiveWindowWorkspaceTiled(metaWindow);
 
-                if (!skipThisWs) {
-                    if (layout !== LAYOUT_TYPES.STACKED && layout !== LAYOUT_TYPES.TABBED)
-                        node.nodeValue.unmake_above();
-                    node.mode = Window.WINDOW_MODES.TILE;
-                } else {
-                    node.nodeValue.make_above();
+                if (!workspaceTiled) {
+                    // Floated windows should always be on top
+                    metaWindow.make_above();
                     node.mode = Window.WINDOW_MODES.FLOAT;
+                } else {
+                    // When it is a front tab window, do not remove the make_above attribute
+                    if (!node.backgroundTab)
+                        metaWindow.unmake_above();
+                    node.mode = Window.WINDOW_MODES.TILE;
                 }
             }
         }
@@ -1305,7 +1307,9 @@ var Tree = GObject.registerClass(
 
                 if (tiledChildren.length > 1 &&
                     (child.nodeValue === this.extWm.focusMetaWindow ||
-                    node.lastTabFocus && node.lastTabFocus === child.nodeValue)) {
+                        node.lastTabFocus &&
+                        node.lastTabFocus === child.nodeValue) &&
+                        node.mode !== Window.WINDOW_MODES.FLOAT) {
                     child.rect = this.renderFrontTab(node, child, params.stackedHeight)
                 } else {
                     child.rect = {
@@ -1338,13 +1342,26 @@ var Tree = GObject.registerClass(
                 conChildren.forEach((con) => {
                     if (con.layout === LAYOUT_TYPES.TABBED) {
                         if (con.childNodes.length > 1) {
-                            const frontTabs = con.childNodes.filter((n) => !n.backgroundTab && n.nodeType === NODE_TYPES.WINDOW);
+                            const frontTabs = con.childNodes.filter(
+                                (n) => !n.backgroundTab &&
+                                n.nodeType === NODE_TYPES.WINDOW &&
+                                // Do not track floated windows, useful on transient windows:
+                                n.mode !== Window.WINDOW_MODES.FLOAT
+                            );
                             Logger.debug(`post-process: tabbed front ${frontTabs.length}`);
-                            const conWindows = con.childNodes.filter((n) => n.nodeType === NODE_TYPES.WINDOW);
-                            Logger.debug(`post-process: tabbed windows ${conWindows.length}`);
+
+                            const tabbedWindows = con.childNodes.filter(
+                                (n) => n.nodeType === NODE_TYPES.WINDOW
+                                // Do not track floated windows, useful on transient windows:
+                                && n.mode !== Window.WINDOW_MODES.FLOAT
+                            );
+                            Logger.debug(`post-process: tabbed windows ${tabbedWindows.length}`);
+
+                            /**
+                             * Pick a front tab window in the list of tabbed windows if not in focus
+                             */
                             if (frontTabs.length === 0) {
-                                let child = conWindows[0];
-                                // TODO make stackedHeight configurable
+                                const child = tabbedWindows[0];;
                                 let tabRect = this.renderFrontTab(con, child, 35);
                                 child.rect = tabRect;
                                 child.renderRect = this.processGap(child);
@@ -1363,8 +1380,10 @@ var Tree = GObject.registerClass(
             let nodeHeight = node.rect.height - stackedHeight;
             let nodeX = node.rect.x;
             let nodeWidth = node.rect.width;
-            if (child.nodeType === NODE_TYPES.WINDOW)
-                child.nodeValue.make_above();
+            if (child.nodeType === NODE_TYPES.WINDOW) {
+                const metaWindow = child.nodeValue;
+                metaWindow.raise();
+            }
             child.backgroundTab = false;
 
             return {

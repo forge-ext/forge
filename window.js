@@ -1089,6 +1089,8 @@ var WindowManager = GObject.registerClass(
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`);
                     Logger.warn(`track-window: allow-resize ${metaWindow.allows_resize()}`);
 
+                    let nodeWindow;
+
                     // Floated Windows
                     if (metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
                         metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG ||
@@ -1096,7 +1098,7 @@ var WindowManager = GObject.registerClass(
                         !metaWindow.allows_resize() ||
                         this.isFloatingExempt(metaWindow)) {
                         // TODO - prepare to handle floated windows
-                        const floatedWindow = this.tree.createNode(
+                        nodeWindow = this.tree.createNode(
                             parentFocusNode.nodeValue,
                             Tree.NODE_TYPES.WINDOW,
                             metaWindow,
@@ -1104,14 +1106,13 @@ var WindowManager = GObject.registerClass(
                         metaWindow.make_above();
                     } else {
                         // Tiled Windows
-                        const tiledWindow = this.tree.createNode(
+                        nodeWindow = this.tree.createNode(
                             parentFocusNode.nodeValue,
                             Tree.NODE_TYPES.WINDOW,
                             metaWindow);
                         metaWindow.firstRender = true;
-                        metaWindow.unmake_above();
 
-                        let childNodes = this.tree.getTiledChildren(tiledWindow.parentNode.childNodes);
+                        let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
                         childNodes.forEach((n) => {
                             n.percent = 0.0;
                         });
@@ -1205,8 +1206,9 @@ var WindowManager = GObject.registerClass(
         updateTabbedFocus(focusNodeWindow) {
             if (!focusNodeWindow) return;
             if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
-                focusNodeWindow.nodeValue.raise();
-                focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
+                const metaWindow = focusNodeWindow.nodeValue;
+                metaWindow.raise();
+                focusNodeWindow.parentNode.lastTabFocus = metaWindow;
                 this.queueEvent({name: "render-focus-tab", callback: () => {
                     this.renderTree("focus-tabbed");
                 }});
@@ -1376,13 +1378,13 @@ var WindowManager = GObject.registerClass(
             if (!focusNodeWindow) return;
 
             if (focusNodeWindow.grabMode) {
-                focusNodeWindow.nodeValue.raise();
                 if (focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
                     this._handleResizing(focusNodeWindow);
                 } else if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING) {
                     this._handleMoving(focusNodeWindow);
                 }
             }
+            focusMetaWindow.raise();
 
             Logger.trace(`${from} ${focusMetaWindow.get_wm_class()}`);
         }
