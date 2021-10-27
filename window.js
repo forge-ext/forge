@@ -1089,26 +1089,32 @@ var WindowManager = GObject.registerClass(
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`);
                     Logger.warn(`track-window: allow-resize ${metaWindow.allows_resize()}`);
 
-                    let newNodeWindow = this.tree.createNode(parentFocusNode.nodeValue, Tree.NODE_TYPES.WINDOW, 
-                        metaWindow);
-                    if (newNodeWindow) {
-                        if (metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
-                            metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG ||
-                            metaWindow.get_transient_for() !== null ||
-                            !metaWindow.allows_resize() ||
-                            this.isFloatingExempt(newNodeWindow)) {
-                            newNodeWindow.nodeValue.make_above();
-                            newNodeWindow.mode = WINDOW_MODES.FLOAT;
-                        } else {
-                            metaWindow.firstRender = true;
-                            newNodeWindow.nodeValue.unmake_above();
-                            newNodeWindow.mode = WINDOW_MODES.TILE;
+                    // Floated Windows
+                    if (metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
+                        metaWindow.get_window_type() === Meta.WindowType.MODAL_DIALOG ||
+                        metaWindow.get_transient_for() !== null ||
+                        !metaWindow.allows_resize() ||
+                        this.isFloatingExempt(metaWindow)) {
+                        // TODO - prepare to handle floated windows
+                        const floatedWindow = this.tree.createNode(
+                            parentFocusNode.nodeValue,
+                            Tree.NODE_TYPES.WINDOW,
+                            metaWindow,
+                            WINDOW_MODES.FLOAT);
+                        metaWindow.make_above();
+                    } else {
+                        // Tiled Windows
+                        const tiledWindow = this.tree.createNode(
+                            parentFocusNode.nodeValue,
+                            Tree.NODE_TYPES.WINDOW,
+                            metaWindow);
+                        metaWindow.firstRender = true;
+                        metaWindow.unmake_above();
 
-                            let childNodes = this.tree.getTiledChildren(parentFocusNode.childNodes);
-                            childNodes.forEach((n) => {
-                                n.percent = 0.0;
-                            });
-                        }
+                        let childNodes = this.tree.getTiledChildren(tiledWindow.parentNode.childNodes);
+                        childNodes.forEach((n) => {
+                            n.percent = 0.0;
+                        });
                     }
                 }
 
@@ -1146,6 +1152,7 @@ var WindowManager = GObject.registerClass(
                                         }
                                     });
                                 }
+                                this.tree.attachNode = focusNodeWindow;
                             }
 
                             Logger.debug(`window:focus`);
@@ -1390,7 +1397,7 @@ var WindowManager = GObject.registerClass(
 
         floatingWindow(node) {
             if (!node) return false;
-            return (node._type === Tree.NODE_TYPES.WINDOW &&
+            return (node.nodeType === Tree.NODE_TYPES.WINDOW &&
                 node.mode === WINDOW_MODES.FLOAT);
         }
 
@@ -1811,10 +1818,8 @@ var WindowManager = GObject.registerClass(
             }
         }
 
-        isFloatingExempt(nodeWindow) {
-            if (!nodeWindow) return false;
-            if (!nodeWindow.nodeType === Tree.NODE_TYPES.WINDOW) return false;
-            const windowTitle = nodeWindow.nodeValue.title;
+        isFloatingExempt(metaWindow) {
+            const windowTitle = metaWindow.title;
             if (!windowTitle || windowTitle === "" || windowTitle.length === 0) return false;
 
             if (!this.knownFloats) {

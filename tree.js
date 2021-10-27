@@ -224,7 +224,8 @@ var Node = GObject.registerClass(
                 return newNode;
             }
             if (childNode.parentNode !== this) return null;
-            newNode.parentNode.removeChild(newNode);
+            if (newNode.parentNode)
+                newNode.parentNode.removeChild(newNode);
             let index = childNode.index;
             Logger.trace(`insert-before: child ${index}, items ${this.childNodes.length}`);
 
@@ -484,13 +485,25 @@ var Tree = GObject.registerClass(
          * Creates a new Node and attaches it to a parent toData.
          * Parent can be MONITOR or CON types only.
          */
-        createNode(parentObj, type, value) {
+        createNode(parentObj, type, value, mode = Window.WINDOW_MODES.TILE) {
             let parentNode = this.findNode(parentObj);
             let child;
 
             if (parentNode) {
                 child = new Node(type, value);
-                parentNode.appendChild(child);
+
+                if (type === NODE_TYPES.WINDOW)
+                    child.mode = mode;
+
+                // Append after a window
+                if (parentNode.nodeType === NODE_TYPES.WINDOW) {
+                    const grandParentNode = parentNode.parentNode;
+                    grandParentNode.insertBefore(child, parentNode.nextSibling);
+                } else {
+                    // Append as the last item of the container
+                    parentNode.appendChild(child);
+                }
+
                 Logger.trace(`adding node ${type}: ${value} to ${parentObj}`);
             }
             return child;
@@ -1002,11 +1015,9 @@ var Tree = GObject.registerClass(
 
             if (node === this.attachNode) {
                 this.attachNode = null;
-            }
-
-            if (node.deco) {
-                Main.layoutManager.removeChrome(node.deco);
-                node.deco = null;
+            } else {
+                // Find the next focus node as attachNode
+                this.attachNode = this.findNode(this.extWm.focusMetaWindow);
             }
 
             return oldChild ? true : false;
