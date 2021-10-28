@@ -436,9 +436,9 @@ var WindowManager = GObject.registerClass(
                     let swapDirection = Utils.resolveDirection(action.direction);
                     this.tree.swap(focusNodeWindow, swapDirection);
                     focusNodeWindow.nodeValue.raise();
-                    this.renderTree("swap");
                     this.updateTabbedFocus(focusNodeWindow);
                     this.updateStackedFocus(focusNodeWindow);
+                    this.renderTree("swap");
                     break;
                 case "Split":
                     if (!focusNodeWindow) return;

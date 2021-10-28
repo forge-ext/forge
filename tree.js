@@ -961,6 +961,7 @@ var Tree = GObject.registerClass(
             if (parentForTo && parentForFrom) {
                 let nextIndex = toNode.index;
                 let focusIndex = fromNode.index;
+
                 parentForTo.childNodes[nextIndex] = fromNode;
                 fromNode.parentNode = parentForTo;
                 parentForFrom.childNodes[focusIndex] = toNode;
@@ -968,7 +969,21 @@ var Tree = GObject.registerClass(
                 let percent = fromNode.percent;
                 fromNode.percent = toNode.percent;
                 toNode.percent = percent;
+
+                // Tabbed layout uses make above, update both nodes
+                if (parentForTo.isTabbedLayout()) {
+                    fromNode.nodeValue.make_above();
+                } else {
+                    fromNode.nodeValue.unmake_above();
+                }
+                if (parentForFrom.isTabbedLayout()) {
+                    toNode.nodeValue.make_above();
+                } else {
+                    toNode.nodeValue.unmake_above();
+                }
+
                 if (focus) {
+                    // The fromNode is now on the parent-target
                     fromNode.nodeValue.raise();
                     fromNode.nodeValue.focus(global.get_current_time());
                 }
