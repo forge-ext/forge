@@ -1357,8 +1357,8 @@ var WindowManager = GObject.registerClass(
                 Logger.debug(`update-ws-mon:${from}: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${monitor} `);
-                this.renderTree(from);
             }
+            this.renderTree(from);
             this.showBorderFocusWindow();
         }
 
@@ -1584,15 +1584,16 @@ var WindowManager = GObject.registerClass(
                 if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING && focusNodeWindow.mode === WINDOW_MODES.TILE)
                     focusNodeWindow.mode = WINDOW_MODES.GRAB_TILE;
 
-                this.renderTree("grab-op-begin");
-                this.freezeRender();
                 focusNodeWindow.initGrabOp = grabOp;
                 focusNodeWindow.initRect = Utils.removeGapOnRect(frameRect, gaps);
             }
+            this.renderTree("grab-op-begin");
+            this.freezeRender();
             Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
         }
 
         _handleGrabOpEnd(_, _display, _metaWindow, grabOp) {
+            this.unfreezeRender();
             let focusMetaWindow = this.focusMetaWindow;
             if (!focusMetaWindow) return;
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
@@ -1611,7 +1612,6 @@ var WindowManager = GObject.registerClass(
                 }
             }
             this._grabCleanup(focusNodeWindow);
-            this.unfreezeRender();
 
             if (focusMetaWindow.get_maximized() === 0) {
                 this.renderTree("grab-op-end");
