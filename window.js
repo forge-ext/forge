@@ -1357,8 +1357,8 @@ var WindowManager = GObject.registerClass(
                 Logger.debug(`update-ws-mon:${from}: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${monitor} `);
+                this.renderTree(from);
             }
-            this.renderTree(from);
             this.showBorderFocusWindow();
         }
 
