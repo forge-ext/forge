@@ -1643,7 +1643,7 @@ var WindowManager = GObject.registerClass(
         }
 
         allowDragDropTile() {
-            return this.kbd.allowDragDropTile() || this.kbd.isNonePressed();
+            return this.kbd.allowDragDropTile();
         }
 
         _handleResizing(focusNodeWindow) {
