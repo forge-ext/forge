@@ -161,50 +161,30 @@ var Keybindings = GObject.registerClass(
             }
         }
 
-        get keymap() {
-            const gdkDisplay = Gdk.DisplayManager.get().get_default_display();
-            const gdkKeyMap = Gdk.Keymap.get_for_display(gdkDisplay);
-            return gdkKeyMap;
-        }
-
         get modifierState() {
-            return this.keymap.get_modifier_state();
+            const [_x, _y, state] = this.extWm.getPointer();
+            Logger.debug(`kbd: get mod state ${state}`);
+            return state;
         }
 
         allowDragDropTile() {
-            let tileModifier = this.kbdSettings.get_string("mod-mask-mouse-tile");
-            let tileModifierMask = ExtUtils.translateModifierType(tileModifier);
-            return this.modifierState === tileModifierMask;
-        }
-
-        isKeyPressed(mask) {
-            let modifierState = this.modifierState;
-            return modifierState === mask;
-        }
-
-        isSuperPressed() {
-            let mask = Gdk.ModifierType.MOD4_MASK;
-            return this.isKeyPressed(mask);
-        }
-
-        isCtrlPressed() {
-            let mask = Gdk.ModifierType.CONTROL_MASK;
-            return this.isKeyPressed(mask);
-        }
-
-        isAltPressed() {
-            let mask = Gdk.ModifierType.MOD1_MASK;
-            return this.isKeyPressed(mask);
-        }
-
-        isShiftPressed() {
-            let mask = Gdk.ModifierType.SHIFT_MASK;
-            return this.isKeyPressed(mask);
-        }
-
-        isNonePressed() {
-            let tileModifier = this.kbdSettings.get_string("mod-mask-mouse-tile");
-            return tileModifier === "None";
+            const tileModifier = this.kbdSettings.get_string("mod-mask-mouse-tile");
+            const modState = this.modifierState;
+            // Using Clutter.ModifierType values and also testing for pointer
+            // being grabbed (256). E.g. grabbed + pressing Super = 256 + 64 = 320
+            // See window.js#_handleMoving() - an overlay preview is shown.
+            // See window.js#_handleGrabOpEnd() - when the drag has been dropped
+            switch (tileModifier) {
+                case "Super":
+                    return modState === 64 || modState === 320;
+                case "Alt":
+                    return modState === 8 || modState === 264;
+                case "Ctrl":
+                    return modState === 4 || modState === 260;
+                case "None":
+                    return true;
+            }
+            return false;
         }
 
         buildBindingDefinitions() {
