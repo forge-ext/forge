@@ -152,7 +152,13 @@ var WindowManager = GObject.registerClass(
                 }),
                 display.connect("workareas-changed", (_display) => {
                     if (this.tree.getNodeByType("WINDOW").length > 0) {
-                        this.reloadTree("workareas-changed");
+                        // Handler for reload tree conditions
+                        if (!(this.fromOverview || this.toOverview)) {
+                            this.reloadTree("workareas-changed");
+                        } else {
+                            this.toOverview = false;
+                            this.fromOverview = false;
+                        }
                     }
                     Logger.debug(`workareas-changed`);
                 }),
@@ -298,6 +304,7 @@ var WindowManager = GObject.registerClass(
             this._overviewSignals = [
                 Overview.connect("hiding", () => {
                     Logger.trace(`overview: hiding`);
+                    this.fromOverview = true;
                     const eventObj = {
                         name: "focus-after-overview",
                         callback: () => {
@@ -307,6 +314,10 @@ var WindowManager = GObject.registerClass(
                         }
                     };
                     this.queueEvent(eventObj)
+                }),
+                Overview.connect("showing", () => {
+                    this.toOverview = true;
+                    Logger.trace(`overview: showing`);
                 }),
             ];
 
