@@ -1470,19 +1470,28 @@ var WindowManager = GObject.registerClass(
             if (nodeWinAtPointer) {
                 const targetRect = this.tree.processGap(nodeWinAtPointer);
                 const parentNodeTarget = nodeWinAtPointer.parentNode;
+                let referenceNode = null;
+                let previewParams = {
+                    className: "",
+                    targetRect: {}
+                };
+                const updatePreview = (focusNodeWindow, previewParams) => {
+                    let previewHint = focusNodeWindow.previewHint;
+                    const previewRect = previewParams.targetRect;
+                    if (previewHint) {
+                        previewHint.set_style_class_name(previewParams.className);
+                        previewHint.set_position(previewRect.x, previewRect.y);
+                        previewHint.set_size(previewRect.width, previewRect.height);
+                        previewHint.show();
+                    }
+                }
                 // For stacked and tabbed windows, append them to the parent container
                 if (parentNodeTarget.isStackedLayout()) {
-                    if (!preview) {
-                        parentNodeTarget.appendChild(focusNodeWindow);
-                    } else {
-                        let previewHint = focusNodeWindow.previewHint;
-                        if (previewHint) {
-                            previewHint.set_style_class_name("window-tilepreview-stacked");
-                            previewHint.set_position(targetRect.x, targetRect.y);
-                            previewHint.set_size(targetRect.width, targetRect.height);
-                            previewHint.show();
-                        }
-                    }
+                    referenceNode = null;
+                    previewParams = {
+                        className: "window-tilepreview-stacked",
+                        targetRect: targetRect
+                    };
                 } else {
                     // Attach the window into the parent container depending on where the pointer is
                     let leftRect = {
@@ -1530,39 +1539,32 @@ var WindowManager = GObject.registerClass(
 
                     if (Utils.rectContainsPoint(leftRect, this.getPointer())) {
                         Logger.debug("move-pointer: point left");
-                        if (!preview) {
-                            parentNodeTarget.insertBefore(focusNodeWindow, nodeWinAtPointer);
-                        } else {
-                            let previewHint = focusNodeWindow.previewHint;
-                            if (previewHint) {
-                                if (parentNodeTarget.isTabbedLayout()) {
-                                    previewHint.set_style_class_name("window-tilepreview-tabbed");
-                                } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
-                                    previewHint.set_style_class_name("window-tilepreview-tiled");
-                                }
-                                previewHint.set_position(leftRect.x, leftRect.y);
-                                previewHint.set_size(leftRect.width, leftRect.height);
-                                previewHint.show();
-                            }
-                        }
+                        referenceNode = nodeWinAtPointer;
+                        previewParams = {
+                            targetRect: leftRect
+                        };
                     } else if (Utils.rectContainsPoint(rightRect, this.getPointer())) {
                         Logger.debug("move-pointer: point right");
-                        if (!preview) {
-                            parentNodeTarget.insertBefore(focusNodeWindow, nodeWinAtPointer.nextSibling);
-                        } else {
-                            let previewHint = focusNodeWindow.previewHint;
-                            if (previewHint) {
-                                if (parentNodeTarget.isTabbedLayout()) {
-                                    previewHint.set_style_class_name("window-tilepreview-tabbed");
-                                } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
-                                    previewHint.set_style_class_name("window-tilepreview-tiled");
-                                }
-                                previewHint.set_position(rightRect.x, rightRect.y);
-                                previewHint.set_size(rightRect.width, rightRect.height);
-                                previewHint.show();
-                            }
-                        }
+                        referenceNode = nodeWinAtPointer.nextSibling;
+                        previewParams = {
+                            targetRect: rightRect
+                        };
                     }
+                    if (parentNodeTarget.isTabbedLayout()) {
+                        previewParams.className = "window-tilepreview-tabbed";
+                    } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
+                        previewParams.className = "window-tilepreview-tiled";
+                    }
+                }
+
+                if (!preview) {
+                    if (referenceNode) {
+                        this.tree.resetSiblingPercent(referenceNode.parentNode);
+                    }
+                    this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
+                    parentNodeTarget.insertBefore(focusNodeWindow, referenceNode);
+                } else {
+                    updatePreview(focusNodeWindow, previewParams);
                 }
             }
         }

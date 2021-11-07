@@ -699,41 +699,48 @@ var Tree = GObject.registerClass(
         move(node, direction) {
             let next = this.next(node, direction);
             let position = Utils.positionFromDirection(direction);
+
             if (!next) {
                 return false;
             }
+
             Logger.trace(`move-window: next ${next ? next.nodeType : undefined} ${position}`);
+
+            let parentNode = node.parentNode;
+            let parentTarget;
 
             switch(next.nodeType) {
                 case NODE_TYPES.WINDOW:
                     // If same parent, swap
                     if (next === node.previousSibling || next === node.nextSibling) {
                         Logger.trace(`move-window: swap pairs`);
+                        parentTarget = node.parentNode;
                         this.swapPairs(node, next);
                     } else {
-                        if (next.parentNode) {
+                        parentTarget = node.parentNode;
+                        if (parentTarget) {
                             Logger.trace(`move-window: next parent ${next.parentNode.nodeValue}`);
                             if (position === POSITION.AFTER) {
-                                next.parentNode.insertBefore(node, next);
+                                parentTarget.insertBefore(node, next);
                             } else {
-                                next.parentNode.insertBefore(node, next.nextSibling);
+                                parentTarget.insertBefore(node, next.nextSibling);
                             }
-                            this.resetSiblingPercent(node.parentNode);
-                            this.resetSiblingPercent(next.parentNode);
                         }
                     }
                     break;
                 case NODE_TYPES.CON:
                     Logger.trace(`move-to-con`);
+                    parentTarget = next;
+
                     if (next.layout === LAYOUT_TYPES.STACKED) {
                         next.appendChild(node);
                     } else {
                         next.insertBefore(node, next.firstChild);
                     }
-                    this.resetSiblingPercent(node.parentNode);
-                    this.resetSiblingPercent(next.parentNode);
                     break;
                 case NODE_TYPES.MONITOR:
+                    parentTarget = next;
+
                     if (next.contains(node)) {
                         Logger.trace("within same monitor");
                         if (position === POSITION.AFTER) {
@@ -753,13 +760,13 @@ var Tree = GObject.registerClass(
                         let rect = targetMonRect;
                         this.extWm.move(node.nodeValue, rect);
                         this.extWm.movePointerWith(node);
-                        this.resetSiblingPercent(node);
-                        this.resetSiblingPercent(next);
                     }
                     break;
                 default:
                     break;
             }
+            this.resetSiblingPercent(parentNode);
+            this.resetSiblingPercent(parentTarget);
             return true;
         }
 
