@@ -220,7 +220,7 @@ var WindowManager = GObject.registerClass(
                     this.hideWindowBorders();
                     if (!this._wsSwitchedSrcId) {
                         this._wsSwitchedSrcId = GLib.timeout_add(GLib.PRIORITY_LOW, 450, () => {
-                            this.showBorderFocusWindow();
+                            this.updateBorderLayout();
                             this._wsSwitchedSrcId = 0;
                             return false;
                         });
@@ -242,18 +242,18 @@ var WindowManager = GObject.registerClass(
             settings.connect("changed", (_, settingName) => {
                 switch (settingName) {
                     case "focus-border-toggle":
-                        this.showBorderFocusWindow();
+                        this.updateBorderLayout();
                         break;
                     case "tiling-mode-enabled":
                         this.renderTree(settingName);
-                        this.showBorderFocusWindow();
+                        this.updateBorderLayout();
                         break;
                     case "window-gap-size-increment":
                     case "window-gap-size":
                     case "window-gap-hidden-on-single":
                     case "workspace-skip-tile":
                         this.renderTree(settingName);
-                        this.showBorderFocusWindow();
+                        this.updateBorderLayout();
                         break;
                     case "stacked-tiling-mode-enabled":
                         if (!settings.get_boolean(settingName)) {
@@ -413,7 +413,7 @@ var WindowManager = GObject.registerClass(
                             prev.parentNode.lastTabFocus = prev.nodeValue;
                         this.renderTree("move-window");
                     }
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "Focus":
                     this.freezeRender();
@@ -462,7 +462,7 @@ var WindowManager = GObject.registerClass(
                         toUpperCase() : Tree.ORIENTATION_TYPES.NONE;
                     this.tree.split(focusNodeWindow, orientation);
                     this.renderTree("split");
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "LayoutToggle":
                     if (!focusNodeWindow) return;
@@ -474,7 +474,7 @@ var WindowManager = GObject.registerClass(
                     }
                     this.tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-split-toggle");
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "FocusBorderToggle":
                     let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
@@ -562,7 +562,7 @@ var WindowManager = GObject.registerClass(
                     this.unfreezeRender();
                     this.tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-stacked-toggle");
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "LayoutTabbedToggle":
                     if (!focusNodeWindow) return;
@@ -593,7 +593,7 @@ var WindowManager = GObject.registerClass(
                     this.unfreezeRender();
                     this.tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-tabbed-toggle");
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "CancelOperation":
                     Logger.debug(`trigger cancel operation`);
@@ -927,7 +927,7 @@ var WindowManager = GObject.registerClass(
                     this.tree._initWorkspaces();
                     this.trackCurrentWindows();
                     this.renderTree(from);
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     this._reloadTreeSrcId = 0;
                     return false;
                 });
@@ -944,8 +944,7 @@ var WindowManager = GObject.registerClass(
             return firstMonWs === secondMonWs;
         }
 
-        showBorderFocusWindow() {
-            this.hideWindowBorders();
+        showWindowBorders() {
             let metaWindow = this.focusMetaWindow;
             if (!metaWindow) return;
             let windowActor = metaWindow.get_compositor_private();
@@ -1046,6 +1045,11 @@ var WindowManager = GObject.registerClass(
                     global.window_group.add_child(border);
                 }
             });
+        }
+
+        updateBorderLayout() {
+            this.hideWindowBorders();
+            this.showWindowBorders();
             Logger.trace(`show-border-focus-window`);
         }
 
@@ -1147,7 +1151,7 @@ var WindowManager = GObject.registerClass(
                             if ((tilingModeEnabled && !_metaWindowFocus.firstRender) ||
                                 !tilingModeEnabled ||
                                 !this.isActiveWindowWorkspaceTiled(this.focusMetaWindow))
-                                this.showBorderFocusWindow();
+                                this.updateBorderLayout();
 
                             let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
                             if (focusNodeWindow) {
@@ -1370,7 +1374,6 @@ var WindowManager = GObject.registerClass(
                 Logger.trace(` on monitor: ${monitor} `);
                 this.renderTree(from);
             }
-            this.showBorderFocusWindow();
         }
 
         /**
@@ -1383,7 +1386,6 @@ var WindowManager = GObject.registerClass(
             if (focusMetaWindow.get_maximized() === 0) {
                 this.renderTree(from);
             }
-            this.showBorderFocusWindow();
 
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
             if (!focusNodeWindow) return;
@@ -1394,6 +1396,8 @@ var WindowManager = GObject.registerClass(
                 } else if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING) {
                     this._handleMoving(focusNodeWindow);
                 }
+            } else {
+                this.updateBorderLayout();
             }
             focusMetaWindow.raise();
 
@@ -1580,6 +1584,7 @@ var WindowManager = GObject.registerClass(
         }
 
         _handleGrabOpBegin(_, _display, _metaWindow, grabOp) {
+            this.hideWindowBorders();
             let orientation = Utils.orientationFromGrab(grabOp);
             let direction = Utils.directionFromGrab(grabOp);
             let focusMetaWindow = this.focusMetaWindow;
@@ -1607,6 +1612,7 @@ var WindowManager = GObject.registerClass(
 
         _handleGrabOpEnd(_, _display, _metaWindow, grabOp) {
             this.unfreezeRender();
+            this.showWindowBorders();
             let focusMetaWindow = this.focusMetaWindow;
             if (!focusMetaWindow) return;
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
