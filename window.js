@@ -1000,9 +1000,11 @@ var WindowManager = GObject.registerClass(
                         tiledBorder.set_style_class_name("window-floated-border");
                     }
                     borders.push(tiledBorder);
-                } else {
-                    inset = 0;
                 }
+            }
+
+            if (gap === 0) {
+                inset = 0;
             }
 
             // handle the split border
