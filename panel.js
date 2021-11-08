@@ -19,6 +19,7 @@
 'use strict';
 
 // Gnome imports
+const Clutter = imports.gi.Clutter;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
@@ -100,6 +101,19 @@ var PanelIndicator = GObject.registerClass(
             });
             this.tileSwitch = tileSwitch;
             this.menu.addMenuItem(tileSwitch);
+
+            // Preferences Shortcut
+            let prefMenuItem = new PopupMenuItem(Msgs.panel_indicator_prefs_open_text);
+            prefMenuItem.connect("activate", () => {
+                const action = { name: "PrefsOpen" };
+                this.extWm.command(action);
+            });
+            this.menu.addMenuItem(prefMenuItem);
+
+            // Extension version
+            const gnomeVersion = imports.misc.config.PACKAGE_VERSION;
+            const versionLabel = new PopupMenuItem(`Version ${Me.metadata.version} on GNOME ${gnomeVersion}`);
+            this.menu.addMenuItem(versionLabel);
         }
 
         _isTiled() {

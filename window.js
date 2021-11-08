@@ -38,6 +38,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
+const Msgs = Me.imports.messages;
 const Theme = Me.imports.theme;
 const Tree = Me.imports.tree;
 const Utils = Me.imports.utils;
@@ -600,6 +601,31 @@ var WindowManager = GObject.registerClass(
                     if (focusNodeWindow.mode === WINDOW_MODES.GRAB_TILE) {
                         Logger.debug(`cancel-operation: grab-tile/swap`);
                         this.cancelGrab = true;
+                    }
+                    break;
+                case "PrefsOpen":
+                    let existWindow = Utils.findWindowWith(Msgs.prefs_title);
+                    if (existWindow && existWindow.get_workspace()) {
+                        existWindow.get_workspace().activate_with_focus(existWindow,
+                            global.display.get_current_time());
+                        Logger.warn("prefs is already open");
+                    } else {
+                        Logger.debug("opening prefs");
+                        ExtensionUtils.openPrefs();
+
+                        // Wait for it to appear on TabList
+                        if (!this._prefsOpenSrcId) {
+                            this._prefsOpenSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                                const newPrefsWindow = Utils.findWindowWith(Msgs.prefs_title);
+                                if (newPrefsWindow) {
+                                    newPrefsWindow.get_workspace()
+                                        .activate_with_focus(newPrefsWindow,
+                                    global.display.get_current_time());
+                                }
+                                this._prefsOpenSrcId = 0;
+                                return false;
+                            });
+                        }
                     }
                     break;
                 default:

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-25 14:02-0400\n"
+"POT-Creation-Date: 2021-11-07 18:04-0500\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -238,22 +238,26 @@ msgstr ""
 msgid "Tile Mode"
 msgstr ""
 
-#: messages.js:103
+#: messages.js:99
+msgid "Open Preferences"
+msgstr ""
+
+#: messages.js:104
 msgid "Tiled Focus Hint and Preview"
 msgstr ""
 
-#: messages.js:105
+#: messages.js:106
 msgid "Floated Focus Hint"
 msgstr ""
 
-#: messages.js:107
+#: messages.js:108
 msgid "Split Direction Hint"
 msgstr ""
 
-#: messages.js:109
+#: messages.js:110
 msgid "Stacked Focus Hint and Preview"
 msgstr ""
 
-#: messages.js:111
+#: messages.js:112
 msgid "Tabbed Focus Hint and Preview"
 msgstr ""
