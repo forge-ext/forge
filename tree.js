@@ -716,6 +716,8 @@ var Tree = GObject.registerClass(
                         Logger.trace(`move-window: swap pairs`);
                         parentTarget = node.parentNode;
                         this.swapPairs(node, next);
+                        // do not reset percent when swapped
+                        return true;
                     } else {
                         parentTarget = node.parentNode;
                         if (parentTarget) {
