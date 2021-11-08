@@ -424,21 +424,12 @@ var WindowManager = GObject.registerClass(
                         focusNodeWindow = this.findNodeWindow(this.focusMetaWindow);
                     }
                     this.queueEvent({name: "focus", callback: () => {
+                        if (!focusNodeWindow) return;
                         if (this.eventQueue.length <= 0) {
                             Logger.info("focus queue is last, unfreezing render");
                             this.unfreezeRender();
-                            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
-                                focusNodeWindow.parentNode.appendChild(focusNodeWindow);
-                                focusNodeWindow.nodeValue.raise();
-                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
-                                this.renderTree("focus-stacked-queue");
-                            }
-                            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
-                                focusNodeWindow.nodeValue.raise();
-                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
-                                focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
-                                this.renderTree("focus-tabbed-queue");
-                            }
+                            this.updateTabbedFocus(focusNodeWindow);
+                            this.updateStackedFocus(focusNodeWindow);
                         }
                     }})
                     break;
@@ -1320,6 +1311,7 @@ var WindowManager = GObject.registerClass(
             // Release any resources on the window
             let border = actor.border;
             if (border) {
+                border.hide();
                 if (global.window_group) {
                     global.window_group.remove_child(border);
                     border = null;
@@ -1328,6 +1320,7 @@ var WindowManager = GObject.registerClass(
 
             let splitBorder = actor.splitBorder;
             if (splitBorder) {
+                splitBorder.hide();
                 if (global.window_group) {
                     global.window_group.remove_child(splitBorder);
                     splitBorder = null;
@@ -1411,9 +1404,6 @@ var WindowManager = GObject.registerClass(
         updateMetaPositionSize(_metaWindow, from) {
             let focusMetaWindow = this.focusMetaWindow;
             if (!focusMetaWindow) return;
-            if (focusMetaWindow.get_maximized() === 0) {
-                this.renderTree(from);
-            }
 
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
             if (!focusNodeWindow) return;
@@ -1425,6 +1415,9 @@ var WindowManager = GObject.registerClass(
                     this._handleMoving(focusNodeWindow);
                 }
             } else {
+                if (focusMetaWindow.get_maximized() === 0) {
+                    this.renderTree(from);
+                }
                 this.updateBorderLayout();
             }
             focusMetaWindow.raise();
@@ -1612,6 +1605,7 @@ var WindowManager = GObject.registerClass(
         }
 
         _handleGrabOpBegin(_, _display, _metaWindow, grabOp) {
+            this.freezeRender();
             this.hideWindowBorders();
             let orientation = Utils.orientationFromGrab(grabOp);
             let direction = Utils.directionFromGrab(grabOp);
@@ -1633,8 +1627,6 @@ var WindowManager = GObject.registerClass(
                 focusNodeWindow.initGrabOp = grabOp;
                 focusNodeWindow.initRect = Utils.removeGapOnRect(frameRect, gaps);
             }
-            this.renderTree("grab-op-begin");
-            this.freezeRender();
             Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
         }
 

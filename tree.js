@@ -1051,13 +1051,14 @@ var Tree = GObject.registerClass(
             this.processNode(this);
             this.postProcess(this);
             this.cleanTree();
-            this.apply();
+            this.apply(this);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`*********************************************`);
         }
 
-        apply() {
-            let tiledChildren = this.getNodeByMode(Window.WINDOW_MODES.TILE)
+        apply(node) {
+            if (!node) return;
+            let tiledChildren = node.getNodeByMode(Window.WINDOW_MODES.TILE)
                 .filter((t) => t.nodeType === NODE_TYPES.WINDOW);
             Logger.debug(`number of windows to apply: ${tiledChildren.length}`);
             tiledChildren.forEach((w) => {
