@@ -1492,102 +1492,192 @@ var WindowManager = GObject.registerClass(
             if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
 
             let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
+
             if (nodeWinAtPointer) {
                 const targetRect = this.tree.processGap(nodeWinAtPointer);
                 const parentNodeTarget = nodeWinAtPointer.parentNode;
-                let referenceNode = null;
-                let previewParams = {
-                    className: "",
-                    targetRect: {}
-                };
                 const updatePreview = (focusNodeWindow, previewParams) => {
                     let previewHint = focusNodeWindow.previewHint;
                     const previewRect = previewParams.targetRect;
                     if (previewHint) {
+                        if (!previewRect) {
+                            previewHint.hide();
+                            return;
+                        }
                         previewHint.set_style_class_name(previewParams.className);
                         previewHint.set_position(previewRect.x, previewRect.y);
                         previewHint.set_size(previewRect.width, previewRect.height);
                         previewHint.show();
                     }
                 }
+                let referenceNode = null;
+                let containerNode;
+                let childNode;
+                let previewParams = {
+                    className: "",
+                    targetRect: null
+                };
+                let leftRegion;
+                let rightRegion;
+                let topRegion;
+                let bottomRegion;
+                let centerRegion;
+                let regionWidth = 0.30;
+
+                leftRegion = {
+                    x: targetRect.x,
+                    y: targetRect.y,
+                    width: targetRect.width * regionWidth,
+                    height: targetRect.height
+                }
+
+                rightRegion = {
+                    x: targetRect.x + (targetRect.width * (1 - regionWidth)),
+                    y: targetRect.y,
+                    width: targetRect.width * regionWidth,
+                    height: targetRect.height
+                }
+
+                topRegion = {
+                    x: targetRect.x,
+                    y: targetRect.y,
+                    width: targetRect.width,
+                    height: targetRect.height * regionWidth
+                }
+
+                bottomRegion = {
+                    x: targetRect.x,
+                    y: targetRect.y + (targetRect.height * (1 - regionWidth)),
+                    width: targetRect.width,
+                    height: targetRect.height * regionWidth
+                }
+
+                centerRegion = {
+                    x: targetRect.x + (targetRect.width * regionWidth),
+                    y: targetRect.y + (targetRect.height * regionWidth),
+                    width: targetRect.width - (targetRect.width * regionWidth * 2),
+                    height: targetRect.height - (targetRect.height * regionWidth * 2),
+                }
+
+                const isLeft = Utils.rectContainsPoint(leftRegion, this.getPointer());
+                const isRight = Utils.rectContainsPoint(rightRegion, this.getPointer());
+                const isTop = Utils.rectContainsPoint(topRegion, this.getPointer());
+                const isBottom = Utils.rectContainsPoint(bottomRegion, this.getPointer());
+                const isCenter = Utils.rectContainsPoint(centerRegion, this.getPointer());
+                const horizontal = parentNodeTarget.isHSplitLayout() ||
+                    parentNodeTarget.isTabbedLayout();
+                const isMonitor = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
+
                 // For stacked and tabbed windows, append them to the parent container
-                if (parentNodeTarget.isStackedLayout()) {
-                    referenceNode = null;
+                if (isCenter) {
+                    if (isMonitor) {
+                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+                        childNode = splitNode;
+                        childNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                        containerNode = parentNodeTarget;
+                        referenceNode = nodeWinAtPointer;
+                    } else {
+                        containerNode = parentNodeTarget;
+                        containerNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                        childNode = focusNodeWindow;
+                        referenceNode = null;
+                    }
                     previewParams = {
-                        className: "window-tilepreview-stacked",
                         targetRect: targetRect
                     };
-                } else {
-                    // Attach the window into the parent container depending on where the pointer is
-                    let leftRect = {
-                        x: targetRect.x,
-                        y: targetRect.y,
-                        width: targetRect.width,
-                        height: targetRect.height
+                } else if (isLeft) {
+                    Logger.trace("move-pointer: is left");
+                    previewParams = {
+                        targetRect: leftRegion
                     };
-                    let rightRect = leftRect;
-
-                    if (parentNodeTarget.isHSplitLayout() || parentNodeTarget.isTabbedLayout()) {
-                        Logger.debug("move-pointer: parent target is HSPLIT");
-                        // Divide the window's rect left/right
-                        leftRect = {
-                            x: targetRect.x,
-                            y: targetRect.y,
-                            width: targetRect.width / 2,
-                            height: targetRect.height
-                        }
-
-                        rightRect = {
-                            x: targetRect.x + (targetRect.width / 2),
-                            y: targetRect.y,
-                            width: targetRect.width / 2,
-                            height: targetRect.height
-                        }
-
-                    } else if (parentNodeTarget.isVSplitLayout()) {
-                        Logger.debug("move-pointer: parent target is VSPLIT");
-                        // Divide the window's rect top/bottom
-                        leftRect = {
-                            x: targetRect.x,
-                            y: targetRect.y,
-                            width: targetRect.width,
-                            height: targetRect.height / 2
-                        }
-
-                        rightRect = {
-                            x: targetRect.x,
-                            y: targetRect.y + targetRect.height / 2,
-                            width: targetRect.width,
-                            height: targetRect.height / 2
-                        }
-                    }
-
-                    if (Utils.rectContainsPoint(leftRect, this.getPointer())) {
-                        Logger.debug("move-pointer: point left");
+                    if (horizontal) {
+                        Logger.trace("move-pointer: is left horizontal");
+                        childNode = focusNodeWindow;
+                        containerNode = parentNodeTarget;
                         referenceNode = nodeWinAtPointer;
-                        previewParams = {
-                            targetRect: leftRect
-                        };
-                    } else if (Utils.rectContainsPoint(rightRect, this.getPointer())) {
-                        Logger.debug("move-pointer: point right");
-                        referenceNode = nodeWinAtPointer.nextSibling;
-                        previewParams = {
-                            targetRect: rightRect
-                        };
+                    } else { // vertical orientation
+                        Logger.trace("move-pointer: is left vertical");
+                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+                        splitNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                        childNode = splitNode;
+                        containerNode = parentNodeTarget;
+                        referenceNode = nodeWinAtPointer;
                     }
-                    if (parentNodeTarget.isTabbedLayout()) {
-                        previewParams.className = "window-tilepreview-tabbed";
-                    } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
-                        previewParams.className = "window-tilepreview-tiled";
+                } else if (isRight) {
+                    previewParams = {
+                        targetRect: rightRegion
+                    };
+                    Logger.trace("move-pointer: is right");
+                    if (horizontal) {
+                        Logger.trace("move-pointer: is right horizontal");
+                        childNode = focusNodeWindow;
+                        containerNode = parentNodeTarget;
+                        referenceNode = nodeWinAtPointer.nextSibling;
+                    } else {
+                        Logger.trace("move-pointer: is right vertical");
+                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+                        splitNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                        childNode = splitNode;
+                        containerNode = parentNodeTarget;
+                        referenceNode = nodeWinAtPointer.nextSibling;
+                    }
+                } else if (isTop) {
+                    previewParams = {
+                        targetRect: topRegion
+                    };
+                    Logger.trace("move-pointer: is top");
+                    if (horizontal) {
+                        Logger.trace("move-pointer: is top horizontal");
+                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+                        splitNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+                        childNode = splitNode;
+                        containerNode = parentNodeTarget;
+                        referenceNode = nodeWinAtPointer;
+                    } else {
+                        Logger.trace("move-pointer: is top vertical");
+                        childNode = focusNodeWindow;
+                        containerNode = parentNodeTarget;
+                        referenceNode = nodeWinAtPointer;
+                    }
+                } else if (isBottom) {
+                    previewParams = {
+                        targetRect: bottomRegion
+                    };
+                    Logger.trace("move-pointer: is bottom");
+                    if (horizontal) {
+                        Logger.trace("move-pointer: is bottom horizontal");
+                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+                        splitNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+                        childNode = splitNode;
+                        containerNode = parentNodeTarget;
+                        referenceNode = nodeWinAtPointer.nextSibling;
+                    } else {
+                        Logger.trace("move-pointer: is bottom vertical");
+                        childNode = focusNodeWindow;
+                        containerNode = parentNodeTarget;
+                        referenceNode = nodeWinAtPointer.nextSibling;
                     }
                 }
 
+                if (!isCenter) {
+                    previewParams.className = "window-tilepreview-tiled";
+                } else if (isCenter) {
+                    previewParams.className = "window-tilepreview-stacked";
+                }
+
                 if (!preview) {
-                    if (referenceNode) {
-                        this.tree.resetSiblingPercent(referenceNode.parentNode);
+                    containerNode.insertBefore(childNode, referenceNode);
+
+                    if (childNode !== focusNodeWindow) {
+                        childNode.appendChild(nodeWinAtPointer);
+                        if (isLeft || isTop) {
+                            childNode.insertBefore(focusNodeWindow, nodeWinAtPointer);
+                        } else if (isRight || isBottom || isCenter) {
+                            childNode.insertBefore(focusNodeWindow, null);
+                        }
                     }
+                    this.tree.resetSiblingPercent(containerNode);
                     this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
-                    parentNodeTarget.insertBefore(focusNodeWindow, referenceNode);
                 } else {
                     updatePreview(focusNodeWindow, previewParams);
                 }
