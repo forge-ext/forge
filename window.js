@@ -465,8 +465,8 @@ var WindowManager = GObject.registerClass(
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
                     }
                     this.tree.attachNode = focusNodeWindow.parentNode;
-                    this.renderTree("layout-split-toggle");
                     this.updateBorderLayout();
+                    this.renderTree("layout-split-toggle");
                     break;
                 case "FocusBorderToggle":
                     let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
@@ -1567,24 +1567,36 @@ var WindowManager = GObject.registerClass(
                 const horizontal = parentNodeTarget.isHSplitLayout() ||
                     parentNodeTarget.isTabbedLayout();
                 const isMonitor = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
+                const stacked = parentNodeTarget.isStackedLayout();
+                const tabbed = parentNodeTarget.isTabbedLayout();
+                const stackedOrTabbed = stacked || tabbed;
 
-                // For stacked and tabbed windows, append them to the parent container
                 if (isCenter) {
-                    if (isMonitor) {
-                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
-                        childNode = splitNode;
-                        childNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                    if (stackedOrTabbed) {
                         containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer;
-                    } else {
-                        containerNode = parentNodeTarget;
-                        containerNode.layout = Tree.LAYOUT_TYPES.STACKED;
                         childNode = focusNodeWindow;
                         referenceNode = null;
+                        previewParams = {
+                            className: stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed",
+                            targetRect: targetRect
+                        };
+                    } else {
+                        if (isMonitor) {
+                            const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+                            childNode = splitNode;
+                            childNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        } else {
+                            containerNode = parentNodeTarget;
+                            containerNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                            childNode = focusNodeWindow;
+                            referenceNode = null;
+                        }
+                        previewParams = {
+                            targetRect: targetRect
+                        };
                     }
-                    previewParams = {
-                        targetRect: targetRect
-                    };
                 } else if (isLeft) {
                     Logger.trace("move-pointer: is left");
                     previewParams = {
@@ -1666,6 +1678,7 @@ var WindowManager = GObject.registerClass(
                 }
 
                 if (!preview) {
+                    const previousParent = focusNodeWindow.parentNode;
                     containerNode.insertBefore(childNode, referenceNode);
 
                     if (childNode !== focusNodeWindow) {
@@ -1677,7 +1690,11 @@ var WindowManager = GObject.registerClass(
                         }
                     }
                     this.tree.resetSiblingPercent(containerNode);
-                    this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
+                    this.tree.resetSiblingPercent(previousParent);
+                    if (previousParent.childNodes.length === 1) {
+                        // reset to horizontal split
+                        previousParent.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                    }
                 } else {
                     updatePreview(focusNodeWindow, previewParams);
                 }

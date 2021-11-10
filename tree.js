@@ -1081,25 +1081,33 @@ var Tree = GObject.registerClass(
         }
 
         cleanTree() {
-            let orphanCons = [];
-            let criteriaFn = (node) => {
-                if (node.childNodes.length === 0 &&
-                    node.nodeType === NODE_TYPES.CON) {
-                    orphanCons.push(node);
-                }
-            }
+            // Phase 1: remove any cons with empty children
+            const orphanCons = this.getNodeByType(NODE_TYPES.CON)
+                .filter((c) => c.childNodes.length === 0);
+            const hasOrphanCons = orphanCons.length > 0;
 
-            this._walk(criteriaFn, this._traverseDepthFirst);
+            Logger.debug(`clean-tree: orphaned cons ${orphanCons.length}`);
 
-            let orphans = orphanCons.length;
-            Logger.debug(`tree-clean: nodes to scrub ${orphans}`);
-
-            orphanCons.forEach((orphan) => {
-                this.removeNode(orphan);
+            orphanCons.forEach((o) => {
+                this.removeNode(o);
             });
-            orphanCons.length = 0;
-            if (orphans > 0) {
+
+            // Phase 2: remove any empty parent cons up to the single intermediate parent-window level
+            // Basically, flatten them?
+            // [con[con[con[con[window]]]]] --> [con[window]]
+            // TODO: help :)
+            const grandParentCons = this.getNodeByType(NODE_TYPES.CON)
+                .filter((c) => c.childNodes.length === 1 && c.childNodes[0].nodeType === NODE_TYPES.CON);
+
+            grandParentCons.forEach((c) => {
+                c.layout = LAYOUT_TYPES.HSPLIT;
+            });
+
+            Logger.debug(`clean-tree: multi-parent empty cons ${grandParentCons.length}`);
+
+            if (hasOrphanCons) {
                 this.processNode(this);
+                this.apply(this);
             }
         }
 
