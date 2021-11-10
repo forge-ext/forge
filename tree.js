@@ -700,7 +700,11 @@ var Tree = GObject.registerClass(
             let next = this.next(node, direction);
             let position = Utils.positionFromDirection(direction);
 
-            if (!next) {
+            if (!next || next === -1) {
+                if (next === -1) {
+                    // TODO - update appending or prepending on the same monitor
+                    Logger.warn(`move-window: on edge? ${next}`);
+                }
                 return false;
             }
 
@@ -714,14 +718,14 @@ var Tree = GObject.registerClass(
                     // If same parent, swap
                     if (next === node.previousSibling || next === node.nextSibling) {
                         Logger.trace(`move-window: swap pairs`);
-                        parentTarget = node.parentNode;
+                        parentTarget = next.parentNode;
                         this.swapPairs(node, next);
                         // do not reset percent when swapped
                         return true;
                     } else {
-                        parentTarget = node.parentNode;
+                        parentTarget = next.parentNode;
                         if (parentTarget) {
-                            Logger.trace(`move-window: next parent ${next.parentNode.nodeValue}`);
+                            Logger.trace(`move-window: next parent ${parentTarget.nodeValue}`);
                             if (position === POSITION.AFTER) {
                                 parentTarget.insertBefore(node, next);
                             } else {
@@ -836,7 +840,7 @@ var Tree = GObject.registerClass(
             let targetMonitor = -1;
             targetMonitor = global.display.get_monitor_neighbor_index(nodeWindow.nodeValue.get_monitor(), monitorDirection);
             Logger.trace(`tree-next: targetMonitor is ${targetMonitor} on direction ${monitorDirection}`);
-            if (targetMonitor < 0) return null;
+            if (targetMonitor < 0) return targetMonitor;
             let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue.get_workspace().index()}`;
             Logger.trace(`tree-next: found monitor ${monWs}`);
             monitorNode = this.findNode(monWs);
@@ -1363,12 +1367,13 @@ var Tree = GObject.registerClass(
             let alwaysRenderTab = true;
 
             if (alwaysRenderTab) {
-                let conChildren = tree.getNodeByType(NODE_TYPES.CON);
-                Array.prototype.push.apply(conChildren, tree.getNodeByType(NODE_TYPES.MONITOR));
+                let containerNodes = tree.getNodeByType(NODE_TYPES.CON);
+                Logger.debug(`post-process: containers ${containerNodes.length}`);
+                let monitorNodes = tree.getNodeByType(NODE_TYPES.MONITOR);
+                Logger.debug(`post-process: workspace-monitors ${monitorNodes.length}`);
+                Array.prototype.push.apply(containerNodes, monitorNodes);
 
-                Logger.debug(`post-process: cons ${conChildren.length}`);
-
-                conChildren.forEach((con) => {
+                containerNodes.forEach((con) => {
                     if (con.layout === LAYOUT_TYPES.TABBED) {
                         if (con.childNodes.length > 1) {
                             const frontTabs = con.childNodes.filter(
