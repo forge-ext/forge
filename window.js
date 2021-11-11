@@ -1512,7 +1512,7 @@ var WindowManager = GObject.registerClass(
                 }
                 let referenceNode = null;
                 let containerNode;
-                let childNode;
+                let childNode = focusNodeWindow;
                 let previewParams = {
                     className: "",
                     targetRect: null
@@ -1522,42 +1522,62 @@ var WindowManager = GObject.registerClass(
                 let topRegion;
                 let bottomRegion;
                 let centerRegion;
-                let regionWidth = 0.30;
+                let previewWidth = 0.50;
+                let hoverWidth = 0.30;
 
-                leftRegion = {
-                    x: targetRect.x,
-                    y: targetRect.y,
-                    width: targetRect.width * regionWidth,
-                    height: targetRect.height
-                }
+                const regions = (targetRect, regionWidth) => {
+                    leftRegion = {
+                        x: targetRect.x,
+                        y: targetRect.y,
+                        width: targetRect.width * regionWidth,
+                        height: targetRect.height
+                    }
 
-                rightRegion = {
-                    x: targetRect.x + (targetRect.width * (1 - regionWidth)),
-                    y: targetRect.y,
-                    width: targetRect.width * regionWidth,
-                    height: targetRect.height
-                }
+                    rightRegion = {
+                        x: targetRect.x + (targetRect.width * (1 - regionWidth)),
+                        y: targetRect.y,
+                        width: targetRect.width * regionWidth,
+                        height: targetRect.height
+                    }
 
-                topRegion = {
-                    x: targetRect.x,
-                    y: targetRect.y,
-                    width: targetRect.width,
-                    height: targetRect.height * regionWidth
-                }
+                    topRegion = {
+                        x: targetRect.x,
+                        y: targetRect.y,
+                        width: targetRect.width,
+                        height: targetRect.height * regionWidth
+                    }
 
-                bottomRegion = {
-                    x: targetRect.x,
-                    y: targetRect.y + (targetRect.height * (1 - regionWidth)),
-                    width: targetRect.width,
-                    height: targetRect.height * regionWidth
-                }
+                    bottomRegion = {
+                        x: targetRect.x,
+                        y: targetRect.y + (targetRect.height * (1 - regionWidth)),
+                        width: targetRect.width,
+                        height: targetRect.height * regionWidth
+                    }
 
-                centerRegion = {
-                    x: targetRect.x + (targetRect.width * regionWidth),
-                    y: targetRect.y + (targetRect.height * regionWidth),
-                    width: targetRect.width - (targetRect.width * regionWidth * 2),
-                    height: targetRect.height - (targetRect.height * regionWidth * 2),
-                }
+                    centerRegion = {
+                        x: targetRect.x + (targetRect.width * regionWidth),
+                        y: targetRect.y + (targetRect.height * regionWidth),
+                        width: targetRect.width - (targetRect.width * regionWidth * 2),
+                        height: targetRect.height - (targetRect.height * regionWidth * 2),
+                    }
+
+                    return {
+                        left: leftRegion,
+                        right: rightRegion,
+                        top: topRegion,
+                        bottom: bottomRegion,
+                        center: centerRegion
+                    }
+                };
+
+                const hoverRegions = regions(targetRect, hoverWidth);
+                const previewRegions = regions(targetRect, previewWidth);
+
+                leftRegion = hoverRegions.left;
+                rightRegion = hoverRegions.right;
+                topRegion = hoverRegions.top;
+                bottomRegion = hoverRegions.bottom;
+                centerRegion = hoverRegions.center;
 
                 const isLeft = Utils.rectContainsPoint(leftRegion, this.getPointer());
                 const isRight = Utils.rectContainsPoint(rightRegion, this.getPointer());
@@ -1566,7 +1586,8 @@ var WindowManager = GObject.registerClass(
                 const isCenter = Utils.rectContainsPoint(centerRegion, this.getPointer());
                 const horizontal = parentNodeTarget.isHSplitLayout() ||
                     parentNodeTarget.isTabbedLayout();
-                const isMonitor = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
+                const isMonParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
+                const isConParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.CON;
                 const stacked = parentNodeTarget.isStackedLayout();
                 const tabbed = parentNodeTarget.isTabbedLayout();
                 const stackedOrTabbed = stacked || tabbed;
@@ -1574,23 +1595,18 @@ var WindowManager = GObject.registerClass(
                 if (isCenter) {
                     if (stackedOrTabbed) {
                         containerNode = parentNodeTarget;
-                        childNode = focusNodeWindow;
                         referenceNode = null;
                         previewParams = {
                             className: stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed",
                             targetRect: targetRect
                         };
                     } else {
-                        if (isMonitor) {
-                            const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
-                            childNode = splitNode;
-                            childNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                        if (isMonParent) {
+                            childNode.createCon = true;
                             containerNode = parentNodeTarget;
                             referenceNode = nodeWinAtPointer;
                         } else {
                             containerNode = parentNodeTarget;
-                            containerNode.layout = Tree.LAYOUT_TYPES.STACKED;
-                            childNode = focusNodeWindow;
                             referenceNode = null;
                         }
                         previewParams = {
@@ -1600,67 +1616,57 @@ var WindowManager = GObject.registerClass(
                 } else if (isLeft) {
                     Logger.trace("move-pointer: is left");
                     previewParams = {
-                        targetRect: leftRegion
+                        targetRect: previewRegions.left
                     };
                     if (horizontal) {
                         Logger.trace("move-pointer: is left horizontal");
-                        childNode = focusNodeWindow;
                         containerNode = parentNodeTarget;
                         referenceNode = nodeWinAtPointer;
                     } else { // vertical orientation
                         Logger.trace("move-pointer: is left vertical");
-                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
-                        splitNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
-                        childNode = splitNode;
+                        childNode.createCon = true;
                         containerNode = parentNodeTarget;
                         referenceNode = nodeWinAtPointer;
                     }
                 } else if (isRight) {
                     previewParams = {
-                        targetRect: rightRegion
+                        targetRect: previewRegions.right
                     };
                     Logger.trace("move-pointer: is right");
                     if (horizontal) {
                         Logger.trace("move-pointer: is right horizontal");
-                        childNode = focusNodeWindow;
                         containerNode = parentNodeTarget;
                         referenceNode = nodeWinAtPointer.nextSibling;
                     } else {
                         Logger.trace("move-pointer: is right vertical");
-                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
-                        splitNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
-                        childNode = splitNode;
+                        childNode.createCon = true;
                         containerNode = parentNodeTarget;
                         referenceNode = nodeWinAtPointer.nextSibling;
                     }
                 } else if (isTop) {
                     previewParams = {
-                        targetRect: topRegion
+                        targetRect: previewRegions.top
                     };
                     Logger.trace("move-pointer: is top");
                     if (horizontal) {
                         Logger.trace("move-pointer: is top horizontal");
-                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
-                        splitNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
-                        childNode = splitNode;
+                        childNode.createCon = true;
                         containerNode = parentNodeTarget;
                         referenceNode = nodeWinAtPointer;
                     } else {
                         Logger.trace("move-pointer: is top vertical");
-                        childNode = focusNodeWindow;
                         containerNode = parentNodeTarget;
                         referenceNode = nodeWinAtPointer;
                     }
                 } else if (isBottom) {
                     previewParams = {
-                        targetRect: bottomRegion
+                        targetRect: previewRegions.bottom
                     };
                     Logger.trace("move-pointer: is bottom");
                     if (horizontal) {
                         Logger.trace("move-pointer: is bottom horizontal");
-                        const splitNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
-                        splitNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
-                        childNode = splitNode;
+                        childNode = focusNodeWindow;
+                        childNode.createCon = true;
                         containerNode = parentNodeTarget;
                         referenceNode = nodeWinAtPointer.nextSibling;
                     } else {
@@ -1679,18 +1685,41 @@ var WindowManager = GObject.registerClass(
 
                 if (!preview) {
                     const previousParent = focusNodeWindow.parentNode;
-                    containerNode.insertBefore(childNode, referenceNode);
+                    this.tree.resetSiblingPercent(containerNode);
+                    this.tree.resetSiblingPercent(previousParent);
+                    const numWin = parentNodeTarget.childNodes.filter((c) => c.nodeType === Tree.NODE_TYPES.WINDOW).length;
+                    const numChild = parentNodeTarget.childNodes.length;
+                    const sameNumChild = numWin === numChild;
 
-                    if (childNode !== focusNodeWindow) {
-                        childNode.appendChild(nodeWinAtPointer);
+                    if (childNode.createCon) {
+                        Logger.debug(`move-pointer: target parent type ${parentNodeTarget.nodeType} with ${numChild} total, ${numWin} only windows`);
+                        if (!isCenter && (isConParent && numWin === 1 && sameNumChild || isMonParent && numWin == 2 && sameNumChild)) {
+                            Logger.debug(`move-pointer: re-using target container`);
+                            childNode = parentNodeTarget;
+                        } else {
+                            Logger.debug(`move-pointer: creating new container`);
+                            childNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+                            containerNode.insertBefore(childNode, referenceNode);
+                            childNode.appendChild(nodeWinAtPointer);
+                        }
+
                         if (isLeft || isTop) {
                             childNode.insertBefore(focusNodeWindow, nodeWinAtPointer);
                         } else if (isRight || isBottom || isCenter) {
                             childNode.insertBefore(focusNodeWindow, null);
                         }
+
+                        if (isLeft || isRight) {
+                            childNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                        } else if (isTop || isBottom) {
+                            childNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+                        } else if (isCenter) {
+                            childNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                        }
+                    } else {
+                        containerNode.insertBefore(childNode, referenceNode);
                     }
-                    this.tree.resetSiblingPercent(containerNode);
-                    this.tree.resetSiblingPercent(previousParent);
+
                     if (previousParent.childNodes.length === 1) {
                         // reset to horizontal split
                         previousParent.layout = Tree.LAYOUT_TYPES.HSPLIT;
@@ -1698,6 +1727,7 @@ var WindowManager = GObject.registerClass(
                 } else {
                     updatePreview(focusNodeWindow, previewParams);
                 }
+                childNode.createCon = false;
             }
         }
 
