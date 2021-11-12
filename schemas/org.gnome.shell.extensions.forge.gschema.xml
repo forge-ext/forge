@@ -95,6 +95,14 @@
             <default>''</default>
             <summary>Timestamp when css is last updated. Also triggers reload of St</summary>
         </key>
+
+        <key type="s" name="dnd-center-layout">
+            <default>'stacked'</default>
+            <summary>
+                The default center layout when dragging/dropping a window.
+                The other value is `tabbed`.
+            </summary>
+        </key>
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->

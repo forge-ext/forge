@@ -1745,7 +1745,7 @@ var WindowManager = GObject.registerClass(
                 if (!isCenter) {
                     previewParams.className = "window-tilepreview-tiled";
                 } else if (isCenter) {
-                    previewParams.className = "window-tilepreview-stacked";
+                    previewParams.className = this._getDragDropCenterPreviewStyle();
                 }
 
                 if (!preview) {
@@ -2084,6 +2084,11 @@ var WindowManager = GObject.registerClass(
 
             const knownFloats = this.knownFloats;
             return knownFloats.filter((kf) => windowTitle.includes(kf.title)).length > 0;
+        }
+
+        _getDragDropCenterPreviewStyle() {
+            const centerLayout = this.ext.settings.get_string("dnd-center-layout");
+            return `window-tilepreview-${centerLayout}`;
         }
     }
 );
