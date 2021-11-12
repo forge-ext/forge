@@ -1780,7 +1780,9 @@ var WindowManager = GObject.registerClass(
                         } else if (isTop || isBottom) {
                             childNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
                         } else if (isCenter) {
-                            childNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                            const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
+                            Logger.debug(`move-pointer: center layout ${centerLayout}`);
+                            childNode.layout = Tree.LAYOUT_TYPES[centerLayout];
                         }
                     } else if (childNode.detachWindow) {
                         const orientation = isLeft || isRight ? Tree.ORIENTATION_TYPES.HORIZONTAL : Tree.ORIENTATION_TYPES.VERTICAL;
@@ -1794,7 +1796,9 @@ var WindowManager = GObject.registerClass(
                         } else if (isTop || isBottom) {
                             containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
                         } else if (isCenter) {
-                            containerNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                            const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
+                            Logger.debug(`move-pointer: center layout ${centerLayout}`);
+                            childNode.layout = Tree.LAYOUT_TYPES[centerLayout];
                         }
                     }
                 } else {
