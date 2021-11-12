@@ -2105,11 +2105,14 @@ var WindowManager = GObject.registerClass(
         }
 
         get currentMonWs() {
-            const display = global.display;
-            const wsMgr = display.get_workspace_manager();
-            const monWs = `mo${display.get_current_monitor()}ws${wsMgr.get_active_workspace_index()}`;
-            Logger.debug(`current active mon ws: ${monWs}`);
-            return monWs;
+            if (this.focusMetaWindow) {
+                const monitor = this.focusMetaWindow.get_monitor();
+                const wsIndex = this.focusMetaWindow.get_workspace().index();
+                const monWs = `mo${monitor}ws${wsIndex}`;
+                Logger.debug(`current active mon ws: ${monWs}`);
+                return monWs;
+            }
+            return null;
         }
     }
 );
