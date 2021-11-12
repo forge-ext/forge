@@ -1,6 +1,6 @@
 {
     "name": "Forge",
-    "description": "Tiling and window manager for GNOME",
+    "description": "Tiling and window manager for GNOME\n\nMAJOR CHANGES\n\n - Drag-drop tiling regions.\n - Removed toggling monitor stacked/tabbed layout. Creates a split first then updating the layout.\n\n Please report bugs/issues on https://github.com/jmmaranan/forge/issues",
     "gettext-domain": "forge",
     "uuid": "forge@jmmaranan.com",
     "settings-schema": "org.gnome.shell.extensions.forge",
