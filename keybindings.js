@@ -95,11 +95,6 @@ var Keybindings = GObject.registerClass(
                 Main.wm.removeKeybinding(key);
             }
 
-            if (this._prefsOpenSrcId) {
-                GLib.Source.remove(this._prefsOpenSrcId);
-                this._prefsOpenSrcId = 0;
-            }
-
             Logger.debug(`keybindings:disable`);
         }
 
