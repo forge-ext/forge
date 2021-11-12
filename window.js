@@ -1799,7 +1799,7 @@ var WindowManager = GObject.registerClass(
                         } else if (isCenter) {
                             const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
                             Logger.debug(`move-pointer: center layout ${centerLayout}`);
-                            childNode.layout = Tree.LAYOUT_TYPES[centerLayout];
+                            containerNode.layout = Tree.LAYOUT_TYPES[centerLayout];
                         }
                     }
                 } else {
