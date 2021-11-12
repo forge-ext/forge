@@ -881,6 +881,11 @@ var WindowManager = GObject.registerClass(
                 this._queueSourceId = 0;
             }
 
+            if (this._prefsOpenSrcId) {
+                GLib.Source.remove(this._prefsOpenSrcId);
+                this._prefsOpenSrcId = 0;
+            }
+
             if (this._overviewSignals) {
                 for (const overviewSignal of this._overviewSignals) {
                     Overview.disconnect(overviewSignal);
