@@ -705,6 +705,15 @@ var Tree = GObject.registerClass(
                 if (next === -1) {
                     // TODO - update appending or prepending on the same monitor
                     Logger.warn(`move-window: on edge? ${next}`);
+                    const currMonWsNode = this.extWm.currentMonWsNode;
+                    if (currMonWsNode) {
+                        if (position === POSITION.AFTER) {
+                            currMonWsNode.appendChild(node);
+                        } else {
+                            currMonWsNode.insertBefore(node, next.firstChild);
+                        }
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -747,16 +756,10 @@ var Tree = GObject.registerClass(
                     break;
                 case NODE_TYPES.MONITOR:
                     parentTarget = next;
+                    const currMonWsNode = this.extWm.currentMonWsNode;
 
-                    if (next.contains(node)) {
-                        Logger.trace("within same monitor");
-                        if (position === POSITION.AFTER) {
-                            next.appendChild(node);
-                        } else {
-                            next.insertBefore(node, next.firstChild);
-                        }
-                    } else {
-                        Logger.trace("different monitor");
+                    if (!next.contains(node) && (node === currMonWsNode.firstChild || node === currMonWsNode.lastChild)) {
+                        Logger.trace("move to different monitor");
                         let targetMonRect = this.extWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
                         if (!targetMonRect) return false;
                         if (position === POSITION.AFTER) {
@@ -767,6 +770,13 @@ var Tree = GObject.registerClass(
                         let rect = targetMonRect;
                         this.extWm.move(node.nodeValue, rect);
                         this.extWm.movePointerWith(node);
+                    } else {
+                        Logger.trace("move within same monitor");
+                        if (position === POSITION.AFTER) {
+                            currMonWsNode.appendChild(node);
+                        } else {
+                            currMonWsNode.insertBefore(node, currMonWsNode.firstChild);
+                        }
                     }
                     break;
                 default:
