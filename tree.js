@@ -1169,6 +1169,7 @@ var Tree = GObject.registerClass(
                     if (!monitorArea) return; // there is no visible child window
                     Logger.trace(`processing workarea`);
                     node.rect = monitorArea;
+                    node.rect = this.processGap(node);
                 }
 
                 let tiledChildren = this.getTiledChildren(node.childNodes);
@@ -1233,6 +1234,7 @@ var Tree = GObject.registerClass(
 
             nodeX += gap;
             nodeY += gap;
+
             // TODO - detect inbetween windows and adjust accordingly
             // Also adjust depending on display scaling
             nodeWidth -= gap * 2;

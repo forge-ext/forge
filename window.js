@@ -482,8 +482,8 @@ var WindowManager = GObject.registerClass(
                     gapIncrement = gapIncrement + amount;
                     if (gapIncrement < 0)
                         gapIncrement = 0;
-                    if (gapIncrement > 5)
-                        gapIncrement = 5;
+                    if (gapIncrement > 8)
+                        gapIncrement = 8;
                     this.ext.settings.set_uint("window-gap-size-increment", gapIncrement);
                     break;
                 case "WorkspaceActiveTileToggle":
