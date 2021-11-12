@@ -154,7 +154,7 @@ var WindowManager = GObject.registerClass(
                 display.connect("workareas-changed", (_display) => {
                     if (this.tree.getNodeByType("WINDOW").length > 0) {
                         // Handler for reload tree conditions
-                        if (!(this.fromOverview || this.toOverview)) {
+                        if (!(this.fromOverview || this.toOverview || !this.ext.sameSession)) {
                             this.reloadTree("workareas-changed");
                         } else {
                             this.toOverview = false;
