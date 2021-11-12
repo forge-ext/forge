@@ -1719,8 +1719,8 @@ var WindowManager = GObject.registerClass(
                         childNode.detachWindow = true;
                         if (!isMonParent) {
                             Logger.debug(`move-pointer: parent is not monitor`);
-                            referenceNode = parentNodeTarget;
-                            containerNode = parentNodeTarget.nextSibling;
+                            referenceNode = parentNodeTarget.nextSibling;
+                            containerNode = parentNodeTarget.parentNode;
                         } else {
                             // It is a monitor that's a stack/tab
                             // TODO: update the stacked/tabbed toggles to not
@@ -2089,6 +2089,22 @@ var WindowManager = GObject.registerClass(
         _getDragDropCenterPreviewStyle() {
             const centerLayout = this.ext.settings.get_string("dnd-center-layout");
             return `window-tilepreview-${centerLayout}`;
+        }
+
+        get currentMonWsNode() {
+            const monWs = this.currentMonWs;
+            if (monWs) {
+                return this.tree.findNode(monWs);
+            }
+            return null;
+        }
+
+        get currentMonWs() {
+            const display = global.display;
+            const wsMgr = display.get_workspace_manager();
+            const monWs = `mo${display.get_current_monitor()}ws${wsMgr.get_active_workspace_index()}`;
+            Logger.debug(`current active mon ws: ${monWs}`);
+            return monWs;
         }
     }
 );
