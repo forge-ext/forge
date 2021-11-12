@@ -1745,7 +1745,8 @@ var WindowManager = GObject.registerClass(
                 if (!isCenter) {
                     previewParams.className = "window-tilepreview-tiled";
                 } else if (isCenter) {
-                    previewParams.className = this._getDragDropCenterPreviewStyle();
+                    if (!stackedOrTabbed)
+                        previewParams.className = this._getDragDropCenterPreviewStyle();
                 }
 
                 if (!preview) {
