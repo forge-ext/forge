@@ -524,19 +524,11 @@ var WindowManager = GObject.registerClass(
                     if (!this.ext.settings.get_boolean("stacked-tiling-mode-enabled"))
                         return;
 
-                    // TODO for now do not allow multiple levels of stacked tiles
-                    let stackedWindowNodes = [];
-                    currentLayout = focusNodeWindow.parentNode.layout;
-                    focusNodeWindow.parentNode.childNodes.forEach((node) => {
-                        Array.prototype.push.apply(stackedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.STACKED));
-                    });
-
                     if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
-                        if (stackedWindowNodes.length > 0) {
-                            Logger.warn(`stacked-tiling: do not allow multiple levels of stacking for now`);
-                            return;
-                        }
+                        this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL);
                     }
+
+                    currentLayout = focusNodeWindow.parentNode.layout;
 
                     if (currentLayout === Tree.LAYOUT_TYPES.STACKED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
@@ -561,18 +553,11 @@ var WindowManager = GObject.registerClass(
                     if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled"))
                         return;
 
-                    let tabbedWindowNodes = [];
-                    currentLayout = focusNodeWindow.parentNode.layout;
-                    focusNodeWindow.parentNode.childNodes.forEach((node) => {
-                        Array.prototype.push.apply(tabbedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.TABBED));
-                    });
-
                     if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
-                        if (tabbedWindowNodes.length > 0) {
-                            Logger.warn(`tabbed-tiling: do not allow multiple levels of tabbing for now`);
-                            return;
-                        }
+                        this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL);
                     }
+
+                    currentLayout = focusNodeWindow.parentNode.layout;
 
                     if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
@@ -1593,7 +1578,9 @@ var WindowManager = GObject.registerClass(
                 const stackedOrTabbed = stacked || tabbed;
 
                 if (isCenter) {
+                    Logger.debug("move-pointer: is center");
                     if (stackedOrTabbed) {
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
                         containerNode = parentNodeTarget;
                         referenceNode = null;
                         previewParams = {
@@ -1614,66 +1601,135 @@ var WindowManager = GObject.registerClass(
                         };
                     }
                 } else if (isLeft) {
-                    Logger.trace("move-pointer: is left");
+                    Logger.debug("move-pointer: is left");
                     previewParams = {
                         targetRect: previewRegions.left
                     };
-                    if (horizontal) {
-                        Logger.trace("move-pointer: is left horizontal");
-                        containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer;
-                    } else { // vertical orientation
-                        Logger.trace("move-pointer: is left vertical");
-                        childNode.createCon = true;
-                        containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer;
+
+                    if (stackedOrTabbed) {
+                        // treat any windows on stacked or tabbed layouts to be
+                        // a single node unit: the con itself and then
+                        // split left, top, right or bottom accordingly (subsequent if conditions):
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        childNode.detachWindow = true;
+                        if (!isMonParent) {
+                            Logger.debug(`move-pointer: parent is not monitor`);
+                            referenceNode = parentNodeTarget;
+                            containerNode = parentNodeTarget.parentNode;
+                        } else {
+                            // It is a monitor that's a stack/tab
+                            // TODO: update the stacked/tabbed toggles to not
+                            // change layout if the parent is a monitor?
+                        }
+                    } else {
+                        if (horizontal) {
+                            Logger.debug("move-pointer: is left horizontal");
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        } else { // vertical orientation
+                            Logger.debug("move-pointer: is left vertical");
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        }
                     }
                 } else if (isRight) {
                     previewParams = {
                         targetRect: previewRegions.right
                     };
-                    Logger.trace("move-pointer: is right");
-                    if (horizontal) {
-                        Logger.trace("move-pointer: is right horizontal");
-                        containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer.nextSibling;
+                    Logger.debug("move-pointer: is right");
+                    if (stackedOrTabbed) {
+                        // treat any windows on stacked or tabbed layouts to be
+                        // a single node unit: the con itself and then
+                        // split left, top, right or bottom accordingly (subsequent if conditions):
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        childNode.detachWindow = true;
+                        if (!isMonParent) {
+                            Logger.debug(`move-pointer: parent is not monitor`);
+                            referenceNode = parentNodeTarget.nextSibling;
+                            containerNode = parentNodeTarget.parentNode;
+                        } else {
+                            // It is a monitor that's a stack/tab
+                            // TODO: update the stacked/tabbed toggles to not
+                            // change layout if the parent is a monitor?
+                        }
                     } else {
-                        Logger.trace("move-pointer: is right vertical");
-                        childNode.createCon = true;
-                        containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer.nextSibling;
+                        if (horizontal) {
+                            Logger.debug("move-pointer: is right horizontal");
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer.nextSibling;
+                        } else {
+                            Logger.debug("move-pointer: is right vertical");
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer.nextSibling;
+                        }
                     }
                 } else if (isTop) {
                     previewParams = {
                         targetRect: previewRegions.top
                     };
-                    Logger.trace("move-pointer: is top");
-                    if (horizontal) {
-                        Logger.trace("move-pointer: is top horizontal");
-                        childNode.createCon = true;
-                        containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer;
+                    Logger.debug("move-pointer: is top");
+                    if (stackedOrTabbed) {
+                        // treat any windows on stacked or tabbed layouts to be
+                        // a single node unit: the con itself and then
+                        // split left, top, right or bottom accordingly (subsequent if conditions):
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        childNode.detachWindow = true;
+                        if (!isMonParent) {
+                            Logger.debug(`move-pointer: parent is not monitor`);
+                            referenceNode = parentNodeTarget;
+                            containerNode = parentNodeTarget.parentNode;
+                        } else {
+                            // It is a monitor that's a stack/tab
+                            // TODO: update the stacked/tabbed toggles to not
+                            // change layout if the parent is a monitor?
+                        }
                     } else {
-                        Logger.trace("move-pointer: is top vertical");
-                        containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer;
+                        if (horizontal) {
+                            Logger.debug("move-pointer: is top horizontal");
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        } else {
+                            Logger.debug("move-pointer: is top vertical");
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        }
                     }
                 } else if (isBottom) {
                     previewParams = {
                         targetRect: previewRegions.bottom
                     };
-                    Logger.trace("move-pointer: is bottom");
-                    if (horizontal) {
-                        Logger.trace("move-pointer: is bottom horizontal");
-                        childNode = focusNodeWindow;
-                        childNode.createCon = true;
-                        containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer.nextSibling;
+                    Logger.debug("move-pointer: is bottom");
+                    if (stackedOrTabbed) {
+                        // treat any windows on stacked or tabbed layouts to be
+                        // a single node unit: the con itself and then
+                        // split left, top, right or bottom accordingly (subsequent if conditions):
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        childNode.detachWindow = true;
+                        if (!isMonParent) {
+                            Logger.debug(`move-pointer: parent is not monitor`);
+                            referenceNode = parentNodeTarget;
+                            containerNode = parentNodeTarget.nextSibling;
+                        } else {
+                            // It is a monitor that's a stack/tab
+                            // TODO: update the stacked/tabbed toggles to not
+                            // change layout if the parent is a monitor?
+                        }
                     } else {
-                        Logger.trace("move-pointer: is bottom vertical");
-                        childNode = focusNodeWindow;
-                        containerNode = parentNodeTarget;
-                        referenceNode = nodeWinAtPointer.nextSibling;
+                        if (horizontal) {
+                            Logger.debug("move-pointer: is bottom horizontal");
+                            childNode = focusNodeWindow;
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer.nextSibling;
+                        } else {
+                            Logger.debug("move-pointer: is bottom vertical");
+                            childNode = focusNodeWindow;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer.nextSibling;
+                        }
                     }
                 }
 
@@ -1692,6 +1748,7 @@ var WindowManager = GObject.registerClass(
                     const sameNumChild = numWin === numChild;
 
                     if (childNode.createCon) {
+                        // Child Node will still be created
                         Logger.debug(`move-pointer: target parent type ${parentNodeTarget.nodeType} with ${numChild} total, ${numWin} only windows`);
                         if (!isCenter && (isConParent && numWin === 1 && sameNumChild || isMonParent && numWin == 2 && sameNumChild)) {
                             Logger.debug(`move-pointer: re-using target container`);
@@ -1716,18 +1773,26 @@ var WindowManager = GObject.registerClass(
                         } else if (isCenter) {
                             childNode.layout = Tree.LAYOUT_TYPES.STACKED;
                         }
+                    } else if (childNode.detachWindow) {
+                        const orientation = isLeft || isRight ? Tree.ORIENTATION_TYPES.HORIZONTAL : Tree.ORIENTATION_TYPES.VERTICAL;
+                        this.tree.split(childNode, orientation);
+                        containerNode.insertBefore(childNode.parentNode, referenceNode);
                     } else {
+                        // Child Node is a WINDOW
                         containerNode.insertBefore(childNode, referenceNode);
-                    }
-
-                    if (previousParent.childNodes.length === 1) {
-                        // reset to horizontal split
-                        previousParent.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                        if (isLeft || isRight) {
+                            containerNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                        } else if (isTop || isBottom) {
+                            containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+                        } else if (isCenter) {
+                            containerNode.layout = Tree.LAYOUT_TYPES.STACKED;
+                        }
                     }
                 } else {
                     updatePreview(focusNodeWindow, previewParams);
                 }
                 childNode.createCon = false;
+                childNode.detachWindow = false;
             }
         }
 

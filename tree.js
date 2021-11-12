@@ -900,15 +900,15 @@ var Tree = GObject.registerClass(
                 parentNode.layout = orientation ===
                     ORIENTATION_TYPES.HORIZONTAL ?
                     LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;
-                Logger.debug(`tree-split: toggle parent ${parentNode._type} to layout: ${parentNode.layout}`);
+                Logger.debug(`tree-split: toggle parent ${parentNode.nodeType} to layout: ${parentNode.layout}`);
                 this.attachNode = parentNode;
                 return;
             }
 
             // Push down the Meta.Window into a new Container
-            Logger.trace(`tree-split: parent node ${parentNode._type} ${parentNode._data}, children ${numChildren}`);
-            Logger.trace(`tree-split: node ${node._data} has children? ${node._nodes.length}`);
-            Logger.debug(`tree-split: pushing down ${type} ${node._data.get_wm_class()} to CON`);
+            Logger.trace(`tree-split: parent node ${parentNode.nodeType} ${parentNode.nodeValue}, children ${numChildren}`);
+            Logger.trace(`tree-split: node ${node.nodeValue} has children? ${node.childNodes.length}`);
+            Logger.debug(`tree-split: pushing down ${type} ${node.nodeValue.get_wm_class()} to CON`);
             let currentIndex = node.index;
             let container = new St.Bin();
             let newConNode = new Node(NODE_TYPES.CON, container);
@@ -920,9 +920,10 @@ var Tree = GObject.registerClass(
             newConNode.percent = node.percent;
             newConNode.parentNode = parentNode;
             parentNode.childNodes[currentIndex] = newConNode;
-            this.createNode(container, node._type, node._data);
+            this.createNode(container, node.nodeType, node.nodeValue);
+            node.parentNode = newConNode;
             this.attachNode = newConNode;
-            Logger.trace(`tree-split: container parent ${newConNode._parent._data} has children? ${newConNode._parent._nodes.length}`);
+            Logger.trace(`tree-split: container parent ${newConNode._parent.nodeValue} has children? ${newConNode.parentNode.childNodes.length}`);
         }
 
         swap(node, direction) {
