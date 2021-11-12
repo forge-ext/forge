@@ -650,6 +650,7 @@ var Tree = GObject.registerClass(
             Logger.debug(`tree-focus: possible next ${next.nodeType}`);
 
             let metaWindow = next.nodeValue;
+            if (!metaWindow) return null;
             if (metaWindow.minimized) {
                 next = this.focus(next, direction);
             } else {
@@ -699,50 +700,66 @@ var Tree = GObject.registerClass(
         move(node, direction) {
             let next = this.next(node, direction);
             let position = Utils.positionFromDirection(direction);
-            if (!next) {
+
+            if (!next || next === -1) {
+                if (next === -1) {
+                    // TODO - update appending or prepending on the same monitor
+                    Logger.warn(`move-window: on edge? ${next}`);
+                    const currMonWsNode = this.extWm.currentMonWsNode;
+                    if (currMonWsNode) {
+                        if (position === POSITION.AFTER) {
+                            currMonWsNode.appendChild(node);
+                        } else {
+                            currMonWsNode.insertBefore(node, next.firstChild);
+                        }
+                        return true;
+                    }
+                }
                 return false;
             }
+
             Logger.trace(`move-window: next ${next ? next.nodeType : undefined} ${position}`);
+
+            let parentNode = node.parentNode;
+            let parentTarget;
 
             switch(next.nodeType) {
                 case NODE_TYPES.WINDOW:
                     // If same parent, swap
                     if (next === node.previousSibling || next === node.nextSibling) {
                         Logger.trace(`move-window: swap pairs`);
+                        parentTarget = next.parentNode;
                         this.swapPairs(node, next);
+                        // do not reset percent when swapped
+                        return true;
                     } else {
-                        if (next.parentNode) {
-                            Logger.trace(`move-window: next parent ${next.parentNode.nodeValue}`);
+                        parentTarget = next.parentNode;
+                        if (parentTarget) {
+                            Logger.trace(`move-window: next parent ${parentTarget.nodeValue}`);
                             if (position === POSITION.AFTER) {
-                                next.parentNode.insertBefore(node, next);
+                                parentTarget.insertBefore(node, next);
                             } else {
-                                next.parentNode.insertBefore(node, next.nextSibling);
+                                parentTarget.insertBefore(node, next.nextSibling);
                             }
-                            this.resetSiblingPercent(node.parentNode);
-                            this.resetSiblingPercent(next.parentNode);
                         }
                     }
                     break;
                 case NODE_TYPES.CON:
                     Logger.trace(`move-to-con`);
+                    parentTarget = next;
+
                     if (next.layout === LAYOUT_TYPES.STACKED) {
                         next.appendChild(node);
                     } else {
                         next.insertBefore(node, next.firstChild);
                     }
-                    this.resetSiblingPercent(node.parentNode);
-                    this.resetSiblingPercent(next.parentNode);
                     break;
                 case NODE_TYPES.MONITOR:
-                    if (next.contains(node)) {
-                        Logger.trace("within same monitor");
-                        if (position === POSITION.AFTER) {
-                            next.appendChild(node);
-                        } else {
-                            next.insertBefore(node, next.firstChild);
-                        }
-                    } else {
-                        Logger.trace("different monitor");
+                    parentTarget = next;
+                    const currMonWsNode = this.extWm.currentMonWsNode;
+
+                    if (!next.contains(node) && (node === currMonWsNode.firstChild || node === currMonWsNode.lastChild)) {
+                        Logger.trace("move to different monitor");
                         let targetMonRect = this.extWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
                         if (!targetMonRect) return false;
                         if (position === POSITION.AFTER) {
@@ -753,13 +770,20 @@ var Tree = GObject.registerClass(
                         let rect = targetMonRect;
                         this.extWm.move(node.nodeValue, rect);
                         this.extWm.movePointerWith(node);
-                        this.resetSiblingPercent(node);
-                        this.resetSiblingPercent(next);
+                    } else {
+                        Logger.trace("move within same monitor");
+                        if (position === POSITION.AFTER) {
+                            currMonWsNode.appendChild(node);
+                        } else {
+                            currMonWsNode.insertBefore(node, currMonWsNode.firstChild);
+                        }
                     }
                     break;
                 default:
                     break;
             }
+            this.resetSiblingPercent(parentNode);
+            this.resetSiblingPercent(parentTarget);
             return true;
         }
 
@@ -827,7 +851,7 @@ var Tree = GObject.registerClass(
             let targetMonitor = -1;
             targetMonitor = global.display.get_monitor_neighbor_index(nodeWindow.nodeValue.get_monitor(), monitorDirection);
             Logger.trace(`tree-next: targetMonitor is ${targetMonitor} on direction ${monitorDirection}`);
-            if (targetMonitor < 0) return null;
+            if (targetMonitor < 0) return targetMonitor;
             let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue.get_workspace().index()}`;
             Logger.trace(`tree-next: found monitor ${monWs}`);
             monitorNode = this.findNode(monWs);
@@ -887,15 +911,15 @@ var Tree = GObject.registerClass(
                 parentNode.layout = orientation ===
                     ORIENTATION_TYPES.HORIZONTAL ?
                     LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;
-                Logger.debug(`tree-split: toggle parent ${parentNode._type} to layout: ${parentNode.layout}`);
+                Logger.debug(`tree-split: toggle parent ${parentNode.nodeType} to layout: ${parentNode.layout}`);
                 this.attachNode = parentNode;
                 return;
             }
 
             // Push down the Meta.Window into a new Container
-            Logger.trace(`tree-split: parent node ${parentNode._type} ${parentNode._data}, children ${numChildren}`);
-            Logger.trace(`tree-split: node ${node._data} has children? ${node._nodes.length}`);
-            Logger.debug(`tree-split: pushing down ${type} ${node._data.get_wm_class()} to CON`);
+            Logger.trace(`tree-split: parent node ${parentNode.nodeType} ${parentNode.nodeValue}, children ${numChildren}`);
+            Logger.trace(`tree-split: node ${node.nodeValue} has children? ${node.childNodes.length}`);
+            Logger.debug(`tree-split: pushing down ${type} ${node.nodeValue.get_wm_class()} to CON`);
             let currentIndex = node.index;
             let container = new St.Bin();
             let newConNode = new Node(NODE_TYPES.CON, container);
@@ -907,9 +931,10 @@ var Tree = GObject.registerClass(
             newConNode.percent = node.percent;
             newConNode.parentNode = parentNode;
             parentNode.childNodes[currentIndex] = newConNode;
-            this.createNode(container, node._type, node._data);
+            this.createNode(container, node.nodeType, node.nodeValue);
+            node.parentNode = newConNode;
             this.attachNode = newConNode;
-            Logger.trace(`tree-split: container parent ${newConNode._parent._data} has children? ${newConNode._parent._nodes.length}`);
+            Logger.trace(`tree-split: container parent ${newConNode._parent.nodeValue} has children? ${newConNode.parentNode.childNodes.length}`);
         }
 
         swap(node, direction) {
@@ -1044,13 +1069,14 @@ var Tree = GObject.registerClass(
             this.processNode(this);
             this.postProcess(this);
             this.cleanTree();
-            this.apply();
+            this.apply(this);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             Logger.debug(`*********************************************`);
         }
 
-        apply() {
-            let tiledChildren = this.getNodeByMode(Window.WINDOW_MODES.TILE)
+        apply(node) {
+            if (!node) return;
+            let tiledChildren = node.getNodeByMode(Window.WINDOW_MODES.TILE)
                 .filter((t) => t.nodeType === NODE_TYPES.WINDOW);
             Logger.debug(`number of windows to apply: ${tiledChildren.length}`);
             tiledChildren.forEach((w) => {
@@ -1067,25 +1093,33 @@ var Tree = GObject.registerClass(
         }
 
         cleanTree() {
-            let orphanCons = [];
-            let criteriaFn = (node) => {
-                if (node.childNodes.length === 0 &&
-                    node.nodeType === NODE_TYPES.CON) {
-                    orphanCons.push(node);
-                }
-            }
+            // Phase 1: remove any cons with empty children
+            const orphanCons = this.getNodeByType(NODE_TYPES.CON)
+                .filter((c) => c.childNodes.length === 0);
+            const hasOrphanCons = orphanCons.length > 0;
 
-            this._walk(criteriaFn, this._traverseDepthFirst);
+            Logger.debug(`clean-tree: orphaned cons ${orphanCons.length}`);
 
-            let orphans = orphanCons.length;
-            Logger.debug(`tree-clean: nodes to scrub ${orphans}`);
-
-            orphanCons.forEach((orphan) => {
-                this.removeNode(orphan);
+            orphanCons.forEach((o) => {
+                this.removeNode(o);
             });
-            orphanCons.length = 0;
-            if (orphans > 0) {
+
+            // Phase 2: remove any empty parent cons up to the single intermediate parent-window level
+            // Basically, flatten them?
+            // [con[con[con[con[window]]]]] --> [con[window]]
+            // TODO: help :)
+            const grandParentCons = this.getNodeByType(NODE_TYPES.CON)
+                .filter((c) => c.childNodes.length === 1 && c.childNodes[0].nodeType === NODE_TYPES.CON);
+
+            grandParentCons.forEach((c) => {
+                c.layout = LAYOUT_TYPES.HSPLIT;
+            });
+
+            Logger.debug(`clean-tree: multi-parent empty cons ${grandParentCons.length}`);
+
+            if (hasOrphanCons) {
                 this.processNode(this);
+                this.apply(this);
             }
         }
 
@@ -1195,7 +1229,7 @@ var Tree = GObject.registerClass(
             let nodeHeight = node.rect.height;
             let nodeX = node.rect.x;
             let nodeY = node.rect.y;
-            let gap = this.extWm.calculateGaps(node.nodeValue);
+            let gap = this.extWm.calculateGaps();
 
             nodeX += gap;
             nodeY += gap;
@@ -1353,12 +1387,13 @@ var Tree = GObject.registerClass(
             let alwaysRenderTab = true;
 
             if (alwaysRenderTab) {
-                let conChildren = tree.getNodeByType(NODE_TYPES.CON);
-                Array.prototype.push.apply(conChildren, tree.getNodeByType(NODE_TYPES.MONITOR));
+                let containerNodes = tree.getNodeByType(NODE_TYPES.CON);
+                Logger.debug(`post-process: containers ${containerNodes.length}`);
+                let monitorNodes = tree.getNodeByType(NODE_TYPES.MONITOR);
+                Logger.debug(`post-process: workspace-monitors ${monitorNodes.length}`);
+                Array.prototype.push.apply(containerNodes, monitorNodes);
 
-                Logger.debug(`post-process: cons ${conChildren.length}`);
-
-                conChildren.forEach((con) => {
+                containerNodes.forEach((con) => {
                     if (con.layout === LAYOUT_TYPES.TABBED) {
                         if (con.childNodes.length > 1) {
                             const frontTabs = con.childNodes.filter(

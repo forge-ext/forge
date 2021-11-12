@@ -51,6 +51,7 @@ When dragging a window,
     - [ ] - For split layout, should show preview hint left/right on horizontal, top/bottom on vertical following the mouse pointer.
     - [ ] - For tabbed layout, should show preview hint same size as the current front window.
     - [ ] - For stacked layout, should show preview hint same size as the current front window.
+    - [ ] - There should be the following preview hint regions: LEFT, TOP, RIGHT, BOTTOM and CENTER
 - [ ] - On dropping, should tile the window on the preview hint position shown before dropping.
 - [ ] - On dropping to a different monitor, should tile based on the preview hint position shown unless empty monitor.
     - [ ] - Empty monitors will not show a preview hint.

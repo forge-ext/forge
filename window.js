@@ -38,6 +38,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 // App imports
 const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
+const Msgs = Me.imports.messages;
 const Theme = Me.imports.theme;
 const Tree = Me.imports.tree;
 const Utils = Me.imports.utils;
@@ -220,7 +221,7 @@ var WindowManager = GObject.registerClass(
                     this.hideWindowBorders();
                     if (!this._wsSwitchedSrcId) {
                         this._wsSwitchedSrcId = GLib.timeout_add(GLib.PRIORITY_LOW, 450, () => {
-                            this.showBorderFocusWindow();
+                            this.updateBorderLayout();
                             this._wsSwitchedSrcId = 0;
                             return false;
                         });
@@ -242,18 +243,18 @@ var WindowManager = GObject.registerClass(
             settings.connect("changed", (_, settingName) => {
                 switch (settingName) {
                     case "focus-border-toggle":
-                        this.showBorderFocusWindow();
+                        this.updateBorderLayout();
                         break;
                     case "tiling-mode-enabled":
                         this.renderTree(settingName);
-                        this.showBorderFocusWindow();
+                        this.updateBorderLayout();
                         break;
                     case "window-gap-size-increment":
                     case "window-gap-size":
                     case "window-gap-hidden-on-single":
                     case "workspace-skip-tile":
                         this.renderTree(settingName);
-                        this.showBorderFocusWindow();
+                        this.updateBorderLayout();
                         break;
                     case "stacked-tiling-mode-enabled":
                         if (!settings.get_boolean(settingName)) {
@@ -413,7 +414,7 @@ var WindowManager = GObject.registerClass(
                             prev.parentNode.lastTabFocus = prev.nodeValue;
                         this.renderTree("move-window");
                     }
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "Focus":
                     this.freezeRender();
@@ -423,21 +424,12 @@ var WindowManager = GObject.registerClass(
                         focusNodeWindow = this.findNodeWindow(this.focusMetaWindow);
                     }
                     this.queueEvent({name: "focus", callback: () => {
+                        if (!focusNodeWindow) return;
                         if (this.eventQueue.length <= 0) {
                             Logger.info("focus queue is last, unfreezing render");
                             this.unfreezeRender();
-                            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
-                                focusNodeWindow.parentNode.appendChild(focusNodeWindow);
-                                focusNodeWindow.nodeValue.raise();
-                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
-                                this.renderTree("focus-stacked-queue");
-                            }
-                            if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
-                                focusNodeWindow.nodeValue.raise();
-                                focusNodeWindow.nodeValue.activate(global.display.get_current_time());
-                                focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
-                                this.renderTree("focus-tabbed-queue");
-                            }
+                            this.updateTabbedFocus(focusNodeWindow);
+                            this.updateStackedFocus(focusNodeWindow);
                         }
                     }})
                     break;
@@ -462,7 +454,7 @@ var WindowManager = GObject.registerClass(
                         toUpperCase() : Tree.ORIENTATION_TYPES.NONE;
                     this.tree.split(focusNodeWindow, orientation);
                     this.renderTree("split");
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "LayoutToggle":
                     if (!focusNodeWindow) return;
@@ -473,8 +465,8 @@ var WindowManager = GObject.registerClass(
                         focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
                     }
                     this.tree.attachNode = focusNodeWindow.parentNode;
+                    this.updateBorderLayout();
                     this.renderTree("layout-split-toggle");
-                    this.showBorderFocusWindow();
                     break;
                 case "FocusBorderToggle":
                     let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
@@ -532,19 +524,11 @@ var WindowManager = GObject.registerClass(
                     if (!this.ext.settings.get_boolean("stacked-tiling-mode-enabled"))
                         return;
 
-                    // TODO for now do not allow multiple levels of stacked tiles
-                    let stackedWindowNodes = [];
-                    currentLayout = focusNodeWindow.parentNode.layout;
-                    focusNodeWindow.parentNode.childNodes.forEach((node) => {
-                        Array.prototype.push.apply(stackedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.STACKED));
-                    });
-
                     if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
-                        if (stackedWindowNodes.length > 0) {
-                            Logger.warn(`stacked-tiling: do not allow multiple levels of stacking for now`);
-                            return;
-                        }
+                        this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL);
                     }
+
+                    currentLayout = focusNodeWindow.parentNode.layout;
 
                     if (currentLayout === Tree.LAYOUT_TYPES.STACKED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
@@ -562,25 +546,18 @@ var WindowManager = GObject.registerClass(
                     this.unfreezeRender();
                     this.tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-stacked-toggle");
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "LayoutTabbedToggle":
                     if (!focusNodeWindow) return;
                     if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled"))
                         return;
 
-                    let tabbedWindowNodes = [];
-                    currentLayout = focusNodeWindow.parentNode.layout;
-                    focusNodeWindow.parentNode.childNodes.forEach((node) => {
-                        Array.prototype.push.apply(tabbedWindowNodes, node.getNodeByLayout(Tree.LAYOUT_TYPES.TABBED));
-                    });
-
                     if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
-                        if (tabbedWindowNodes.length > 0) {
-                            Logger.warn(`tabbed-tiling: do not allow multiple levels of tabbing for now`);
-                            return;
-                        }
+                        this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL);
                     }
+
+                    currentLayout = focusNodeWindow.parentNode.layout;
 
                     if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
                         focusNodeWindow.parentNode.layout = this.determineSplitLayout();
@@ -593,13 +570,38 @@ var WindowManager = GObject.registerClass(
                     this.unfreezeRender();
                     this.tree.attachNode = focusNodeWindow.parentNode;
                     this.renderTree("layout-tabbed-toggle");
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     break;
                 case "CancelOperation":
                     Logger.debug(`trigger cancel operation`);
                     if (focusNodeWindow.mode === WINDOW_MODES.GRAB_TILE) {
                         Logger.debug(`cancel-operation: grab-tile/swap`);
                         this.cancelGrab = true;
+                    }
+                    break;
+                case "PrefsOpen":
+                    let existWindow = Utils.findWindowWith(Msgs.prefs_title);
+                    if (existWindow && existWindow.get_workspace()) {
+                        existWindow.get_workspace().activate_with_focus(existWindow,
+                            global.display.get_current_time());
+                        Logger.warn("prefs is already open");
+                    } else {
+                        Logger.debug("opening prefs");
+                        ExtensionUtils.openPrefs();
+
+                        // Wait for it to appear on TabList
+                        if (!this._prefsOpenSrcId) {
+                            this._prefsOpenSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                                const newPrefsWindow = Utils.findWindowWith(Msgs.prefs_title);
+                                if (newPrefsWindow) {
+                                    newPrefsWindow.get_workspace()
+                                        .activate_with_focus(newPrefsWindow,
+                                    global.display.get_current_time());
+                                }
+                                this._prefsOpenSrcId = 0;
+                                return false;
+                            });
+                        }
                     }
                     break;
                 default:
@@ -927,7 +929,7 @@ var WindowManager = GObject.registerClass(
                     this.tree._initWorkspaces();
                     this.trackCurrentWindows();
                     this.renderTree(from);
-                    this.showBorderFocusWindow();
+                    this.updateBorderLayout();
                     this._reloadTreeSrcId = 0;
                     return false;
                 });
@@ -944,8 +946,7 @@ var WindowManager = GObject.registerClass(
             return firstMonWs === secondMonWs;
         }
 
-        showBorderFocusWindow() {
-            this.hideWindowBorders();
+        showWindowBorders() {
             let metaWindow = this.focusMetaWindow;
             if (!metaWindow) return;
             let windowActor = metaWindow.get_compositor_private();
@@ -957,7 +958,7 @@ var WindowManager = GObject.registerClass(
             let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
             let splitBorderEnabled = this.ext.settings.get_boolean("split-border-toggle");
             let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
-            let gap = this.calculateGaps(metaWindow);
+            let gap = this.calculateGaps();
             let maximized = () => {
                 return metaWindow.get_maximized() !== 0 ||
                     metaWindow.is_fullscreen() ||
@@ -1001,9 +1002,11 @@ var WindowManager = GObject.registerClass(
                         tiledBorder.set_style_class_name("window-floated-border");
                     }
                     borders.push(tiledBorder);
-                } else {
-                    inset = 0;
                 }
+            }
+
+            if (gap === 0) {
+                inset = 0;
             }
 
             // handle the split border
@@ -1046,14 +1049,20 @@ var WindowManager = GObject.registerClass(
                     global.window_group.add_child(border);
                 }
             });
+        }
+
+        updateBorderLayout() {
+            this.hideWindowBorders();
+            this.showWindowBorders();
             Logger.trace(`show-border-focus-window`);
         }
 
-        calculateGaps(metaWindow) {
+        calculateGaps() {
             let settings = this.ext.settings;
             let gapSize = settings.get_uint("window-gap-size")
             let gapIncrement = settings.get_uint("window-gap-size-increment");
             let gap = gapSize * gapIncrement;
+            let metaWindow = this.focusMetaWindow;
             if (metaWindow && metaWindow.get_workspace()) {
                 let monitorWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
                 let monitorWsNode = this.tree.findNode(monitorWs);
@@ -1147,7 +1156,7 @@ var WindowManager = GObject.registerClass(
                             if ((tilingModeEnabled && !_metaWindowFocus.firstRender) ||
                                 !tilingModeEnabled ||
                                 !this.isActiveWindowWorkspaceTiled(this.focusMetaWindow))
-                                this.showBorderFocusWindow();
+                                this.updateBorderLayout();
 
                             let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
                             if (focusNodeWindow) {
@@ -1288,6 +1297,7 @@ var WindowManager = GObject.registerClass(
             // Release any resources on the window
             let border = actor.border;
             if (border) {
+                border.hide();
                 if (global.window_group) {
                     global.window_group.remove_child(border);
                     border = null;
@@ -1296,6 +1306,7 @@ var WindowManager = GObject.registerClass(
 
             let splitBorder = actor.splitBorder;
             if (splitBorder) {
+                splitBorder.hide();
                 if (global.window_group) {
                     global.window_group.remove_child(splitBorder);
                     splitBorder = null;
@@ -1370,7 +1381,6 @@ var WindowManager = GObject.registerClass(
                 Logger.trace(` on monitor: ${monitor} `);
                 this.renderTree(from);
             }
-            this.showBorderFocusWindow();
         }
 
         /**
@@ -1380,10 +1390,6 @@ var WindowManager = GObject.registerClass(
         updateMetaPositionSize(_metaWindow, from) {
             let focusMetaWindow = this.focusMetaWindow;
             if (!focusMetaWindow) return;
-            if (focusMetaWindow.get_maximized() === 0) {
-                this.renderTree(from);
-            }
-            this.showBorderFocusWindow();
 
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
             if (!focusNodeWindow) return;
@@ -1394,6 +1400,11 @@ var WindowManager = GObject.registerClass(
                 } else if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING) {
                     this._handleMoving(focusNodeWindow);
                 }
+            } else {
+                if (focusMetaWindow.get_maximized() === 0) {
+                    this.renderTree(from);
+                }
+                this.updateBorderLayout();
             }
             focusMetaWindow.raise();
 
@@ -1467,103 +1478,335 @@ var WindowManager = GObject.registerClass(
             if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
 
             let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
+
             if (nodeWinAtPointer) {
                 const targetRect = this.tree.processGap(nodeWinAtPointer);
                 const parentNodeTarget = nodeWinAtPointer.parentNode;
-                // For stacked and tabbed windows, append them to the parent container
-                if (parentNodeTarget.isStackedLayout()) {
-                    if (!preview) {
-                        parentNodeTarget.appendChild(focusNodeWindow);
-                    } else {
-                        let previewHint = focusNodeWindow.previewHint;
-                        if (previewHint) {
-                            previewHint.set_style_class_name("window-tilepreview-stacked");
-                            previewHint.set_position(targetRect.x, targetRect.y);
-                            previewHint.set_size(targetRect.width, targetRect.height);
-                            previewHint.show();
+                const currPointer = this.getPointer();
+                const horizontal = parentNodeTarget.isHSplitLayout() ||
+                    parentNodeTarget.isTabbedLayout();
+                const isMonParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
+                const isConParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.CON;
+                const stacked = parentNodeTarget.isStackedLayout();
+                const tabbed = parentNodeTarget.isTabbedLayout();
+                const stackedOrTabbed = stacked || tabbed;
+                const updatePreview = (focusNodeWindow, previewParams) => {
+                    let previewHint = focusNodeWindow.previewHint;
+                    const previewRect = previewParams.targetRect;
+                    if (previewHint) {
+                        if (!previewRect) {
+                            previewHint.hide();
+                            return;
                         }
+                        previewHint.set_style_class_name(previewParams.className);
+                        previewHint.set_position(previewRect.x, previewRect.y);
+                        previewHint.set_size(previewRect.width, previewRect.height);
+                        previewHint.show();
                     }
-                } else {
-                    // Attach the window into the parent container depending on where the pointer is
-                    let leftRect = {
+                }
+                const regions = (targetRect, regionWidth) => {
+                    leftRegion = {
+                        x: targetRect.x,
+                        y: targetRect.y,
+                        width: targetRect.width * regionWidth,
+                        height: targetRect.height
+                    }
+
+                    rightRegion = {
+                        x: targetRect.x + (targetRect.width * (1 - regionWidth)),
+                        y: targetRect.y,
+                        width: targetRect.width * regionWidth,
+                        height: targetRect.height
+                    }
+
+                    topRegion = {
                         x: targetRect.x,
                         y: targetRect.y,
                         width: targetRect.width,
-                        height: targetRect.height
-                    };
-                    let rightRect = leftRect;
-
-                    if (parentNodeTarget.isHSplitLayout() || parentNodeTarget.isTabbedLayout()) {
-                        Logger.debug("move-pointer: parent target is HSPLIT");
-                        // Divide the window's rect left/right
-                        leftRect = {
-                            x: targetRect.x,
-                            y: targetRect.y,
-                            width: targetRect.width / 2,
-                            height: targetRect.height
-                        }
-
-                        rightRect = {
-                            x: targetRect.x + (targetRect.width / 2),
-                            y: targetRect.y,
-                            width: targetRect.width / 2,
-                            height: targetRect.height
-                        }
-
-                    } else if (parentNodeTarget.isVSplitLayout()) {
-                        Logger.debug("move-pointer: parent target is VSPLIT");
-                        // Divide the window's rect top/bottom
-                        leftRect = {
-                            x: targetRect.x,
-                            y: targetRect.y,
-                            width: targetRect.width,
-                            height: targetRect.height / 2
-                        }
-
-                        rightRect = {
-                            x: targetRect.x,
-                            y: targetRect.y + targetRect.height / 2,
-                            width: targetRect.width,
-                            height: targetRect.height / 2
-                        }
+                        height: targetRect.height * regionWidth
                     }
 
-                    if (Utils.rectContainsPoint(leftRect, this.getPointer())) {
-                        Logger.debug("move-pointer: point left");
-                        if (!preview) {
-                            parentNodeTarget.insertBefore(focusNodeWindow, nodeWinAtPointer);
+                    bottomRegion = {
+                        x: targetRect.x,
+                        y: targetRect.y + (targetRect.height * (1 - regionWidth)),
+                        width: targetRect.width,
+                        height: targetRect.height * regionWidth
+                    }
+
+                    centerRegion = {
+                        x: targetRect.x + (targetRect.width * regionWidth),
+                        y: targetRect.y + (targetRect.height * regionWidth),
+                        width: targetRect.width - (targetRect.width * regionWidth * 2),
+                        height: targetRect.height - (targetRect.height * regionWidth * 2),
+                    }
+
+                    return {
+                        left: leftRegion,
+                        right: rightRegion,
+                        top: topRegion,
+                        bottom: bottomRegion,
+                        center: centerRegion
+                    }
+                };
+                let referenceNode = null;
+                let containerNode;
+                let childNode = focusNodeWindow;
+                let previewParams = {
+                    className: "",
+                    targetRect: null
+                };
+                let leftRegion;
+                let rightRegion;
+                let topRegion;
+                let bottomRegion;
+                let centerRegion;
+                let previewWidth = 0.50;
+                let hoverWidth = 0.30;
+
+                // Hover region detects where the pointer is on the target drop window
+                const hoverRegions = regions(targetRect, hoverWidth);
+
+                // Preview region interprets the hover intersect where the focus window
+                // would go when dropped
+                const previewRegions = regions(targetRect, previewWidth);
+
+                leftRegion = hoverRegions.left;
+                rightRegion = hoverRegions.right;
+                topRegion = hoverRegions.top;
+                bottomRegion = hoverRegions.bottom;
+                centerRegion = hoverRegions.center;
+
+                const isLeft = Utils.rectContainsPoint(leftRegion, currPointer);
+                const isRight = Utils.rectContainsPoint(rightRegion, currPointer);
+                const isTop = Utils.rectContainsPoint(topRegion, currPointer);
+                const isBottom = Utils.rectContainsPoint(bottomRegion, currPointer);
+                const isCenter = Utils.rectContainsPoint(centerRegion, currPointer);
+
+                if (isCenter) {
+                    Logger.debug("move-pointer: is center");
+                    if (stackedOrTabbed) {
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        containerNode = parentNodeTarget;
+                        referenceNode = null;
+                        previewParams = {
+                            className: stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed",
+                            targetRect: targetRect
+                        };
+                    } else {
+                        if (isMonParent) {
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                            previewParams = {
+                                targetRect: targetRect
+                            };
                         } else {
-                            let previewHint = focusNodeWindow.previewHint;
-                            if (previewHint) {
-                                if (parentNodeTarget.isTabbedLayout()) {
-                                    previewHint.set_style_class_name("window-tilepreview-tabbed");
-                                } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
-                                    previewHint.set_style_class_name("window-tilepreview-tiled");
-                                }
-                                previewHint.set_position(leftRect.x, leftRect.y);
-                                previewHint.set_size(leftRect.width, leftRect.height);
-                                previewHint.show();
-                            }
+                            containerNode = parentNodeTarget;
+                            referenceNode = null;
+                            const parentTargetRect = this.tree.processGap(parentNodeTarget);
+                            previewParams = {
+                                targetRect: parentTargetRect
+                            };
                         }
-                    } else if (Utils.rectContainsPoint(rightRect, this.getPointer())) {
-                        Logger.debug("move-pointer: point right");
-                        if (!preview) {
-                            parentNodeTarget.insertBefore(focusNodeWindow, nodeWinAtPointer.nextSibling);
+                    }
+                } else if (isLeft) {
+                    Logger.debug("move-pointer: is left");
+                    previewParams = {
+                        targetRect: previewRegions.left
+                    };
+
+                    if (stackedOrTabbed) {
+                        // treat any windows on stacked or tabbed layouts to be
+                        // a single node unit: the con itself and then
+                        // split left, top, right or bottom accordingly (subsequent if conditions):
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        childNode.detachWindow = true;
+                        if (!isMonParent) {
+                            Logger.debug(`move-pointer: parent is not monitor`);
+                            referenceNode = parentNodeTarget;
+                            containerNode = parentNodeTarget.parentNode;
                         } else {
-                            let previewHint = focusNodeWindow.previewHint;
-                            if (previewHint) {
-                                if (parentNodeTarget.isTabbedLayout()) {
-                                    previewHint.set_style_class_name("window-tilepreview-tabbed");
-                                } else if (parentNodeTarget.isVSplitLayout() || parentNodeTarget.isHSplitLayout()) {
-                                    previewHint.set_style_class_name("window-tilepreview-tiled");
-                                }
-                                previewHint.set_position(rightRect.x, rightRect.y);
-                                previewHint.set_size(rightRect.width, rightRect.height);
-                                previewHint.show();
-                            }
+                            // It is a monitor that's a stack/tab
+                            // TODO: update the stacked/tabbed toggles to not
+                            // change layout if the parent is a monitor?
+                        }
+                    } else {
+                        if (horizontal) {
+                            Logger.debug("move-pointer: is left horizontal");
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        } else { // vertical orientation
+                            Logger.debug("move-pointer: is left vertical");
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        }
+                    }
+                } else if (isRight) {
+                    previewParams = {
+                        targetRect: previewRegions.right
+                    };
+                    Logger.debug("move-pointer: is right");
+                    if (stackedOrTabbed) {
+                        // treat any windows on stacked or tabbed layouts to be
+                        // a single node unit: the con itself and then
+                        // split left, top, right or bottom accordingly (subsequent if conditions):
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        childNode.detachWindow = true;
+                        if (!isMonParent) {
+                            Logger.debug(`move-pointer: parent is not monitor`);
+                            referenceNode = parentNodeTarget.nextSibling;
+                            containerNode = parentNodeTarget.parentNode;
+                        } else {
+                            // It is a monitor that's a stack/tab
+                            // TODO: update the stacked/tabbed toggles to not
+                            // change layout if the parent is a monitor?
+                        }
+                    } else {
+                        if (horizontal) {
+                            Logger.debug("move-pointer: is right horizontal");
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer.nextSibling;
+                        } else {
+                            Logger.debug("move-pointer: is right vertical");
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer.nextSibling;
+                        }
+                    }
+                } else if (isTop) {
+                    previewParams = {
+                        targetRect: previewRegions.top
+                    };
+                    Logger.debug("move-pointer: is top");
+                    if (stackedOrTabbed) {
+                        // treat any windows on stacked or tabbed layouts to be
+                        // a single node unit: the con itself and then
+                        // split left, top, right or bottom accordingly (subsequent if conditions):
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        childNode.detachWindow = true;
+                        if (!isMonParent) {
+                            Logger.debug(`move-pointer: parent is not monitor`);
+                            referenceNode = parentNodeTarget;
+                            containerNode = parentNodeTarget.parentNode;
+                        } else {
+                            // It is a monitor that's a stack/tab
+                            // TODO: update the stacked/tabbed toggles to not
+                            // change layout if the parent is a monitor?
+                        }
+                    } else {
+                        if (horizontal) {
+                            Logger.debug("move-pointer: is top horizontal");
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        } else {
+                            Logger.debug("move-pointer: is top vertical");
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer;
+                        }
+                    }
+                } else if (isBottom) {
+                    previewParams = {
+                        targetRect: previewRegions.bottom
+                    };
+                    Logger.debug("move-pointer: is bottom");
+                    if (stackedOrTabbed) {
+                        // treat any windows on stacked or tabbed layouts to be
+                        // a single node unit: the con itself and then
+                        // split left, top, right or bottom accordingly (subsequent if conditions):
+                        Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
+                        childNode.detachWindow = true;
+                        if (!isMonParent) {
+                            Logger.debug(`move-pointer: parent is not monitor`);
+                            referenceNode = parentNodeTarget.nextSibling;
+                            containerNode = parentNodeTarget.parentNode;
+                        } else {
+                            // It is a monitor that's a stack/tab
+                            // TODO: update the stacked/tabbed toggles to not
+                            // change layout if the parent is a monitor?
+                        }
+                    } else {
+                        if (horizontal) {
+                            Logger.debug("move-pointer: is bottom horizontal");
+                            childNode = focusNodeWindow;
+                            childNode.createCon = true;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer.nextSibling;
+                        } else {
+                            Logger.debug("move-pointer: is bottom vertical");
+                            childNode = focusNodeWindow;
+                            containerNode = parentNodeTarget;
+                            referenceNode = nodeWinAtPointer.nextSibling;
                         }
                     }
                 }
+
+                if (!isCenter) {
+                    previewParams.className = "window-tilepreview-tiled";
+                } else if (isCenter) {
+                    if (!stackedOrTabbed)
+                        previewParams.className = this._getDragDropCenterPreviewStyle();
+                }
+
+                if (!preview) {
+                    const previousParent = focusNodeWindow.parentNode;
+                    this.tree.resetSiblingPercent(containerNode);
+                    this.tree.resetSiblingPercent(previousParent);
+                    const numWin = parentNodeTarget.childNodes.filter((c) => c.nodeType === Tree.NODE_TYPES.WINDOW).length;
+                    const numChild = parentNodeTarget.childNodes.length;
+                    const sameNumChild = numWin === numChild;
+
+                    if (childNode.createCon) {
+                        // Child Node will still be created
+                        Logger.debug(`move-pointer: target parent type ${parentNodeTarget.nodeType} with ${numChild} total, ${numWin} only windows`);
+                        if (!isCenter && (isConParent && numWin === 1 && sameNumChild || isMonParent && numWin == 2 && sameNumChild)) {
+                            Logger.debug(`move-pointer: re-using target container`);
+                            childNode = parentNodeTarget;
+                        } else {
+                            Logger.debug(`move-pointer: creating new container`);
+                            childNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+                            containerNode.insertBefore(childNode, referenceNode);
+                            childNode.appendChild(nodeWinAtPointer);
+                        }
+
+                        if (isLeft || isTop) {
+                            childNode.insertBefore(focusNodeWindow, nodeWinAtPointer);
+                        } else if (isRight || isBottom || isCenter) {
+                            childNode.insertBefore(focusNodeWindow, null);
+                        }
+
+                        if (isLeft || isRight) {
+                            childNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                        } else if (isTop || isBottom) {
+                            childNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+                        } else if (isCenter) {
+                            const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
+                            Logger.debug(`move-pointer: center layout ${centerLayout}`);
+                            childNode.layout = Tree.LAYOUT_TYPES[centerLayout];
+                        }
+                    } else if (childNode.detachWindow) {
+                        const orientation = isLeft || isRight ? Tree.ORIENTATION_TYPES.HORIZONTAL : Tree.ORIENTATION_TYPES.VERTICAL;
+                        this.tree.split(childNode, orientation);
+                        containerNode.insertBefore(childNode.parentNode, referenceNode);
+                    } else {
+                        // Child Node is a WINDOW
+                        containerNode.insertBefore(childNode, referenceNode);
+                        if (isLeft || isRight) {
+                            containerNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+                        } else if (isTop || isBottom) {
+                            containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+                        } else if (isCenter) {
+                            const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
+                            Logger.debug(`move-pointer: center layout ${centerLayout}`);
+                            containerNode.layout = Tree.LAYOUT_TYPES[centerLayout];
+                        }
+                    }
+                } else {
+                    updatePreview(focusNodeWindow, previewParams);
+                }
+                childNode.createCon = false;
+                childNode.detachWindow = false;
             }
         }
 
@@ -1578,6 +1821,8 @@ var WindowManager = GObject.registerClass(
         }
 
         _handleGrabOpBegin(_display, _metaWindow, grabOp) {
+            this.freezeRender();
+            this.hideWindowBorders();
             let orientation = Utils.orientationFromGrab(grabOp);
             let direction = Utils.directionFromGrab(grabOp);
             let focusMetaWindow = this.focusMetaWindow;
@@ -1586,7 +1831,7 @@ var WindowManager = GObject.registerClass(
                 focusMetaWindow.make_above();
                 focusMetaWindow.raise();
                 const frameRect = focusMetaWindow.get_frame_rect();
-                const gaps = this.calculateGaps(focusMetaWindow);
+                const gaps = this.calculateGaps();
 
                 let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
                 if (!focusNodeWindow) return;
@@ -1598,13 +1843,12 @@ var WindowManager = GObject.registerClass(
                 focusNodeWindow.initGrabOp = grabOp;
                 focusNodeWindow.initRect = Utils.removeGapOnRect(frameRect, gaps);
             }
-            this.renderTree("grab-op-begin");
-            this.freezeRender();
             Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
         }
 
         _handleGrabOpEnd(_display, _metaWindow, grabOp) {
             this.unfreezeRender();
+            this.showWindowBorders();
             let focusMetaWindow = this.focusMetaWindow;
             if (!focusMetaWindow) return;
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
@@ -1667,7 +1911,7 @@ var WindowManager = GObject.registerClass(
             let position = Utils.positionFromGrabOp(grabOp);
             // normalize the rect without gaps
             let frameRect = this.focusMetaWindow.get_frame_rect();
-            let gaps = this.calculateGaps(this.focusMetaWindow);
+            let gaps = this.calculateGaps();
             let currentRect = Utils.removeGapOnRect(frameRect, gaps); 
             let firstRect;
             let secondRect;
@@ -1845,6 +2089,27 @@ var WindowManager = GObject.registerClass(
 
             const knownFloats = this.knownFloats;
             return knownFloats.filter((kf) => windowTitle.includes(kf.title)).length > 0;
+        }
+
+        _getDragDropCenterPreviewStyle() {
+            const centerLayout = this.ext.settings.get_string("dnd-center-layout");
+            return `window-tilepreview-${centerLayout}`;
+        }
+
+        get currentMonWsNode() {
+            const monWs = this.currentMonWs;
+            if (monWs) {
+                return this.tree.findNode(monWs);
+            }
+            return null;
+        }
+
+        get currentMonWs() {
+            const display = global.display;
+            const wsMgr = display.get_workspace_manager();
+            const monWs = `mo${display.get_current_monitor()}ws${wsMgr.get_active_workspace_index()}`;
+            Logger.debug(`current active mon ws: ${monWs}`);
+            return monWs;
         }
     }
 );
