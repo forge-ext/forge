@@ -5,20 +5,22 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 ## Extensions
 You can install from: https://extensions.gnome.org/extension/4481/forge/ or download the source and `make install`, restart gnome-shell after or `make dev`.
 
+## !!!Major Changes!!!
+[#83] - Improved drag/drop tiling with new regions
+
 ## Features
-- Tree-based tiling with vertical and horizontal split containers similar to i3-wm.
-- Vim-like keybindings for navigation/swapping windows/moving windows in the containers.
-- Drag and drop tiling.
-- Support for floating windows, smart gaps and focus hint.
-- Customizable shortcuts in extension preferences.
-- Some support for multi-display.
+- Tree-based tiling with vertical and horizontal split containers similar to i3-wm
+- Vim-like keybindings for navigation/swapping windows/moving windows in the containers
+- Drag and drop tiling
+- Support for floating windows, smart gaps and focus hint
+- Customizable shortcuts in extension preferences
+- Some support for multi-display
 - Tiling support per workspace
-- Works on GNOME 3.36+ and 40. X11 and Wayland.
+- Update hint color scheme from Preferences
+- Stacked tiling layout
+- Works on GNOME 3.36+ and 40. X11 and Wayland
 
 ## Experimental Features
-- Drag and drop tiling (NEW!)
-- Update hint color scheme from Preferences (NEW!)
-- Stacked tiling layout - Can be turned off in preferences
 - Tabbed tiling layout - Can be turned off in preferences
 
 ![image](https://user-images.githubusercontent.com/348125/136071134-ba8aa7b7-8403-4b15-9818-d43f4143a813.png)
