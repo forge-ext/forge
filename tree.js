@@ -650,6 +650,7 @@ var Tree = GObject.registerClass(
             Logger.debug(`tree-focus: possible next ${next.nodeType}`);
 
             let metaWindow = next.nodeValue;
+            if (!metaWindow) return null;
             if (metaWindow.minimized) {
                 next = this.focus(next, direction);
             } else {
@@ -1218,7 +1219,7 @@ var Tree = GObject.registerClass(
             let nodeHeight = node.rect.height;
             let nodeX = node.rect.x;
             let nodeY = node.rect.y;
-            let gap = this.extWm.calculateGaps(node.nodeValue);
+            let gap = this.extWm.calculateGaps();
 
             nodeX += gap;
             nodeY += gap;

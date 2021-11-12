@@ -958,7 +958,7 @@ var WindowManager = GObject.registerClass(
             let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
             let splitBorderEnabled = this.ext.settings.get_boolean("split-border-toggle");
             let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
-            let gap = this.calculateGaps(metaWindow);
+            let gap = this.calculateGaps();
             let maximized = () => {
                 return metaWindow.get_maximized() !== 0 ||
                     metaWindow.is_fullscreen() ||
@@ -1057,11 +1057,12 @@ var WindowManager = GObject.registerClass(
             Logger.trace(`show-border-focus-window`);
         }
 
-        calculateGaps(metaWindow) {
+        calculateGaps() {
             let settings = this.ext.settings;
             let gapSize = settings.get_uint("window-gap-size")
             let gapIncrement = settings.get_uint("window-gap-size-increment");
             let gap = gapSize * gapIncrement;
+            let metaWindow = this.focusMetaWindow;
             if (metaWindow && metaWindow.get_workspace()) {
                 let monitorWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
                 let monitorWsNode = this.tree.findNode(monitorWs);
@@ -1481,6 +1482,14 @@ var WindowManager = GObject.registerClass(
             if (nodeWinAtPointer) {
                 const targetRect = this.tree.processGap(nodeWinAtPointer);
                 const parentNodeTarget = nodeWinAtPointer.parentNode;
+                const currPointer = this.getPointer();
+                const horizontal = parentNodeTarget.isHSplitLayout() ||
+                    parentNodeTarget.isTabbedLayout();
+                const isMonParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
+                const isConParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.CON;
+                const stacked = parentNodeTarget.isStackedLayout();
+                const tabbed = parentNodeTarget.isTabbedLayout();
+                const stackedOrTabbed = stacked || tabbed;
                 const updatePreview = (focusNodeWindow, previewParams) => {
                     let previewHint = focusNodeWindow.previewHint;
                     const previewRect = previewParams.targetRect;
@@ -1495,21 +1504,6 @@ var WindowManager = GObject.registerClass(
                         previewHint.show();
                     }
                 }
-                let referenceNode = null;
-                let containerNode;
-                let childNode = focusNodeWindow;
-                let previewParams = {
-                    className: "",
-                    targetRect: null
-                };
-                let leftRegion;
-                let rightRegion;
-                let topRegion;
-                let bottomRegion;
-                let centerRegion;
-                let previewWidth = 0.50;
-                let hoverWidth = 0.30;
-
                 const regions = (targetRect, regionWidth) => {
                     leftRegion = {
                         x: targetRect.x,
@@ -1554,8 +1548,26 @@ var WindowManager = GObject.registerClass(
                         center: centerRegion
                     }
                 };
+                let referenceNode = null;
+                let containerNode;
+                let childNode = focusNodeWindow;
+                let previewParams = {
+                    className: "",
+                    targetRect: null
+                };
+                let leftRegion;
+                let rightRegion;
+                let topRegion;
+                let bottomRegion;
+                let centerRegion;
+                let previewWidth = 0.50;
+                let hoverWidth = 0.30;
 
+                // Hover region detects where the pointer is on the target drop window
                 const hoverRegions = regions(targetRect, hoverWidth);
+
+                // Preview region interprets the hover intersect where the focus window
+                // would go when dropped
                 const previewRegions = regions(targetRect, previewWidth);
 
                 leftRegion = hoverRegions.left;
@@ -1564,18 +1576,11 @@ var WindowManager = GObject.registerClass(
                 bottomRegion = hoverRegions.bottom;
                 centerRegion = hoverRegions.center;
 
-                const isLeft = Utils.rectContainsPoint(leftRegion, this.getPointer());
-                const isRight = Utils.rectContainsPoint(rightRegion, this.getPointer());
-                const isTop = Utils.rectContainsPoint(topRegion, this.getPointer());
-                const isBottom = Utils.rectContainsPoint(bottomRegion, this.getPointer());
-                const isCenter = Utils.rectContainsPoint(centerRegion, this.getPointer());
-                const horizontal = parentNodeTarget.isHSplitLayout() ||
-                    parentNodeTarget.isTabbedLayout();
-                const isMonParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
-                const isConParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.CON;
-                const stacked = parentNodeTarget.isStackedLayout();
-                const tabbed = parentNodeTarget.isTabbedLayout();
-                const stackedOrTabbed = stacked || tabbed;
+                const isLeft = Utils.rectContainsPoint(leftRegion, currPointer);
+                const isRight = Utils.rectContainsPoint(rightRegion, currPointer);
+                const isTop = Utils.rectContainsPoint(topRegion, currPointer);
+                const isBottom = Utils.rectContainsPoint(bottomRegion, currPointer);
+                const isCenter = Utils.rectContainsPoint(centerRegion, currPointer);
 
                 if (isCenter) {
                     Logger.debug("move-pointer: is center");
@@ -1592,13 +1597,17 @@ var WindowManager = GObject.registerClass(
                             childNode.createCon = true;
                             containerNode = parentNodeTarget;
                             referenceNode = nodeWinAtPointer;
+                            previewParams = {
+                                targetRect: targetRect
+                            };
                         } else {
                             containerNode = parentNodeTarget;
                             referenceNode = null;
+                            const parentTargetRect = this.tree.processGap(parentNodeTarget);
+                            previewParams = {
+                                targetRect: parentTargetRect
+                            };
                         }
-                        previewParams = {
-                            targetRect: targetRect
-                        };
                     }
                 } else if (isLeft) {
                     Logger.debug("move-pointer: is left");
@@ -1817,7 +1826,7 @@ var WindowManager = GObject.registerClass(
                 focusMetaWindow.make_above();
                 focusMetaWindow.raise();
                 const frameRect = focusMetaWindow.get_frame_rect();
-                const gaps = this.calculateGaps(focusMetaWindow);
+                const gaps = this.calculateGaps();
 
                 let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
                 if (!focusNodeWindow) return;
@@ -1897,7 +1906,7 @@ var WindowManager = GObject.registerClass(
             let position = Utils.positionFromGrabOp(grabOp);
             // normalize the rect without gaps
             let frameRect = this.focusMetaWindow.get_frame_rect();
-            let gaps = this.calculateGaps(this.focusMetaWindow);
+            let gaps = this.calculateGaps();
             let currentRect = Utils.removeGapOnRect(frameRect, gaps); 
             let firstRect;
             let secondRect;
