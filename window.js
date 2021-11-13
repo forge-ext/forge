@@ -1488,12 +1488,12 @@ var WindowManager = GObject.registerClass(
                 const targetRect = this.tree.processGap(nodeWinAtPointer);
                 const parentNodeTarget = nodeWinAtPointer.parentNode;
                 const currPointer = this.getPointer();
-                const horizontal = parentNodeTarget.isHSplitLayout() ||
-                    parentNodeTarget.isTabbedLayout();
+                const horizontal = parentNodeTarget.isHSplit() ||
+                    parentNodeTarget.isTabbed();
                 const isMonParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
                 const isConParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.CON;
-                const stacked = parentNodeTarget.isStackedLayout();
-                const tabbed = parentNodeTarget.isTabbedLayout();
+                const stacked = parentNodeTarget.isStacked();
+                const tabbed = parentNodeTarget.isTabbed();
                 const stackedOrTabbed = stacked || tabbed;
                 const updatePreview = (focusNodeWindow, previewParams) => {
                     let previewHint = focusNodeWindow.previewHint;
