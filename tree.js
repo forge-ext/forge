@@ -155,6 +155,17 @@ var Node = GObject.registerClass(
             return null;
         }
 
+        get level() {
+            let _level = 0;
+            let refNode = this.parentNode;
+            while (refNode) {
+                _level += 1;
+                refNode = refNode.parentNode;
+            }
+
+            return _level;
+        }
+
         /**
          * Find the index of this relative to the siblings
          */
@@ -947,14 +958,22 @@ var Tree = GObject.registerClass(
         } 
 
         findAncestorMonitor(node) {
-            while (node && node.nodeType !== NODE_TYPES.WORKSPACE) {
-                if (node.parentNode && node.parentNode.nodeType === NODE_TYPES.MONITOR) {
-                    return node.parentNode;
-                } else if (node.nodeType === NODE_TYPES.MONITOR) {
-                    return node;
+            return this.findAncestor(node, NODE_TYPES.MONITOR);
+        }
+
+        findAncestor(node, ancestorType) {
+            let ancestorNode;
+
+            while (node && ancestorType && !node.isRoot()) {
+                if (node.isType(ancestorType)) {
+                    ancestorNode = node;
+                    break;
+                } else {
+                    node = node.parentNode;
                 }
-                node = node.parentNode;
             }
+
+            return ancestorNode;
         }
 
         nextVisible(node, direction) {
@@ -1217,7 +1236,14 @@ var Tree = GObject.registerClass(
          */
         processNode(node) {
             if (!node) return;
-            Logger.trace(`begin processing node ${node.nodeValue}`);
+            let spacing = "";
+            let level = node.level;
+            for (let i = 0; i < level; i++) {
+                spacing += " ";
+            }
+            let rootSpacing = level === 0 ? "#" : "*-";
+            Logger.debug(`${spacing}${rootSpacing}-- ${node.nodeType} ${node.index} ${node.isWindow() ? node.nodeValue.title + (node.nodeValue === this.extWm.focusMetaWindow ? " (FOCUS)" : "") : node.nodeValue}`);
+            Logger.debug(`${spacing}|`);
             
             // Render the Root, Workspace and Monitor
             // For now, we let them render their children recursively
@@ -1228,7 +1254,6 @@ var Tree = GObject.registerClass(
             }
 
             if (node.nodeType === NODE_TYPES.WORKSPACE) {
-                Logger.debug(`*---- processing workspace ${node.nodeValue} ----*`);
                 node.childNodes.forEach((child) => {
                     this.processNode(child);
                 });
@@ -1242,9 +1267,7 @@ var Tree = GObject.registerClass(
                 // is important so it computes to `remove` the panel size
                 // really well. However, this type of workarea would only
                 // appear if there is window present on the monitor.
-                Logger.trace(`inside a con or monitor, rendering ${node.nodeType}`);
                 if (node.childNodes.length === 0) {
-                    Logger.debug(`Do not process empty containers`);
                     return;
                 }
 
@@ -1282,20 +1305,11 @@ var Tree = GObject.registerClass(
                 });
             }
 
-            if (node.nodeType === NODE_TYPES.WINDOW) {
-                if (!node.rect) node.rect = node.nodeValue.get_work_area_current_monitor();
+            if (node.isWindow()) {
+                if (!node.rect)
+                    node.rect = node.nodeValue.get_work_area_current_monitor();
                 let metaWindow = node.nodeValue;
-                let nodeWidth = node.rect.width;
-                let nodeHeight = node.rect.height;
-                let nodeX = node.rect.x;
-                let nodeY = node.rect.y;
-
-                Logger.debug(`processing window: ${metaWindow.get_wm_class()}:${metaWindow.get_title()}`);
-                Logger.debug(` layout: ${node.parentNode.layout}, index: ${node.index}`);
-                Logger.debug(` x: ${nodeX}, y: ${nodeY}, h: ${nodeHeight}, w: ${nodeWidth}`);
-
                 node.renderRect = this.processGap(node);
-
                 let workspaceTiled = this.extWm.isActiveWindowWorkspaceTiled(metaWindow);
 
                 if (!workspaceTiled) {
@@ -1330,11 +1344,7 @@ var Tree = GObject.registerClass(
         }
 
         processSplit(node, child, params, index) {
-            Logger.debug(`processing split container ${node._data}`);
-
             let layout = node.layout;
-            Logger.debug(` layout: ${layout}`);
-
             let nodeRect = node.rect;
             let nodeWidth;
             let nodeHeight;
@@ -1382,11 +1392,7 @@ var Tree = GObject.registerClass(
         }
 
         processStacked(node, child, params, index) {
-            Logger.debug(`processing stacked container ${node.nodeValue}`);
-
             let layout = node.layout;
-            Logger.debug(` layout: ${layout}`);
-
             let nodeWidth = node.rect.width;
             let nodeHeight = node.rect.height;
             let nodeX = node.rect.x;
@@ -1412,11 +1418,7 @@ var Tree = GObject.registerClass(
         }
 
         processTabbed(node, child, params, index) {
-            Logger.debug(`processing tabbed container ${node.nodeValue}`);
-
             let layout = node.layout;
-            Logger.debug(` layout: ${layout}`);
-
             let nodeRect = node.rect;
             let nodeWidth;
             let nodeHeight;
