@@ -1966,7 +1966,7 @@ var WindowManager = GObject.registerClass(
                     resizePairForWindow.percent = secondPercent;
                 } else {
                     // use the parent pairs (con to another con or window)
-                    if (resizePairForWindow) {
+                    if (resizePairForWindow && resizePairForWindow.parentNode) {
                         if (this.tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
                             Logger.warn(`not valid for resize`);
                             return;
@@ -2023,7 +2023,7 @@ var WindowManager = GObject.registerClass(
                     resizePairForWindow.percent = secondPercent;
                 } else {
                     // use the parent pairs (con to another con or window)
-                    if (resizePairForWindow) {
+                    if (resizePairForWindow && resizePairForWindow.parentNode) {
                         if (this.tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
                             Logger.warn(`not valid for resize`);
                             return;
