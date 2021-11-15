@@ -52,6 +52,7 @@ class Extension {
         this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
         this.configMgr = new Settings.ConfigManager();
         this.theme = new Theme.ThemeManager(this.settings, this.configMgr);
+        this.theme.reloadStylesheet();
 
         if (this.sameSession) {
             Logger.debug(`enable: still in same session`);
@@ -74,7 +75,6 @@ class Extension {
 
         this.extWm.enable();
         this.keybindings.enable();
-        this.theme.reloadStylesheet();
         Logger.info(`enable: finalized vars`);
     }
 
