@@ -90,6 +90,7 @@ var Node = GObject.registerClass(
             this._nodes = []; // Child elements of this node
             this.mode = Window.WINDOW_MODES.DEFAULT;
             this.percent = 0.0;
+            this._rect = null;
 
             if (this.isWindow()) {
                 // When destroy() is called on Meta.Window, it might not be
@@ -1177,6 +1178,10 @@ var Tree = GObject.registerClass(
             this.cleanTree();
             this.apply(this);
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
+            let debugMode = true;
+            if (debugMode) {
+                this.debugTree();
+            }
             Logger.debug(`*********************************************`);
         }
 
@@ -1184,10 +1189,7 @@ var Tree = GObject.registerClass(
             if (!node) return;
             let tiledChildren = node.getNodeByMode(Window.WINDOW_MODES.TILE)
                 .filter((t) => t.nodeType === NODE_TYPES.WINDOW);
-            Logger.debug(`number of windows to apply: ${tiledChildren.length}`);
             tiledChildren.forEach((w) => {
-                Logger.debug(`rendering ${w.nodeType}`);
-
                 if (w.renderRect) {
                     let metaWin = w.nodeValue;
                     this.extWm.move(metaWin, w.renderRect);
@@ -1236,15 +1238,7 @@ var Tree = GObject.registerClass(
          */
         processNode(node) {
             if (!node) return;
-            let spacing = "";
-            let level = node.level;
-            for (let i = 0; i < level; i++) {
-                spacing += " ";
-            }
-            let rootSpacing = level === 0 ? "#" : "*-";
-            Logger.debug(`${spacing}${rootSpacing}-- ${node.nodeType} ${node.index} ${node.isWindow() ? node.nodeValue.title + (node.nodeValue === this.extWm.focusMetaWindow ? " (FOCUS)" : "") : node.nodeValue}`);
-            Logger.debug(`${spacing}|`);
-            
+
             // Render the Root, Workspace and Monitor
             // For now, we let them render their children recursively
             if (node.nodeType === NODE_TYPES.ROOT) {
@@ -1595,6 +1589,41 @@ var Tree = GObject.registerClass(
             children.forEach((n) => {
                 n.percent = 0.0;
             });
+        }
+
+        debugTree() {
+            this.debugNode(this);
+        }
+
+        debugNode(node) {
+            let spacing = "";
+            let dashes = "-->";
+            let level = node.level;
+            for (let i = 0; i < level; i++) {
+                let parentSpacing = i === 0 ? " " : "|";
+                spacing += `${parentSpacing}   `;
+            }
+            let rootSpacing = level === 0 ? "#" : "*";
+
+            let attributes = "";
+
+            if (node.isWindow()) {
+                attributes += `title:'${node.nodeValue.title}'${node.nodeValue === this.extWm.focusMetaWindow ? " FOCUS" : ""}`
+            } else if (node.isCon() || node.isMonitor() || node.isWorkspace()) {
+                attributes += `${node.nodeValue}`;
+                if (node.isCon()) {
+                    attributes += `,layout:${node.layout}`;
+                }
+            }
+
+            if (level !== 0)
+                Logger.debug(`${spacing}|`);
+            Logger.debug(`${spacing}${rootSpacing}${dashes} ${node.nodeType}#${node.index !== null ? node.index : "-"} @${attributes}`);
+
+            node.childNodes.forEach((child) => {
+                this.debugNode(child);
+            });
+
         }
     }
 );
