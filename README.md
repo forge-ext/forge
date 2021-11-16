@@ -6,7 +6,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 You can install from: https://extensions.gnome.org/extension/4481/forge/ or download the source and `make install`, restart gnome-shell after or `make dev`.
 
 ## !!!Major Changes!!!
-[#83] - Improved drag/drop tiling with new regions
+[#83](https://github.com/jmmaranan/forge/pull/83) - Improved drag/drop tiling with new regions
 
 ## Features
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm

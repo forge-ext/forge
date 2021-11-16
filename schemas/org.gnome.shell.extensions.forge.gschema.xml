@@ -28,7 +28,7 @@
         </key>
 
         <key type="u" name="window-gap-size">
-            <default>8</default>
+            <default>4</default>
             <summary>
                 The size of the gap between windows in the workarea
             </summary>

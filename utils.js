@@ -222,6 +222,7 @@ function directionFrom(position, orientaton) {
 }
 
 function rectContainsPoint(rect, pointP) {
+    if (!(rect && pointP)) return false;
     return rect.x <= pointP[0] && pointP[0] <= rect.x + rect.width &&
         rect.y <= pointP[1] && pointP[1] <= rect.y + rect.height;
 }

@@ -154,7 +154,7 @@ var WindowManager = GObject.registerClass(
                 display.connect("workareas-changed", (_display) => {
                     if (this.tree.getNodeByType("WINDOW").length > 0) {
                         // Handler for reload tree conditions
-                        if (!(this.fromOverview || this.toOverview)) {
+                        if (!(this.fromOverview || this.toOverview || !this.ext.sameSession)) {
                             this.reloadTree("workareas-changed");
                         } else {
                             this.toOverview = false;
@@ -482,8 +482,8 @@ var WindowManager = GObject.registerClass(
                     gapIncrement = gapIncrement + amount;
                     if (gapIncrement < 0)
                         gapIncrement = 0;
-                    if (gapIncrement > 5)
-                        gapIncrement = 5;
+                    if (gapIncrement > 8)
+                        gapIncrement = 8;
                     this.ext.settings.set_uint("window-gap-size-increment", gapIncrement);
                     break;
                 case "WorkspaceActiveTileToggle":
@@ -905,7 +905,7 @@ var WindowManager = GObject.registerClass(
             }
             
             if (!this._renderTreeSrcId) {
-                this._renderTreeSrcId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                this._renderTreeSrcId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
                     this.tree.render(from);
                     this._renderTreeSrcId = 0;
                     return false;
@@ -1182,6 +1182,7 @@ var WindowManager = GObject.registerClass(
                             }
 
                             Logger.debug(`window:focus`);
+                            this.renderTree("window-focus");
                         }),
                         metaWindow.connect("workspace-changed", (metaWindowWs) => {
                             Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
@@ -1488,12 +1489,12 @@ var WindowManager = GObject.registerClass(
                 const targetRect = this.tree.processGap(nodeWinAtPointer);
                 const parentNodeTarget = nodeWinAtPointer.parentNode;
                 const currPointer = this.getPointer();
-                const horizontal = parentNodeTarget.isHSplitLayout() ||
-                    parentNodeTarget.isTabbedLayout();
+                const horizontal = parentNodeTarget.isHSplit() ||
+                    parentNodeTarget.isTabbed();
                 const isMonParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
                 const isConParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.CON;
-                const stacked = parentNodeTarget.isStackedLayout();
-                const tabbed = parentNodeTarget.isTabbedLayout();
+                const stacked = parentNodeTarget.isStacked();
+                const tabbed = parentNodeTarget.isTabbed();
                 const stackedOrTabbed = stacked || tabbed;
                 const updatePreview = (focusNodeWindow, previewParams) => {
                     let previewHint = focusNodeWindow.previewHint;
@@ -1965,7 +1966,7 @@ var WindowManager = GObject.registerClass(
                     resizePairForWindow.percent = secondPercent;
                 } else {
                     // use the parent pairs (con to another con or window)
-                    if (resizePairForWindow) {
+                    if (resizePairForWindow && resizePairForWindow.parentNode) {
                         if (this.tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
                             Logger.warn(`not valid for resize`);
                             return;
@@ -2022,7 +2023,7 @@ var WindowManager = GObject.registerClass(
                     resizePairForWindow.percent = secondPercent;
                 } else {
                     // use the parent pairs (con to another con or window)
-                    if (resizePairForWindow) {
+                    if (resizePairForWindow && resizePairForWindow.parentNode) {
                         if (this.tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
                             Logger.warn(`not valid for resize`);
                             return;
