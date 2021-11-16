@@ -1182,7 +1182,6 @@ var WindowManager = GObject.registerClass(
                             }
 
                             Logger.debug(`window:focus`);
-                            this.renderTree("window-focus");
                         }),
                         metaWindow.connect("workspace-changed", (metaWindowWs) => {
                             Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
