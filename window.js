@@ -1104,6 +1104,15 @@ var WindowManager = GObject.registerClass(
                         // Else it could be the initial window
                         // get the containing monitor instead
                         let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+                        Logger.debug(`checking parentFocusNode using current metaWindow workspace monitor ${metaMonWs}`);
+                        parentFocusNode = this.tree.findNode(metaMonWs);
+                    }
+                    if (!parentFocusNode) {
+                        // Use the current workspace monitor node where the pointer is
+                        const activeWorkspace = global.display.get_workspace_manager().get_active_workspace_index();
+                        const activeMonitor = global.display.get_current_monitor();
+                        let metaMonWs = `mo${activeMonitor}ws${activeWorkspace}`;
+                        Logger.debug(`checking parentFocusNode using active workspace monitor ${metaMonWs}`);
                         parentFocusNode = this.tree.findNode(metaMonWs);
                     }
                     if (!parentFocusNode) {
@@ -1320,17 +1329,10 @@ var WindowManager = GObject.registerClass(
             
             let nodeWindow;
             nodeWindow = this.tree.findNodeByActor(actor);
-            let render = true;
             if (nodeWindow) {
                 Logger.debug(`window destroyed ${nodeWindow.nodeValue.get_wm_class()}`);
-                const nodeWindows = nodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
-                if (nodeWindows.filter((n) => n.isFloat()).length === 1  && nodeWindows.filter((n) => n.isTile()).length === 1) {
-                    render = false;
-                }
                 this.tree.removeNode(nodeWindow);
-                if (render) {
-                    this.renderTree("window-destroy");
-                }
+                this.renderTree("window-destroy");
             }
 
             // find the next attachNode here
