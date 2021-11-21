@@ -1104,6 +1104,15 @@ var WindowManager = GObject.registerClass(
                         // Else it could be the initial window
                         // get the containing monitor instead
                         let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+                        Logger.debug(`checking parentFocusNode using current metaWindow workspace monitor ${metaMonWs}`);
+                        parentFocusNode = this.tree.findNode(metaMonWs);
+                    }
+                    if (!parentFocusNode) {
+                        // Use the current workspace monitor node where the pointer is
+                        const activeWorkspace = global.display.get_workspace_manager().get_active_workspace_index();
+                        const activeMonitor = global.display.get_current_monitor();
+                        let metaMonWs = `mo${activeMonitor}ws${activeWorkspace}`;
+                        Logger.debug(`checking parentFocusNode using active workspace monitor ${metaMonWs}`);
                         parentFocusNode = this.tree.findNode(metaMonWs);
                     }
                     if (!parentFocusNode) {
