@@ -1239,6 +1239,7 @@ var Tree = GObject.registerClass(
         processNode(node) {
             if (!node) return;
 
+            Logger.debug(`processing ${node.nodeType}`);
             // Render the Root, Workspace and Monitor
             // For now, we let them render their children recursively
             if (node.nodeType === NODE_TYPES.ROOT) {
@@ -1267,9 +1268,10 @@ var Tree = GObject.registerClass(
 
                 // If monitor, get the workarea
                 if (node.nodeType === NODE_TYPES.MONITOR) {
-                    let nodeWinOnContainer = this.findFirstNodeWindowFrom(node);
-                    let monitorArea = nodeWinOnContainer && nodeWinOnContainer.nodeValue ?
-                        nodeWinOnContainer.nodeValue.get_work_area_current_monitor() : null;
+                    let monitorIndex = Utils.monitorIndex(node.nodeValue);
+                    let monitorArea = global.display.get_workspace_manager()
+                        .get_active_workspace()
+                        .get_work_area_for_monitor(monitorIndex);
                     if (!monitorArea) return; // there is no visible child window
                     Logger.trace(`processing workarea`);
                     node.rect = monitorArea;

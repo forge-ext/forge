@@ -89,4 +89,4 @@ log:
 	journalctl -o cat -n 0 -f "$$(which gnome-shell)" | grep -v warning
 
 journal:
-	journalctl -b 0 -r --until "1 hour ago"
+	journalctl -b 0 -r --since "1 hour ago"

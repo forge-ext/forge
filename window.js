@@ -1320,17 +1320,10 @@ var WindowManager = GObject.registerClass(
             
             let nodeWindow;
             nodeWindow = this.tree.findNodeByActor(actor);
-            let render = true;
             if (nodeWindow) {
                 Logger.debug(`window destroyed ${nodeWindow.nodeValue.get_wm_class()}`);
-                const nodeWindows = nodeWindow.parentNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
-                if (nodeWindows.filter((n) => n.isFloat()).length === 1  && nodeWindows.filter((n) => n.isTile()).length === 1) {
-                    render = false;
-                }
                 this.tree.removeNode(nodeWindow);
-                if (render) {
-                    this.renderTree("window-destroy");
-                }
+                this.renderTree("window-destroy");
             }
 
             // find the next attachNode here
