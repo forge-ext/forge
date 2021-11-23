@@ -154,12 +154,14 @@ var WindowManager = GObject.registerClass(
                 display.connect("workareas-changed", (_display) => {
                     if (this.tree.getNodeByType("WINDOW").length > 0) {
                         // Handler for reload tree conditions
-                        if (!(this.fromOverview || this.toOverview || !this.ext.sameSession)) {
+                        if ((this.workspaceAdded || this.workspaceRemoved) ||
+                            !(this.fromOverview || this.toOverview || !this.ext.sameSession)) {
                             this.reloadTree("workareas-changed");
-                        } else {
-                            this.toOverview = false;
-                            this.fromOverview = false;
                         }
+                        this.workspaceRemoved = false;
+                        this.workspaceAdded = false;
+                        this.toOverview = false;
+                        this.fromOverview = false;
                     }
                     Logger.debug(`workareas-changed`);
                 }),
@@ -204,18 +206,12 @@ var WindowManager = GObject.registerClass(
                 globalWsm.connect("workspace-added", (_, wsIndex) => {
                     let added = this.tree.addWorkspace(wsIndex);
                     Logger.debug(`${added ? "workspace-added" : "workspace-add-skipped"} ${wsIndex}`);
-                    this.renderTree("workspace-added");
+                    this.workspaceAdded = true;
                 }),
                 globalWsm.connect("workspace-removed", (_, wsIndex) => {
                     let removed = this.tree.removeWorkspace(wsIndex);
                     Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
-                    if (!this._wsRemoveSrcId) {
-                        this._wsRemoveSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
-                            this.renderTree("workspace-removed");
-                            this._wsRemoveSrcId = 0;
-                            return false;
-                        });
-                    }
+                    this.workspaceRemoved = true;
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
                     this.hideWindowBorders();
@@ -866,11 +862,6 @@ var WindowManager = GObject.registerClass(
                 this._wsWindowAddSrcId = 0;
             }
 
-            if (this._wsRemoveSrcId) {
-                GLib.Source.remove(this._wsRemoveSrcId);
-                this._wsRemoveSrcId = 0;
-            }
-
             if (this._wsSwitchedSrcId) {
                 GLib.Source.remove(this._wsSwitchedSrcId);
                 this._wsSwitchedSrcId = 0;
@@ -1348,7 +1339,7 @@ var WindowManager = GObject.registerClass(
         /**
          * Handles any workspace/monitor update for the Meta.Window.
          */
-        updateMetaWorkspaceMonitor(from, monitor, metaWindow) {
+        updateMetaWorkspaceMonitor(from, _monitor, metaWindow) {
             if (this._validWindow(metaWindow)) {
                 if (metaWindow.get_workspace() === null) return;
                 let existNodeWindow = this.tree.findNode(metaWindow);
@@ -1383,9 +1374,7 @@ var WindowManager = GObject.registerClass(
                         }
                     }
                 }
-                Logger.debug(`update-ws-mon:${from}: ${metaWindow.get_wm_class()}`);
-                Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
-                Logger.trace(` on monitor: ${monitor} `);
+                Logger.debug(`update-ws-mon:${from}: moved ${metaWindow.get_wm_class()} to ${metaMonWs}`);
                 this.renderTree(from);
             }
         }

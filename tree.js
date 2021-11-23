@@ -1175,8 +1175,8 @@ var Tree = GObject.registerClass(
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             this.processNode(this);
             this.postProcess(this);
-            this.cleanTree();
             this.apply(this);
+            this.cleanTree();
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             let debugMode = true;
             if (debugMode) {
@@ -1515,6 +1515,8 @@ var Tree = GObject.registerClass(
                     }
                 });
             }
+
+
         }
 
         /**
