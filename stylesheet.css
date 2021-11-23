@@ -34,14 +34,14 @@
     border-width: 3px;
     border-color: rgba(236,94,94,1);
     border-style: solid;
-    border-radius: 3px;
+    border-radius: 6px;
 }
 
 .window-split-border {
     border-width: 3px;
     border-color: rgba(255,246,108,1);
     border-style: solid;
-    border-radius: 3px;
+    border-radius: 6px;
 }
 
 .window-split-horizontal {
@@ -60,14 +60,14 @@
     border-width: 3px;
     border-color: rgba(247,162,43,1);
     border-style: solid;
-    border-radius: 3px;
+    border-radius: 6px;
 }
 
 .window-tabbed-border {
     border-width: 3px;
     border-color: rgba(17,199,224,1);
     border-style: solid;
-    border-radius: 3px;
+    border-radius: 6px;
 }
 
 .window-tabbed-bg {
@@ -80,7 +80,7 @@
     border-width: 3px;
     border-color: rgba(180,167,214,1);
     border-style: solid;
-    border-radius: 3px;
+    border-radius: 6px;
 }
 
 .window-tilepreview-tiled {
