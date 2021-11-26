@@ -1334,6 +1334,7 @@ var WindowManager = GObject.registerClass(
             }
 
             Logger.debug(`window-destroy`);
+            this.updateBorderLayout();
         }
 
         /**
