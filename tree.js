@@ -1174,7 +1174,6 @@ var Tree = GObject.registerClass(
             Logger.debug(`---------------------------------------------`);
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             this.processNode(this);
-            this.postProcess(this);
             this.apply(this);
             this.cleanTree();
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
@@ -1286,8 +1285,6 @@ var Tree = GObject.registerClass(
                 params.tiledChildren = tiledChildren;
 
                 tiledChildren.forEach((child, index) => {
-                    // Perform cleanup before processing
-                    this.cleanupBeforeProcess(child);
                     // A monitor can contain a window or container child
                     if (node.layout === LAYOUT_TYPES.HSPLIT ||
                         node.layout === LAYOUT_TYPES.VSPLIT) {
@@ -1387,6 +1384,11 @@ var Tree = GObject.registerClass(
             };
         }
 
+        /**
+         * Process the child node here for the dimensions of the child stack/window,
+         * It will be moved to the Node class in the future as Node.render()
+         *
+         */
         processStacked(node, child, params, index) {
             let layout = node.layout;
             let nodeWidth = node.rect.width;
@@ -1400,10 +1402,6 @@ var Tree = GObject.registerClass(
                     nodeHeight -= (params.stackedHeight * index);
                 }
 
-                if (child.nodeType === NODE_TYPES.WINDOW) {
-                    child.nodeValue.raise();
-                }
-
                 child.rect = {
                     x: nodeX,
                     y: nodeY,
@@ -1413,7 +1411,12 @@ var Tree = GObject.registerClass(
             }
         }
 
-        processTabbed(node, child, params, index) {
+        /**
+         * Process the child node here for the dimensions of the child tab/window,
+         * It will be moved to the Node class in the future as Node.render()
+         *
+         */
+        processTabbed(node, child, params, _index) {
             let layout = node.layout;
             let nodeRect = node.rect;
             let nodeWidth;
@@ -1422,140 +1425,22 @@ var Tree = GObject.registerClass(
             let nodeY;
 
             if (layout === LAYOUT_TYPES.TABBED) {
-                // Use the HSPLIT calculations
-                let tabWidth = node.rect.width / params.tiledChildren.length;
-                nodeWidth = tabWidth;
-                nodeHeight = nodeRect.height;
+                nodeWidth = nodeRect.width;
                 nodeX = nodeRect.x;
-                if (index != 0) {
-                    let i = 1;
-                    while (i <= index) {
-                        nodeX += tabWidth;
-                        i++;
-                    }
-                }
                 nodeY = nodeRect.y;
-                child.backgroundTab = true;
-                this.cleanupBeforeProcess(child);
+                nodeHeight = nodeRect.height;
 
-                let tiledChildren = node.getNodeByType(NODE_TYPES.WINDOW)
-                    .filter((t) => t.isTile() &&
-                        !t.nodeValue.minimized);
-
-                if (tiledChildren.length > 1 &&
-                    (child.nodeValue === this.extWm.focusMetaWindow ||
-                        node.lastTabFocus &&
-                        node.lastTabFocus === child.nodeValue) &&
-                        node.mode !== Window.WINDOW_MODES.FLOAT) {
-                    child.rect = this.renderFrontTab(node, child, params.stackedHeight)
-                } else {
-                    if (tiledChildren.length === 1) {
-                        child.backgroundTab = false;
-                    }
-                    child.rect = {
-                        x: nodeX,
-                        y: nodeY,
-                        width: nodeWidth,
-                        height: nodeHeight
-                    };
+                if (node.childNodes.length > 1) {
+                    nodeY = nodeRect.y + params.stackedHeight;
+                    nodeHeight = nodeRect.height - params.stackedHeight;
                 }
-            }
-        }
 
-        /**
-         *
-         * Apply any transformations that is not possible during processNode
-         *
-         */
-        postProcess(tree) {
-            if (!tree) return;
-
-            // TODO make configurable
-            let alwaysRenderTab = true;
-
-            if (alwaysRenderTab) {
-                let containerNodes = tree.getNodeByType(NODE_TYPES.CON);
-                Logger.debug(`post-process: containers ${containerNodes.length}`);
-                let monitorNodes = tree.getNodeByType(NODE_TYPES.MONITOR);
-                Logger.debug(`post-process: workspace-monitors ${monitorNodes.length}`);
-                Array.prototype.push.apply(containerNodes, monitorNodes);
-
-                containerNodes.forEach((con) => {
-                    if (con.layout === LAYOUT_TYPES.TABBED) {
-                        if (con.childNodes.length > 1) {
-                            const frontTabs = con.childNodes.filter(
-                                (n) => !n.backgroundTab &&
-                                n.nodeType === NODE_TYPES.WINDOW &&
-                                // Do not track floated windows, useful on transient windows:
-                                n.mode !== Window.WINDOW_MODES.FLOAT
-                            );
-                            Logger.debug(`post-process: tabbed front ${frontTabs.length}`);
-
-                            const tabbedWindows = con.childNodes.filter(
-                                (n) => n.nodeType === NODE_TYPES.WINDOW
-                                // Do not track floated windows, useful on transient windows:
-                                && n.mode !== Window.WINDOW_MODES.FLOAT
-                            );
-                            Logger.debug(`post-process: tabbed windows ${tabbedWindows.length}`);
-
-                            /**
-                             * Pick a front tab window in the list of tabbed windows if not in focus
-                             */
-                            if (frontTabs.length === 0) {
-                                // FIXME - when one of the tabbed windows has a transient float dialog,
-                                // the front tab does not raise on the correct tabbed window.
-                                // Most apps tested do not set transient parents on their modal dialogs
-                                // So this is likely fixed when TABBED tabs are changed to St.Widget
-                                let child = tabbedWindows[tabbedWindows.length - 1]; // for now pick the last child
-                                let tabRect = this.renderFrontTab(con, child, 35);
-                                child.rect = tabRect;
-                                child.renderRect = this.processGap(child);
-                            }
-                        }
-                    }
-                });
-            }
-
-
-        }
-
-        /**
-         * Apply tab rect calculations to the non-background tab
-         */
-        renderFrontTab(node, child, stackedHeight) {
-            let nodeY = node.rect.y + stackedHeight;
-            let nodeHeight = node.rect.height - stackedHeight;
-            let nodeX = node.rect.x;
-            let nodeWidth = node.rect.width;
-            if (child.nodeType === NODE_TYPES.WINDOW) {
-                const metaWindow = child.nodeValue;
-                metaWindow.make_above();
-                metaWindow.raise();
-            }
-            child.backgroundTab = false;
-
-            return {
-                x: nodeX,
-                y: nodeY,
-                width: nodeWidth,
-                height: nodeHeight
-            }
-        }
-
-        /**
-         *
-         * Handles any generic cleanup mechanism before
-         * processing any container layouts
-         *
-         */
-        cleanupBeforeProcess(child) {
-            if (child.nodeType === NODE_TYPES.WINDOW) {
-                let focusNodeWindow = this.findNode(this.extWm.focusMetaWindow);
-                if (focusNodeWindow) {
-                    if (child !== focusNodeWindow)
-                        child.nodeValue.unmake_above();
-                    child.nodeValue.lower();
-                }
+                child.rect = {
+                    x: nodeX,
+                    y: nodeY,
+                    width: nodeWidth,
+                    height: nodeHeight
+                };
             }
         }
 

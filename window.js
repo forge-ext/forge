@@ -1233,10 +1233,6 @@ var WindowManager = GObject.registerClass(
             if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
                 const metaWindow = focusNodeWindow.nodeValue;
                 metaWindow.raise();
-                focusNodeWindow.parentNode.lastTabFocus = metaWindow;
-                this.queueEvent({name: "render-focus-tab", callback: () => {
-                    this.renderTree("focus-tabbed");
-                }});
             }
         }
 
