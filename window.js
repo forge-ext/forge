@@ -214,16 +214,9 @@ var WindowManager = GObject.registerClass(
                     this.workspaceRemoved = true;
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
-                    this.hideWindowBorders();
-                    if (!this._wsSwitchedSrcId) {
-                        this._wsSwitchedSrcId = GLib.timeout_add(GLib.PRIORITY_LOW, 450, () => {
-                            this.updateBorderLayout();
-                            this._wsSwitchedSrcId = 0;
-                            return false;
-                        });
-                    }
                     this.ext.indicator.updateTileIcon();
                     this.renderTree("workspace-switched");
+                    this.updateBorderLayout();
                 }),
             ];
 
@@ -862,11 +855,6 @@ var WindowManager = GObject.registerClass(
                 this._wsWindowAddSrcId = 0;
             }
 
-            if (this._wsSwitchedSrcId) {
-                GLib.Source.remove(this._wsSwitchedSrcId);
-                this._wsSwitchedSrcId = 0;
-            }
-
             if (this._queueSourceId) {
                 GLib.Source.remove(this._queueSourceId);
                 this._queueSourceId = 0;
@@ -1329,8 +1317,8 @@ var WindowManager = GObject.registerClass(
                 Logger.trace(`on-destroy: finding next attach node ${this.tree.attachNode.nodeType}`);
             }
 
-            Logger.debug(`window-destroy`);
             this.updateBorderLayout();
+            Logger.debug(`window-destroy`);
         }
 
         /**
@@ -1374,6 +1362,7 @@ var WindowManager = GObject.registerClass(
                 Logger.debug(`update-ws-mon:${from}: moved ${metaWindow.get_wm_class()} to ${metaMonWs}`);
                 this.renderTree(from);
             }
+            this.updateBorderLayout();
         }
 
         /**
@@ -1397,10 +1386,9 @@ var WindowManager = GObject.registerClass(
                 if (focusMetaWindow.get_maximized() === 0) {
                     this.renderTree(from);
                 }
-                this.updateBorderLayout();
             }
             focusMetaWindow.raise();
-
+            this.updateBorderLayout();
             Logger.trace(`${from} ${focusMetaWindow.get_wm_class()}`);
         }
 
