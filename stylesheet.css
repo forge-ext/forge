@@ -71,9 +71,27 @@
 }
 
 .window-tabbed-bg {
-    border-left-width: 0;
-    border-bottom-width: 0;
-    border-right-width: 0;
+    border-radius: 6px;
+}
+
+.window-tabbed-tab {
+    background-color: rgba(54,47,45,1);
+    border-color: rgba(17,199,224,0.6);
+    border-width: 1px;
+    border-radius: 4px;
+    color: white;
+}
+
+.window-tabbed-tab-active {
+    background-color: rgba(17,199,224,1);
+    color: black;
+}
+.window-tabbed-tab-close {
+    padding: 3px;
+    margin: 5px;
+    border-radius: 16px;
+    width: 16px;
+    background-color: #e06666;
 }
 
 .window-floated-border {

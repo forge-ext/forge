@@ -151,6 +151,9 @@ var WindowManager = GObject.registerClass(
                 display.connect("showing-desktop-changed", () => {
                     Logger.debug(`display:showing-desktop-changed`);
                 }),
+                display.connect("in-fullscreen-changed", () => {
+                    this.updateBorderLayout();
+                }),
                 display.connect("workareas-changed", (_display) => {
                     if (this.tree.getNodeByType("WINDOW").length > 0) {
                         // Handler for reload tree conditions
@@ -513,8 +516,8 @@ var WindowManager = GObject.registerClass(
                     if (!this.ext.settings.get_boolean("stacked-tiling-mode-enabled"))
                         return;
 
-                    if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
-                        this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL);
+                    if (focusNodeWindow.parentNode.isMonitor()) {
+                        this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL, true);
                     }
 
                     currentLayout = focusNodeWindow.parentNode.layout;
@@ -542,8 +545,8 @@ var WindowManager = GObject.registerClass(
                     if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled"))
                         return;
 
-                    if (focusNodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR) {
-                        this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL);
+                    if (focusNodeWindow.parentNode.isMonitor()) {
+                        this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL, true);
                     }
 
                     currentLayout = focusNodeWindow.parentNode.layout;
@@ -696,6 +699,11 @@ var WindowManager = GObject.registerClass(
                     }
                     if (nodeWindow._actor.splitBorder) {
                         nodeWindow._actor.splitBorder.hide();
+                    }
+                }
+                if (nodeWindow.parentNode.isTabbed()) {
+                    if (nodeWindow.tab) {
+                        nodeWindow.tab.remove_style_class_name("window-tabbed-tab-active");
                     }
                 }
             });
@@ -954,6 +962,19 @@ var WindowManager = GObject.registerClass(
 
             const floatingWindow = this.floatingWindow(nodeWindow);
             const tiledBorder = windowActor.border;
+
+            if (nodeWindow.parentNode.isTabbed()) {
+                if (nodeWindow.tab) {
+                    nodeWindow.tab.add_style_class_name("window-tabbed-tab-active");
+                    if (metaWindow.get_maximized() !== 0 || metaWindow.is_fullscreen()) {
+                        if (nodeWindow.parentNode.decoration)
+                            nodeWindow.parentNode.decoration.hide();
+                    } else {
+                        if (nodeWindow.parentNode.decoration)
+                            nodeWindow.parentNode.decoration.show();
+                    }
+                }
+            }
 
             if (tiledBorder && focusBorderEnabled) {
                 if (!maximized() ||
@@ -1778,9 +1799,11 @@ var WindowManager = GObject.registerClass(
                         } else if (isTop || isBottom) {
                             containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
                         } else if (isCenter) {
-                            const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
-                            Logger.debug(`move-pointer: center layout ${centerLayout}`);
-                            containerNode.layout = Tree.LAYOUT_TYPES[centerLayout];
+                            if (containerNode.isHSplit() || containerNode.isVSplit()) {
+                                const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
+                                Logger.debug(`move-pointer: center layout ${centerLayout}`);
+                                containerNode.layout = Tree.LAYOUT_TYPES[centerLayout];
+                            }
                         }
                     }
                 } else {
@@ -1809,8 +1832,6 @@ var WindowManager = GObject.registerClass(
             let focusMetaWindow = this.focusMetaWindow;
 
             if (focusMetaWindow) {
-                focusMetaWindow.make_above();
-                focusMetaWindow.raise();
                 const frameRect = focusMetaWindow.get_frame_rect();
                 const gaps = this.calculateGaps();
 
@@ -1835,9 +1856,6 @@ var WindowManager = GObject.registerClass(
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
 
             if (focusNodeWindow && !this.cancelGrab) {
-                if (!this.floatingWindow(focusNodeWindow))
-                    focusMetaWindow.unmake_above();
-
                 // WINDOW_BASE is when grabbing the window decoration
                 // COMPOSITOR is when something like Overview requesting a grab, especially when Super is pressed.
                 if (grabOp === Meta.GrabOp.WINDOW_BASE || grabOp === Meta.GrabOp.COMPOSITOR) {

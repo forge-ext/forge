@@ -91,6 +91,8 @@ var Node = GObject.registerClass(
             this.mode = Window.WINDOW_MODES.DEFAULT;
             this.percent = 0.0;
             this._rect = null;
+            this.tab = null;
+            this.decoration = null;
 
             if (this.isWindow()) {
                 // When destroy() is called on Meta.Window, it might not be
@@ -363,6 +365,14 @@ var Node = GObject.registerClass(
         }
 
         removeChild(node) {
+
+            if (node.isTabbed() && node.decoration) {
+                node.decoration.hide();
+                node.decoration.destroy_all_children();
+                node.decoration.destroy();
+                node.decoration = null;
+            }
+
             let refNode;
             if (this.contains(node)) {
                 // Since contains() tries to find node on all descendants,
@@ -991,7 +1001,7 @@ var Tree = GObject.registerClass(
         /**
          * Credits: i3-like split
          */
-        split(node, orientation) {
+        split(node, orientation, forceSplit = false) {
             if (!node) return;
             let type = node.nodeType;
 
@@ -1012,7 +1022,8 @@ var Tree = GObject.registerClass(
             let numChildren = parentNode.childNodes.length;
 
             // toggle the split
-            if (numChildren === 1 &&
+            if (!forceSplit && 
+                numChildren === 1 &&
                 (parentNode.layout === LAYOUT_TYPES.HSPLIT ||
                 parentNode.layout === LAYOUT_TYPES.VSPLIT)) {
                 parentNode.layout = orientation ===
@@ -1101,18 +1112,6 @@ var Tree = GObject.registerClass(
                 let percent = fromNode.percent;
                 fromNode.percent = toNode.percent;
                 toNode.percent = percent;
-
-                // Tabbed layout uses make above, update both nodes
-                if (parentForTo.isTabbed()) {
-                    fromNode.nodeValue.make_above();
-                } else {
-                    fromNode.nodeValue.unmake_above();
-                }
-                if (parentForFrom.isTabbed()) {
-                    toNode.nodeValue.make_above();
-                } else {
-                    toNode.nodeValue.unmake_above();
-                }
 
                 if (focus) {
                     // The fromNode is now on the parent-target
@@ -1283,6 +1282,30 @@ var Tree = GObject.registerClass(
                 params.sizes = sizes;
                 params.stackedHeight = 35;
                 params.tiledChildren = tiledChildren;
+                let globalWinGrp = global.window_group;
+
+                if (node.decoration) {
+                    node.decoration.hide();
+                    node.decoration.destroy_all_children();
+                    if (globalWinGrp.contains(node.decoration))
+                        globalWinGrp.remove_child(node.decoration);
+                    node.decoration = null;
+                }
+
+                if (node.isTabbed()) {
+                    if (node.childNodes.length > 0) {
+                        let decoration = new St.BoxLayout();
+                        decoration.style_class = "window-tabbed-bg";
+
+                        if (!globalWinGrp.contains(decoration)) {
+                            globalWinGrp.add_child(decoration);
+                        }
+
+                        decoration.set_size(node.rect.width, params.stackedHeight);
+                        decoration.set_position(node.rect.x, node.rect.y);
+                        node.decoration = decoration;
+                    }
+                }
 
                 tiledChildren.forEach((child, index) => {
                     // A monitor can contain a window or container child
@@ -1430,9 +1453,61 @@ var Tree = GObject.registerClass(
                 nodeY = nodeRect.y;
                 nodeHeight = nodeRect.height;
 
-                if (node.childNodes.length > 1) {
+                let alwaysShowDecorationTab = true;
+
+                if (node.childNodes.length > 1 || alwaysShowDecorationTab) {
                     nodeY = nodeRect.y + params.stackedHeight;
                     nodeHeight = nodeRect.height - params.stackedHeight;
+                    if (node.decoration && child.isWindow()) {
+                        let windowTracker = Shell.WindowTracker.get_default();
+                        let metaWin = child.nodeValue;
+                        let app = windowTracker.get_window_app(metaWin);
+
+                        let tabContents = new St.BoxLayout({
+                            style_class: "window-tabbed-tab",
+                            x_expand: true
+                        });
+                        child.tab = tabContents;
+
+                        let titleButton = new St.Button({
+                            x_expand: true,
+                            label: `${app.get_name()} - ${child.nodeValue.title}`
+                        });
+
+                        let iconBin = new St.Bin();
+                        let icon = app.create_icon_texture(32);
+                        iconBin.child = icon;
+                        let closeButton = new St.Button({
+                            style_class: 'window-tabbed-tab-close',
+                            child: new St.Icon({ icon_name: 'window-close-symbolic' }),
+                        });
+
+                        tabContents.add(iconBin);
+                        tabContents.add(titleButton);
+                        tabContents.add(closeButton);
+
+                        titleButton.connect("clicked", () => {
+                            node.childNodes.forEach((c) => {
+                                if (c.tab)
+                                    c.tab.remove_style_class_name("window-tabbed-tab-active");
+                            });
+                            child.tab.add_style_class_name("window-tabbed-tab-active");
+                            child.nodeValue.activate(global.display.get_current_time());
+                        });
+
+                        closeButton.connect("clicked", () => {
+                            child.nodeValue.delete(global.get_current_time());
+                        });
+                        if (child.nodeValue === this.extWm.focusMetaWindow) {
+                            child.tab.add_style_class_name("window-tabbed-tab-active");
+                        }
+
+                        node.decoration.add(tabContents);
+                    }
+                } else {
+                    if (node.decoration) {
+                        node.decoration.hide();
+                    }
                 }
 
                 child.rect = {
@@ -1500,7 +1575,7 @@ var Tree = GObject.registerClass(
                 attributes += `title:'${node.nodeValue.title}'${node.nodeValue === this.extWm.focusMetaWindow ? " FOCUS" : ""}`
             } else if (node.isCon() || node.isMonitor() || node.isWorkspace()) {
                 attributes += `${node.nodeValue}`;
-                if (node.isCon()) {
+                if (node.isCon() || node.isMonitor()) {
                     attributes += `,layout:${node.layout}`;
                 }
             }
