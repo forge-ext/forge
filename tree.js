@@ -1578,6 +1578,7 @@ var Tree = GObject.registerClass(
             let attributes = "";
 
             if (node.isWindow()) {
+                let rect = node.nodeValue.get_frame_rect();
                 attributes += `title:'${node.nodeValue.title}'${node.nodeValue === this.extWm.focusMetaWindow ? " FOCUS" : ""}`
             } else if (node.isCon() || node.isMonitor() || node.isWorkspace()) {
                 attributes += `${node.nodeValue}`;

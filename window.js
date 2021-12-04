@@ -149,7 +149,7 @@ var WindowManager = GObject.registerClass(
                 display.connect("grab-op-begin", this._handleGrabOpBegin.bind(this)),
                 display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
                 display.connect("showing-desktop-changed", () => {
-                    this.updateDecorationLayout();
+                    // This is an unused signal listener
                     Logger.debug(`display:showing-desktop-changed`);
                 }),
                 display.connect("in-fullscreen-changed", () => {
@@ -205,6 +205,7 @@ var WindowManager = GObject.registerClass(
             this._workspaceManagerSignals = [
                 globalWsm.connect("showing-desktop-changed", () => {
                     this.hideWindowBorders();
+                    this.updateDecorationLayout();
                     Logger.debug(`workspace:showing-desktop-changed`);
                 }),
                 globalWsm.connect("workspace-added", (_, wsIndex) => {
@@ -1424,7 +1425,19 @@ var WindowManager = GObject.registerClass(
                 }
             });
 
-            // TODO: handle when user binds hide all windows or show desktop
+            // Next, handle showing-desktop usually by Super + D
+            let allWindows = activeWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
+            let allHiddenWindows = allWindows.filter(w => {
+                let metaWindow = w.nodeValue;
+                Logger.trace(`deco-update: window shown ${metaWindow.showing_on_its_workspace()}`);
+                return !metaWindow.showing_on_its_workspace();
+            });
+
+            Logger.debug(`deco-update: all ${allWindows.length} hidden ${allHiddenWindows.length}`);
+
+            // Then if all hidden, do not proceed showing the decorations at all;
+            if (allWindows.length === allHiddenWindows.length)
+                return;
 
             // Show the decoration where on all monitors of active workspace
             // But not on the monitor where there is a maximized or fullscreen window
