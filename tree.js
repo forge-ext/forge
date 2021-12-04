@@ -857,10 +857,14 @@ var Tree = GObject.registerClass(
                     Logger.trace(`move-to-con`);
                     parentTarget = next;
 
-                    if (next.layout === LAYOUT_TYPES.STACKED) {
+                    if (next.isStacked()) {
                         next.appendChild(node);
                     } else {
-                        next.insertBefore(node, next.firstChild);
+                        if (position === POSITION.AFTER) {
+                            next.insertBefore(node, next.firstChild);
+                        } else {
+                            next.appendChild(node);
+                        }
                     }
                     break;
                 case NODE_TYPES.MONITOR:
@@ -1174,6 +1178,7 @@ var Tree = GObject.registerClass(
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             this.processNode(this);
             this.apply(this);
+            this.extWm.updateDecorationLayout();
             this.cleanTree();
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             let debugMode = true;
@@ -1309,6 +1314,9 @@ var Tree = GObject.registerClass(
 
                 tiledChildren.forEach((child, index) => {
                     // A monitor can contain a window or container child
+                    if (child.tab){
+                        child.tab = null;
+                    }
                     if (node.layout === LAYOUT_TYPES.HSPLIT ||
                         node.layout === LAYOUT_TYPES.VSPLIT) {
                         this.processSplit(node, child, params, index);
@@ -1453,7 +1461,7 @@ var Tree = GObject.registerClass(
                 nodeY = nodeRect.y;
                 nodeHeight = nodeRect.height;
 
-                let alwaysShowDecorationTab = true;
+                let alwaysShowDecorationTab = false;
 
                 if (node.childNodes.length > 1 || alwaysShowDecorationTab) {
                     nodeY = nodeRect.y + params.stackedHeight;
@@ -1474,8 +1482,10 @@ var Tree = GObject.registerClass(
                             label: `${app.get_name()} - ${child.nodeValue.title}`
                         });
 
-                        let iconBin = new St.Bin();
-                        let icon = app.create_icon_texture(32);
+                        let iconBin = new St.Bin({
+                            style_class: "window-tabbed-tab-icon"
+                        });
+                        let icon = app.create_icon_texture(24);
                         iconBin.child = icon;
                         let closeButton = new St.Button({
                             style_class: 'window-tabbed-tab-close',
@@ -1503,10 +1513,6 @@ var Tree = GObject.registerClass(
                         }
 
                         node.decoration.add(tabContents);
-                    }
-                } else {
-                    if (node.decoration) {
-                        node.decoration.hide();
                     }
                 }
 

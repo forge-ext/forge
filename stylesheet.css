@@ -80,18 +80,24 @@
     border-width: 1px;
     border-radius: 4px;
     color: white;
+    margin: 1px;
 }
 
 .window-tabbed-tab-active {
     background-color: rgba(17,199,224,1);
     color: black;
 }
+
 .window-tabbed-tab-close {
     padding: 3px;
-    margin: 5px;
+    margin: 4px;
     border-radius: 16px;
     width: 16px;
     background-color: #e06666;
+}
+
+.window-tabbed-tab-icon {
+    margin: 3px;
 }
 
 .window-floated-border {

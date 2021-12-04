@@ -220,6 +220,7 @@ var WindowManager = GObject.registerClass(
                     this.ext.indicator.updateTileIcon();
                     this.renderTree("workspace-switched");
                     this.updateBorderLayout();
+                    this.updateDecorationLayout();
                 }),
             ];
 
@@ -703,6 +704,7 @@ var WindowManager = GObject.registerClass(
                 }
                 if (nodeWindow.parentNode.isTabbed()) {
                     if (nodeWindow.tab) {
+                        // TODO: review the cleanup of the tab:St.Widget variable
                         nodeWindow.tab.remove_style_class_name("window-tabbed-tab-active");
                     }
                 }
@@ -892,7 +894,7 @@ var WindowManager = GObject.registerClass(
             }
             
             if (!this._renderTreeSrcId) {
-                this._renderTreeSrcId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+                this._renderTreeSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5, () => {
                     this.tree.render(from);
                     this._renderTreeSrcId = 0;
                     return false;
@@ -958,21 +960,15 @@ var WindowManager = GObject.registerClass(
             }
             let monitorCount = global.display.get_n_monitors();
             let tiledChildren = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
-            let inset = 3; 
+            let inset = 3;
+            let parentNode = nodeWindow.parentNode;
 
             const floatingWindow = this.floatingWindow(nodeWindow);
             const tiledBorder = windowActor.border;
 
-            if (nodeWindow.parentNode.isTabbed()) {
+            if (parentNode.isTabbed()) {
                 if (nodeWindow.tab) {
                     nodeWindow.tab.add_style_class_name("window-tabbed-tab-active");
-                    if (metaWindow.get_maximized() !== 0 || metaWindow.is_fullscreen()) {
-                        if (nodeWindow.parentNode.decoration)
-                            nodeWindow.parentNode.decoration.hide();
-                    } else {
-                        if (nodeWindow.parentNode.decoration)
-                            nodeWindow.parentNode.decoration.show();
-                    }
                 }
             }
 
@@ -981,13 +977,13 @@ var WindowManager = GObject.registerClass(
                     gap === 0 && tiledChildren.length === 1 && monitorCount > 1 ||
                     gap === 0 && tiledChildren.length > 1 || floatingWindow) {
                     if (tilingModeEnabled) {
-                        if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
+                        if (parentNode.isStacked()) {
                             if (!floatingWindow) {
                                 tiledBorder.set_style_class_name("window-stacked-border");
                             } else {
                                 tiledBorder.set_style_class_name("window-floated-border");
                             }
-                        } else if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
+                        } else if (parentNode.isTabbed()) {
                             if (!floatingWindow) {
                                 tiledBorder.set_style_class_name("window-tabbed-border");
                                 if (nodeWindow.backgroundTab) {
@@ -1015,12 +1011,13 @@ var WindowManager = GObject.registerClass(
             }
 
             // handle the split border
+            // It should only show when V or H-Split and with single child CONs
             if (splitBorderEnabled &&
                 tilingModeEnabled &&
                 !this.floatingWindow(nodeWindow) &&
-                nodeWindow.parentNode.childNodes.length === 1 &&
-                (nodeWindow.parentNode.nodeType === Tree.NODE_TYPES.CON ||
-                    nodeWindow.parentNode.nodeType === Tree.NODE_TYPES.MONITOR)) {
+                parentNode.childNodes.length === 1 &&
+                (parentNode.isCon() || parentNode.isMonitor()) &&
+                !(parentNode.isTabbed() || parentNode.isStacked())) {
                 if (!windowActor.splitBorder) {
                     let splitBorder = new St.Bin({style_class: "window-split-border"});
                     global.window_group.add_child(splitBorder);
@@ -1032,9 +1029,9 @@ var WindowManager = GObject.registerClass(
                 splitBorder.remove_style_class_name("window-split-vertical");
                 splitBorder.remove_style_class_name("window-split-horizontal");
 
-                if (nodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.VSPLIT) {
+                if (parentNode.isVSplit()) {
                     splitBorder.add_style_class_name("window-split-vertical");
-                } else {
+                } else if (parentNode.isHSplit()) {
                     splitBorder.add_style_class_name("window-split-horizontal");
                 }
                 borders.push(splitBorder);
@@ -1410,7 +1407,39 @@ var WindowManager = GObject.registerClass(
             }
             focusMetaWindow.raise();
             this.updateBorderLayout();
+            this.updateDecorationLayout();
             Logger.trace(`${from} ${focusMetaWindow.get_wm_class()}`);
+        }
+
+        updateDecorationLayout() {
+            let activeWsNode = this.currentWsNode;
+            let allCons = this.tree.getNodeByType(Tree.NODE_TYPES.CON);
+
+            // First, hide all decorations:
+            allCons.forEach((con) => {
+                if (con.decoration) {
+                    con.decoration.hide();
+                }
+            });
+
+            // Show the decoration where on all monitors of active workspace
+            // But not on the monitor where there is a maximized or fullscreen window
+            // Note, that when multi-display, user can have multi maximized windows,
+            // So it needs to be fully filtered:
+            let monWsNoMaxWindows = activeWsNode.getNodeByType(Tree.NODE_TYPES.MONITOR).filter((monitor) => {
+                return monitor.getNodeByType(Tree.NODE_TYPES.WINDOW).filter((w) => {
+                    return w.nodeValue.get_maximized() !== 0 || w.nodeValue.is_fullscreen();
+                }).length === 0;
+            });
+
+            monWsNoMaxWindows.forEach((monitorWs) => {
+                let activeMonWsCons = monitorWs.getNodeByType(Tree.NODE_TYPES.CON);
+                activeMonWsCons.forEach((con) => {
+                    if (con.decoration) {
+                        con.decoration.show();
+                    }
+                });
+            });
         }
 
         freezeRender() {
@@ -2103,12 +2132,29 @@ var WindowManager = GObject.registerClass(
             return null;
         }
 
+        get currentWsNode() {
+            const ws = this.currentWs;
+            if (ws) {
+                return this.tree.findNode(ws);
+            }
+            return null;
+        }
+
         get currentMonWs() {
-            const display = global.display;
-            const wsMgr = display.get_workspace_manager();
-            const monWs = `mo${display.get_current_monitor()}ws${wsMgr.get_active_workspace_index()}`;
+            const monWs = `${this.currentMon}${this.currentWs}`;
             Logger.debug(`current active mon ws: ${monWs}`);
             return monWs;
+        }
+
+        get currentWs() {
+            const display = global.display;
+            const wsMgr = display.get_workspace_manager();
+            return `ws${wsMgr.get_active_workspace_index()}`;
+        }
+
+        get currentMon() {
+            const display = global.display;
+            return `mo${display.get_current_monitor()}`;
         }
     }
 );
