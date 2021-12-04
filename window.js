@@ -149,6 +149,7 @@ var WindowManager = GObject.registerClass(
                 display.connect("grab-op-begin", this._handleGrabOpBegin.bind(this)),
                 display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
                 display.connect("showing-desktop-changed", () => {
+                    this.updateDecorationLayout();
                     Logger.debug(`display:showing-desktop-changed`);
                 }),
                 display.connect("in-fullscreen-changed", () => {
@@ -1406,7 +1407,8 @@ var WindowManager = GObject.registerClass(
                 }
             }
             focusMetaWindow.raise();
-            this.updateBorderLayout();
+            if (!focusMetaWindow.firstRender)
+                this.updateBorderLayout();
             this.updateDecorationLayout();
             Logger.trace(`${from} ${focusMetaWindow.get_wm_class()}`);
         }
@@ -1421,6 +1423,8 @@ var WindowManager = GObject.registerClass(
                     con.decoration.hide();
                 }
             });
+
+            // TODO: handle when user binds hide all windows or show desktop
 
             // Show the decoration where on all monitors of active workspace
             // But not on the monitor where there is a maximized or fullscreen window
