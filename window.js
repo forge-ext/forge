@@ -1732,11 +1732,13 @@ var WindowManager = GObject.registerClass(
                         // a single node unit: the con itself and then
                         // split left, top, right or bottom accordingly (subsequent if conditions):
                         Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
-                        childNode.detachWindow = true;
                         if (!isMonParent) {
-                            Logger.debug(`move-pointer: parent is not monitor`);
-                            referenceNode = parentNodeTarget;
-                            containerNode = parentNodeTarget.parentNode;
+                            containerNode = parentNodeTarget;
+                            referenceNode = null;
+                            previewParams = {
+                                className: stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed",
+                                targetRect: targetRect
+                            };
                         } else {
                             // It is a monitor that's a stack/tab
                             // TODO: update the stacked/tabbed toggles to not
@@ -1764,11 +1766,13 @@ var WindowManager = GObject.registerClass(
                         // a single node unit: the con itself and then
                         // split left, top, right or bottom accordingly (subsequent if conditions):
                         Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
-                        childNode.detachWindow = true;
                         if (!isMonParent) {
-                            Logger.debug(`move-pointer: parent is not monitor`);
-                            referenceNode = parentNodeTarget.nextSibling;
-                            containerNode = parentNodeTarget.parentNode;
+                            containerNode = parentNodeTarget;
+                            referenceNode = null;
+                            previewParams = {
+                                className: stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed",
+                                targetRect: targetRect
+                            };
                         } else {
                             // It is a monitor that's a stack/tab
                             // TODO: update the stacked/tabbed toggles to not
@@ -1791,7 +1795,15 @@ var WindowManager = GObject.registerClass(
                 }
 
                 if (!isCenter) {
-                    previewParams.className = "window-tilepreview-tiled";
+                    if (stackedOrTabbed) {
+                        if (isLeft || isRight) {
+                            previewParams.className = "window-tilepreview-tiled";
+                        } else if (isTop || isBottom) {
+                            previewParams.className = stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed";
+                        }
+                    } else {
+                        previewParams.className = "window-tilepreview-tiled";
+                    }
                 } else if (isCenter) {
                     if (!stackedOrTabbed)
                         previewParams.className = this._getDragDropCenterPreviewStyle();
@@ -1843,7 +1855,8 @@ var WindowManager = GObject.registerClass(
                         if (isLeft || isRight) {
                             containerNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
                         } else if (isTop || isBottom) {
-                            containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+                            if (!stackedOrTabbed)
+                                containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
                         } else if (isCenter) {
                             if (containerNode.isHSplit() || containerNode.isVSplit()) {
                                 const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
