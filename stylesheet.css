@@ -81,11 +81,13 @@
     border-radius: 4px;
     color: white;
     margin: 1px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
 .window-tabbed-tab-active {
     background-color: rgba(17,199,224,1);
     color: black;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
 .window-tabbed-tab-close {

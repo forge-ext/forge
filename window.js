@@ -896,7 +896,7 @@ var WindowManager = GObject.registerClass(
             }
             
             if (!this._renderTreeSrcId) {
-                this._renderTreeSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5, () => {
+                this._renderTreeSrcId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
                     this.tree.render(from);
                     this._renderTreeSrcId = 0;
                     return false;
