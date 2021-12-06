@@ -1445,7 +1445,8 @@ var WindowManager = GObject.registerClass(
             // So it needs to be fully filtered:
             let monWsNoMaxWindows = activeWsNode.getNodeByType(Tree.NODE_TYPES.MONITOR).filter((monitor) => {
                 return monitor.getNodeByType(Tree.NODE_TYPES.WINDOW).filter((w) => {
-                    return w.nodeValue.get_maximized() !== 0 || w.nodeValue.is_fullscreen();
+                    return w.nodeValue.get_maximized() === Meta.MaximizeFlags.BOTH ||
+                        w.nodeValue.is_fullscreen();
                 }).length === 0;
             });
 
