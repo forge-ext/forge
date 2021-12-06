@@ -1477,9 +1477,14 @@ var Tree = GObject.registerClass(
                         });
                         child.tab = tabContents;
 
+                        let labelText = child.nodeValue.title;
+
+                        if (!labelText)
+                            labelText = app.get_name();
+
                         let titleButton = new St.Button({
                             x_expand: true,
-                            label: `${child.nodeValue.title}`
+                            label: `${labelText}`
                         });
 
                         let iconBin = new St.Bin({
