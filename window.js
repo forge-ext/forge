@@ -1324,6 +1324,7 @@ var WindowManager = GObject.registerClass(
             
             let nodeWindow;
             nodeWindow = this.tree.findNodeByActor(actor);
+
             if (nodeWindow) {
                 Logger.debug(`window destroyed ${nodeWindow.nodeValue.get_wm_class()}`);
                 this.tree.removeNode(nodeWindow);
@@ -1817,6 +1818,12 @@ var WindowManager = GObject.registerClass(
                     const numWin = parentNodeTarget.childNodes.filter((c) => c.nodeType === Tree.NODE_TYPES.WINDOW).length;
                     const numChild = parentNodeTarget.childNodes.length;
                     const sameNumChild = numWin === numChild;
+
+                    if (focusNodeWindow.tab) {
+                        let decoParent = focusNodeWindow.tab.get_parent();
+                        if (decoParent)
+                            decoParent.remove_child(focusNodeWindow.tab);
+                    }
 
                     if (childNode.createCon) {
                         // Child Node will still be created

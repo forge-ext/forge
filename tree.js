@@ -601,6 +601,10 @@ var Tree = GObject.registerClass(
             if (parentNode) {
                 child = new Node(type, value);
 
+                if (child.isWindow()) {
+                    this._createWindowTab(child);
+                }
+
                 if (child.isWindow())
                     child.mode = mode;
 
@@ -616,6 +620,81 @@ var Tree = GObject.registerClass(
                 Logger.trace(`adding node ${type}: ${value} to ${parentObj}`);
             }
             return child;
+        }
+
+        _createTabDecoration(nodeCon) {
+            if (!nodeCon || !nodeCon.isCon())
+                return;
+
+            let decoration = new St.BoxLayout();
+            let globalWinGrp = global.window_group;
+            decoration.style_class = "window-tabbed-bg";
+
+            if (!globalWinGrp.contains(decoration)) {
+                globalWinGrp.add_child(decoration);
+            }
+
+            decoration.hide();
+            nodeCon.decoration = decoration;
+        }
+
+        _createWindowTab(nodeWindow) {
+            if (!nodeWindow || !nodeWindow.isWindow())
+                return;
+
+            let windowTracker = Shell.WindowTracker.get_default();
+            let metaWin = nodeWindow.nodeValue;
+            let app = windowTracker.get_window_app(metaWin);
+
+            let tabContents = new St.BoxLayout({
+                style_class: "window-tabbed-tab",
+                x_expand: true
+            });
+
+            nodeWindow.tab = tabContents;
+
+            let labelText = metaWin.title;
+
+            if (!labelText)
+                labelText = app.get_name();
+
+            let titleButton = new St.Button({
+                x_expand: true,
+                label: `${labelText}`
+            });
+
+            let iconBin = new St.Bin({
+                style_class: "window-tabbed-tab-icon"
+            });
+
+            let icon = app.create_icon_texture(24);
+            iconBin.child = icon;
+
+            let closeButton = new St.Button({
+                style_class: 'window-tabbed-tab-close',
+                child: new St.Icon({ icon_name: 'window-close-symbolic' }),
+            });
+
+            tabContents.add(iconBin);
+            tabContents.add(titleButton);
+            tabContents.add(closeButton);
+
+            titleButton.connect("clicked", () => {
+                nodeWindow.childNodes.forEach((c) => {
+                    if (c.tab)
+                        c.tab.remove_style_class_name("window-tabbed-tab-active");
+                });
+                tabContents.add_style_class_name("window-tabbed-tab-active");
+                metaWin.activate(global.display.get_current_time());
+            });
+
+            closeButton.connect("clicked", () => {
+                metaWin.delete(global.get_current_time());
+            });
+
+            if (metaWin === this.extWm.focusMetaWindow) {
+                nodeWindow.tab.add_style_class_name("window-tabbed-tab-active");
+            }
         }
 
         /**
@@ -1287,36 +1366,27 @@ var Tree = GObject.registerClass(
                 params.sizes = sizes;
                 params.stackedHeight = 35;
                 params.tiledChildren = tiledChildren;
-                let globalWinGrp = global.window_group;
 
-                if (node.decoration) {
-                    node.decoration.hide();
-                    node.decoration.destroy_all_children();
-                    if (globalWinGrp.contains(node.decoration))
-                        globalWinGrp.remove_child(node.decoration);
-                    node.decoration = null;
+                let decoration = node.decoration;
+
+                if (!decoration) {
+                    this._createTabDecoration(node);
+                    decoration = node.decoration;
+                } else {
+                    let decoChildren = decoration.get_children();
+                    decoChildren.forEach(decoChild => {
+                        decoration.remove_child(decoChild);
+                    });
                 }
 
                 if (node.isTabbed()) {
-                    if (node.childNodes.length > 0) {
-                        let decoration = new St.BoxLayout();
-                        decoration.style_class = "window-tabbed-bg";
-
-                        if (!globalWinGrp.contains(decoration)) {
-                            globalWinGrp.add_child(decoration);
-                        }
-
-                        decoration.set_size(node.rect.width, params.stackedHeight);
-                        decoration.set_position(node.rect.x, node.rect.y);
-                        node.decoration = decoration;
-                    }
+                    decoration.set_size(node.rect.width, params.stackedHeight);
+                    decoration.set_position(node.rect.x, node.rect.y);
+                    decoration.show();
                 }
 
                 tiledChildren.forEach((child, index) => {
                     // A monitor can contain a window or container child
-                    if (child.tab){
-                        child.tab = null;
-                    }
                     if (node.layout === LAYOUT_TYPES.HSPLIT ||
                         node.layout === LAYOUT_TYPES.VSPLIT) {
                         this.processSplit(node, child, params, index);
@@ -1467,57 +1537,11 @@ var Tree = GObject.registerClass(
                     nodeY = nodeRect.y + params.stackedHeight;
                     nodeHeight = nodeRect.height - params.stackedHeight;
                     if (node.decoration && child.isWindow()) {
-                        let windowTracker = Shell.WindowTracker.get_default();
-                        let metaWin = child.nodeValue;
-                        let app = windowTracker.get_window_app(metaWin);
-
-                        let tabContents = new St.BoxLayout({
-                            style_class: "window-tabbed-tab",
-                            x_expand: true
-                        });
-                        child.tab = tabContents;
-
-                        let labelText = child.nodeValue.title;
-
-                        if (!labelText)
-                            labelText = app.get_name();
-
-                        let titleButton = new St.Button({
-                            x_expand: true,
-                            label: `${labelText}`
-                        });
-
-                        let iconBin = new St.Bin({
-                            style_class: "window-tabbed-tab-icon"
-                        });
-                        let icon = app.create_icon_texture(24);
-                        iconBin.child = icon;
-                        let closeButton = new St.Button({
-                            style_class: 'window-tabbed-tab-close',
-                            child: new St.Icon({ icon_name: 'window-close-symbolic' }),
-                        });
-
-                        tabContents.add(iconBin);
-                        tabContents.add(titleButton);
-                        tabContents.add(closeButton);
-
-                        titleButton.connect("clicked", () => {
-                            node.childNodes.forEach((c) => {
-                                if (c.tab)
-                                    c.tab.remove_style_class_name("window-tabbed-tab-active");
-                            });
-                            child.tab.add_style_class_name("window-tabbed-tab-active");
-                            child.nodeValue.activate(global.display.get_current_time());
-                        });
-
-                        closeButton.connect("clicked", () => {
-                            child.nodeValue.delete(global.get_current_time());
-                        });
-                        if (child.nodeValue === this.extWm.focusMetaWindow) {
-                            child.tab.add_style_class_name("window-tabbed-tab-active");
+                        if (!child.tab) {
+                            this._createWindowTab(child);
                         }
-
-                        node.decoration.add(tabContents);
+                        if (!node.decoration.contains(child.tab))
+                            node.decoration.add(child.tab);
                     }
                 }
 
