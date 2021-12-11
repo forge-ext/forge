@@ -820,7 +820,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
                 let processed = 0;
                 let processedShortcuts = [];
                 shortcutArray.forEach((shortcut) => {
-                    let [key, mods] = Gtk.accelerator_parse(shortcut);
+                    let [_valid, key, mods] = Gtk.accelerator_parse(shortcut);
 
                     if (Gtk.accelerator_valid(key, mods)) {
                         let validShortcut = Gtk.accelerator_name(key, mods);
