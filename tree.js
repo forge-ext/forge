@@ -93,11 +93,18 @@ var Node = GObject.registerClass(
             this._rect = null;
             this.tab = null;
             this.decoration = null;
+            this.app = null;
 
             if (this.isWindow()) {
                 // When destroy() is called on Meta.Window, it might not be
                 // available so we store it immediately
+                this._initMetaWindow();
                 this._actor = this._data.get_compositor_private();
+                this._createWindowTab();
+            }
+
+            if (this.isCon()) {
+                this._createDecoration();
             }
         }
 
@@ -458,6 +465,93 @@ var Node = GObject.registerClass(
         _walk(callback, traversal) {
             traversal.call(this, callback);
         }
+
+        _initMetaWindow() {
+            if (this.isWindow()) {
+                let windowTracker = Shell.WindowTracker.get_default();
+                let metaWin = this.nodeValue;
+                let app = windowTracker.get_window_app(metaWin);
+                this.app = app;
+            }
+        }
+
+        _createWindowTab() {
+            if (this.tab || !this.isWindow())
+                return;
+
+            let tabContents = new St.BoxLayout({
+                style_class: "window-tabbed-tab",
+                x_expand: true
+            });
+            let app = this.app;
+            let labelText = this._getTitle();
+            let metaWin = this.nodeValue;
+            let titleButton = new St.Button({
+                x_expand: true,
+                label: `${labelText}`
+            });
+            let iconBin = new St.Bin({
+                style_class: "window-tabbed-tab-icon"
+            });
+            let icon = app.create_icon_texture(24);
+            iconBin.child = icon;
+            let closeButton = new St.Button({
+                style_class: 'window-tabbed-tab-close',
+                child: new St.Icon({ icon_name: 'window-close-symbolic' }),
+            });
+
+            tabContents.add(iconBin);
+            tabContents.add(titleButton);
+            tabContents.add(closeButton);
+
+            titleButton.connect("clicked", () => {
+                this.parentNode.childNodes.forEach((c) => {
+                    if (c.tab)
+                        c.tab.remove_style_class_name("window-tabbed-tab-active");
+                });
+                tabContents.add_style_class_name("window-tabbed-tab-active");
+                metaWin.activate(global.display.get_current_time());
+            });
+
+            closeButton.connect("clicked", () => {
+                metaWin.delete(global.get_current_time());
+            });
+
+            if (metaWin === global.display.get_focus_window()) {
+                tabContents.add_style_class_name("window-tabbed-tab-active");
+            }
+            this.tab = tabContents;
+        }
+
+        _createDecoration() {
+            if (this.decoration)
+                return;
+            let decoration = new St.BoxLayout();
+            let globalWinGrp = global.window_group;
+            decoration.style_class = "window-tabbed-bg";
+
+            if (!globalWinGrp.contains(decoration)) {
+                globalWinGrp.add_child(decoration);
+            }
+
+            decoration.hide();
+            this.decoration = decoration;
+        }
+
+        _getTitle() {
+            if (this.isWindow()) {
+                return this.nodeValue.title ? this.nodeValue.title : this.app.get_name();
+            }
+            return null;
+        }
+
+        render() {
+            // Always update the title for the tab
+            if (this.tab) {
+                let titleLabel = this.tab.get_child_at_index(1);
+                titleLabel.label = this._getTitle();
+            }
+        }
     }
 );
 
@@ -601,10 +695,6 @@ var Tree = GObject.registerClass(
             if (parentNode) {
                 child = new Node(type, value);
 
-                if (child.isWindow()) {
-                    this._createWindowTab(child);
-                }
-
                 if (child.isWindow())
                     child.mode = mode;
 
@@ -620,81 +710,6 @@ var Tree = GObject.registerClass(
                 Logger.trace(`adding node ${type}: ${value} to ${parentObj}`);
             }
             return child;
-        }
-
-        _createTabDecoration(nodeCon) {
-            if (!nodeCon || !nodeCon.isCon())
-                return;
-
-            let decoration = new St.BoxLayout();
-            let globalWinGrp = global.window_group;
-            decoration.style_class = "window-tabbed-bg";
-
-            if (!globalWinGrp.contains(decoration)) {
-                globalWinGrp.add_child(decoration);
-            }
-
-            decoration.hide();
-            nodeCon.decoration = decoration;
-        }
-
-        _createWindowTab(nodeWindow) {
-            if (!nodeWindow || !nodeWindow.isWindow())
-                return;
-
-            let windowTracker = Shell.WindowTracker.get_default();
-            let metaWin = nodeWindow.nodeValue;
-            let app = windowTracker.get_window_app(metaWin);
-
-            let tabContents = new St.BoxLayout({
-                style_class: "window-tabbed-tab",
-                x_expand: true
-            });
-
-            nodeWindow.tab = tabContents;
-
-            let labelText = metaWin.title;
-
-            if (!labelText)
-                labelText = app.get_name();
-
-            let titleButton = new St.Button({
-                x_expand: true,
-                label: `${labelText}`
-            });
-
-            let iconBin = new St.Bin({
-                style_class: "window-tabbed-tab-icon"
-            });
-
-            let icon = app.create_icon_texture(24);
-            iconBin.child = icon;
-
-            let closeButton = new St.Button({
-                style_class: 'window-tabbed-tab-close',
-                child: new St.Icon({ icon_name: 'window-close-symbolic' }),
-            });
-
-            tabContents.add(iconBin);
-            tabContents.add(titleButton);
-            tabContents.add(closeButton);
-
-            titleButton.connect("clicked", () => {
-                nodeWindow.childNodes.forEach((c) => {
-                    if (c.tab)
-                        c.tab.remove_style_class_name("window-tabbed-tab-active");
-                });
-                tabContents.add_style_class_name("window-tabbed-tab-active");
-                metaWin.activate(global.display.get_current_time());
-            });
-
-            closeButton.connect("clicked", () => {
-                metaWin.delete(global.get_current_time());
-            });
-
-            if (metaWin === this.extWm.focusMetaWindow) {
-                nodeWindow.tab.add_style_class_name("window-tabbed-tab-active");
-            }
         }
 
         /**
@@ -1369,10 +1384,7 @@ var Tree = GObject.registerClass(
 
                 let decoration = node.decoration;
 
-                if (!decoration) {
-                    this._createTabDecoration(node);
-                    decoration = node.decoration;
-                } else {
+                if (decoration) {
                     let decoChildren = decoration.get_children();
                     decoChildren.forEach(decoChild => {
                         decoration.remove_child(decoChild);
@@ -1531,17 +1543,15 @@ var Tree = GObject.registerClass(
                 nodeY = nodeRect.y;
                 nodeHeight = nodeRect.height;
 
-                let alwaysShowDecorationTab = false;
+                let alwaysShowDecorationTab = true;
 
                 if (node.childNodes.length > 1 || alwaysShowDecorationTab) {
                     nodeY = nodeRect.y + params.stackedHeight;
                     nodeHeight = nodeRect.height - params.stackedHeight;
                     if (node.decoration && child.isWindow()) {
-                        if (!child.tab) {
-                            this._createWindowTab(child);
-                        }
                         if (!node.decoration.contains(child.tab))
                             node.decoration.add(child.tab);
+                        child.render();
                     }
                 }
 

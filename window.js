@@ -1186,6 +1186,7 @@ var WindowManager = GObject.registerClass(
                                         }
                                     });
                                 }
+                                focusNodeWindow.render();
                                 this.tree.attachNode = focusNodeWindow;
                             }
 
