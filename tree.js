@@ -506,8 +506,10 @@ var Node = GObject.registerClass(
 
             titleButton.connect("clicked", () => {
                 this.parentNode.childNodes.forEach((c) => {
-                    if (c.tab)
+                    if (c.tab) {
                         c.tab.remove_style_class_name("window-tabbed-tab-active");
+                        c.render();
+                    }
                 });
                 tabContents.add_style_class_name("window-tabbed-tab-active");
                 metaWin.activate(global.display.get_current_time());
@@ -1394,7 +1396,8 @@ var Tree = GObject.registerClass(
                 if (node.isTabbed()) {
                     decoration.set_size(node.rect.width, params.stackedHeight);
                     decoration.set_position(node.rect.x, node.rect.y);
-                    decoration.show();
+                    if (tiledChildren.length > 0)
+                        decoration.show();
                 }
 
                 tiledChildren.forEach((child, index) => {

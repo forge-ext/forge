@@ -97,7 +97,7 @@
         </key>
 
         <key type="s" name="dnd-center-layout">
-            <default>'stacked'</default>
+            <default>'tabbed'</default>
             <summary>
                 The default center layout when dragging/dropping a window.
                 The other value is `tabbed`.

@@ -1186,9 +1186,9 @@ var WindowManager = GObject.registerClass(
                                         }
                                     });
                                 }
-                                focusNodeWindow.render();
                                 this.tree.attachNode = focusNodeWindow;
                             }
+                            this.updateDecorationLayout();
 
                             Logger.debug(`window:focus`);
                         }),
@@ -1455,8 +1455,12 @@ var WindowManager = GObject.registerClass(
             monWsNoMaxWindows.forEach((monitorWs) => {
                 let activeMonWsCons = monitorWs.getNodeByType(Tree.NODE_TYPES.CON);
                 activeMonWsCons.forEach((con) => {
-                    if (con.decoration) {
+                    let tiled = this.tree.getTiledChildren(con.childNodes);
+                    if (con.decoration && tiled.length > 0) {
                         con.decoration.show();
+                        con.childNodes.forEach((cn) => {
+                            cn.render();
+                        });
                     }
                 });
             });
