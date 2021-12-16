@@ -41,6 +41,9 @@ var ThemeManager = GObject.registerClass(
             this.options = options;
             this._importCss();
             this.defaultPalette = this.getDefaultPalette();
+            // A random number to denote an update on the css, usually the possible next version
+            // in extensions.gnome.org 
+            this.cssTag = 37;
         }
 
         addPx(value) {
@@ -178,6 +181,21 @@ var ThemeManager = GObject.registerClass(
             }
         }
 
+        patchCss() {
+            if (this._needUpdate()) {
+                let originalCss = this.configMgr.defaultStylesheetFile;
+                let configCss = this.configMgr.stylesheetFile;
+                let copyConfigCss = Gio.File.new_for_path(this.configMgr.stylesheetFileName + ".bak");
+                let backupFine = configCss.copy(copyConfigCss, Gio.FileCopyFlags.OVERWRITE, null, null);
+                let copyFine = originalCss.copy(configCss, Gio.FileCopyFlags.OVERWRITE, null, null);
+                if (backupFine && copyFine) {
+                    this.settings.set_uint("css-last-update", this.cssTag);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /**
          * Credits: ExtensionSystem.js:_callExtensionEnable()
          */
@@ -211,6 +229,11 @@ var ThemeManager = GObject.registerClass(
                     return;
                 }
             }
+        }
+
+        _needUpdate() {
+            let cssTag = this.cssTag;
+            return this.settings.get_uint("css-last-update") !== cssTag;
         }
     }
 );

@@ -510,10 +510,10 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
                 prefsMode: true
             });
             this._createColorOptionWidget(".window-tiled-border");
+            this._createColorOptionWidget(".window-tabbed-border");
+            this._createColorOptionWidget(".window-stacked-border");
             this._createColorOptionWidget(".window-floated-border");
             this._createColorOptionWidget(".window-split-border");
-            this._createColorOptionWidget(".window-stacked-border");
-            this._createColorOptionWidget(".window-tabbed-border");
         }
 
         _createColorOptionWidget(selector) {
@@ -603,14 +603,19 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
                     theme.setCssProperty(selector, "border-color", rgba.to_string())
 
                     // Only apply below on the primary/tiled scheme
-                    if (colorScheme !== "tiled")
-                        return;
+                    if (colorScheme === "tiled") {
+                        // Then the overview app icons, search and search results:
+                        theme.setCssProperty(".search-entry:focus", "border-color", rgba.to_string());
+                        theme.setCssProperty(".kbd-shortcut:focus", "border-color", rgba.to_string());
+                        theme.setCssProperty(".search-provider-icon:focus", "background-color", overviewBackgroundRgba.to_string());
 
-                    // Then the overview app icons, search and search results:
-                    theme.setCssProperty(".search-entry:focus", "border-color", rgba.to_string());
-                    theme.setCssProperty(".kbd-shortcut:focus", "border-color", rgba.to_string());
-                    theme.setCssProperty(".search-provider-icon:focus", "background-color", overviewBackgroundRgba.to_string());
-
+                    } else if (colorScheme === "tabbed") {
+                        const tabBorderRgba = rgba.copy();
+                        const tabActiveBackgroundRgba = rgba.copy();
+                        tabBorderRgba.alpha = 0.6;
+                        theme.setCssProperty(`.window-${colorScheme}-tab`, "border-color", tabBorderRgba.to_string());
+                        theme.setCssProperty(`.window-${colorScheme}-tab-active`, "background-color", tabActiveBackgroundRgba.to_string());
+                    }
                     // And then finally the preview when doing drag/drop tiling:
                     theme.setCssProperty(`.window-tilepreview-${colorScheme}`, "border-color", previewBorderRgba.to_string());
                     theme.setCssProperty(`.window-tilepreview-${colorScheme}`, "background-color", previewBackgroundRgba.to_string());
