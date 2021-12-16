@@ -6,7 +6,9 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 You can install from: https://extensions.gnome.org/extension/4481/forge/ or download the source and `make install`, restart gnome-shell after or `make dev`.
 
 ## !!!Major Changes!!!
-[#83](https://github.com/jmmaranan/forge/pull/83) - Improved drag/drop tiling with new regions
+- BREAKING styles: [#63](https://github.com/jmmaranan/forge/issues/63)
+  - New Tabbed Tiling implementation via St.Widgets.
+  - New style declarations will reset the custom stylesheets for users when updating. Old styles will be backed up as $HOME/.config/forge/stylesheet/forge/stylesheet.css.bak. User has to re-apply colors for now via preferences.
 
 ## Features
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm
@@ -21,7 +23,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 - Works on GNOME 3.36+ and 40. X11 and Wayland
 
 ## Experimental Features
-- Tabbed tiling layout - Can be turned off in preferences
+- New Tabbed tiling implementation using St.Widget library - there is NO fallback to the old implementation.
 
 ![image](https://user-images.githubusercontent.com/348125/136071134-ba8aa7b7-8403-4b15-9818-d43f4143a813.png)
 

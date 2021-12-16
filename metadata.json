@@ -1,6 +1,6 @@
 {
     "name": "Forge",
-    "description": "Tiling and window manager for GNOME\n\nMAJOR CHANGES\n\n - Drag-drop tiling regions.\n - Removed toggling monitor stacked/tabbed layout. Creates a split first then updating the layout.\n\n Please report bugs/issues on https://github.com/jmmaranan/forge/issues",
+    "description": "Tiling and window manager for GNOME\n\nMAJOR CHANGES\n\n - New Tabbed Tiling Implementation via St.Widget.\n - New style declarations will reset the custom stylesheets for users when updating. Old styles will be backed up as $HOME/.config/forge/stylesheet/forge/stylesheet.css.bak.\n\n Please report bugs/issues on https://github.com/jmmaranan/forge/issues",
     "gettext-domain": "forge",
     "uuid": "forge@jmmaranan.com",
     "settings-schema": "org.gnome.shell.extensions.forge",
