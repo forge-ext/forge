@@ -25,7 +25,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 ## Experimental Features
 - New Tabbed tiling implementation using St.Widget library - there is NO fallback to the old implementation.
 
-![image](https://user-images.githubusercontent.com/348125/136071134-ba8aa7b7-8403-4b15-9818-d43f4143a813.png)
+![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
 
 ## Forge Keybinding Defaults
 
