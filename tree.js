@@ -91,11 +91,20 @@ var Node = GObject.registerClass(
             this.mode = Window.WINDOW_MODES.DEFAULT;
             this.percent = 0.0;
             this._rect = null;
+            this.tab = null;
+            this.decoration = null;
+            this.app = null;
 
             if (this.isWindow()) {
                 // When destroy() is called on Meta.Window, it might not be
                 // available so we store it immediately
+                this._initMetaWindow();
                 this._actor = this._data.get_compositor_private();
+                this._createWindowTab();
+            }
+
+            if (this.isCon()) {
+                this._createDecoration();
             }
         }
 
@@ -363,6 +372,14 @@ var Node = GObject.registerClass(
         }
 
         removeChild(node) {
+
+            if (node.isTabbed() && node.decoration) {
+                node.decoration.hide();
+                node.decoration.destroy_all_children();
+                node.decoration.destroy();
+                node.decoration = null;
+            }
+
             let refNode;
             if (this.contains(node)) {
                 // Since contains() tries to find node on all descendants,
@@ -447,6 +464,95 @@ var Node = GObject.registerClass(
 
         _walk(callback, traversal) {
             traversal.call(this, callback);
+        }
+
+        _initMetaWindow() {
+            if (this.isWindow()) {
+                let windowTracker = Shell.WindowTracker.get_default();
+                let metaWin = this.nodeValue;
+                let app = windowTracker.get_window_app(metaWin);
+                this.app = app;
+            }
+        }
+
+        _createWindowTab() {
+            if (this.tab || !this.isWindow())
+                return;
+
+            let tabContents = new St.BoxLayout({
+                style_class: "window-tabbed-tab",
+                x_expand: true
+            });
+            let app = this.app;
+            let labelText = this._getTitle();
+            let metaWin = this.nodeValue;
+            let titleButton = new St.Button({
+                x_expand: true,
+                label: `${labelText}`
+            });
+            let iconBin = new St.Bin({
+                style_class: "window-tabbed-tab-icon"
+            });
+            let icon = app.create_icon_texture(24);
+            iconBin.child = icon;
+            let closeButton = new St.Button({
+                style_class: 'window-tabbed-tab-close',
+                child: new St.Icon({ icon_name: 'window-close-symbolic' }),
+            });
+
+            tabContents.add(iconBin);
+            tabContents.add(titleButton);
+            tabContents.add(closeButton);
+
+            titleButton.connect("clicked", () => {
+                this.parentNode.childNodes.forEach((c) => {
+                    if (c.tab) {
+                        c.tab.remove_style_class_name("window-tabbed-tab-active");
+                        c.render();
+                    }
+                });
+                tabContents.add_style_class_name("window-tabbed-tab-active");
+                metaWin.activate(global.display.get_current_time());
+            });
+
+            closeButton.connect("clicked", () => {
+                metaWin.delete(global.get_current_time());
+            });
+
+            if (metaWin === global.display.get_focus_window()) {
+                tabContents.add_style_class_name("window-tabbed-tab-active");
+            }
+            this.tab = tabContents;
+        }
+
+        _createDecoration() {
+            if (this.decoration)
+                return;
+            let decoration = new St.BoxLayout();
+            let globalWinGrp = global.window_group;
+            decoration.style_class = "window-tabbed-bg";
+
+            if (!globalWinGrp.contains(decoration)) {
+                globalWinGrp.add_child(decoration);
+            }
+
+            decoration.hide();
+            this.decoration = decoration;
+        }
+
+        _getTitle() {
+            if (this.isWindow()) {
+                return this.nodeValue.title ? this.nodeValue.title : this.app.get_name();
+            }
+            return null;
+        }
+
+        render() {
+            // Always update the title for the tab
+            if (this.tab) {
+                let titleLabel = this.tab.get_child_at_index(1);
+                titleLabel.label = this._getTitle();
+            }
         }
     }
 );
@@ -847,10 +953,14 @@ var Tree = GObject.registerClass(
                     Logger.trace(`move-to-con`);
                     parentTarget = next;
 
-                    if (next.layout === LAYOUT_TYPES.STACKED) {
+                    if (next.isStacked()) {
                         next.appendChild(node);
                     } else {
-                        next.insertBefore(node, next.firstChild);
+                        if (position === POSITION.AFTER) {
+                            next.insertBefore(node, next.firstChild);
+                        } else {
+                            next.appendChild(node);
+                        }
                     }
                     break;
                 case NODE_TYPES.MONITOR:
@@ -991,7 +1101,7 @@ var Tree = GObject.registerClass(
         /**
          * Credits: i3-like split
          */
-        split(node, orientation) {
+        split(node, orientation, forceSplit = false) {
             if (!node) return;
             let type = node.nodeType;
 
@@ -1012,7 +1122,8 @@ var Tree = GObject.registerClass(
             let numChildren = parentNode.childNodes.length;
 
             // toggle the split
-            if (numChildren === 1 &&
+            if (!forceSplit && 
+                numChildren === 1 &&
                 (parentNode.layout === LAYOUT_TYPES.HSPLIT ||
                 parentNode.layout === LAYOUT_TYPES.VSPLIT)) {
                 parentNode.layout = orientation ===
@@ -1102,18 +1213,6 @@ var Tree = GObject.registerClass(
                 fromNode.percent = toNode.percent;
                 toNode.percent = percent;
 
-                // Tabbed layout uses make above, update both nodes
-                if (parentForTo.isTabbed()) {
-                    fromNode.nodeValue.make_above();
-                } else {
-                    fromNode.nodeValue.unmake_above();
-                }
-                if (parentForFrom.isTabbed()) {
-                    toNode.nodeValue.make_above();
-                } else {
-                    toNode.nodeValue.unmake_above();
-                }
-
                 if (focus) {
                     // The fromNode is now on the parent-target
                     fromNode.nodeValue.raise();
@@ -1174,9 +1273,9 @@ var Tree = GObject.registerClass(
             Logger.debug(`---------------------------------------------`);
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             this.processNode(this);
-            this.postProcess(this);
-            this.cleanTree();
             this.apply(this);
+            this.extWm.updateDecorationLayout();
+            this.cleanTree();
             Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
             let debugMode = true;
             if (debugMode) {
@@ -1285,9 +1384,23 @@ var Tree = GObject.registerClass(
                 params.stackedHeight = 35;
                 params.tiledChildren = tiledChildren;
 
+                let decoration = node.decoration;
+
+                if (decoration) {
+                    let decoChildren = decoration.get_children();
+                    decoChildren.forEach(decoChild => {
+                        decoration.remove_child(decoChild);
+                    });
+                }
+
+                if (node.isTabbed()) {
+                    decoration.set_size(node.rect.width, params.stackedHeight);
+                    decoration.set_position(node.rect.x, node.rect.y);
+                    if (tiledChildren.length > 0)
+                        decoration.show();
+                }
+
                 tiledChildren.forEach((child, index) => {
-                    // Perform cleanup before processing
-                    this.cleanupBeforeProcess(child);
                     // A monitor can contain a window or container child
                     if (node.layout === LAYOUT_TYPES.HSPLIT ||
                         node.layout === LAYOUT_TYPES.VSPLIT) {
@@ -1387,6 +1500,11 @@ var Tree = GObject.registerClass(
             };
         }
 
+        /**
+         * Process the child node here for the dimensions of the child stack/window,
+         * It will be moved to the Node class in the future as Node.render()
+         *
+         */
         processStacked(node, child, params, index) {
             let layout = node.layout;
             let nodeWidth = node.rect.width;
@@ -1400,10 +1518,6 @@ var Tree = GObject.registerClass(
                     nodeHeight -= (params.stackedHeight * index);
                 }
 
-                if (child.nodeType === NODE_TYPES.WINDOW) {
-                    child.nodeValue.raise();
-                }
-
                 child.rect = {
                     x: nodeX,
                     y: nodeY,
@@ -1413,7 +1527,12 @@ var Tree = GObject.registerClass(
             }
         }
 
-        processTabbed(node, child, params, index) {
+        /**
+         * Process the child node here for the dimensions of the child tab/window,
+         * It will be moved to the Node class in the future as Node.render()
+         *
+         */
+        processTabbed(node, child, params, _index) {
             let layout = node.layout;
             let nodeRect = node.rect;
             let nodeWidth;
@@ -1422,138 +1541,29 @@ var Tree = GObject.registerClass(
             let nodeY;
 
             if (layout === LAYOUT_TYPES.TABBED) {
-                // Use the HSPLIT calculations
-                let tabWidth = node.rect.width / params.tiledChildren.length;
-                nodeWidth = tabWidth;
-                nodeHeight = nodeRect.height;
+                nodeWidth = nodeRect.width;
                 nodeX = nodeRect.x;
-                if (index != 0) {
-                    let i = 1;
-                    while (i <= index) {
-                        nodeX += tabWidth;
-                        i++;
-                    }
-                }
                 nodeY = nodeRect.y;
-                child.backgroundTab = true;
-                this.cleanupBeforeProcess(child);
+                nodeHeight = nodeRect.height;
 
-                let tiledChildren = node.getNodeByType(NODE_TYPES.WINDOW)
-                    .filter((t) => t.isTile() &&
-                        !t.nodeValue.minimized);
+                let alwaysShowDecorationTab = true;
 
-                if (tiledChildren.length > 1 &&
-                    (child.nodeValue === this.extWm.focusMetaWindow ||
-                        node.lastTabFocus &&
-                        node.lastTabFocus === child.nodeValue) &&
-                        node.mode !== Window.WINDOW_MODES.FLOAT) {
-                    child.rect = this.renderFrontTab(node, child, params.stackedHeight)
-                } else {
-                    if (tiledChildren.length === 1) {
-                        child.backgroundTab = false;
+                if (node.childNodes.length > 1 || alwaysShowDecorationTab) {
+                    nodeY = nodeRect.y + params.stackedHeight;
+                    nodeHeight = nodeRect.height - params.stackedHeight;
+                    if (node.decoration && child.isWindow()) {
+                        if (!node.decoration.contains(child.tab))
+                            node.decoration.add(child.tab);
+                        child.render();
                     }
-                    child.rect = {
-                        x: nodeX,
-                        y: nodeY,
-                        width: nodeWidth,
-                        height: nodeHeight
-                    };
                 }
-            }
-        }
 
-        /**
-         *
-         * Apply any transformations that is not possible during processNode
-         *
-         */
-        postProcess(tree) {
-            if (!tree) return;
-
-            // TODO make configurable
-            let alwaysRenderTab = true;
-
-            if (alwaysRenderTab) {
-                let containerNodes = tree.getNodeByType(NODE_TYPES.CON);
-                Logger.debug(`post-process: containers ${containerNodes.length}`);
-                let monitorNodes = tree.getNodeByType(NODE_TYPES.MONITOR);
-                Logger.debug(`post-process: workspace-monitors ${monitorNodes.length}`);
-                Array.prototype.push.apply(containerNodes, monitorNodes);
-
-                containerNodes.forEach((con) => {
-                    if (con.layout === LAYOUT_TYPES.TABBED) {
-                        if (con.childNodes.length > 1) {
-                            const frontTabs = con.childNodes.filter(
-                                (n) => !n.backgroundTab &&
-                                n.nodeType === NODE_TYPES.WINDOW &&
-                                // Do not track floated windows, useful on transient windows:
-                                n.mode !== Window.WINDOW_MODES.FLOAT
-                            );
-                            Logger.debug(`post-process: tabbed front ${frontTabs.length}`);
-
-                            const tabbedWindows = con.childNodes.filter(
-                                (n) => n.nodeType === NODE_TYPES.WINDOW
-                                // Do not track floated windows, useful on transient windows:
-                                && n.mode !== Window.WINDOW_MODES.FLOAT
-                            );
-                            Logger.debug(`post-process: tabbed windows ${tabbedWindows.length}`);
-
-                            /**
-                             * Pick a front tab window in the list of tabbed windows if not in focus
-                             */
-                            if (frontTabs.length === 0) {
-                                // FIXME - when one of the tabbed windows has a transient float dialog,
-                                // the front tab does not raise on the correct tabbed window.
-                                // Most apps tested do not set transient parents on their modal dialogs
-                                // So this is likely fixed when TABBED tabs are changed to St.Widget
-                                let child = tabbedWindows[tabbedWindows.length - 1]; // for now pick the last child
-                                let tabRect = this.renderFrontTab(con, child, 35);
-                                child.rect = tabRect;
-                                child.renderRect = this.processGap(child);
-                            }
-                        }
-                    }
-                });
-            }
-        }
-
-        /**
-         * Apply tab rect calculations to the non-background tab
-         */
-        renderFrontTab(node, child, stackedHeight) {
-            let nodeY = node.rect.y + stackedHeight;
-            let nodeHeight = node.rect.height - stackedHeight;
-            let nodeX = node.rect.x;
-            let nodeWidth = node.rect.width;
-            if (child.nodeType === NODE_TYPES.WINDOW) {
-                const metaWindow = child.nodeValue;
-                metaWindow.make_above();
-                metaWindow.raise();
-            }
-            child.backgroundTab = false;
-
-            return {
-                x: nodeX,
-                y: nodeY,
-                width: nodeWidth,
-                height: nodeHeight
-            }
-        }
-
-        /**
-         *
-         * Handles any generic cleanup mechanism before
-         * processing any container layouts
-         *
-         */
-        cleanupBeforeProcess(child) {
-            if (child.nodeType === NODE_TYPES.WINDOW) {
-                let focusNodeWindow = this.findNode(this.extWm.focusMetaWindow);
-                if (focusNodeWindow) {
-                    if (child !== focusNodeWindow)
-                        child.nodeValue.unmake_above();
-                    child.nodeValue.lower();
-                }
+                child.rect = {
+                    x: nodeX,
+                    y: nodeY,
+                    width: nodeWidth,
+                    height: nodeHeight
+                };
             }
         }
 
@@ -1613,7 +1623,7 @@ var Tree = GObject.registerClass(
                 attributes += `title:'${node.nodeValue.title}'${node.nodeValue === this.extWm.focusMetaWindow ? " FOCUS" : ""}`
             } else if (node.isCon() || node.isMonitor() || node.isWorkspace()) {
                 attributes += `${node.nodeValue}`;
-                if (node.isCon()) {
+                if (node.isCon() || node.isMonitor()) {
                     attributes += `,layout:${node.layout}`;
                 }
             }

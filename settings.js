@@ -111,14 +111,8 @@ var ConfigManager = GObject.registerClass(
         }
 
         get stylesheetFile() {
-            const stylesheetDir = `${this.confDir}/stylesheet`;
-            // TODO - implement profile for styles and config
-            const profile = "forge";
-            const profileDirPath = `${stylesheetDir}/${profile}`;
-            const stylesheet = GLib.build_filenamev([
-                profileDirPath,
-                `stylesheet.css`
-            ]);
+            let stylesheet = this.stylesheetFileName;
+            let profileDirPath = this.profileDirPath;
 
             Logger.trace(`custom-stylesheet: ${stylesheet}`);
 
@@ -137,6 +131,24 @@ var ConfigManager = GObject.registerClass(
             }
 
             return null;
+        }
+
+        get stylesheetFileName() {
+            const profileDirPath = this.profileDirPath;
+            const stylesheet = GLib.build_filenamev([
+                profileDirPath,
+                `stylesheet.css`
+            ]);
+
+            return stylesheet;
+        }
+
+        get profileDirPath() {
+            const stylesheetDir = `${this.confDir}/stylesheet`;
+            // TODO - implement profile for styles and config
+            const profile = "forge";
+            const profileDirPath = `${stylesheetDir}/${profile}`;
+            return profileDirPath;
         }
 
         loadFileContents(configFile) {

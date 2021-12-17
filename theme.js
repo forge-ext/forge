@@ -41,6 +41,16 @@ var ThemeManager = GObject.registerClass(
             this.options = options;
             this._importCss();
             this.defaultPalette = this.getDefaultPalette();
+
+            // A random number to denote an update on the css, usually the possible next version
+            // in extensions.gnome.org 
+            // TODO: need to research the most effective way to bring in CSS updates
+            //  since the schema css-last-update might be triggered when there is a
+            //  code change on the schema unrelated to css updates.
+            //  For now tagging works. See @this.patchCss() and @this._needUpdate().
+            this.cssTag = 37;
+
+            // TODO: should the patchCss() call be done here?
         }
 
         addPx(value) {
@@ -179,6 +189,28 @@ var ThemeManager = GObject.registerClass(
         }
 
         /**
+         * BREAKING: Patches the CSS by overriding the $HOME/.config stylesheet
+         * at the moment.
+         *
+         * TODO: work needed to consolidate the existing config stylesheet and
+         * when the extension default stylesheet gets an update.
+         */
+        patchCss() {
+            if (this._needUpdate()) {
+                let originalCss = this.configMgr.defaultStylesheetFile;
+                let configCss = this.configMgr.stylesheetFile;
+                let copyConfigCss = Gio.File.new_for_path(this.configMgr.stylesheetFileName + ".bak");
+                let backupFine = configCss.copy(copyConfigCss, Gio.FileCopyFlags.OVERWRITE, null, null);
+                let copyFine = originalCss.copy(configCss, Gio.FileCopyFlags.OVERWRITE, null, null);
+                if (backupFine && copyFine) {
+                    this.settings.set_uint("css-last-update", this.cssTag);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
          * Credits: ExtensionSystem.js:_callExtensionEnable()
          */
         reloadStylesheet() {
@@ -211,6 +243,11 @@ var ThemeManager = GObject.registerClass(
                     return;
                 }
             }
+        }
+
+        _needUpdate() {
+            let cssTag = this.cssTag;
+            return this.settings.get_uint("css-last-update") !== cssTag;
         }
     }
 );

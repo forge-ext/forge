@@ -3,7 +3,7 @@ INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
 MESSAGES = messages.js
 
-.PHONY: all clean install schemas uninstall enable disable log debug
+.PHONY: all clean install schemas uninstall enable disable log debug patchcss
 
 all: build install enable restart
 
@@ -17,6 +17,9 @@ schemas: schemas/gschemas.compiled
 
 schemas/gschemas.compiled: schemas/*.gschema.xml
 	glib-compile-schemas schemas
+
+patchcss:
+	# TODO: add the script to update css tag when delivering theme.js
 
 build: clean metadata.json schemas compilemsgs
 	rm -rf temp
