@@ -5,7 +5,11 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 ## Extensions
 You can install from: https://extensions.gnome.org/extension/4481/forge/ or download the source and `make install`, restart gnome-shell after or `make dev`.
 
-## !!!Major Changes!!!
+## ! Development is now towards GNOME-4x !
+The `main` branch contains gnome-4x code.
+`legacy` and `gnome-3-36` is now the source for gnome-x development.
+
+## ! Major Changes !
 - BREAKING styles: [#63](https://github.com/jmmaranan/forge/issues/63)
   - New Tabbed Tiling implementation via St.Widgets.
   - New style declarations will reset the custom stylesheets for users when updating. Old styles will be backed up as $HOME/.config/forge/stylesheet/forge/stylesheet.css.bak. User has to re-apply colors for now via preferences.
