@@ -7,7 +7,7 @@ You can install from: https://extensions.gnome.org/extension/4481/forge/ or down
 
 ## ! Development is now towards GNOME-4x !
 The `main` branch contains gnome-4x code.
-`legacy` and `gnome-3-36` is now the source for gnome-x development.
+The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
 
 ## ! Major Changes !
 - BREAKING styles: [#63](https://github.com/jmmaranan/forge/issues/63)
