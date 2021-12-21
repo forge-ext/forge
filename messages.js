@@ -55,6 +55,10 @@ var prefs_appearance_color_border_editor_mode = _("Editor Mode");
 var prefs_appearance_color_border_changes_apply = _("Apply Changes");
 var prefs_appearance_color_border_size_reset = _("Reset");
 var prefs_appearance_color_border_color_reset = _("Reset");
+var prefs_appearance_layout = _("Layout");
+var prefs_appearance_layout_dnd_default_layout = _("Default Drag-and-Drop Center Layout");
+var prefs_appearance_layout_dnd_default_layout_option_tabbed = _("Tabbed");
+var prefs_appearance_layout_dnd_default_layout_option_stacked = _("Stacked");
 
 var prefs_workspace_settings = _("Workspace");
 var prefs_workspace_settings_title = _("Update Workspace Settings");

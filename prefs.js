@@ -173,6 +173,7 @@ var PrefsWidget = GObject.registerClass(
             // Appearance
             let appearanceSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
             appearanceSettingsBox.addStackRow("Window", Msgs.prefs_appearance_windows, `${Me.path}/icons/prefs/focus-windows-symbolic.svg`);
+            appearanceSettingsBox.addStackRow("Layout", Msgs.prefs_appearance_layout, `${Me.path}/icons/prefs/preferences-desktop-wallpaper-symbolic.svg`);
             appearanceSettingsBox.addStackRow("Color", Msgs.prefs_appearance_color, `${Me.path}/icons/prefs/color-select-symbolic.svg`);
             this.settingsStack.add_named(appearanceSettingsBox, "AppearanceSettings");
 
@@ -191,6 +192,7 @@ var PrefsWidget = GObject.registerClass(
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Appearance"), "Appearance");
             this.settingsPagesStack.add_named(new AppearanceWindowSettingsPanel(this), "Window");
+            this.settingsPagesStack.add_named(new AppearanceLayoutSettingsPanel(this), "Layout");
             this.settingsPagesStack.add_named(new AppearanceColorSettingsPanel(this), "Color");
             this.settingsPagesStack.add_named(new WorkspaceSettingsPanel(this), "Workspace");
             this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
@@ -490,6 +492,42 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
             appearanceWindowFrame.add(gapHiddenWhenSingleRow);
 
             this.append(appearanceWindowFrame);
+        }
+    }
+);
+
+var AppearanceLayoutSettingsPanel = GObject.registerClass(
+    class AppearanceLayoutSettingsPanel extends PanelBox {
+        _init(prefsWidget) {
+            super._init(prefsWidget, `Appearance Layout Settings`);
+            this.settings = prefsWidget.settings;
+
+            let appearanceLayoutFrame = new FrameListBox();
+
+            // default drag-and-drop layout when grouping
+            let defaultDndLayout = new ListBoxRow();
+            let defaultLayoudDndLabel = new Gtk.Label({
+                label: `${Msgs.prefs_appearance_layout_dnd_default_layout}`,
+                use_markup: true,
+                xalign: 0,
+                hexpand: true
+            });
+            let defaultDndLayoutCombo = new Gtk.ComboBoxText();
+            // uppercase IDs break drag-and-drop center area color
+            defaultDndLayoutCombo.append("tabbed", `${Msgs.prefs_appearance_layout_dnd_default_layout_option_tabbed}`);
+            defaultDndLayoutCombo.append("stacked", `${Msgs.prefs_appearance_layout_dnd_default_layout_option_stacked}`);
+            let currentDndLayout = this.settings.get_string("dnd-center-layout");
+            defaultDndLayoutCombo.set_active_id(`${currentDndLayout}`);
+            defaultDndLayoutCombo.connect("changed", () => {
+                let activeId = defaultDndLayoutCombo.get_active_id();
+                this.settings.set_string("dnd-center-layout", activeId);
+            });
+            defaultDndLayout.add(defaultLayoudDndLabel);
+            defaultDndLayout.add(defaultDndLayoutCombo);
+
+            appearanceLayoutFrame.add(defaultDndLayout);
+
+            this.append(appearanceLayoutFrame);
         }
     }
 );
