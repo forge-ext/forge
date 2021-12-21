@@ -104,7 +104,7 @@
             <default>'tabbed'</default>
             <summary>
                 The default center layout when dragging/dropping a window.
-                The other value is `tabbed`.
+                The values are `tabbed` and `stacked`.
             </summary>
         </key>
     </schema>
