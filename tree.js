@@ -1393,12 +1393,6 @@ var Tree = GObject.registerClass(
                     });
                 }
 
-                if (node.isTabbed()) {
-                    decoration.set_size(node.rect.width, params.stackedHeight);
-                    decoration.set_position(node.rect.x, node.rect.y);
-                    if (tiledChildren.length > 0)
-                        decoration.show();
-                }
 
                 tiledChildren.forEach((child, index) => {
                     // A monitor can contain a window or container child
@@ -1552,8 +1546,29 @@ var Tree = GObject.registerClass(
                     nodeY = nodeRect.y + params.stackedHeight;
                     nodeHeight = nodeRect.height - params.stackedHeight;
                     if (node.decoration && child.isWindow()) {
-                        if (!node.decoration.contains(child.tab))
-                            node.decoration.add(child.tab);
+                        let decoration = node.decoration;
+                        let gap = this.extWm.calculateGaps();
+                        let renderRect = this.processGap(node);
+                        let borderWidth = child.actor.border.get_theme_node().get_border_width(St.Side.TOP);
+
+                        // Make adjustments to the gaps
+                        let adjust = 4;
+                        let adjustWidth = renderRect.width + (borderWidth * 2 + gap) / adjust;
+                        let adjustX = renderRect.x - (gap + borderWidth * 2) / (adjust * 2);
+                        let adjustY = renderRect.y - adjust;
+
+                        if (gap === 0) {
+                            adjustY = renderRect.y;
+                            nodeY = renderRect.y + params.stackedHeight + (adjust / 4);
+                        }
+
+                        decoration.set_size(adjustWidth, params.stackedHeight);
+                        decoration.set_position(adjustX, adjustY);
+                        if (params.tiledChildren.length > 0)
+                            decoration.show();
+
+                        if (!decoration.contains(child.tab))
+                            decoration.add(child.tab);
                         child.render();
                     }
                 }
