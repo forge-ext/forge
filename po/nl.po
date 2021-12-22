@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-07 18:04-0500\n"
+"POT-Creation-Date: 2021-12-22 16:28-0500\n"
 "PO-Revision-Date: 2021-12-21 14:46+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -94,19 +94,35 @@ msgstr "Wijzigingen toepassen"
 msgid "Reset"
 msgstr "Standaardwaarden"
 
+#: messages.js:58
+msgid "Layout"
+msgstr ""
+
 #: messages.js:59
+msgid "Default Drag-and-Drop Center Layout"
+msgstr ""
+
+#: messages.js:60
+msgid "Tabbed"
+msgstr ""
+
+#: messages.js:61
+msgid "Stacked"
+msgstr ""
+
+#: messages.js:63
 msgid "Workspace"
 msgstr "Werkblad"
 
-#: messages.js:60
+#: messages.js:64
 msgid "Update Workspace Settings"
 msgstr "Werkbladvoorkeuren bijwerken"
 
-#: messages.js:61
+#: messages.js:65
 msgid "Skip Workspace Tiling"
 msgstr "Niet tegelen op werkblad"
 
-#: messages.js:62
+#: messages.js:66
 msgid ""
 "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
 "accept"
@@ -114,69 +130,69 @@ msgstr ""
 "Geef op op welke werkbladen er niet dient te worden getegeld, bijv. 0,1. "
 "Laat leeg om uit te schakelen. Druk Enter om toe te passen."
 
-#: messages.js:64
+#: messages.js:68
 msgid "Window Shortcuts"
 msgstr "Venstersneltoetsen"
 
-#: messages.js:65
+#: messages.js:69
 msgid "Workspace Shortcuts"
 msgstr "Werkbladsneltoetsen"
 
-#: messages.js:66
+#: messages.js:70
 msgid "Container Shortcuts"
 msgstr "Containersneltoetsen"
 
-#: messages.js:67
+#: messages.js:71
 msgid "Focus Shortcuts"
 msgstr "Focussneltoetsen"
 
-#: messages.js:68
+#: messages.js:72
 msgid "Other Shortcuts"
 msgstr "Overige sneltoetsen"
 
-#: messages.js:69
+#: messages.js:73
 msgid "Modifier Keys"
 msgstr "Actietoetsen"
 
-#: messages.js:70
+#: messages.js:74
 msgid "Drag-Drop Tiling Modifier Key Options"
 msgstr "Opties omtrent actietoets voor tegelen middels slepen-en-neerzetten"
 
-#: messages.js:71
+#: messages.js:75
 msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
 msgstr ""
 "Wijzig de actietoets voor het <b>tegelen</b> van vensters middels slepen-en-"
 "neerzetten"
 
-#: messages.js:72
+#: messages.js:76
 msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
 msgstr "Kies <i>Geen</i> om <u>altijd direct te tegelen</u>"
 
-#: messages.js:73
+#: messages.js:77
 msgid "Tile Modifier"
 msgstr "Tegel-actietoets"
 
-#: messages.js:74
+#: messages.js:78
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: messages.js:75
+#: messages.js:79
 msgid "Super"
 msgstr "Super"
 
-#: messages.js:76
+#: messages.js:80
 msgid "Alt"
 msgstr "Alt"
 
-#: messages.js:77
+#: messages.js:81
 msgid "None"
 msgstr "Geen"
 
-#: messages.js:79
+#: messages.js:83
 msgid "Logger Level"
 msgstr "Logniveau"
 
-#: messages.js:81
+#: messages.js:85
 msgid ""
 "CAUTION: These settings when enabled are buggy or can cause the shell to "
 "crash"
@@ -184,90 +200,90 @@ msgstr ""
 "LET OP: deze voorkeuren kunnen instabiliteit veroorzaken of zelfs de shell "
 "laten crashen!"
 
-#: messages.js:82
+#: messages.js:86
 msgid ""
 "Stacked Tiling Mode (Stack windows on top of each other while still being "
 "tiled)"
 msgstr "Gestapelde tegelmodus (stapel vensters in de tegelmodus)"
 
-#: messages.js:83
+#: messages.js:87
 msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
 msgstr "Tabblad-tegelmodus (groepeer getegelde vensters als tabbladen)"
 
-#: messages.js:85
+#: messages.js:89
 msgid "Update Keybindings"
 msgstr "Sneltoetsen bijwerken"
 
-#: messages.js:86
+#: messages.js:90
 msgid "Syntax"
 msgstr "Syntaxis"
 
-#: messages.js:87
+#: messages.js:91
 msgid "Legend"
 msgstr "Legenda"
 
-#: messages.js:88
+#: messages.js:92
 msgid "Windows key"
 msgstr "Windows-toets"
 
-#: messages.js:89
+#: messages.js:93
 msgid "Control key"
 msgstr "Ctrl-toets"
 
-#: messages.js:90
+#: messages.js:94
 msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 "Wis de tekst om de toets wijzigen. Druk op enter om toe te passen. Klik "
 "erbuiten om te negeren."
 
-#: messages.js:91
+#: messages.js:95
 msgid "Resets"
 msgstr "Herstelt"
 
-#: messages.js:92
+#: messages.js:96
 msgid "to previous value when invalid"
 msgstr "de standaardwaarde indien ongeldig"
 
-#: messages.js:93
+#: messages.js:97
 msgid "Action"
 msgstr "Actie"
 
-#: messages.js:94
+#: messages.js:98
 msgid "Shortcut"
 msgstr "Sneltoets"
 
-#: messages.js:95
+#: messages.js:99
 msgid "Notes"
 msgstr "Opmerkingen"
 
-#: messages.js:97
+#: messages.js:101
 msgid "Forge Panel Settings"
 msgstr "Forge-paneelvoorkeuren"
 
-#: messages.js:98
+#: messages.js:102
 msgid "Tile Mode"
 msgstr "Tegelmodus"
 
-#: messages.js:99
+#: messages.js:103
 msgid "Open Preferences"
 msgstr "Voorkeuren openen"
 
-#: messages.js:104
+#: messages.js:108
 msgid "Tiled Focus Hint and Preview"
 msgstr "Hint bij tegelfocus en voorvertoning"
 
-#: messages.js:106
+#: messages.js:110
 msgid "Floated Focus Hint"
 msgstr "Focushint bij zwevende vensters"
 
-#: messages.js:108
+#: messages.js:112
 msgid "Split Direction Hint"
 msgstr "Hint bij veranderen van richting"
 
-#: messages.js:110
+#: messages.js:114
 msgid "Stacked Focus Hint and Preview"
 msgstr "Hint bij gestapelde tegelfocus en voorvertoning"
 
-#: messages.js:112
+#: messages.js:116
 msgid "Tabbed Focus Hint and Preview"
 msgstr "Hint bij tabblad-tegelfocus en voorvertoning"
