@@ -551,7 +551,8 @@ var Node = GObject.registerClass(
             // Always update the title for the tab
             if (this.tab) {
                 let titleLabel = this.tab.get_child_at_index(1);
-                titleLabel.label = this._getTitle();
+                if (titleLabel)
+                    titleLabel.label = this._getTitle();
             }
         }
     }
