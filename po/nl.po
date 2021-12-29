@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-22 16:28-0500\n"
-"PO-Revision-Date: 2021-12-21 14:46+0100\n"
+"PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -96,19 +96,19 @@ msgstr "Standaardwaarden"
 
 #: messages.js:58
 msgid "Layout"
-msgstr ""
+msgstr "Indeling"
 
 #: messages.js:59
 msgid "Default Drag-and-Drop Center Layout"
-msgstr ""
+msgstr "Standaardindeling: gecentreerd slepen-en-neerzetten"
 
 #: messages.js:60
 msgid "Tabbed"
-msgstr ""
+msgstr "Tabbladen"
 
 #: messages.js:61
 msgid "Stacked"
-msgstr ""
+msgstr "Gestapeld"
 
 #: messages.js:63
 msgid "Workspace"
