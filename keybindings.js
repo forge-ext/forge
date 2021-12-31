@@ -386,6 +386,12 @@ var Keybindings = GObject.registerClass(
                     let action = { name: "PrefsOpen" };
                     this.extWm.command(action);
                 },
+                "window-swap-last-active": ()=> {
+                    let action = {
+                        name: "WindowSwapLastActive"
+                    };
+                    this.extWm.command(action);
+                },
             };
         }
     }

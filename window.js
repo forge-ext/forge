@@ -599,6 +599,20 @@ var WindowManager = GObject.registerClass(
                         }
                     }
                     break;
+                case "WindowSwapLastActive":
+                    if (focusNodeWindow) {
+                        let lastActiveWindow = global.display.get_tab_next(
+                            Meta.TabList.NORMAL,
+                            global.display.get_workspace_manager().get_active_workspace(),
+                            focusNodeWindow.nodeValue,
+                            true
+                        );
+                        Logger.info(`Last Active Window ${lastActiveWindow.title}`);
+                        let lastActiveNodeWindow = this.tree.findNode(lastActiveWindow);
+                        this.tree.swapPairs(lastActiveNodeWindow, focusNodeWindow);
+                        this.renderTree("swap-last-active");
+                    }
+                    break;
                 default:
                     break;
             }

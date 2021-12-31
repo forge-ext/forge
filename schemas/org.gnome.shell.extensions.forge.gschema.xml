@@ -247,5 +247,10 @@
                 Options are Super, Ctrl, Shift, Alt, and None
             </summary>
         </key>
+
+        <key type="as" name="window-swap-last-active">
+            <default><![CDATA[['<Super>Return']]]></default>
+            <summary>Swap the last active window with the current one</summary>
+        </key>
     </schema>
 </schemalist>
