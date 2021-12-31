@@ -24,7 +24,8 @@ The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
 - Tiling support per workspace
 - Update hint color scheme from Preferences
 - Stacked tiling layout
-- Works on GNOME 3.36+ and 40. X11 and Wayland
+- Works on GNOME 3.36+ (feature-freeze) and 40. X11 and Wayland
+- Swap current window with the last active window
 
 ## Experimental Features
 - New Tabbed tiling implementation using St.Widget library - there is NO fallback to the old implementation.
