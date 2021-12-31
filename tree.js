@@ -1206,13 +1206,38 @@ var Tree = GObject.registerClass(
                 let nextIndex = toNode.index;
                 let focusIndex = fromNode.index;
 
+                let transferMode = fromNode.mode;
+                fromNode.mode = toNode.mode;
+                toNode.mode = transferMode;
+
+                let transferRect = fromNode.nodeValue.get_frame_rect();
+                let transferToRect = toNode.nodeValue.get_frame_rect();
+                let transferMakeAbove = fromNode.nodeValue.is_above();
+                let transferToMakeAbove = toNode.nodeValue.is_above();
+
+                let transferPercent = fromNode.percent;
+                fromNode.percent = toNode.percent;
+                toNode.percent = transferPercent;
+
                 parentForTo.childNodes[nextIndex] = fromNode;
                 fromNode.parentNode = parentForTo;
                 parentForFrom.childNodes[focusIndex] = toNode;
                 toNode.parentNode = parentForFrom;
-                let percent = fromNode.percent;
-                fromNode.percent = toNode.percent;
-                toNode.percent = percent;
+
+                this.extWm.move(fromNode.nodeValue, transferToRect);
+                this.extWm.move(toNode.nodeValue, transferRect);
+
+                if (transferToMakeAbove) {
+                    fromNode.nodeValue.make_above();
+                } else {
+                    fromNode.nodeValue.unmake_above();
+                }
+
+                if (transferMakeAbove) {
+                    toNode.nodeValue.make_above();
+                } else {
+                    toNode.nodeValue.unmake_above();
+                }
 
                 if (focus) {
                     // The fromNode is now on the parent-target
@@ -1225,7 +1250,7 @@ var Tree = GObject.registerClass(
         _swappable(node) {
             if (!node) return false;
             if (node.nodeType === NODE_TYPES.WINDOW &&
-                node.mode !== Window.WINDOW_MODES.FLOAT) {
+                !node.nodeValue.minimized) {
                 return true;
             }
             return false;

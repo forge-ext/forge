@@ -605,7 +605,7 @@ var WindowManager = GObject.registerClass(
                             Meta.TabList.NORMAL,
                             global.display.get_workspace_manager().get_active_workspace(),
                             focusNodeWindow.nodeValue,
-                            true
+                            false
                         );
                         Logger.info(`Last Active Window ${lastActiveWindow.title}`);
                         let lastActiveNodeWindow = this.tree.findNode(lastActiveWindow);
