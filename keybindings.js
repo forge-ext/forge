@@ -198,6 +198,17 @@ var Keybindings = GObject.registerClass(
                         this.extWm.command(action);
                     });
                 },
+                "window-toggle-always-float": () => {
+                    let action = {
+                        name: "AlwaysFloatToggle",
+                        mode: "float",
+                        x : "center",
+                        y : "center",
+                        width: 0.65,
+                        height: 0.75
+                    };
+                    this.extWm.command(action);
+                },
                 "window-focus-left": () => {
                     let actions = [
                         {
