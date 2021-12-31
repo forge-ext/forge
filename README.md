@@ -43,6 +43,7 @@ The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
 | Focus right | `<Super> + l` |
 | Focus up | `<Super> + k` |
 | Focus down | `<Super> + j` |
+| Swap current window with last active | `<Super> + Return` |
 | Swap active window left | `<Ctrl> + <Super> + h` |
 | Swap active window right | `<Ctrl> + <Super> + l` |
 | Swap active window up | `<Ctrl> + <Super> + k` |
