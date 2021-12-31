@@ -470,6 +470,7 @@ var WindowManager = GObject.registerClass(
                 case "TilingModeToggle":
                     let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
                     this.ext.settings.set_boolean("tiling-mode-enabled", !tilingModeEnabled);
+                    this.renderTree(`tiling-mode-toggle ${!tilingModeEnabled}`);
                     break;
                 case "GapSize":
                     let gapIncrement = this.ext.settings.get_uint("window-gap-size-increment");
@@ -619,6 +620,7 @@ var WindowManager = GObject.registerClass(
         }
 
         disable() {
+            this._disableDecorations();
             this._removeSignals();
             this.disabled = true;
             Logger.debug(`extension:disable`);
@@ -2212,6 +2214,21 @@ var WindowManager = GObject.registerClass(
         get currentMon() {
             const display = global.display;
             return `mo${display.get_current_monitor()}`;
+        }
+        
+        _disableDecorations() {
+            let allCons = this.tree.getNodeByType(Tree.NODE_TYPES.CON);
+
+            allCons.forEach((con) => {
+                if (con.decoration) {
+                    con.decoration.hide();
+                    if (global.window_group.contains(con.decoration)) {
+                        global.window_group.remove_child(con.decoration);
+                    }
+                    con.decoration.destroy();
+                }
+            })
+            this.renderTree("disable-decorations");
         }
     }
 );
