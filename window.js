@@ -651,7 +651,7 @@ var WindowManager = GObject.registerClass(
 
                         // Wait for it to appear on TabList
                         if (!this._prefsOpenSrcId) {
-                            this._prefsOpenSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+                            this._prefsOpenSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 260, () => {
                                 const newPrefsWindow = Utils.findWindowWith(Msgs.prefs_title);
                                 if (newPrefsWindow) {
                                     newPrefsWindow.get_workspace()
@@ -659,6 +659,7 @@ var WindowManager = GObject.registerClass(
                                     global.display.get_current_time());
                                 }
                                 this._prefsOpenSrcId = 0;
+                                this.moveCenter(newPrefsWindow);
                                 return false;
                             });
                         }
@@ -813,6 +814,24 @@ var WindowManager = GObject.registerClass(
                 rect.height
             );
         };
+
+        moveCenter(metaWindow) {
+            let frameRect = metaWindow.get_frame_rect();
+            const rectRequest = {
+                x: 'center',
+                y: 'center',
+                width: frameRect.width,
+                height: frameRect.height
+            }
+
+            let moveRect = {
+                x: Utils.resolveX(rectRequest, metaWindow),
+                y: Utils.resolveY(rectRequest, metaWindow),
+                width: Utils.resolveWidth(rectRequest, metaWindow),
+                height: Utils.resolveHeight(rectRequest, metaWindow),
+            };
+            this.move(metaWindow, moveRect);
+        }
 
         rectForMonitor(node, targetMonitor) {
             if (!node || node && node.nodeType !== Tree.NODE_TYPES.WINDOW) return null;
