@@ -471,6 +471,8 @@ var WindowManager = GObject.registerClass(
                     this.ext.settings.set_boolean("focus-border-toggle", !focusBorderEnabled);
                     break;
                 case "TilingModeToggle":
+                    // FIXME, not sure if this toggle is still needed from a use case
+                    // perspective, since Extension.disable also should do the same thing.
                     let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
                     this.ext.settings.set_boolean("tiling-mode-enabled", !tilingModeEnabled);
                     if (tilingModeEnabled) {
@@ -524,6 +526,8 @@ var WindowManager = GObject.registerClass(
                     }
                     Logger.debug(`Updated workspace skipped ${skippedArr.toString()}`);
                     this.ext.settings.set_string("workspace-skip-tile", skippedArr.toString());
+                    this.updateBorderLayout();
+                    this.updateDecorationLayout();
                     break;
                 case "LayoutStackedToggle":
                     if (!focusNodeWindow) return;
@@ -2241,6 +2245,8 @@ var WindowManager = GObject.registerClass(
             this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW).forEach(w => {
                 if (!w.prevFloat) {
                     w.mode = WINDOW_MODES.TILE;
+                } else {
+                    // Reset the float marker
                     w.prevFloat = false;
                 }
             });
