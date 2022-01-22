@@ -529,6 +529,8 @@ var Node = GObject.registerClass(
             if (this.decoration)
                 return;
             let decoration = new St.BoxLayout();
+            decoration.type = "forge-deco";
+            decoration.parentNode = this;
             let globalWinGrp = global.window_group;
             decoration.style_class = "window-tabbed-bg";
 

@@ -366,3 +366,12 @@ function translateModifierType(name) {
         return Gdk.ModifierType.SHIFT_MASK;
     }
 }
+
+function _disableDecorations() {
+    let decos = global.window_group.get_children()
+        .filter(a => a.type != null);
+    decos.forEach((d) => {
+        global.window_group.remove_child(d);
+        d.destroy();
+    })
+}

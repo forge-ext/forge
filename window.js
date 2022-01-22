@@ -30,6 +30,7 @@ const St = imports.gi.St;
 // Gnome Shell imports
 const DND = imports.ui.dnd;
 const Overview = imports.ui.main.overview;
+const SessionMode = imports.ui.main.sessionMode;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -157,15 +158,17 @@ var WindowManager = GObject.registerClass(
                 }),
                 display.connect("workareas-changed", (_display) => {
                     if (this.tree.getNodeByType("WINDOW").length > 0) {
-                        // Handler for reload tree conditions
-                        if ((this.workspaceAdded || this.workspaceRemoved) ||
-                            !(this.fromOverview || this.toOverview || !this.ext.sameSession)) {
+                        let reloadTree = this.workspaceAdded || this.workspaceRemoved;
+                        if (reloadTree) {
+                            Logger.debug(`reloading the tree`);
                             this.reloadTree("workareas-changed");
+                            this.workspaceRemoved = false;
+                            this.workspaceAdded = false;
+                        } else {
+                            Logger.debug(`rendering the tree`);
+                            this.renderTree("workareas-changed");
                         }
-                        this.workspaceRemoved = false;
-                        this.workspaceAdded = false;
-                        this.toOverview = false;
-                        this.fromOverview = false;
+                        this.updateBorderLayout();
                     }
                     Logger.debug(`workareas-changed`);
                 }),
@@ -620,7 +623,7 @@ var WindowManager = GObject.registerClass(
         }
 
         disable() {
-            this._disableDecorations();
+            Utils._disableDecorations();
             this._removeSignals();
             this.disabled = true;
             Logger.debug(`extension:disable`);
@@ -930,6 +933,7 @@ var WindowManager = GObject.registerClass(
         reloadTree(from) {
             if (!this._reloadTreeSrcId) {
                 this._reloadTreeSrcId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                    Utils._disableDecorations();
                     let treeWorkspaces = this.tree.nodeWorkpaces;
                     let wsManager = global.workspace_manager;
                     let globalWsNum = wsManager.get_n_workspaces();
@@ -1444,6 +1448,7 @@ var WindowManager = GObject.registerClass(
             });
 
             // Next, handle showing-desktop usually by Super + D
+            if (!activeWsNode) return;
             let allWindows = activeWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
             let allHiddenWindows = allWindows.filter(w => {
                 let metaWindow = w.nodeValue;
@@ -2214,21 +2219,6 @@ var WindowManager = GObject.registerClass(
         get currentMon() {
             const display = global.display;
             return `mo${display.get_current_monitor()}`;
-        }
-        
-        _disableDecorations() {
-            let allCons = this.tree.getNodeByType(Tree.NODE_TYPES.CON);
-
-            allCons.forEach((con) => {
-                if (con.decoration) {
-                    con.decoration.hide();
-                    if (global.window_group.contains(con.decoration)) {
-                        global.window_group.remove_child(con.decoration);
-                    }
-                    con.decoration.destroy();
-                }
-            })
-            this.renderTree("disable-decorations");
         }
     }
 );

@@ -33,6 +33,7 @@ const PanelExt = Me.imports.panel;
 const Settings = Me.imports.settings;
 const Theme = Me.imports.theme;
 const Window = Me.imports.window;
+const Utils = Me.imports.utils;
 
 function init() {
     Logger.info("init");
@@ -42,7 +43,6 @@ function init() {
 
 class Extension {
     constructor() {
-        this.sameSession = false;
         this.indicator = null;
     }
 
