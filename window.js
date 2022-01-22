@@ -473,7 +473,14 @@ var WindowManager = GObject.registerClass(
                 case "TilingModeToggle":
                     let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
                     this.ext.settings.set_boolean("tiling-mode-enabled", !tilingModeEnabled);
+                    if (tilingModeEnabled) {
+                        this.floatAllWindows();
+                    } else {
+                        this.unfloatAllWindows();
+                    }
                     this.renderTree(`tiling-mode-toggle ${!tilingModeEnabled}`);
+                    this.updateBorderLayout();
+                    this.updateDecorationLayout();
                     break;
                 case "GapSize":
                     let gapIncrement = this.ext.settings.get_uint("window-gap-size-increment");
@@ -2219,6 +2226,24 @@ var WindowManager = GObject.registerClass(
         get currentMon() {
             const display = global.display;
             return `mo${display.get_current_monitor()}`;
+        }
+
+        floatAllWindows() {
+            this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW).forEach(w => {
+                if (w.isFloat()) {
+                    w.prevFloat = true;
+                }
+                w.mode = WINDOW_MODES.FLOAT;
+            });
+        }
+
+        unfloatAllWindows() {
+            this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW).forEach(w => {
+                if (!w.prevFloat) {
+                    w.mode = WINDOW_MODES.TILE;
+                    w.prevFloat = false;
+                }
+            });
         }
     }
 );
