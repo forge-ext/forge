@@ -25,6 +25,7 @@
 const Gdk = imports.gi.Gdk;
 const Gio = imports.gi.Gio;
 const Meta = imports.gi.Meta;
+const St = imports.gi.St;
 
 // Gnome-shell imports
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -374,4 +375,8 @@ function _disableDecorations() {
         global.window_group.remove_child(d);
         d.destroy();
     })
+}
+
+function dpi() {
+    return St.ThemeContext.get_for_stage(global.stage).scale_factor;
 }

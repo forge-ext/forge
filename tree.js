@@ -493,7 +493,7 @@ var Node = GObject.registerClass(
             let iconBin = new St.Bin({
                 style_class: "window-tabbed-tab-icon"
             });
-            let icon = app.create_icon_texture(24);
+            let icon = app.create_icon_texture(24 * Utils.dpi());
             iconBin.child = icon;
             let closeButton = new St.Button({
                 style_class: 'window-tabbed-tab-close',
@@ -1299,6 +1299,7 @@ var Tree = GObject.registerClass(
 
         render(from) {
             Logger.debug(`---------------------------------------------`);
+            Logger.debug(`scale-factor ${Utils.dpi()}`);
             Logger.debug(`render tree ${from ? "from " + from : ""}`);
             this.processNode(this);
             this.apply(this);
@@ -1409,7 +1410,7 @@ var Tree = GObject.registerClass(
                 let sizes = this.computeSizes(node, tiledChildren);
 
                 params.sizes = sizes;
-                params.stackedHeight = 35;
+                params.stackedHeight = 35 * Utils.dpi();
                 params.tiledChildren = tiledChildren;
 
                 let decoration = node.decoration;
@@ -1580,7 +1581,7 @@ var Tree = GObject.registerClass(
                         let borderWidth = child.actor.border.get_theme_node().get_border_width(St.Side.TOP);
 
                         // Make adjustments to the gaps
-                        let adjust = 4;
+                        let adjust = 4 * Utils.dpi();
                         let adjustWidth = renderRect.width + (borderWidth * 2 + gap) / adjust;
                         let adjustX = renderRect.x - (gap + borderWidth * 2) / (adjust * 2);
                         let adjustY = renderRect.y - adjust;
