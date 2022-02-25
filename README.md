@@ -2,8 +2,10 @@
 
 Forge is a GNOME Shell extension that provides tiling/window management.
 
-## Extensions
-You can install from: https://extensions.gnome.org/extension/4481/forge/ or download the source and `make install`, restart gnome-shell after or `make dev`.
+## Installation
+- Extensions GNOME site: https://extensions.gnome.org/extension/4481/forge/
+- Download/clone the source and `make install`, restart gnome-shell after or `make dev`.
+- AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
 
 ## ! Development is now towards GNOME-4x !
 The `main` branch contains gnome-4x code.
