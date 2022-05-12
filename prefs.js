@@ -62,14 +62,8 @@ var PrefsWidget = GObject.registerClass(
             });
 
             this.connect("realize", () => {
-                this.leftHeaderBox = new Gtk.Box({
-                    hexpand: true,
-                    visible: true
-                });
-
                 let topLevel = this.get_root();
                 topLevel.set_title(Msgs.prefs_title);
-                topLevel.get_titlebar().pack_start(this.leftHeaderBox);
                 this.topLevel = topLevel;
             });
 
@@ -99,8 +93,7 @@ var PrefsWidget = GObject.registerClass(
 
             backButton.connect("clicked", (_self) => {
                 this.returnToTop();
-                this.leftHeaderBox.remove(this.backButton);
-                this.removeBackButtonAccelerator();
+                this.leftPanelBox.remove(this.backButton);
             });
 
             this.leftPanelBox.append(this.settingsStack);
@@ -121,32 +114,9 @@ var PrefsWidget = GObject.registerClass(
             generalStack.activateFirstRow();
         }
 
-        addBackButtonAccelerator() {
-            /*let backButton = this.backButton;
-            let backButtonShortCut = `<Alt>Left`;
-            let [backButtonKey, backButtonMod] =
-                Gtk.accelerator_parse(backButtonShortCut);
-            backButton.add_accelerator("clicked",
-                this.shortcutController,
-                backButtonKey,
-                backButtonMod,
-                Gtk.AccelFlags.VISIBLE);*/
-        }
-
-        removeBackButtonAccelerator() {
-            /*let backButton = this.backButton;
-            let backButtonShortCut = `<Alt>Left`;
-            let [backButtonKey, backButtonMod] =
-                Gtk.accelerator_parse(backButtonShortCut);
-            backButton.remove_accelerator(this.shortcutController,
-                backButtonKey,
-                backButtonMod);*/
-        }
-
         showBackButton() {
-            if (!this.leftHeaderBox) return;
-            this.leftHeaderBox.append(this.backButton);
-            this.addBackButtonAccelerator();
+            if (!this.leftPanelBox) return;
+            this.leftPanelBox.prepend(this.backButton);
         }
 
         /**
@@ -155,7 +125,6 @@ var PrefsWidget = GObject.registerClass(
          */
         buildSettingsList() {
             const leftBoxWidth = 220;
-            // TODO - translations!
 
             // Main Settings
             let generalSettingsBox = new ScrollStackBox(this, { widthRequest: leftBoxWidth });
