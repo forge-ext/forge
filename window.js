@@ -1448,6 +1448,7 @@ var WindowManager = GObject.registerClass(
         }
 
         updateDecorationLayout() {
+            if (this._freezeRender) return;
             let activeWsNode = this.currentWsNode;
             let allCons = this.tree.getNodeByType(Tree.NODE_TYPES.CON);
 
@@ -1955,6 +1956,7 @@ var WindowManager = GObject.registerClass(
         _handleGrabOpEnd(_display, _metaWindow, grabOp) {
             this.unfreezeRender();
             this.showWindowBorders();
+            this.updateDecorationLayout();
             let focusMetaWindow = this.focusMetaWindow;
             if (!focusMetaWindow) return;
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
