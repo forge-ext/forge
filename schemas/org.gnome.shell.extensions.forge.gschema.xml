@@ -107,6 +107,10 @@
                 The values are `tabbed` and `stacked`.
             </summary>
         </key>
+        <key type="b" name="move-pointer-focus-enabled">
+            <default>true</default>
+            <summary>Move the pointer when focusing or swapping via kbd</summary>
+        </key>
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->

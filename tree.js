@@ -866,10 +866,14 @@ var Tree = GObject.registerClass(
                 metaWindow.focus(global.display.get_current_time());
                 metaWindow.activate(global.display.get_current_time());
 
-                let monitorArea = metaWindow.get_work_area_current_monitor();
-                let ptr = this.extWm.getPointer();
-                if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
+                if (this.settings.get_boolean("move-pointer-focus-enabled")) {
                     this.extWm.movePointerWith(next);
+                } else {
+                    let monitorArea = metaWindow.get_work_area_current_monitor();
+                    let ptr = this.extWm.getPointer();
+                    if (!Utils.rectContainsPoint(monitorArea, [ptr[0], ptr[1]])) {
+                        this.extWm.movePointerWith(next);
+                    }
                 }
             }
             return next;
@@ -938,6 +942,9 @@ var Tree = GObject.registerClass(
                         Logger.trace(`move-window: swap pairs`);
                         parentTarget = next.parentNode;
                         this.swapPairs(node, next);
+                        if (this.ext.settings.get_boolean("move-pointer-focus-enabled")) {
+                            this.extWm.movePointerWith(node);
+                        }
                         // do not reset percent when swapped
                         return true;
                     } else {
