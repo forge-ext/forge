@@ -1222,6 +1222,7 @@ var WindowManager = GObject.registerClass(
                             this.updateDecorationLayout();
 
                             Logger.debug(`window:focus`);
+                            this.renderTree('focus');
                         }),
                         metaWindow.connect("workspace-changed", (metaWindowWs) => {
                             Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
@@ -1253,6 +1254,10 @@ var WindowManager = GObject.registerClass(
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${metaWindow.get_monitor()}`);
+                if (this._freezeRender) {
+                    this.unfreezeRender();
+                    this.renderTree(`from-freeze-window-create`);
+                }
             } 
         }
 
