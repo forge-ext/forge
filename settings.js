@@ -111,8 +111,11 @@ var ConfigManager = GObject.registerClass(
         }
 
         get stylesheetFile() {
-            let stylesheet = this.stylesheetFileName;
-            let profileDirPath = this.profileDirPath;
+            const profileStylesheetPath = `${this.confDir}/stylesheet/forge`;
+            const stylesheet = GLib.build_filenamev([
+                profileStylesheetPath,
+                `stylesheet.css`
+            ]);
 
             Logger.trace(`custom-stylesheet: ${stylesheet}`);
 
@@ -120,9 +123,9 @@ var ConfigManager = GObject.registerClass(
             if (stylesheetFile.query_exists(null)) {
                 return stylesheetFile;
             } else {
-                const profileDir = Gio.File.new_for_path(profileDirPath);
-                if (!profileDir.query_exists(null)) {
-                    if (profileDir.make_directory_with_parents(null)) {
+                const profileStyleDir = Gio.File.new_for_path(profileStylesheetPath);
+                if (!profileStyleDir.query_exists(null)) {
+                    if (profileStyleDir.make_directory_with_parents(null)) {
                         const createdStream = stylesheetFile.create(Gio.FileCreateFlags.NONE, null);
                         const defaultContents = this.loadFileContents(this.defaultStylesheetFile);
                         createdStream.write_all(defaultContents, null);
@@ -131,24 +134,6 @@ var ConfigManager = GObject.registerClass(
             }
 
             return null;
-        }
-
-        get stylesheetFileName() {
-            const profileDirPath = this.profileDirPath;
-            const stylesheet = GLib.build_filenamev([
-                profileDirPath,
-                `stylesheet.css`
-            ]);
-
-            return stylesheet;
-        }
-
-        get profileDirPath() {
-            const stylesheetDir = `${this.confDir}/stylesheet`;
-            // TODO - implement profile for styles and config
-            const profile = "forge";
-            const profileDirPath = `${stylesheetDir}/${profile}`;
-            return profileDirPath;
         }
 
         loadFileContents(configFile) {

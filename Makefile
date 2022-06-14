@@ -83,7 +83,7 @@ dist: build
 
 restart:
 	if bash -c 'xprop -root &> /dev/null'; then \
-		busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting Gnome...")'; \
+		killall -HUP gnome-shell; \
 	else \
 		gnome-session-quit --logout; \
 	fi

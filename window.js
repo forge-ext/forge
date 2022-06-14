@@ -816,6 +816,7 @@ var WindowManager = GObject.registerClass(
         };
 
         moveCenter(metaWindow) {
+            if (!metaWindow) return;
             let frameRect = metaWindow.get_frame_rect();
             const rectRequest = {
                 x: 'center',

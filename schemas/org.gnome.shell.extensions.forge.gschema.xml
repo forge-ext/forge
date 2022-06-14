@@ -225,12 +225,12 @@
         </key>
 
         <key type="as" name="window-toggle-float">
-            <default><![CDATA[['<Super>c']]]></default>
+            <default><![CDATA[['<Super>e']]]></default>
             <summary>Toggle window float</summary>
         </key>
 
         <key type="as" name="window-toggle-always-float">
-            <default><![CDATA[['<Shift><Super>c']]]></default>
+            <default><![CDATA[['<Shift><Super>e']]]></default>
 
         </key>
 
@@ -240,7 +240,7 @@
         </key>
 
         <key type="as" name="prefs-open">
-            <default><![CDATA[['<Super>period']]]></default>
+            <default><![CDATA[['<Super><Shift>z']]]></default>
             <summary>Open the extension's preferences</summary>
         </key>
 
