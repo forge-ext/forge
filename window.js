@@ -1433,7 +1433,9 @@ var WindowManager = GObject.registerClass(
             let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
             if (!focusNodeWindow) return;
 
-            if (focusNodeWindow.grabMode) {
+            let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
+
+            if (focusNodeWindow.grabMode && tilingModeEnabled) {
                 if (focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
                     this._handleResizing(focusNodeWindow);
                 } else if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING) {
