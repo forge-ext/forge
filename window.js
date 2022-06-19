@@ -209,16 +209,19 @@ var WindowManager = GObject.registerClass(
                 globalWsm.connect("showing-desktop-changed", () => {
                     this.hideWindowBorders();
                     this.updateDecorationLayout();
+                    this.trackCurrentMonWs();
                     Logger.debug(`workspace:showing-desktop-changed`);
                 }),
                 globalWsm.connect("workspace-added", (_, wsIndex) => {
                     let added = this.tree.addWorkspace(wsIndex);
                     Logger.debug(`${added ? "workspace-added" : "workspace-add-skipped"} ${wsIndex}`);
+                    this.trackCurrentMonWs();
                     this.workspaceAdded = true;
                 }),
                 globalWsm.connect("workspace-removed", (_, wsIndex) => {
                     let removed = this.tree.removeWorkspace(wsIndex);
                     Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
+                    this.trackCurrentMonWs();
                     this.workspaceRemoved = true;
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
@@ -226,6 +229,7 @@ var WindowManager = GObject.registerClass(
                     this.renderTree("workspace-switched");
                     this.updateBorderLayout();
                     this.updateDecorationLayout();
+                    this.trackCurrentMonWs();
                 }),
             ];
 
@@ -321,6 +325,35 @@ var WindowManager = GObject.registerClass(
             ];
 
             this._signalsBound = true;
+        }
+
+        trackCurrentMonWs() {
+            let metaWindow = this.focusMetaWindow;
+            const currentMonitor = global.display.get_current_monitor();
+            const currentWorkspace = global.display.get_workspace_manager().get_active_workspace_index();
+
+            let currentMonWs = `mo${currentMonitor}ws${currentWorkspace}`;
+            let activeMetaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+
+            Logger.debug(`current-pointer-monitor-workspace: ${currentMonWs}`);
+            Logger.debug(`current-window-monitor-workspace: ${activeMetaMonWs}`);
+
+            let activeMonWsNode = this.tree.findNode(currentMonWs);
+
+            const monWindows = activeMonWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW)
+                .filter((w) => !w.nodeValue.minimized
+                    && (w.isTile())
+                    && w.nodeValue !== metaWindow
+                    // The searched window should be on the same monitor workspace
+                    // This ensures that Forge already updated the workspace node tree:
+                    && currentMonWs === activeMetaMonWs)
+                .map((w) => w.nodeValue);
+            const sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
+
+            Logger.debug(`sorted windows ${sortedWindows.length}`)
+            this.sortedWindows = sortedWindows;
+            this.activeMonWsNode = activeMonWsNode;
+            this.activeMetaMonWs = activeMetaMonWs;
         }
 
         // TODO move this to workspace.js
@@ -958,6 +991,7 @@ var WindowManager = GObject.registerClass(
                     this.renderTree(from);
                     this.updateBorderLayout();
                     this._reloadTreeSrcId = 0;
+                    this.trackCurrentWindows();
                     return false;
                 });
             }
@@ -1446,7 +1480,6 @@ var WindowManager = GObject.registerClass(
                     this.renderTree(from);
                 }
             }
-            focusMetaWindow.raise();
             if (!focusMetaWindow.firstRender)
                 this.updateBorderLayout();
             this.updateDecorationLayout();
@@ -1571,7 +1604,7 @@ var WindowManager = GObject.registerClass(
             }
             if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
 
-            let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
+            let nodeWinAtPointer = this.nodeWinAtPointer;
 
             if (nodeWinAtPointer) {
                 const targetRect = this.tree.processGap(nodeWinAtPointer);
@@ -1857,11 +1890,6 @@ var WindowManager = GObject.registerClass(
 
                 if (!preview) {
                     const previousParent = focusNodeWindow.parentNode;
-                    this.tree.resetSiblingPercent(containerNode);
-                    this.tree.resetSiblingPercent(previousParent);
-                    const numWin = parentNodeTarget.childNodes.filter((c) => c.nodeType === Tree.NODE_TYPES.WINDOW).length;
-                    const numChild = parentNodeTarget.childNodes.length;
-                    const sameNumChild = numWin === numChild;
 
                     if (focusNodeWindow.tab) {
                         let decoParent = focusNodeWindow.tab.get_parent();
@@ -1870,6 +1898,9 @@ var WindowManager = GObject.registerClass(
                     }
 
                     if (childNode.createCon) {
+                        const numWin = parentNodeTarget.childNodes.filter((c) => c.nodeType === Tree.NODE_TYPES.WINDOW).length;
+                        const numChild = parentNodeTarget.childNodes.length;
+                        const sameNumChild = numWin === numChild;
                         // Child Node will still be created
                         Logger.debug(`move-pointer: target parent type ${parentNodeTarget.nodeType} with ${numChild} total, ${numWin} only windows`);
                         if (!isCenter && (isConParent && numWin === 1 && sameNumChild || isMonParent && numWin == 2 && sameNumChild)) {
@@ -1917,6 +1948,8 @@ var WindowManager = GObject.registerClass(
                             }
                         }
                     }
+                    // this.tree.resetSiblingPercent(containerNode);
+                    // this.tree.resetSiblingPercent(previousParent);
                 } else {
                     updatePreview(focusNodeWindow, previewParams);
                 }
@@ -1927,16 +1960,35 @@ var WindowManager = GObject.registerClass(
 
         findNodeWindowAtPointer(focusNodeWindow) {
             let pointerCoord = global.get_pointer();
-            Logger.trace(`find-window-ptr: pointer x:${pointerCoord[0]}, y:${pointerCoord[1]} `);
 
-            let nodeWinAtPointer = this.tree.findNodeWindowAtPointer(
+            let nodeWinAtPointer = this._findNodeWindowAtPointer(
                 focusNodeWindow.nodeValue, pointerCoord);
-            Logger.debug(`find-window-ptr: node window at pointer ${nodeWinAtPointer ? nodeWinAtPointer.nodeValue.get_title() : null}`);
             return nodeWinAtPointer;
+        }
+
+        /**
+         * Finds the NodeWindow under the Meta.Window and the
+         * current pointer coordinates;
+         */
+        _findNodeWindowAtPointer(metaWindow, pointer) {
+            if (!metaWindow) return undefined;
+
+            let sortedWindows = this.sortedWindows;
+
+            for (let i = 0, n = sortedWindows.length; i < n; i++) {
+                const w = sortedWindows[i];
+                const metaRect = w.get_frame_rect();
+                const atPointer = Utils.rectContainsPoint(metaRect, pointer);
+                if (atPointer)
+                    return this.tree.getNodeByValue(w);
+            }
+
+            return null;
         }
 
         _handleGrabOpBegin(_display, _metaWindow, grabOp) {
             this.freezeRender();
+            this.trackCurrentMonWs();
             this.hideWindowBorders();
             let orientation = Utils.orientationFromGrab(grabOp);
             let direction = Utils.directionFromGrab(grabOp);
@@ -1985,6 +2037,7 @@ var WindowManager = GObject.registerClass(
 
             this.updateStackedFocus(focusNodeWindow);
             this.updateTabbedFocus(focusNodeWindow);
+            this.nodeWinAtPointer = null;
 
             Logger.debug(`grab op end ${grabOp}`);
         }
@@ -2162,7 +2215,10 @@ var WindowManager = GObject.registerClass(
 
         _handleMoving(focusNodeWindow) {
             if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
+
             const nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
+            this.nodeWinAtPointer = nodeWinAtPointer;
+
             const hidePreview = () => {
                 if (focusNodeWindow.previewHint) {
                     focusNodeWindow.previewHint.hide();

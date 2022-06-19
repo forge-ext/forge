@@ -749,44 +749,6 @@ var Tree = GObject.registerClass(
             return searchNode;
         }
 
-        /**
-         * Finds the NodeWindow under the Meta.Window and the
-         * current pointer coordinates;
-         */
-        findNodeWindowAtPointer(metaWindow, pointer) {
-            if (!metaWindow) return undefined;
-            const currentMonitor = global.display.get_current_monitor();
-            const currentWorkspace = global.display.get_workspace_manager().get_active_workspace_index();
-            let pointerMonWs = `mo${currentMonitor}ws${currentWorkspace}`;
-            let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-            let monWsNode = this.findNode(pointerMonWs);
-
-            Logger.debug(`current-pointer-monitor-workspace: ${pointerMonWs}`);
-            Logger.debug(`current-window-monitor-workspace: ${metaMonWs}`);
-
-            const monWindows = monWsNode.getNodeByType(NODE_TYPES.WINDOW)
-                .filter((w) => !w.nodeValue.minimized
-                    && (w.isTile())
-                    && w.nodeValue !== metaWindow
-                    // The searched window should be on the same monitor workspace
-                    // This ensures that Forge already updated the workspace node tree:
-                    && pointerMonWs === metaMonWs)
-                .map((w) => w.nodeValue);
-            const sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
-
-            Logger.debug(`sorted windows ${sortedWindows.length}`)
-
-            for (let w of sortedWindows) {
-                const nodeWin = monWsNode.getNodeByValue(w);
-                const metaRect = nodeWin.rect;
-                const atPointer = Utils.rectContainsPoint(metaRect, pointer);
-                Logger.debug(`At pointer ${atPointer}`);
-                if (atPointer)
-                    return nodeWin;
-            }
-
-            return null;
-        }
 
         /**
          * Focuses on the next node, if metaWindow and tiled, raise it
