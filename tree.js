@@ -942,7 +942,7 @@ var Tree = GObject.registerClass(
                         Logger.trace(`move-window: swap pairs`);
                         parentTarget = next.parentNode;
                         this.swapPairs(node, next);
-                        if (this.ext.settings.get_boolean("move-pointer-focus-enabled")) {
+                        if (this.settings.get_boolean("move-pointer-focus-enabled")) {
                             this.extWm.movePointerWith(node);
                         }
                         // do not reset percent when swapped
