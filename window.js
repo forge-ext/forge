@@ -1890,6 +1890,8 @@ var WindowManager = GObject.registerClass(
 
                 if (!preview) {
                     const previousParent = focusNodeWindow.parentNode;
+                    this.tree.resetSiblingPercent(containerNode);
+                    this.tree.resetSiblingPercent(previousParent);
 
                     if (focusNodeWindow.tab) {
                         let decoParent = focusNodeWindow.tab.get_parent();
@@ -1948,8 +1950,6 @@ var WindowManager = GObject.registerClass(
                             }
                         }
                     }
-                    // this.tree.resetSiblingPercent(containerNode);
-                    // this.tree.resetSiblingPercent(previousParent);
                 } else {
                     updatePreview(focusNodeWindow, previewParams);
                 }
