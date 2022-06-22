@@ -187,7 +187,14 @@ var WindowManager = GObject.registerClass(
                         }
                         this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
                     }
+                    let wasFrozen = this._freezeRender;
+                    if (wasFrozen) {
+                        this.unfreezeRender();
+                    }
                     this.renderTree("minimize");
+                    if (wasFrozen) {
+                        this.freezeRender();
+                    }
                     Logger.debug(`minimized ${this.focusMetaWindow.title}`);
                 }),
                 shellWm.connect("unminimize", () => {
@@ -195,7 +202,14 @@ var WindowManager = GObject.registerClass(
                     if (focusNodeWindow) {
                         this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
                     }
-                    this.renderTree("unminimize");
+                    let wasFrozen = this._freezeRender;
+                    if (wasFrozen) {
+                        this.unfreezeRender();
+                    }
+                    this.renderTree("minimize");
+                    if (wasFrozen) {
+                        this.freezeRender();
+                    }
                     Logger.debug(`unminimize`);
                 }),
                 shellWm.connect("show-tile-preview", (_, _metaWindow, _rect, _num) => {
@@ -226,10 +240,10 @@ var WindowManager = GObject.registerClass(
                 }),
                 globalWsm.connect("workspace-switched", (_, _wsIndex) => {
                     this.ext.indicator.updateTileIcon();
-                    this.renderTree("workspace-switched");
                     this.updateBorderLayout();
                     this.updateDecorationLayout();
                     this.trackCurrentMonWs();
+                    this.renderTree("workspace-switched");
                 }),
             ];
 
@@ -1989,7 +2003,6 @@ var WindowManager = GObject.registerClass(
         _handleGrabOpBegin(_display, _metaWindow, grabOp) {
             this.freezeRender();
             this.trackCurrentMonWs();
-            this.hideWindowBorders();
             let orientation = Utils.orientationFromGrab(grabOp);
             let direction = Utils.directionFromGrab(grabOp);
             let focusMetaWindow = this.focusMetaWindow;
@@ -2002,8 +2015,9 @@ var WindowManager = GObject.registerClass(
                 if (!focusNodeWindow) return;
 
                 focusNodeWindow.grabMode = Utils.grabMode(grabOp);
-                if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING && focusNodeWindow.mode === WINDOW_MODES.TILE)
+                if (focusNodeWindow.grabMode === GRAB_TYPES.MOVING && focusNodeWindow.mode === WINDOW_MODES.TILE) {
                     focusNodeWindow.mode = WINDOW_MODES.GRAB_TILE;
+                }
 
                 focusNodeWindow.initGrabOp = grabOp;
                 focusNodeWindow.initRect = Utils.removeGapOnRect(frameRect, gaps);
