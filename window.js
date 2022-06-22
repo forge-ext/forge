@@ -343,6 +343,7 @@ var WindowManager = GObject.registerClass(
 
         trackCurrentMonWs() {
             let metaWindow = this.focusMetaWindow;
+            if (!metaWindow) return;
             const currentMonitor = global.display.get_current_monitor();
             const currentWorkspace = global.display.get_workspace_manager().get_active_workspace_index();
 
