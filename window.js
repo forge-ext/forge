@@ -190,9 +190,8 @@ var WindowManager = GObject.registerClass(
                     let wasFrozen = this._freezeRender;
                     if (wasFrozen) {
                         this.unfreezeRender();
-                    }
-                    this.renderTree("minimize");
-                    if (wasFrozen) {
+                        this.renderTree("minimize");
+                        this.updateDecorationLayout();
                         this.freezeRender();
                     }
                     Logger.debug(`minimized ${this.focusMetaWindow.title}`);
@@ -205,9 +204,8 @@ var WindowManager = GObject.registerClass(
                     let wasFrozen = this._freezeRender;
                     if (wasFrozen) {
                         this.unfreezeRender();
-                    }
-                    this.renderTree("minimize");
-                    if (wasFrozen) {
+                        this.renderTree("minimize");
+                        this.updateDecorationLayout()
                         this.freezeRender();
                     }
                     Logger.debug(`unminimize`);
@@ -644,25 +642,11 @@ var WindowManager = GObject.registerClass(
                     if (existWindow && existWindow.get_workspace()) {
                         existWindow.get_workspace().activate_with_focus(existWindow,
                             global.display.get_current_time());
+                        this.moveCenter(existWindow);
                         Logger.warn("prefs is already open");
                     } else {
                         Logger.debug("opening prefs");
                         ExtensionUtils.openPrefs();
-
-                        // Wait for it to appear on TabList
-                        if (!this._prefsOpenSrcId) {
-                            this._prefsOpenSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 260, () => {
-                                const newPrefsWindow = Utils.findWindowWith(Msgs.prefs_title);
-                                if (newPrefsWindow) {
-                                    newPrefsWindow.get_workspace()
-                                        .activate_with_focus(newPrefsWindow,
-                                    global.display.get_current_time());
-                                }
-                                this._prefsOpenSrcId = 0;
-                                this.moveCenter(newPrefsWindow);
-                                return false;
-                            });
-                        }
                     }
                     break;
                 case "WindowSwapLastActive":
@@ -1321,6 +1305,8 @@ var WindowManager = GObject.registerClass(
                     Logger.debug(`track-window:create-border`);
                 }
 
+                this.openCenterPrefs(metaWindow);
+
                 Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${metaWindow.get_monitor()}`);
@@ -1329,6 +1315,17 @@ var WindowManager = GObject.registerClass(
                     this.renderTree(`from-freeze-window-create`);
                 }
             } 
+        }
+
+        openCenterPrefs(metaWindow) {
+            if (metaWindow) {
+                if (metaWindow.get_title() === Msgs.prefs_title) {
+                    metaWindow.
+                        get_workspace()
+                        .activate_with_focus(metaWindow, global.display.get_current_time());
+                    this.moveCenter(metaWindow);
+                }
+            }
         }
 
         updateStackedFocus(focusNodeWindow) {
