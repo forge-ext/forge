@@ -461,6 +461,7 @@ var WindowManager = GObject.registerClass(
                         this.renderTree("move-window");
                     }
                     this.updateBorderLayout();
+                    this.updateDecorationLayout();
                     break;
                 case "Focus":
                     this.freezeRender();
@@ -772,7 +773,11 @@ var WindowManager = GObject.registerClass(
                 if (nodeWindow.parentNode.isTabbed()) {
                     if (nodeWindow.tab) {
                         // TODO: review the cleanup of the tab:St.Widget variable
-                        nodeWindow.tab.remove_style_class_name("window-tabbed-tab-active");
+                        try {
+                            nodeWindow.tab.remove_style_class_name("window-tabbed-tab-active");
+                        } catch (e) {
+                            Logger.warn(e);
+                        }
                     }
                 }
             });
