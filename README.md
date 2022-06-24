@@ -7,16 +7,13 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Download/clone the source and `make install`, restart gnome-shell after or `make dev`.
 - AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
 
-## ! Development is now towards GNOME-4x !
-The `main` branch contains gnome-4x code.
-The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
+## Development
 
-## ! Major Changes !
-- BREAKING styles: [#63](https://github.com/jmmaranan/forge/issues/63)
-  - New Tabbed Tiling implementation via St.Widgets.
-  - New style declarations will reset the custom stylesheets for users when updating. Old styles will be backed up as $HOME/.config/forge/stylesheet/forge/stylesheet.css.bak. User has to re-apply colors for now via preferences.
+- The `main` branch contains gnome-4x code.
+- The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
 
 ## Features
+
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm
 - Vim-like keybindings for navigation/swapping windows/moving windows in the containers
 - Drag and drop tiling
@@ -28,9 +25,6 @@ The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
 - Stacked tiling layout
 - Works on GNOME 3.36+ (feature-freeze) and 40. X11 and Wayland
 - Swap current window with the last active window
-
-## Experimental Features
-- New Tabbed tiling implementation using St.Widget library - there is NO fallback to the old implementation.
 
 ![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
 
@@ -65,7 +59,7 @@ The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
 | Toggle tabbed layout | `<Shift> + <Super> + t` |
 | Activate tile drag-drop | `Start dragging - Mod key configuration in prefs` |
 
-For any conflicts, the user has to manually configure those for now from the
+For any shortcut conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
 
 ## GNOME Defaults
@@ -81,8 +75,6 @@ User is encouraged to bind the following:
 - Please be nice, friendly and welcoming on discussions/tickets.
 - Run `make dev` for local development.
 - See existing [issues](https://github.com/jmmaranan/forge/issues) or file a new ticket with title `bug: short description` if it doesn't exist.
-- See [planned features/milestones](https://github.com/jmmaranan/forge/milestones) or file a new feature request with title `feat: short description` if it doesn't exist.
-- Support GNOME 3.36+ to 40. New features/fixes to land on `main` branch _which_ contains gnome-shell running Ubuntu LTS (3.36.x). `gnome-40` will be patched/rebased from `main` unless gnome 40 specific.
 
 ## Credits
 
