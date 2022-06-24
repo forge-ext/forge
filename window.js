@@ -187,13 +187,13 @@ var WindowManager = GObject.registerClass(
                         }
                         this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
                     }
-                    let wasFrozen = this._freezeRender;
-                    if (wasFrozen) {
-                        this.unfreezeRender();
-                        this.renderTree("minimize");
-                        this.updateDecorationLayout();
-                        this.freezeRender();
-                    }
+
+                    let prevFrozen = this._freezeRender;
+                    if (prevFrozen) this.unfreezeRender();
+                    this.updateDecorationLayout();
+                    this.renderTree("minimize");
+                    if (prevFrozen) this.freezeRender();
+
                     Logger.debug(`minimized ${this.focusMetaWindow.title}`);
                 }),
                 shellWm.connect("unminimize", () => {
@@ -201,13 +201,13 @@ var WindowManager = GObject.registerClass(
                     if (focusNodeWindow) {
                         this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
                     }
-                    let wasFrozen = this._freezeRender;
-                    if (wasFrozen) {
-                        this.unfreezeRender();
-                        this.renderTree("minimize");
-                        this.updateDecorationLayout()
-                        this.freezeRender();
-                    }
+
+                    let prevFrozen = this._freezeRender;
+                    if (prevFrozen) this.unfreezeRender();
+                    this.updateDecorationLayout();
+                    this.renderTree("unminimize");
+                    if (prevFrozen) this.freezeRender();
+
                     Logger.debug(`unminimize`);
                 }),
                 shellWm.connect("show-tile-preview", (_, _metaWindow, _rect, _num) => {
@@ -1538,7 +1538,7 @@ var WindowManager = GObject.registerClass(
             let allHiddenWindows = allWindows.filter(w => {
                 let metaWindow = w.nodeValue;
                 Logger.trace(`deco-update: window shown ${metaWindow.showing_on_its_workspace()}`);
-                return !metaWindow.showing_on_its_workspace();
+                return !metaWindow.showing_on_its_workspace() || metaWindow.minimized;
             });
 
             Logger.debug(`deco-update: all ${allWindows.length} hidden ${allHiddenWindows.length}`);
