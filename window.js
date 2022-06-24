@@ -395,6 +395,7 @@ var WindowManager = GObject.registerClass(
             // Do not check if the node window is null, some of the commands do not need the focus window
             let focusNodeWindow = this.findNodeWindow(focusWindow);
             let currentLayout;
+            let wasFrozen;
 
             switch(action.name) {
                 case "FloatToggle":
@@ -461,9 +462,15 @@ var WindowManager = GObject.registerClass(
                         this.renderTree("move-window");
                     }
                     this.updateBorderLayout();
+                    wasFrozen = this._freezeRender;
+                    if (wasFrozen) this.unfreezeRender();
                     this.updateDecorationLayout();
+                    if (wasFrozen) this.freezeRender();
+
                     break;
                 case "Focus":
+                    this.unfreezeRender();
+                    this.updateDecorationLayout();
                     this.freezeRender();
                     let focusDirection = Utils.resolveDirection(action.direction);
                     focusNodeWindow = this.tree.focus(focusNodeWindow, focusDirection);
@@ -475,8 +482,10 @@ var WindowManager = GObject.registerClass(
                         if (this.eventQueue.length <= 0) {
                             Logger.info("focus queue is last, unfreezing render");
                             this.unfreezeRender();
+                            this.updateDecorationLayout();
                             this.updateTabbedFocus(focusNodeWindow);
                             this.updateStackedFocus(focusNodeWindow);
+                            this.renderTree("focus-queue");
                         }
                     }})
                     break;
@@ -488,7 +497,11 @@ var WindowManager = GObject.registerClass(
                     focusNodeWindow.nodeValue.raise();
                     this.updateTabbedFocus(focusNodeWindow);
                     this.updateStackedFocus(focusNodeWindow);
+                    wasFrozen = this._freezeRender;
+                    if (wasFrozen) this.unfreezeRender();
+                    this.updateDecorationLayout();
                     this.renderTree("swap");
+                    if (wasFrozen) this.freezeRender();
                     break;
                 case "Split":
                     if (!focusNodeWindow) return;
@@ -1279,7 +1292,11 @@ var WindowManager = GObject.registerClass(
                                 }
                                 this.tree.attachNode = focusNodeWindow;
                             }
+                            let wasFrozen = this._freezeRender;
+                            if (wasFrozen) this.unfreezeRender();
+                            this.renderTree("focus");
                             this.updateDecorationLayout();
+                            if (wasFrozen) this.freezeRender();
 
                             Logger.debug(`window:focus`);
                         }),
