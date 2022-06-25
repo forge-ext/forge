@@ -1183,10 +1183,8 @@ var Tree = GObject.registerClass(
 
                 let transferRect = fromNode.nodeValue.get_frame_rect();
                 let transferToRect = toNode.nodeValue.get_frame_rect();
-                let transferMakeAbove = fromNode.nodeValue.is_above();
-                let transferToMakeAbove = toNode.nodeValue.is_above();
-
                 let transferPercent = fromNode.percent;
+
                 fromNode.percent = toNode.percent;
                 toNode.percent = transferPercent;
 
@@ -1197,18 +1195,6 @@ var Tree = GObject.registerClass(
 
                 this.extWm.move(fromNode.nodeValue, transferToRect);
                 this.extWm.move(toNode.nodeValue, transferRect);
-
-                if (transferToMakeAbove) {
-                    fromNode.nodeValue.make_above();
-                } else {
-                    fromNode.nodeValue.unmake_above();
-                }
-
-                if (transferMakeAbove) {
-                    toNode.nodeValue.make_above();
-                } else {
-                    toNode.nodeValue.unmake_above();
-                }
 
                 if (focus) {
                     // The fromNode is now on the parent-target
@@ -1418,10 +1404,6 @@ var Tree = GObject.registerClass(
                     metaWindow.make_above();
                     node.mode = Window.WINDOW_MODES.FLOAT;
                 } else {
-                    // When it is a front tab window,
-                    // do not remove the make_above attribute
-                    if (node.backgroundTab)
-                        metaWindow.unmake_above();
                     node.mode = Window.WINDOW_MODES.TILE;
                 }
             }
@@ -1633,7 +1615,8 @@ var Tree = GObject.registerClass(
             let attributes = "";
 
             if (node.isWindow()) {
-                attributes += `title:'${node.nodeValue.title}'${node.nodeValue === this.extWm.focusMetaWindow ? " FOCUS" : ""}`
+                let metaWindow = node.nodeValue;
+                attributes += `class:'${metaWindow.get_wm_class()}',title:'${metaWindow.title}'${metaWindow === this.extWm.focusMetaWindow ? " FOCUS" : ""}`
             } else if (node.isCon() || node.isMonitor() || node.isWorkspace()) {
                 attributes += `${node.nodeValue}`;
                 if (node.isCon() || node.isMonitor()) {

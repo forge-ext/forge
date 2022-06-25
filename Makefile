@@ -27,6 +27,7 @@ build: clean metadata.json schemas compilemsgs
 	cp metadata.json temp
 	cp -r icons temp
 	cp -r schemas temp
+	cp -r config temp
 	cp *.js temp
 	cp *.css temp
 	cp LICENSE temp
