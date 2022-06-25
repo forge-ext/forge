@@ -1,0 +1,17 @@
+{
+    "overrides": [
+        { "wmClass": "","wmTitle": "Forge Settings", "mode": "float" },
+        { "wmClass": "jetbrains-toolbox" , "mode" : "float"},
+        { "wmClass": "jetbrains-goland", "wmTitle": "splash", "mode": "float" },
+        { "wmClass": "jetbrains-webstorm", "wmTitle": "splash", "mode": "float" },
+        { "wmClass": "jetbrains-webstorm", "wmTitle": "splash", "mode": "float" },
+        { "wmClass": "jetbrains-webstorm", "wmTitle": "splash", "mode": "float"},
+        { "wmClass": "Com.github.amezin.ddterm" , "mode": "float" },
+        { "wmClass": "Com.github.donadigo.eddy" , "mode": "float" },
+        { "wmClass": "Conky" , "mode": "float" },
+        { "wmClass": "Gnome-initial-setup" , "mode" : "float"},
+        { "wmClass": "Gnome-terminal", "wmTitle": "Preferences – General" , "mode" : "float"},
+        { "wmClass": "Guake" , "mode" : "float"},
+        { "wmClass": "zoom", "mode": "float" }
+    ]
+}

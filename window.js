@@ -63,6 +63,7 @@ var WindowManager = GObject.registerClass(
         _init(ext) {
             super._init();
             this.ext = ext;
+            this.windowProps = this.ext.configMgr.windowProps;
             this._kbd = this.ext.keybindings;
             this._tree = new Tree.Tree(this);
             this.eventQueue = new Tree.Queue();
@@ -73,7 +74,7 @@ var WindowManager = GObject.registerClass(
         toggleFloatingMode(action, metaWindow) {
             let nodeWindow = this.findNodeWindow(metaWindow);
 
-            if (this.isFloatingExempt(nodeWindow)) {
+            if (this.isFloatingExempt(metaWindow)) {
                 Logger.warn(`float-toggle: do not tile a floating exception`);
                 return;
             } 
@@ -96,13 +97,11 @@ var WindowManager = GObject.registerClass(
                     });
                 } else {
                     if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
-                        nodeWindow.nodeValue.unmake_above();
                         nodeWindow.mode = WINDOW_MODES.TILE;
                     }
                 }
             } else {
                 if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
-                    nodeWindow.nodeValue.unmake_above();
                     nodeWindow.mode = WINDOW_MODES.TILE;
                 }
             }
@@ -760,7 +759,6 @@ var WindowManager = GObject.registerClass(
             if (!workspaceWindows) return;
             workspaceWindows.forEach((w) => {
                 w.mode = WINDOW_MODES.FLOAT;
-                w.nodeValue.make_above();
             });
         }
 
@@ -769,7 +767,6 @@ var WindowManager = GObject.registerClass(
             if (!workspaceWindows) return;
             workspaceWindows.forEach((w) => {
                 w.mode = WINDOW_MODES.TILE;
-                w.nodeValue.unmake_above();
             });
         }
 
@@ -1195,6 +1192,7 @@ var WindowManager = GObject.registerClass(
         trackWindow(_display, metaWindow) {
             // Make window types configurable
             if (this._validWindow(metaWindow)) {
+                let nodeWindow;
                 let existNodeWindow = this.tree.findNode(metaWindow);
                 if (!existNodeWindow) {
                     let parentFocusNode = this.tree.attachNode;
@@ -1226,7 +1224,6 @@ var WindowManager = GObject.registerClass(
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`);
                     Logger.warn(`track-window: allow-resize ${metaWindow.allows_resize()}`);
 
-                    let nodeWindow;
 
                     // Floated Windows
                     if (metaWindow.get_window_type() === Meta.WindowType.DIALOG ||
@@ -1240,7 +1237,6 @@ var WindowManager = GObject.registerClass(
                             Tree.NODE_TYPES.WINDOW,
                             metaWindow,
                             WINDOW_MODES.FLOAT);
-                        metaWindow.make_above();
                     } else {
                         // Tiled Windows
                         nodeWindow = this.tree.createNode(
@@ -1328,8 +1324,10 @@ var WindowManager = GObject.registerClass(
                 }
 
                 this.openCenterPrefs(metaWindow);
+                if (nodeWindow != undefined && nodeWindow.isFloat()) {
+                    this.moveCenter(metaWindow);
+                }
 
-                Logger.debug(`window tracked: ${metaWindow.get_wm_class()}`);
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${metaWindow.get_monitor()}`);
                 if (this._freezeRender) {
@@ -1492,15 +1490,11 @@ var WindowManager = GObject.registerClass(
                             // Ensure that the workspace tiling is honored
                             if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
                                 if (!global.display.get_grab_op() === Meta.GrabOp.WINDOW_BASE)
-                                    metaWindow.unmake_above();
                                 this.updateTabbedFocus(existNodeWindow);
                                 this.updateStackedFocus(existNodeWindow);
                             } else {
                                 if (this.floatingWindow(existNodeWindow)) {
-                                    existNodeWindow.nodeValue.make_above();
                                     existNodeWindow.nodeValue.raise();
-                                } else {
-                                    existNodeWindow.nodeValue.unmake_above();
                                 }
                             }
                         }
@@ -2303,15 +2297,39 @@ var WindowManager = GObject.registerClass(
             if (!windowTitle || windowTitle === "" || windowTitle.length === 0) return false;
 
             if (!this.knownFloats) {
-                this.knownFloats = [
-                    {
-                        title: "Forge Settings"
-                    }
-                ]
+                this.knownFloats = this.windowProps.overrides
+                    .filter((wprop) => wprop.mode === "float");
             }
 
             const knownFloats = this.knownFloats;
-            return knownFloats.filter((kf) => windowTitle.includes(kf.title)).length > 0;
+            return knownFloats.filter((kf) => { 
+                Logger.trace(`meta title ${windowTitle}, class ${metaWindow.get_wm_class()}; known title ${kf.wmTitle}, class ${kf.wmClass}`);
+                let matchTitle = false;
+                let matchClass = false;
+
+                if (kf.wmTitle) {
+                    if (kf.wmTitle === " ") {
+                        matchTitle = kf.wmTitle === windowTitle;
+                    } else {
+                        let titles = kf.wmTitle.split(",");
+                        matchTitle = titles.filter(t => windowTitle.includes(t)).length > 0;
+                    }
+                }
+                if (kf.wmClass) {
+                    matchClass = kf.wmClass.includes(metaWindow.get_wm_class());
+                }
+
+                if (kf.wmClass && kf.wmTitle) {
+                    return matchTitle && matchClass;
+                } else {
+                    if (kf.wmTitle) {
+                        return matchTitle;
+                    } else {
+                        return matchClass;
+                    }
+                }
+
+            }).length > 0;
         }
 
         _getDragDropCenterPreviewStyle() {

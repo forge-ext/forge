@@ -111,23 +111,50 @@ var ConfigManager = GObject.registerClass(
         }
 
         get stylesheetFile() {
-            const profileStylesheetPath = `${this.confDir}/stylesheet/forge`;
-            const stylesheet = GLib.build_filenamev([
-                profileStylesheetPath,
-                `stylesheet.css`
+            const profileSettingPath = `${this.confDir}/stylesheet/forge`;
+            const settingFile = "stylesheet.css";
+            const defaultSettingFile = this.defaultStylesheetFile;
+            return this.loadFile(profileSettingPath, settingFile, defaultSettingFile);
+        }
+
+        get defaultWindowConfigFile() {
+            const defaultWindowConfig = GLib.build_filenamev([
+                `${Me.dir.get_path()}`,
+                `config`,
+                `windows.json`
             ]);
 
-            Logger.trace(`custom-stylesheet: ${stylesheet}`);
+            Logger.trace(`default-window-config: ${defaultWindowConfig}`);
+            const defaultWindowConfigFile = Gio.File.new_for_path(defaultWindowConfig);
 
-            const stylesheetFile = Gio.File.new_for_path(stylesheet);
-            if (stylesheetFile.query_exists(null)) {
-                return stylesheetFile;
+            if (defaultWindowConfigFile.query_exists(null)) {
+                return defaultWindowConfigFile;
+            }
+
+            return null;
+        }
+
+        get windowConfigFile() {
+            const profileSettingPath = `${this.confDir}/config`;
+            const settingFile = "windows.json";
+            const defaultSettingFile = this.defaultWindowConfigFile;
+            return this.loadFile(profileSettingPath, settingFile, defaultSettingFile);
+        }
+
+        loadFile(path, file, defaultFile) {
+            const customSetting = GLib.build_filenamev([path, file]);
+            Logger.trace(`custom-setting-file: ${customSetting}`);
+
+            const customSettingFile = Gio.File.new_for_path(customSetting);
+            if (customSettingFile.query_exists(null)) {
+                return customSettingFile;
             } else {
-                const profileStyleDir = Gio.File.new_for_path(profileStylesheetPath);
-                if (!profileStyleDir.query_exists(null)) {
-                    if (profileStyleDir.make_directory_with_parents(null)) {
-                        const createdStream = stylesheetFile.create(Gio.FileCreateFlags.NONE, null);
-                        const defaultContents = this.loadFileContents(this.defaultStylesheetFile);
+                const profileCustomSettingDir = Gio.File.new_for_path(path);
+                if (!profileCustomSettingDir.query_exists(null)) {
+                    if (profileCustomSettingDir.make_directory_with_parents(null)) {
+                        const createdStream = customSettingFile.create(Gio.FileCreateFlags.NONE, null);
+                        const defaultContents = this.loadFileContents(defaultFile);
+                        Logger.trace(defaultContents);
                         createdStream.write_all(defaultContents, null);
                     }
                 }
@@ -142,6 +169,22 @@ var ConfigManager = GObject.registerClass(
                 const stringContents = imports.byteArray.toString(contents);
                 return stringContents;
             }
+        }
+
+        get windowProps() {
+            let windowConfigFile = this.windowConfigFile;
+            let windowProps = null;
+            if (!windowConfigFile || !production) {
+                windowConfigFile = this.defaultWindowConfigFile;
+            }
+
+            let [success, contents] = windowConfigFile.load_contents(null);
+            if (success) {
+                const windowConfigContents = imports.byteArray.toString(contents);
+                Logger.trace(`${windowConfigContents}`);
+                windowProps = JSON.parse(windowConfigContents);
+            }
+            return windowProps;
         }
     }
 );
