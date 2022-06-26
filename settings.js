@@ -186,5 +186,31 @@ var ConfigManager = GObject.registerClass(
             }
             return windowProps;
         }
+
+        set windowProps(props) {
+            let windowConfigFile = this.windowConfigFile;
+            if (!windowConfigFile || !production) {
+                windowConfigFile = this.defaultWindowConfigFile;
+            }
+
+            let windowConfigContents = JSON.stringify(props, null, 4);
+
+            const PERMISSIONS_MODE = 0o744;
+
+            if (
+                GLib.mkdir_with_parents(
+                    windowConfigFile.get_parent().get_path(),
+                    PERMISSIONS_MODE
+                ) === 0
+            ) {
+                let [_, _tag] = windowConfigFile.replace_contents(
+                    windowConfigContents,
+                    null,
+                    false,
+                    Gio.FileCreateFlags.REPLACE_DESTINATION,
+                    null
+                );
+            }
+        }
     }
 );
