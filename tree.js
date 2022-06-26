@@ -1400,8 +1400,6 @@ var Tree = GObject.registerClass(
                 let workspaceTiled = this.extWm.isActiveWindowWorkspaceTiled(metaWindow);
 
                 if (!workspaceTiled) {
-                    // Floated windows should always be on top
-                    metaWindow.make_above();
                     node.mode = Window.WINDOW_MODES.FLOAT;
                 } else {
                     node.mode = Window.WINDOW_MODES.TILE;
