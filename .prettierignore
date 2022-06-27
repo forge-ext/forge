@@ -13,6 +13,6 @@ gschemas.compiled
 *.zip
 *.exe
 *.mo
-po/forge.pot
+po
 .vscode
 node_modules

@@ -1,10 +1,10 @@
 {
-    "name": "Forge",
-    "description": "Tiling and window manager for GNOME\n\nCHANGES\n\n - Floating Window Exceptions\n\n Please report bugs/issues on https://github.com/jmmaranan/forge/issues",
-    "gettext-domain": "forge",
-    "uuid": "forge@jmmaranan.com",
-    "settings-schema": "org.gnome.shell.extensions.forge",
-    "shell-version": ["40", "41", "42"],
-    "version": "1.1-alpha",
-    "url": "https://github.com/jmmaranan/forge"
+  "name": "Forge",
+  "description": "Tiling and window manager for GNOME\n\nCHANGES\n\n - Floating Window Exceptions\n\n Please report bugs/issues on https://github.com/jmmaranan/forge/issues",
+  "gettext-domain": "forge",
+  "uuid": "forge@jmmaranan.com",
+  "settings-schema": "org.gnome.shell.extensions.forge",
+  "shell-version": ["40", "41", "42"],
+  "version": "1.1-alpha",
+  "url": "https://github.com/jmmaranan/forge"
 }

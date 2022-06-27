@@ -16,7 +16,7 @@
  *
  */
 
-'use strict';
+"use strict";
 
 // Gnome imports
 const Clutter = imports.gi.Clutter;
@@ -42,82 +42,93 @@ const Logger = Me.imports.logger;
 const Msgs = Me.imports.messages;
 
 var PanelIndicator = GObject.registerClass(
-    class PanelIndicator extends Button {
-        _init(settings, extWm) {
-            super._init(0.0, Msgs.panel_indicator_button_text);
-            this.settings = settings;
-            this.extWm = extWm;
+  class PanelIndicator extends Button {
+    _init(settings, extWm) {
+      super._init(0.0, Msgs.panel_indicator_button_text);
+      this.settings = settings;
+      this.extWm = extWm;
 
-            let tileIconOff = Gio.icon_new_for_string(`${Me.path}/icons/panel/focus-windows-symbolic.svg`);
-            let tileIconOn = Gio.icon_new_for_string(`${Me.path}/icons/panel/view-dual-symbolic.svg`);
-            let workspaceIconOff = Gio.icon_new_for_string(`${Me.path}/icons/panel/window-duplicate-symbolic.svg`);
+      let tileIconOff = Gio.icon_new_for_string(
+        `${Me.path}/icons/panel/focus-windows-symbolic.svg`
+      );
+      let tileIconOn = Gio.icon_new_for_string(
+        `${Me.path}/icons/panel/view-dual-symbolic.svg`
+      );
+      let workspaceIconOff = Gio.icon_new_for_string(
+        `${Me.path}/icons/panel/window-duplicate-symbolic.svg`
+      );
 
-            let buttonIcon = new St.Icon({
-                gicon: tileIconOn,
-                style_class: "system-status-icon"
-            });
+      let buttonIcon = new St.Icon({
+        gicon: tileIconOn,
+        style_class: "system-status-icon",
+      });
 
-            this.buttonOn = tileIconOn;
-            this.buttonOff = tileIconOff;
-            this.buttonWsOff = workspaceIconOff;
+      this.buttonOn = tileIconOn;
+      this.buttonOff = tileIconOff;
+      this.buttonWsOff = workspaceIconOff;
 
-            this.icon = buttonIcon;
-            this._buildMenu();
+      this.icon = buttonIcon;
+      this._buildMenu();
 
-            this.settings.connect("changed", (_, settingName) => {
-                switch (settingName) {
-                    case "tiling-mode-enabled":
-                    case "workspace-skip-tile":
-                        this.updateTileIcon();
-                        this.tileSwitch.setToggleState(this._isTiled());
-
-                }
-            });
-
-            this.add_actor(this.icon);
+      this.settings.connect("changed", (_, settingName) => {
+        switch (settingName) {
+          case "tiling-mode-enabled":
+          case "workspace-skip-tile":
             this.updateTileIcon();
+            this.tileSwitch.setToggleState(this._isTiled());
         }
+      });
 
-        updateTileIcon() {
-            if (this._isTiled()) {
-                if (this.extWm.isCurrentWorkspaceTiled()) {
-                    this.icon.gicon = this.buttonOn;
-                } else {
-                    this.icon.gicon = this.buttonWsOff;
-                }
-            } else {
-                this.icon.gicon = this.buttonOff;
-            }
-
-        }
-
-        _buildMenu() {
-            // Tiling Mode switch
-            let tileSwitch = new PopupSwitchMenuItem(Msgs.panel_indicator_tile_switch_text, this._isTiled());
-            tileSwitch.connect("toggled", () => {
-                let state = tileSwitch.state;
-                this.settings.set_boolean("tiling-mode-enabled", state);
-                this.updateTileIcon();
-            });
-            this.tileSwitch = tileSwitch;
-            this.menu.addMenuItem(tileSwitch);
-
-            // Preferences Shortcut
-            let prefMenuItem = new PopupMenuItem(Msgs.panel_indicator_prefs_open_text);
-            prefMenuItem.connect("activate", () => {
-                const action = { name: "PrefsOpen" };
-                this.extWm.command(action);
-            });
-            this.menu.addMenuItem(prefMenuItem);
-
-            // Extension version
-            const gnomeVersion = imports.misc.config.PACKAGE_VERSION;
-            const versionLabel = new PopupMenuItem(`Version ${Me.metadata.version} on GNOME ${gnomeVersion}`);
-            this.menu.addMenuItem(versionLabel);
-        }
-
-        _isTiled() {
-            return this.settings.get_boolean("tiling-mode-enabled");
-        }
+      this.add_actor(this.icon);
+      this.updateTileIcon();
     }
+
+    updateTileIcon() {
+      if (this._isTiled()) {
+        if (this.extWm.isCurrentWorkspaceTiled()) {
+          this.icon.gicon = this.buttonOn;
+        } else {
+          this.icon.gicon = this.buttonWsOff;
+        }
+      } else {
+        this.icon.gicon = this.buttonOff;
+      }
+    }
+
+    _buildMenu() {
+      // Tiling Mode switch
+      let tileSwitch = new PopupSwitchMenuItem(
+        Msgs.panel_indicator_tile_switch_text,
+        this._isTiled()
+      );
+      tileSwitch.connect("toggled", () => {
+        let state = tileSwitch.state;
+        this.settings.set_boolean("tiling-mode-enabled", state);
+        this.updateTileIcon();
+      });
+      this.tileSwitch = tileSwitch;
+      this.menu.addMenuItem(tileSwitch);
+
+      // Preferences Shortcut
+      let prefMenuItem = new PopupMenuItem(
+        Msgs.panel_indicator_prefs_open_text
+      );
+      prefMenuItem.connect("activate", () => {
+        const action = { name: "PrefsOpen" };
+        this.extWm.command(action);
+      });
+      this.menu.addMenuItem(prefMenuItem);
+
+      // Extension version
+      const gnomeVersion = imports.misc.config.PACKAGE_VERSION;
+      const versionLabel = new PopupMenuItem(
+        `Version ${Me.metadata.version} on GNOME ${gnomeVersion}`
+      );
+      this.menu.addMenuItem(versionLabel);
+    }
+
+    _isTiled() {
+      return this.settings.get_boolean("tiling-mode-enabled");
+    }
+  }
 );

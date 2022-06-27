@@ -16,7 +16,7 @@
  *
  */
 
-'use strict';
+"use strict";
 
 // Gnome imports
 const SessionMode = imports.ui.main.sessionMode;
@@ -36,76 +36,75 @@ const Window = Me.imports.window;
 const Utils = Me.imports.utils;
 
 function init() {
-    Logger.info("init");
-    ExtensionUtils.initTranslations();
-    return new Extension();
+  Logger.info("init");
+  ExtensionUtils.initTranslations();
+  return new Extension();
 }
 
 class Extension {
-    constructor() {
-        this.indicator = null;
+  constructor() {
+    this.indicator = null;
+  }
+
+  enable() {
+    Logger.info("enable");
+    this.settings = Settings.getSettings();
+    this.kbdSettings = Settings.getSettings(
+      "org.gnome.shell.extensions.forge.keybindings"
+    );
+    this.configMgr = new Settings.ConfigManager();
+    this.theme = new Theme.ThemeManager(this.settings, this.configMgr);
+    this.theme.patchCss();
+    this.theme.reloadStylesheet();
+
+    if (this.sameSession) {
+      Logger.debug(`enable: still in same session`);
+      this.sameSession = false;
+      return;
     }
 
-    enable() {
-        Logger.info("enable");
-        this.settings = Settings.getSettings();
-        this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
-        this.configMgr = new Settings.ConfigManager();
-        this.theme = new Theme.ThemeManager(this.settings, this.configMgr);
-        this.theme.patchCss();
-        this.theme.reloadStylesheet();
-
-        if (this.sameSession) {
-            Logger.debug(`enable: still in same session`);
-            this.sameSession = false;
-            return;
-        }
-
-        if (!this.extWm) {
-            this.extWm = new Window.WindowManager(this);
-        }
-
-        if (!this.keybindings) {
-            this.keybindings = new Keybindings.Keybindings(this);
-        }
-
-        if(!this.indicator) {
-            this.indicator = new PanelExt.PanelIndicator(this.settings, this.extWm);
-            Panel.addToStatusArea("ForgeExt", this.indicator);
-        }
-
-        this.extWm.enable();
-        this.keybindings.enable();
-        Logger.info(`enable: finalized vars`);
+    if (!this.extWm) {
+      this.extWm = new Window.WindowManager(this);
     }
 
-    disable() {
-        Logger.info("disable");
-
-        if (SessionMode.isLocked) {
-            this.sameSession = true;
-            Logger.debug(`disable: still in same session`);
-            return;
-        }
-
-        if (this.extWm)
-            this.extWm.disable();
-
-        if (this.keybindings)
-            this.keybindings.disable();
-
-        if (this.indicator) {
-            this.indicator.destroy();
-            this.indicator = null;
-        }
-
-        Logger.info(`disable: cleaning up vars`);
-        this.extWm = null;
-        this.keybindings = null;
-        this.settings = null;
-        this.indicator = null;
-        this.configMgr = null;
-        this.theme = null;
+    if (!this.keybindings) {
+      this.keybindings = new Keybindings.Keybindings(this);
     }
+
+    if (!this.indicator) {
+      this.indicator = new PanelExt.PanelIndicator(this.settings, this.extWm);
+      Panel.addToStatusArea("ForgeExt", this.indicator);
+    }
+
+    this.extWm.enable();
+    this.keybindings.enable();
+    Logger.info(`enable: finalized vars`);
+  }
+
+  disable() {
+    Logger.info("disable");
+
+    if (SessionMode.isLocked) {
+      this.sameSession = true;
+      Logger.debug(`disable: still in same session`);
+      return;
+    }
+
+    if (this.extWm) this.extWm.disable();
+
+    if (this.keybindings) this.keybindings.disable();
+
+    if (this.indicator) {
+      this.indicator.destroy();
+      this.indicator = null;
+    }
+
+    Logger.info(`disable: cleaning up vars`);
+    this.extWm = null;
+    this.keybindings = null;
+    this.settings = null;
+    this.indicator = null;
+    this.configMgr = null;
+    this.theme = null;
+  }
 }
-
