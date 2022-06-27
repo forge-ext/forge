@@ -49,9 +49,7 @@ class Extension {
   enable() {
     Logger.info("enable");
     this.settings = Settings.getSettings();
-    this.kbdSettings = Settings.getSettings(
-      "org.gnome.shell.extensions.forge.keybindings"
-    );
+    this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
     this.configMgr = new Settings.ConfigManager();
     this.theme = new Theme.ThemeManager(this.settings, this.configMgr);
     this.theme.patchCss();

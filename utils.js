@@ -59,9 +59,7 @@ function resolveX(rectRequest, metaWindow) {
     case "string": //center,
       switch (x) {
         case "center":
-          val =
-            monitorRect.width * 0.5 -
-            this.resolveWidth(rectRequest, metaWindow) * 0.5;
+          val = monitorRect.width * 0.5 - this.resolveWidth(rectRequest, metaWindow) * 0.5;
           break;
         case "left":
           val = 0;
@@ -93,16 +91,13 @@ function resolveY(rectRequest, metaWindow) {
     case "string": //center,
       switch (y) {
         case "center":
-          val =
-            monitorRect.height * 0.5 -
-            this.resolveHeight(rectRequest, metaWindow) * 0.5;
+          val = monitorRect.height * 0.5 - this.resolveHeight(rectRequest, metaWindow) * 0.5;
           break;
         case "top":
           val = 0;
           break;
         case "bottom": // inverse of y=0
-          val =
-            monitorRect.height - this.resolveHeight(rectRequest, metaWindow);
+          val = monitorRect.height - this.resolveHeight(rectRequest, metaWindow);
           break;
         default:
           break;
@@ -162,8 +157,7 @@ function resolveHeight(rectRequest, metaWindow) {
 }
 
 function orientationFromDirection(direction) {
-  return direction === Meta.MotionDirection.LEFT ||
-    direction === Meta.MotionDirection.RIGHT
+  return direction === Meta.MotionDirection.LEFT || direction === Meta.MotionDirection.RIGHT
     ? Tree.ORIENTATION_TYPES.HORIZONTAL
     : Tree.ORIENTATION_TYPES.VERTICAL;
 }
@@ -182,8 +176,7 @@ function orientationFromLayout(layout) {
 }
 
 function positionFromDirection(direction) {
-  return direction === Meta.MotionDirection.LEFT ||
-    direction === Meta.MotionDirection.UP
+  return direction === Meta.MotionDirection.LEFT || direction === Meta.MotionDirection.UP
     ? Tree.POSITION.BEFORE
     : Tree.POSITION.AFTER;
 }
@@ -303,35 +296,20 @@ function grabMode(grabOp) {
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN
   ) {
     return Window.GRAB_TYPES.RESIZING;
-  } else if (
-    grabOp === Meta.GrabOp.KEYBOARD_MOVING ||
-    grabOp === Meta.GrabOp.MOVING
-  ) {
+  } else if (grabOp === Meta.GrabOp.KEYBOARD_MOVING || grabOp === Meta.GrabOp.MOVING) {
     return Window.GRAB_TYPES.MOVING;
   }
   return Window.GRAB_TYPES.UNKNOWN;
 }
 
 function directionFromGrab(grabOp) {
-  if (
-    grabOp === Meta.GrabOp.RESIZING_E ||
-    grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E
-  ) {
+  if (grabOp === Meta.GrabOp.RESIZING_E || grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E) {
     return Meta.MotionDirection.RIGHT;
-  } else if (
-    grabOp === Meta.GrabOp.RESIZING_W ||
-    grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W
-  ) {
+  } else if (grabOp === Meta.GrabOp.RESIZING_W || grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W) {
     return Meta.MotionDirection.LEFT;
-  } else if (
-    grabOp === Meta.GrabOp.RESIZING_N ||
-    grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N
-  ) {
+  } else if (grabOp === Meta.GrabOp.RESIZING_N || grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N) {
     return Meta.MotionDirection.UP;
-  } else if (
-    grabOp === Meta.GrabOp.RESIZING_S ||
-    grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S
-  ) {
+  } else if (grabOp === Meta.GrabOp.RESIZING_S || grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S) {
     return Meta.MotionDirection.DOWN;
   }
 }

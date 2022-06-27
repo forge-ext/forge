@@ -47,14 +47,7 @@ var NODE_TYPES = Utils.createEnum([
   "WORKSPACE",
 ]);
 
-var LAYOUT_TYPES = Utils.createEnum([
-  "STACKED",
-  "TABBED",
-  "ROOT",
-  "HSPLIT",
-  "VSPLIT",
-  "PRESET",
-]);
+var LAYOUT_TYPES = Utils.createEnum(["STACKED", "TABBED", "ROOT", "HSPLIT", "VSPLIT", "PRESET"]);
 
 var ORIENTATION_TYPES = Utils.createEnum(["NONE", "HORIZONTAL", "VERTICAL"]);
 
@@ -276,9 +269,7 @@ var Node = GObject.registerClass(
       if (childNode.parentNode !== this) return null;
       if (newNode.parentNode) newNode.parentNode.removeChild(newNode);
       let index = childNode.index;
-      Logger.trace(
-        `insert-before: child ${index}, items ${this.childNodes.length}`
-      );
+      Logger.trace(`insert-before: child ${index}, items ${this.childNodes.length}`);
 
       if (childNode.index === 0) {
         Logger.trace(`insert-append to start`);
@@ -432,11 +423,7 @@ var Node = GObject.registerClass(
       let currentNode = queue.dequeue();
 
       while (currentNode) {
-        for (
-          let i = 0, length = currentNode.childNodes.length;
-          i < length;
-          i++
-        ) {
+        for (let i = 0, length = currentNode.childNodes.length; i < length; i++) {
           queue.enqueue(currentNode.childNodes[i]);
         }
 
@@ -448,11 +435,7 @@ var Node = GObject.registerClass(
     // start walking from bottom to root
     _traverseDepthFirst(callback) {
       let recurse = (currentNode) => {
-        for (
-          let i = 0, length = currentNode.childNodes.length;
-          i < length;
-          i++
-        ) {
+        for (let i = 0, length = currentNode.childNodes.length; i < length; i++) {
           recurse(currentNode.childNodes[i]);
         }
 
@@ -541,9 +524,7 @@ var Node = GObject.registerClass(
 
     _getTitle() {
       if (this.isWindow()) {
-        return this.nodeValue.title
-          ? this.nodeValue.title
-          : this.app.get_name();
+        return this.nodeValue.title ? this.nodeValue.title : this.app.get_name();
       }
       return null;
     }
@@ -591,8 +572,7 @@ var Tree = GObject.registerClass(
       this._floats = new Node();
       this.settings = this.extWm.ext.settings;
       this.layout = LAYOUT_TYPES.ROOT;
-      if (!global.window_group.contains(rootBin))
-        global.window_group.add_child(rootBin);
+      if (!global.window_group.contains(rootBin)) global.window_group.add_child(rootBin);
 
       this._initWorkspaces();
     }
@@ -643,11 +623,7 @@ var Tree = GObject.registerClass(
 
       Logger.debug(`adding workspace: ${workspaceNodeValue}`);
 
-      let newWsNode = this.createNode(
-        this.nodeValue,
-        NODE_TYPES.WORKSPACE,
-        workspaceNodeValue
-      );
+      let newWsNode = this.createNode(this.nodeValue, NODE_TYPES.WORKSPACE, workspaceNodeValue);
 
       let workspace = wsManager.get_workspace_by_index(wsIndex);
       newWsNode.layout = LAYOUT_TYPES.HSPLIT;
@@ -770,9 +746,7 @@ var Tree = GObject.registerClass(
         case NODE_TYPES.WINDOW:
           break;
         case NODE_TYPES.CON:
-          const tiledConWindows = next
-            .getNodeByType(NODE_TYPES.WINDOW)
-            .filter((w) => w.isTile());
+          const tiledConWindows = next.getNodeByType(NODE_TYPES.WINDOW).filter((w) => w.isTile());
           if (next.layout === LAYOUT_TYPES.STACKED) {
             next = next.lastChild;
           } else {
@@ -799,9 +773,7 @@ var Tree = GObject.registerClass(
           }
 
           if (next && next.nodeType === NODE_TYPES.CON) {
-            const tiledConWindows = next
-              .getNodeByType(NODE_TYPES.WINDOW)
-              .filter((w) => w.isTile());
+            const tiledConWindows = next.getNodeByType(NODE_TYPES.WINDOW).filter((w) => w.isTile());
             if (next.layout === LAYOUT_TYPES.STACKED) {
               next = next.lastChild;
             } else {
@@ -896,9 +868,7 @@ var Tree = GObject.registerClass(
         return false;
       }
 
-      Logger.trace(
-        `move-window: next ${next ? next.nodeType : undefined} ${position}`
-      );
+      Logger.trace(`move-window: next ${next ? next.nodeType : undefined} ${position}`);
 
       let parentNode = node.parentNode;
       let parentTarget;
@@ -918,9 +888,7 @@ var Tree = GObject.registerClass(
           } else {
             parentTarget = next.parentNode;
             if (parentTarget) {
-              Logger.trace(
-                `move-window: next parent ${parentTarget.nodeValue}`
-              );
+              Logger.trace(`move-window: next parent ${parentTarget.nodeValue}`);
               if (position === POSITION.AFTER) {
                 parentTarget.insertBefore(node, next);
               } else {
@@ -949,14 +917,10 @@ var Tree = GObject.registerClass(
 
           if (
             !next.contains(node) &&
-            (node === currMonWsNode.firstChild ||
-              node === currMonWsNode.lastChild)
+            (node === currMonWsNode.firstChild || node === currMonWsNode.lastChild)
           ) {
             Logger.trace("move to different monitor");
-            let targetMonRect = this.extWm.rectForMonitor(
-              node,
-              Utils.monitorIndex(next.nodeValue)
-            );
+            let targetMonRect = this.extWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
             if (!targetMonRect) return false;
             if (position === POSITION.AFTER) {
               next.insertBefore(node, next.firstChild);
@@ -1026,14 +990,9 @@ var Tree = GObject.registerClass(
           return this.next(node, direction);
         }
         const parentNode = node.parentNode;
-        const parentOrientation = Utils.orientationFromLayout(
-          parentNode.layout
-        );
+        const parentOrientation = Utils.orientationFromLayout(parentNode.layout);
 
-        if (
-          parentNode.childNodes.length > 1 &&
-          orientation === parentOrientation
-        ) {
+        if (parentNode.childNodes.length > 1 && orientation === parentOrientation) {
           const next = previous ? node.previousSibling : node.nextSibling;
           if (next) {
             return next;
@@ -1054,20 +1013,12 @@ var Tree = GObject.registerClass(
         nodeWindow.nodeValue.get_monitor(),
         monitorDirection
       );
-      Logger.trace(
-        `tree-next: targetMonitor is ${targetMonitor} on direction ${monitorDirection}`
-      );
+      Logger.trace(`tree-next: targetMonitor is ${targetMonitor} on direction ${monitorDirection}`);
       if (targetMonitor < 0) return targetMonitor;
-      let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue
-        .get_workspace()
-        .index()}`;
+      let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue.get_workspace().index()}`;
       Logger.trace(`tree-next: found monitor ${monWs}`);
       monitorNode = this.findNode(monWs);
-      Logger.trace(
-        `tree-next: found node ${
-          monitorNode ? monitorNode.nodeValue : "not found"
-        }`
-      );
+      Logger.trace(`tree-next: found node ${monitorNode ? monitorNode.nodeValue : "not found"}`);
       return monitorNode;
     }
 
@@ -1111,21 +1062,12 @@ var Tree = GObject.registerClass(
       if (!node) return;
       let type = node.nodeType;
 
-      if (
-        type === NODE_TYPES.WINDOW &&
-        node.mode === Window.WINDOW_MODES.FLOAT
-      ) {
+      if (type === NODE_TYPES.WINDOW && node.mode === Window.WINDOW_MODES.FLOAT) {
         Logger.debug(`tree-split: cannot split ${type} that floats`);
         return;
       }
 
-      if (
-        !(
-          type === NODE_TYPES.MONITOR ||
-          type === NODE_TYPES.CON ||
-          type === NODE_TYPES.WINDOW
-        )
-      ) {
+      if (!(type === NODE_TYPES.MONITOR || type === NODE_TYPES.CON || type === NODE_TYPES.WINDOW)) {
         Logger.debug(`tree-split: cannot split ${type}`);
         return;
       }
@@ -1137,13 +1079,10 @@ var Tree = GObject.registerClass(
       if (
         !forceSplit &&
         numChildren === 1 &&
-        (parentNode.layout === LAYOUT_TYPES.HSPLIT ||
-          parentNode.layout === LAYOUT_TYPES.VSPLIT)
+        (parentNode.layout === LAYOUT_TYPES.HSPLIT || parentNode.layout === LAYOUT_TYPES.VSPLIT)
       ) {
         parentNode.layout =
-          orientation === ORIENTATION_TYPES.HORIZONTAL
-            ? LAYOUT_TYPES.HSPLIT
-            : LAYOUT_TYPES.VSPLIT;
+          orientation === ORIENTATION_TYPES.HORIZONTAL ? LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;
         Logger.debug(
           `tree-split: toggle parent ${parentNode.nodeType} to layout: ${parentNode.layout}`
         );
@@ -1155,20 +1094,14 @@ var Tree = GObject.registerClass(
       Logger.trace(
         `tree-split: parent node ${parentNode.nodeType} ${parentNode.nodeValue}, children ${numChildren}`
       );
-      Logger.trace(
-        `tree-split: node ${node.nodeValue} has children? ${node.childNodes.length}`
-      );
-      Logger.debug(
-        `tree-split: pushing down ${type} ${node.nodeValue.get_wm_class()} to CON`
-      );
+      Logger.trace(`tree-split: node ${node.nodeValue} has children? ${node.childNodes.length}`);
+      Logger.debug(`tree-split: pushing down ${type} ${node.nodeValue.get_wm_class()} to CON`);
       let currentIndex = node.index;
       let container = new St.Bin();
       let newConNode = new Node(NODE_TYPES.CON, container);
       // Take the direction of the parent
       newConNode.layout =
-        orientation === ORIENTATION_TYPES.HORIZONTAL
-          ? LAYOUT_TYPES.HSPLIT
-          : LAYOUT_TYPES.VSPLIT;
+        orientation === ORIENTATION_TYPES.HORIZONTAL ? LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;
       newConNode.rect = node.rect;
       newConNode.percent = node.percent;
       newConNode.parentNode = parentNode;
@@ -1183,9 +1116,7 @@ var Tree = GObject.registerClass(
 
     swap(node, direction) {
       let nextSwapNode = this.next(node, direction);
-      Logger.trace(
-        `swap: next ${nextSwapNode ? nextSwapNode.nodeType : undefined}`
-      );
+      Logger.trace(`swap: next ${nextSwapNode ? nextSwapNode.nodeType : undefined}`);
       if (!nextSwapNode) {
         return;
       }
@@ -1208,9 +1139,7 @@ var Tree = GObject.registerClass(
       }
 
       let isNextNodeWin =
-        nextSwapNode &&
-        nextSwapNode.nodeValue &&
-        nextSwapNode.nodeType === NODE_TYPES.WINDOW;
+        nextSwapNode && nextSwapNode.nodeValue && nextSwapNode.nodeType === NODE_TYPES.WINDOW;
       if (isNextNodeWin) {
         if (!this.extWm.sameParentMonitor(node, nextSwapNode)) {
           // TODO, there is a freeze bug if there are not in same monitor.
@@ -1218,9 +1147,7 @@ var Tree = GObject.registerClass(
           return;
         }
         Logger.debug(
-          `swap: result ${
-            isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"
-          }`
+          `swap: result ${isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"}`
         );
         this.swapPairs(node, nextSwapNode);
       }
@@ -1288,10 +1215,7 @@ var Tree = GObject.registerClass(
 
       let parentNode = node.parentNode;
       // If parent has only this window, remove the parent instead
-      if (
-        parentNode.childNodes.length === 1 &&
-        parentNode.nodeType !== NODE_TYPES.MONITOR
-      ) {
+      if (parentNode.childNodes.length === 1 && parentNode.nodeType !== NODE_TYPES.MONITOR) {
         let existParent = parentNode.parentNode;
         oldChild = existParent.removeChild(parentNode);
         cleanUpParent(existParent);
@@ -1359,18 +1283,14 @@ var Tree = GObject.registerClass(
       // [con[con[con[con[window]]]]] --> [con[window]]
       // TODO: help :)
       const grandParentCons = this.getNodeByType(NODE_TYPES.CON).filter(
-        (c) =>
-          c.childNodes.length === 1 &&
-          c.childNodes[0].nodeType === NODE_TYPES.CON
+        (c) => c.childNodes.length === 1 && c.childNodes[0].nodeType === NODE_TYPES.CON
       );
 
       grandParentCons.forEach((c) => {
         c.layout = LAYOUT_TYPES.HSPLIT;
       });
 
-      Logger.debug(
-        `clean-tree: multi-parent empty cons ${grandParentCons.length}`
-      );
+      Logger.debug(`clean-tree: multi-parent empty cons ${grandParentCons.length}`);
 
       if (hasOrphanCons) {
         this.processNode(this);
@@ -1403,10 +1323,7 @@ var Tree = GObject.registerClass(
 
       let params = {};
 
-      if (
-        node.nodeType === NODE_TYPES.MONITOR ||
-        node.nodeType === NODE_TYPES.CON
-      ) {
+      if (node.nodeType === NODE_TYPES.MONITOR || node.nodeType === NODE_TYPES.CON) {
         // The workarea from Meta.Window's assigned monitor
         // is important so it computes to `remove` the panel size
         // really well. However, this type of workarea would only
@@ -1446,10 +1363,7 @@ var Tree = GObject.registerClass(
 
         tiledChildren.forEach((child, index) => {
           // A monitor can contain a window or container child
-          if (
-            node.layout === LAYOUT_TYPES.HSPLIT ||
-            node.layout === LAYOUT_TYPES.VSPLIT
-          ) {
+          if (node.layout === LAYOUT_TYPES.HSPLIT || node.layout === LAYOUT_TYPES.VSPLIT) {
             this.processSplit(node, child, params, index);
           } else if (node.layout === LAYOUT_TYPES.STACKED) {
             this.processStacked(node, child, params, index);
@@ -1461,12 +1375,10 @@ var Tree = GObject.registerClass(
       }
 
       if (node.isWindow()) {
-        if (!node.rect)
-          node.rect = node.nodeValue.get_work_area_current_monitor();
+        if (!node.rect) node.rect = node.nodeValue.get_work_area_current_monitor();
         let metaWindow = node.nodeValue;
         node.renderRect = this.processGap(node);
-        let workspaceTiled =
-          this.extWm.isActiveWindowWorkspaceTiled(metaWindow);
+        let workspaceTiled = this.extWm.isActiveWindowWorkspaceTiled(metaWindow);
 
         if (!workspaceTiled) {
           node.mode = Window.WINDOW_MODES.FLOAT;
@@ -1597,14 +1509,11 @@ var Tree = GObject.registerClass(
             let decoration = node.decoration;
             let gap = this.extWm.calculateGaps();
             let renderRect = this.processGap(node);
-            let borderWidth = child.actor.border
-              .get_theme_node()
-              .get_border_width(St.Side.TOP);
+            let borderWidth = child.actor.border.get_theme_node().get_border_width(St.Side.TOP);
 
             // Make adjustments to the gaps
             let adjust = 4 * Utils.dpi();
-            let adjustWidth =
-              renderRect.width + (borderWidth * 2 + gap) / adjust;
+            let adjustWidth = renderRect.width + (borderWidth * 2 + gap) / adjust;
             let adjustX = renderRect.x - (gap + borderWidth * 2) / (adjust * 2);
             let adjustY = renderRect.y - adjust;
 
@@ -1635,11 +1544,8 @@ var Tree = GObject.registerClass(
       let sizes = [];
       let orientation = Utils.orientationFromLayout(node.layout);
       let totalSize =
-        orientation === ORIENTATION_TYPES.HORIZONTAL
-          ? node.rect.width
-          : node.rect.height;
-      let grabTiled =
-        node.getNodeByMode(Window.WINDOW_MODES.GRAB_TILE).length > 0;
+        orientation === ORIENTATION_TYPES.HORIZONTAL ? node.rect.width : node.rect.height;
+      let grabTiled = node.getNodeByMode(Window.WINDOW_MODES.GRAB_TILE).length > 0;
       childItems.forEach((childNode, index) => {
         let percent =
           childNode.percent && childNode.percent > 0.0 && !grabTiled
@@ -1691,9 +1597,9 @@ var Tree = GObject.registerClass(
 
       if (node.isWindow()) {
         let metaWindow = node.nodeValue;
-        attributes += `class:'${metaWindow.get_wm_class()}',title:'${
-          metaWindow.title
-        }'${metaWindow === this.extWm.focusMetaWindow ? " FOCUS" : ""}`;
+        attributes += `class:'${metaWindow.get_wm_class()}',title:'${metaWindow.title}'${
+          metaWindow === this.extWm.focusMetaWindow ? " FOCUS" : ""
+        }`;
       } else if (node.isCon() || node.isMonitor() || node.isWorkspace()) {
         attributes += `${node.nodeValue}`;
         if (node.isCon() || node.isMonitor()) {

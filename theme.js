@@ -80,18 +80,14 @@ var ThemeManager = GObject.registerClass(
       let firstDash = selector.indexOf("-");
       let secondDash = selector.indexOf("-", firstDash + 1);
       const scheme = selector.substr(firstDash + 1, secondDash - firstDash - 1);
-      Logger.debug(
-        `first ${firstDash}, second ${secondDash}, scheme ${scheme}`
-      );
+      Logger.debug(`first ${firstDash}, second ${secondDash}, scheme ${scheme}`);
       return scheme;
     }
 
     getDefaults(color) {
       return {
         color: this.getCssProperty(`.${color}`, "color").value,
-        "border-width": this.removePx(
-          this.getCssProperty(`.${color}`, "border-width").value
-        ),
+        "border-width": this.removePx(this.getCssProperty(`.${color}`, "border-width").value),
         opacity: this.getCssProperty(`.${color}`, "opacity").value,
       };
     }
@@ -113,9 +109,7 @@ var ThemeManager = GObject.registerClass(
       const cssRule = this.getCssRule(selector);
 
       if (cssRule) {
-        const matchDeclarations = cssRule.declarations.filter(
-          (d) => d.property === propertyName
-        );
+        const matchDeclarations = cssRule.declarations.filter((d) => d.property === propertyName);
         return matchDeclarations.length > 0 ? matchDeclarations[0] : {};
       }
 
@@ -166,12 +160,7 @@ var ThemeManager = GObject.registerClass(
       const cssContents = Css.stringify(this.cssAst);
       const PERMISSIONS_MODE = 0o744;
 
-      if (
-        GLib.mkdir_with_parents(
-          cssFile.get_parent().get_path(),
-          PERMISSIONS_MODE
-        ) === 0
-      ) {
+      if (GLib.mkdir_with_parents(cssFile.get_parent().get_path(), PERMISSIONS_MODE) === 0) {
         let [success, _tag] = cssFile.replace_contents(
           cssContents,
           null,
@@ -196,21 +185,9 @@ var ThemeManager = GObject.registerClass(
       if (this._needUpdate()) {
         let originalCss = this.configMgr.defaultStylesheetFile;
         let configCss = this.configMgr.stylesheetFile;
-        let copyConfigCss = Gio.File.new_for_path(
-          this.configMgr.stylesheetFileName + ".bak"
-        );
-        let backupFine = configCss.copy(
-          copyConfigCss,
-          Gio.FileCopyFlags.OVERWRITE,
-          null,
-          null
-        );
-        let copyFine = originalCss.copy(
-          configCss,
-          Gio.FileCopyFlags.OVERWRITE,
-          null,
-          null
-        );
+        let copyConfigCss = Gio.File.new_for_path(this.configMgr.stylesheetFileName + ".bak");
+        let backupFine = configCss.copy(copyConfigCss, Gio.FileCopyFlags.OVERWRITE, null, null);
+        let copyFine = originalCss.copy(configCss, Gio.FileCopyFlags.OVERWRITE, null, null);
         if (backupFine && copyFine) {
           this.settings.set_uint("css-last-update", this.cssTag);
           return true;

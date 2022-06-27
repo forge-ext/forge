@@ -69,11 +69,7 @@ function getSettingsSchema(schema) {
   let schemaDir = extension.dir.get_child("schemas");
   let schemaSource;
   if (schemaDir.query_exists(null)) {
-    schemaSource = GioSSS.new_from_directory(
-      schemaDir.get_path(),
-      GioSSS.get_default(),
-      false
-    );
+    schemaSource = GioSSS.new_from_directory(schemaDir.get_path(), GioSSS.get_default(), false);
   } else {
     schemaSource = GioSSS.get_default();
   }
@@ -101,10 +97,7 @@ var ConfigManager = GObject.registerClass(
     }
 
     get defaultStylesheetFile() {
-      const defaultStylesheet = GLib.build_filenamev([
-        `${Me.dir.get_path()}`,
-        `stylesheet.css`,
-      ]);
+      const defaultStylesheet = GLib.build_filenamev([`${Me.dir.get_path()}`, `stylesheet.css`]);
 
       Logger.trace(`default-stylesheet: ${defaultStylesheet}`);
 
@@ -131,8 +124,7 @@ var ConfigManager = GObject.registerClass(
       ]);
 
       Logger.trace(`default-window-config: ${defaultWindowConfig}`);
-      const defaultWindowConfigFile =
-        Gio.File.new_for_path(defaultWindowConfig);
+      const defaultWindowConfigFile = Gio.File.new_for_path(defaultWindowConfig);
 
       if (defaultWindowConfigFile.query_exists(null)) {
         return defaultWindowConfigFile;
@@ -159,10 +151,7 @@ var ConfigManager = GObject.registerClass(
         const profileCustomSettingDir = Gio.File.new_for_path(path);
         if (!profileCustomSettingDir.query_exists(null)) {
           if (profileCustomSettingDir.make_directory_with_parents(null)) {
-            const createdStream = customSettingFile.create(
-              Gio.FileCreateFlags.NONE,
-              null
-            );
+            const createdStream = customSettingFile.create(Gio.FileCreateFlags.NONE, null);
             const defaultContents = this.loadFileContents(defaultFile);
             Logger.trace(defaultContents);
             createdStream.write_all(defaultContents, null);
@@ -208,10 +197,7 @@ var ConfigManager = GObject.registerClass(
       const PERMISSIONS_MODE = 0o744;
 
       if (
-        GLib.mkdir_with_parents(
-          windowConfigFile.get_parent().get_path(),
-          PERMISSIONS_MODE
-        ) === 0
+        GLib.mkdir_with_parents(windowConfigFile.get_parent().get_path(), PERMISSIONS_MODE) === 0
       ) {
         let [_, _tag] = windowConfigFile.replace_contents(
           windowConfigContents,

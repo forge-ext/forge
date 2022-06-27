@@ -51,9 +51,7 @@ var PanelIndicator = GObject.registerClass(
       let tileIconOff = Gio.icon_new_for_string(
         `${Me.path}/icons/panel/focus-windows-symbolic.svg`
       );
-      let tileIconOn = Gio.icon_new_for_string(
-        `${Me.path}/icons/panel/view-dual-symbolic.svg`
-      );
+      let tileIconOn = Gio.icon_new_for_string(`${Me.path}/icons/panel/view-dual-symbolic.svg`);
       let workspaceIconOff = Gio.icon_new_for_string(
         `${Me.path}/icons/panel/window-duplicate-symbolic.svg`
       );
@@ -110,9 +108,7 @@ var PanelIndicator = GObject.registerClass(
       this.menu.addMenuItem(tileSwitch);
 
       // Preferences Shortcut
-      let prefMenuItem = new PopupMenuItem(
-        Msgs.panel_indicator_prefs_open_text
-      );
+      let prefMenuItem = new PopupMenuItem(Msgs.panel_indicator_prefs_open_text);
       prefMenuItem.connect("activate", () => {
         const action = { name: "PrefsOpen" };
         this.extWm.command(action);

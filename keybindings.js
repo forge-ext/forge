@@ -57,9 +57,7 @@ var Keybindings = GObject.registerClass(
     _acceleratorActivate(action) {
       let grabber = this._grabbers.get(action);
       if (grabber) {
-        Logger.debug(
-          `Firing accelerator ${grabber.accelerator} : ${grabber.name}`
-        );
+        Logger.debug(`Firing accelerator ${grabber.accelerator} : ${grabber.name}`);
         grabber.callback();
       } else {
         Logger.error(`No listeners [action={${action}}]`);
@@ -68,12 +66,9 @@ var Keybindings = GObject.registerClass(
 
     // @deprecated
     _bindSignals() {
-      global.display.connect(
-        "accelerator-activated",
-        (_display, action, _deviceId, _timestamp) => {
-          this._acceleratorActivate(action);
-        }
-      );
+      global.display.connect("accelerator-activated", (_display, action, _deviceId, _timestamp) => {
+        this._acceleratorActivate(action);
+      });
     }
 
     enable() {

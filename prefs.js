@@ -230,34 +230,16 @@ var PrefsWidget = GObject.registerClass(
     }
 
     buildPanelBoxes() {
-      this.settingsPagesStack.add_named(
-        new UnderConstructionPanel(this, "Home"),
-        "Home"
-      );
+      this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Home"), "Home");
       this.settingsPagesStack.add_named(
         new UnderConstructionPanel(this, "Appearance"),
         "Appearance"
       );
-      this.settingsPagesStack.add_named(
-        new AppearanceWindowSettingsPanel(this),
-        "Window"
-      );
-      this.settingsPagesStack.add_named(
-        new AppearanceLayoutSettingsPanel(this),
-        "Layout"
-      );
-      this.settingsPagesStack.add_named(
-        new AppearanceColorSettingsPanel(this),
-        "Color"
-      );
-      this.settingsPagesStack.add_named(
-        new WorkspaceSettingsPanel(this),
-        "Workspace"
-      );
-      this.settingsPagesStack.add_named(
-        new UnderConstructionPanel(this, "Keyboard"),
-        "Keyboard"
-      );
+      this.settingsPagesStack.add_named(new AppearanceWindowSettingsPanel(this), "Window");
+      this.settingsPagesStack.add_named(new AppearanceLayoutSettingsPanel(this), "Layout");
+      this.settingsPagesStack.add_named(new AppearanceColorSettingsPanel(this), "Color");
+      this.settingsPagesStack.add_named(new WorkspaceSettingsPanel(this), "Workspace");
+      this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "Keyboard"), "Keyboard");
       this.settingsPagesStack.add_named(
         new KeyboardSettingsPanel(this, "window-"),
         "Window Shortcuts"
@@ -287,14 +269,8 @@ var PrefsWidget = GObject.registerClass(
         "Experimental"
       );
       if (!Settings.production) {
-        this.settingsPagesStack.add_named(
-          new DeveloperSettingsPanel(this),
-          "Development"
-        );
-        this.settingsPagesStack.add_named(
-          new UnderConstructionPanel(this, "About"),
-          "About"
-        );
+        this.settingsPagesStack.add_named(new DeveloperSettingsPanel(this), "Development");
+        this.settingsPagesStack.add_named(new UnderConstructionPanel(this, "About"), "About");
       }
     }
   }
@@ -350,9 +326,7 @@ var ScrollStackBox = GObject.registerClass(
       if (childName) {
         row.child_name = childName;
         let nextPageIcon = new Gtk.Image({
-          gicon: Gio.icon_new_for_string(
-            `${Me.path}/icons/prefs/go-next-symbolic.svg`
-          ),
+          gicon: Gio.icon_new_for_string(`${Me.path}/icons/prefs/go-next-symbolic.svg`),
           halign: Gtk.Align.END,
           hexpand: true,
         });
@@ -370,9 +344,7 @@ var ScrollStackBox = GObject.registerClass(
       });
       listBox.connect("row-selected", (_self, row) => {
         let listRow = row.get_child();
-        this.prefsWidget.topLevel.set_title(
-          `${Msgs.prefs_title} - ${listRow.label_name}`
-        );
+        this.prefsWidget.topLevel.set_title(`${Msgs.prefs_title} - ${listRow.label_name}`);
         // Always check if the listbox row has children
         // Autoload when no children, else activate the next child
         if (!listRow.child_name) {
@@ -393,9 +365,7 @@ var ScrollStackBox = GObject.registerClass(
 
         if (listRow.child_name) {
           settingsStack.set_visible_child_name(listRow.child_name);
-          let childRowScrollWin = settingsStack.get_child_by_name(
-            listRow.child_name
-          );
+          let childRowScrollWin = settingsStack.get_child_by_name(listRow.child_name);
           childRowScrollWin.activateFirstRow();
           prefsWidget.showBackButton();
         }
@@ -516,9 +486,7 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
 
       // Gap Size Base
       let gapSizeRow = new ListBoxRow();
-      let gapSizeLabel = createLabel(
-        Msgs.prefs_appearance_window_gaps_size_label
-      );
+      let gapSizeLabel = createLabel(Msgs.prefs_appearance_window_gaps_size_label);
       let gapSizeAdjust = new Gtk.Adjustment({
         lower: 4,
         step_increment: 4,
@@ -541,9 +509,7 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
 
       // Gap Size Increments
       let gapSizeIncrementRow = new ListBoxRow();
-      let gapSizeIncrementLabel = createLabel(
-        Msgs.prefs_appearance_window_gaps_increment_label
-      );
+      let gapSizeIncrementLabel = createLabel(Msgs.prefs_appearance_window_gaps_increment_label);
       let gapSizeIncrementAdjust = new Gtk.Adjustment({
         lower: 0,
         step_increment: 1,
@@ -554,16 +520,11 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
         adjustment: gapSizeIncrementAdjust,
       });
       gapSizeIncrementSpin.connect("value-changed", () => {
-        this.settings.set_uint(
-          "window-gap-size-increment",
-          gapSizeIncrementSpin.value
-        );
+        this.settings.set_uint("window-gap-size-increment", gapSizeIncrementSpin.value);
       });
       this.settings.connect("changed", (_, keyName) => {
         if (keyName === "window-gap-size-increment") {
-          gapSizeIncrementSpin.set_value(
-            this.settings.get_uint("window-gap-size-increment")
-          );
+          gapSizeIncrementSpin.set_value(this.settings.get_uint("window-gap-size-increment"));
         }
       });
       gapSizeIncrementRow.add(gapSizeIncrementLabel);
@@ -651,13 +612,9 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
   class AppearanceColorSettingsPanel extends PanelBox {
     _init(prefsWidget) {
       super._init(prefsWidget, "Appearance Color Settings");
-      this.themeMgr = new Theme.ThemeManager(
-        prefsWidget.settings,
-        new Settings.ConfigManager(),
-        {
-          prefsMode: true,
-        }
-      );
+      this.themeMgr = new Theme.ThemeManager(prefsWidget.settings, new Settings.ConfigManager(), {
+        prefsMode: true,
+      });
       this._createColorOptionWidget(".window-tiled-border");
       this._createColorOptionWidget(".window-tabbed-border");
       this._createColorOptionWidget(".window-stacked-border");
@@ -691,20 +648,12 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
       );
 
       colorOptionHintSizeSpin.connect("value-changed", (widget) => {
-        theme.setCssProperty(
-          selector,
-          "border-width",
-          theme.addPx(widget.value)
-        );
+        theme.setCssProperty(selector, "border-width", theme.addPx(widget.value));
       });
 
       colorOptionHintSizeReset.connect("clicked", () => {
         const borderDefault = theme.defaultPalette[colorScheme]["border-width"];
-        theme.setCssProperty(
-          selector,
-          "border-width",
-          theme.addPx(borderDefault)
-        );
+        theme.setCssProperty(selector, "border-width", theme.addPx(borderDefault));
         colorOptionHintSizeSpin.value = borderDefault;
       });
 
@@ -741,13 +690,11 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
       });
 
       colorOptionHintColorPalette.connect("toggled", () => {
-        colorOptionColorChooser.show_editor =
-          !colorOptionHintColorPalette.get_active();
+        colorOptionColorChooser.show_editor = !colorOptionHintColorPalette.get_active();
       });
 
       colorOptionHintColorEditor.connect("toggled", () => {
-        colorOptionColorChooser.show_editor =
-          colorOptionHintColorEditor.get_active();
+        colorOptionColorChooser.show_editor = colorOptionHintColorEditor.get_active();
       });
 
       const updateCssColors = (rgbaString) => {
@@ -768,16 +715,8 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
           // Only apply below on the primary/tiled scheme
           if (colorScheme === "tiled") {
             // Then the overview app icons, search and search results:
-            theme.setCssProperty(
-              ".search-entry:focus",
-              "border-color",
-              rgba.to_string()
-            );
-            theme.setCssProperty(
-              ".kbd-shortcut:focus",
-              "border-color",
-              rgba.to_string()
-            );
+            theme.setCssProperty(".search-entry:focus", "border-color", rgba.to_string());
+            theme.setCssProperty(".kbd-shortcut:focus", "border-color", rgba.to_string());
             theme.setCssProperty(
               ".search-provider-icon:focus",
               "background-color",
@@ -836,9 +775,7 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
         }
       };
 
-      updateColorChooserValue(
-        theme.getCssProperty(selector, "border-color").value
-      );
+      updateColorChooserValue(theme.getCssProperty(selector, "border-color").value);
 
       // TODO figure out how to connect the custom (+) color button so the radio buttons can be toggled
       colorOptionColorChooser.connect("color-activated", (colorRgba) => {
@@ -896,9 +833,7 @@ var WorkspaceSettingsPanel = GObject.registerClass(
         spacing: 5,
         homogeneous: false,
       });
-      let workspaceAdjustTileLabel = createLabel(
-        Msgs.prefs_workspace_settings_skip_tiling_label
-      );
+      let workspaceAdjustTileLabel = createLabel(Msgs.prefs_workspace_settings_skip_tiling_label);
       let workspaceAdjustTileInstructions = createLabel(
         Msgs.prefs_workspace_settings_skip_tiling_instructions_text
       );
@@ -907,21 +842,14 @@ var WorkspaceSettingsPanel = GObject.registerClass(
 
       let workspaceAdjustTileEntry = new Gtk.Entry();
 
-      workspaceAdjustTileEntry.set_text(
-        this.settings.get_string("workspace-skip-tile")
-      );
+      workspaceAdjustTileEntry.set_text(this.settings.get_string("workspace-skip-tile"));
       this.settings.connect("changed::workspace-skip-tile", () => {
-        workspaceAdjustTileEntry.set_text(
-          this.settings.get_string("workspace-skip-tile")
-        );
+        workspaceAdjustTileEntry.set_text(this.settings.get_string("workspace-skip-tile"));
       });
       workspaceAdjustTileEntry.connect("activate", () => {
         let currEntry = workspaceAdjustTileEntry.get_text();
         let prevEntry = this.settings.get_string("workspace-skip-tile");
-        if (
-          !currEntry ||
-          (currEntry && (currEntry.trim().length === 0 || currEntry === ""))
-        ) {
+        if (!currEntry || (currEntry && (currEntry.trim().length === 0 || currEntry === ""))) {
           this.settings.set_string("workspace-skip-tile", "");
           return;
         } else {
@@ -930,9 +858,7 @@ var WorkspaceSettingsPanel = GObject.registerClass(
 
           for (let i = 0; i < currEntryArr.length; i++) {
             if (isNaN(parseInt(currEntryArr[i]))) {
-              Logger.warn(
-                `Entry${currEntryArr[i]} is not a valid workspace index`
-              );
+              Logger.warn(`Entry${currEntryArr[i]} is not a valid workspace index`);
               errors += 1;
             }
           }
@@ -993,25 +919,11 @@ var KeyboardSettingsPanel = GObject.registerClass(
     }
 
     createShortcutHeader(grid) {
-      let headerAction = createLabel(
-        `${Msgs.prefs_keyboard_update_keys_column_1_header}`
-      );
+      let headerAction = createLabel(`${Msgs.prefs_keyboard_update_keys_column_1_header}`);
       headerAction.width_chars = 30;
       grid.attach(headerAction, 0, 0, 1, 1);
-      grid.attach(
-        createLabel(`${Msgs.prefs_keyboard_update_keys_column_2_header}`),
-        1,
-        0,
-        1,
-        1
-      );
-      grid.attach(
-        createLabel(`${Msgs.prefs_keyboard_update_keys_column_3_header}`),
-        2,
-        0,
-        1,
-        1
-      );
+      grid.attach(createLabel(`${Msgs.prefs_keyboard_update_keys_column_2_header}`), 1, 0, 1, 1);
+      grid.attach(createLabel(`${Msgs.prefs_keyboard_update_keys_column_3_header}`), 2, 0, 1, 1);
     }
 
     createShortcutRow(grid, actionName, shortcuts, rowIndex) {
@@ -1191,9 +1103,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
         createLabel(`<b>${Msgs.prefs_keyboard_other_mod_mask_header}</b>`)
       );
       modMaskDescriptionBox.append(
-        createLabel(
-          `<i>${Msgs.prefs_keyboard_other_mod_mask_informational1}</i>`
-        )
+        createLabel(`<i>${Msgs.prefs_keyboard_other_mod_mask_informational1}</i>`)
       );
       modMaskDescriptionBox.append(
         createLabel(`${Msgs.prefs_keyboard_other_mod_mask_informational2}`)
@@ -1201,9 +1111,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
 
       let modMaskFrame = new FrameListBox();
       let modMaskTileRowOption = new ListBoxRow();
-      let modMaskTileLabel = createLabel(
-        `${Msgs.prefs_keyboard_mod_mask_tile_label}`
-      );
+      let modMaskTileLabel = createLabel(`${Msgs.prefs_keyboard_mod_mask_tile_label}`);
       let modMaskTileToggleBox = new Gtk.Box({
         orientation: Gtk.Orientation.HORIZONTAL,
         margin_start: 3,
@@ -1258,9 +1166,7 @@ var KeyboardSettingsPanel = GObject.registerClass(
       modMaskTileAltToggle.connect("clicked", _handleTileToggle.bind(this));
       modMaskTileNoneToggle.connect("clicked", _handleTileToggle.bind(this));
 
-      const currentTileModifier = this.kbdSettings.get_string(
-        "mod-mask-mouse-tile"
-      );
+      const currentTileModifier = this.kbdSettings.get_string("mod-mask-mouse-tile");
 
       // Set the initial toggle value:
       switch (currentTileModifier) {
@@ -1366,9 +1272,7 @@ var ExperimentalSettingsPanel = GObject.registerClass(
       let experimentalFrame = new FrameListBox();
       let experimentStackedTilingRow = new ListBoxRow();
 
-      let experimentStackedTilingLabel = createLabel(
-        Msgs.prefs_experimental_stacked_tiling_label
-      );
+      let experimentStackedTilingLabel = createLabel(Msgs.prefs_experimental_stacked_tiling_label);
       let experimentStackedTilingSwitch = new Gtk.Switch();
       experimentStackedTilingSwitch.set_active(
         this.settings.get_boolean("stacked-tiling-mode-enabled")
@@ -1390,9 +1294,7 @@ var ExperimentalSettingsPanel = GObject.registerClass(
       experimentalFrame.add(experimentStackedTilingRow);
 
       let experimentTabbedTilingRow = new ListBoxRow();
-      let experimentTabbedTilingLabel = createLabel(
-        Msgs.prefs_experimental_tabbed_tiling_label
-      );
+      let experimentTabbedTilingLabel = createLabel(Msgs.prefs_experimental_tabbed_tiling_label);
       let experimentTabbedTilingSwitch = new Gtk.Switch();
       experimentTabbedTilingSwitch.set_active(
         this.settings.get_boolean("tabbed-tiling-mode-enabled")

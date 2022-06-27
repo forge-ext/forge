@@ -68,17 +68,14 @@ var WindowManager = GObject.registerClass(
       let wmClass = metaWindow.get_wm_class();
 
       if (!byClass) {
-        Logger.info(
-          `Add Float override for title ${wmTitle} and class ${wmClass}`
-        );
+        Logger.info(`Add Float override for title ${wmTitle} and class ${wmClass}`);
       } else {
         Logger.info(`Add Float override for class ${wmClass}`);
       }
 
       for (let override in overrides) {
         if (!byClass) {
-          if (override.wmClass === wmClass && override.wmTitle === wmTitle)
-            return;
+          if (override.wmClass === wmClass && override.wmTitle === wmTitle) return;
         } else {
           if (override.wmClass === wmClass && !override.wmTitle) return;
         }
@@ -98,9 +95,7 @@ var WindowManager = GObject.registerClass(
       let wmClass = metaWindow.get_wm_class();
 
       if (!byClass) {
-        Logger.info(
-          `Remove Float override for title ${wmTitle} and class ${wmClass}`
-        );
+        Logger.info(`Remove Float override for title ${wmTitle} and class ${wmClass}`);
       } else {
         Logger.info(`Remove Float override for class ${wmClass}`);
       }
@@ -112,8 +107,7 @@ var WindowManager = GObject.registerClass(
         );
       } else {
         overrides = overrides.filter(
-          (override) =>
-            !(override.wmClass === wmClass && override.wmTitle === wmTitle)
+          (override) => !(override.wmClass === wmClass && override.wmTitle === wmTitle)
         );
       }
 
@@ -155,23 +149,19 @@ var WindowManager = GObject.registerClass(
       this.eventQueue.enqueue(eventObj);
 
       if (!this._queueSourceId) {
-        this._queueSourceId = GLib.timeout_add(
-          GLib.PRIORITY_DEFAULT,
-          interval,
-          () => {
-            const currEventObj = this.eventQueue.dequeue();
-            if (currEventObj) {
-              currEventObj.callback();
-              Logger.trace(`firing callback ${currEventObj.name}!`);
-            }
-            const result = this.eventQueue.length !== 0;
-            if (!result) {
-              Logger.trace(`queue-event done: removing ${this._queueSourceId}`);
-              this._queueSourceId = 0;
-            }
-            return result;
+        this._queueSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, interval, () => {
+          const currEventObj = this.eventQueue.dequeue();
+          if (currEventObj) {
+            currEventObj.callback();
+            Logger.trace(`firing callback ${currEventObj.name}!`);
           }
-        );
+          const result = this.eventQueue.length !== 0;
+          if (!result) {
+            Logger.trace(`queue-event done: removing ${this._queueSourceId}`);
+            this._queueSourceId = 0;
+          }
+          return result;
+        });
       }
     }
 
@@ -187,11 +177,7 @@ var WindowManager = GObject.registerClass(
       this._displaySignals = [
         display.connect("window-created", this.trackWindow.bind(this)),
         display.connect("window-entered-monitor", (_, monitor, metaWindow) => {
-          this.updateMetaWorkspaceMonitor(
-            "window-entered-monitor",
-            monitor,
-            metaWindow
-          );
+          this.updateMetaWorkspaceMonitor("window-entered-monitor", monitor, metaWindow);
         }),
         display.connect("window-left-monitor", () => {
           Logger.debug("window-left-monitor");
@@ -231,13 +217,8 @@ var WindowManager = GObject.registerClass(
           this.hideWindowBorders();
           let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
           if (focusNodeWindow) {
-            if (
-              this.tree.getTiledChildren(focusNodeWindow.parentNode.childNodes)
-                .length === 0
-            ) {
-              this.tree.resetSiblingPercent(
-                focusNodeWindow.parentNode.parentNode
-              );
+            if (this.tree.getTiledChildren(focusNodeWindow.parentNode.childNodes).length === 0) {
+              this.tree.resetSiblingPercent(focusNodeWindow.parentNode.parentNode);
             }
             this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
           }
@@ -280,19 +261,13 @@ var WindowManager = GObject.registerClass(
         }),
         globalWsm.connect("workspace-added", (_, wsIndex) => {
           let added = this.tree.addWorkspace(wsIndex);
-          Logger.debug(
-            `${added ? "workspace-added" : "workspace-add-skipped"} ${wsIndex}`
-          );
+          Logger.debug(`${added ? "workspace-added" : "workspace-add-skipped"} ${wsIndex}`);
           this.trackCurrentMonWs();
           this.workspaceAdded = true;
         }),
         globalWsm.connect("workspace-removed", (_, wsIndex) => {
           let removed = this.tree.removeWorkspace(wsIndex);
-          Logger.debug(
-            `${
-              removed ? "workspace-removed" : "workspace-remove-skipped"
-            } ${wsIndex}`
-          );
+          Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
           this.trackCurrentMonWs();
           this.workspaceRemoved = true;
         }),
@@ -332,26 +307,17 @@ var WindowManager = GObject.registerClass(
             break;
           case "stacked-tiling-mode-enabled":
             if (!settings.get_boolean(settingName)) {
-              let stackedNodes = this.tree.getNodeByLayout(
-                Tree.LAYOUT_TYPES.STACKED
-              );
+              let stackedNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.STACKED);
               stackedNodes.forEach((node) => {
                 node.prevLayout = node.layout;
                 node.layout = this.determineSplitLayout();
               });
             } else {
-              let hSplitNodes = this.tree.getNodeByLayout(
-                Tree.LAYOUT_TYPES.HSPLIT
-              );
-              let vSplitNodes = this.tree.getNodeByLayout(
-                Tree.LAYOUT_TYPES.VSPLIT
-              );
+              let hSplitNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.HSPLIT);
+              let vSplitNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.VSPLIT);
               Array.prototype.push.apply(hSplitNodes, vSplitNodes);
               hSplitNodes.forEach((node) => {
-                if (
-                  node.prevLayout &&
-                  node.prevLayout === Tree.LAYOUT_TYPES.STACKED
-                ) {
+                if (node.prevLayout && node.prevLayout === Tree.LAYOUT_TYPES.STACKED) {
                   node.layout = Tree.LAYOUT_TYPES.STACKED;
                 }
               });
@@ -360,26 +326,17 @@ var WindowManager = GObject.registerClass(
             break;
           case "tabbed-tiling-mode-enabled":
             if (!settings.get_boolean(settingName)) {
-              let tabbedNodes = this.tree.getNodeByLayout(
-                Tree.LAYOUT_TYPES.TABBED
-              );
+              let tabbedNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.TABBED);
               tabbedNodes.forEach((node) => {
                 node.prevLayout = node.layout;
                 node.layout = this.determineSplitLayout();
               });
             } else {
-              let hSplitNodes = this.tree.getNodeByLayout(
-                Tree.LAYOUT_TYPES.HSPLIT
-              );
-              let vSplitNodes = this.tree.getNodeByLayout(
-                Tree.LAYOUT_TYPES.VSPLIT
-              );
+              let hSplitNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.HSPLIT);
+              let vSplitNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.VSPLIT);
               Array.prototype.push.apply(hSplitNodes, vSplitNodes);
               hSplitNodes.forEach((node) => {
-                if (
-                  node.prevLayout &&
-                  node.prevLayout === Tree.LAYOUT_TYPES.TABBED
-                ) {
+                if (node.prevLayout && node.prevLayout === Tree.LAYOUT_TYPES.TABBED) {
                   node.layout = Tree.LAYOUT_TYPES.TABBED;
                 }
               });
@@ -421,14 +378,10 @@ var WindowManager = GObject.registerClass(
       let metaWindow = this.focusMetaWindow;
       if (!metaWindow) return;
       const currentMonitor = global.display.get_current_monitor();
-      const currentWorkspace = global.display
-        .get_workspace_manager()
-        .get_active_workspace_index();
+      const currentWorkspace = global.display.get_workspace_manager().get_active_workspace_index();
 
       let currentMonWs = `mo${currentMonitor}ws${currentWorkspace}`;
-      let activeMetaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow
-        .get_workspace()
-        .index()}`;
+      let activeMetaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
 
       Logger.debug(`current-pointer-monitor-workspace: ${currentMonWs}`);
       Logger.debug(`current-window-monitor-workspace: ${activeMetaMonWs}`);
@@ -447,9 +400,7 @@ var WindowManager = GObject.registerClass(
             currentMonWs === activeMetaMonWs
         )
         .map((w) => w.nodeValue);
-      const sortedWindows = global.display
-        .sort_windows_by_stacking(monWindows)
-        .reverse();
+      const sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
 
       Logger.debug(`sorted windows ${sortedWindows.length}`);
       this.sortedWindows = sortedWindows;
@@ -464,19 +415,15 @@ var WindowManager = GObject.registerClass(
           let workspaceSignals = [
             metaWorkspace.connect("window-added", (_, metaWindow) => {
               if (!this._wsWindowAddSrcId) {
-                this._wsWindowAddSrcId = GLib.timeout_add(
-                  GLib.PRIORITY_DEFAULT,
-                  200,
-                  () => {
-                    this.updateMetaWorkspaceMonitor(
-                      "window-added",
-                      metaWindow.get_monitor(),
-                      metaWindow
-                    );
-                    this._wsWindowAddSrcId = 0;
-                    return false;
-                  }
-                );
+                this._wsWindowAddSrcId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+                  this.updateMetaWorkspaceMonitor(
+                    "window-added",
+                    metaWindow.get_monitor(),
+                    metaWindow
+                  );
+                  this._wsWindowAddSrcId = 0;
+                  return false;
+                });
               }
             }),
           ];
@@ -549,24 +496,15 @@ var WindowManager = GObject.registerClass(
               if (this.eventQueue.length <= 0) {
                 Logger.info("move queue is last, unfreezing render");
                 this.unfreezeRender();
-                if (
-                  focusNodeWindow.parentNode.layout ===
-                  Tree.LAYOUT_TYPES.STACKED
-                ) {
+                if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
                   focusNodeWindow.parentNode.appendChild(focusNodeWindow);
                   focusNodeWindow.nodeValue.raise();
-                  focusNodeWindow.nodeValue.activate(
-                    global.display.get_current_time()
-                  );
+                  focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                   this.renderTree("move-stacked-queue");
                 }
-                if (
-                  focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED
-                ) {
+                if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
                   focusNodeWindow.nodeValue.raise();
-                  focusNodeWindow.nodeValue.activate(
-                    global.display.get_current_time()
-                  );
+                  focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                   if (prev) prev.parentNode.lastTabFocus = prev.nodeValue;
                   this.renderTree("move-tabbed-queue");
                 }
@@ -649,24 +587,14 @@ var WindowManager = GObject.registerClass(
           this.renderTree("layout-split-toggle");
           break;
         case "FocusBorderToggle":
-          let focusBorderEnabled = this.ext.settings.get_boolean(
-            "focus-border-toggle"
-          );
-          this.ext.settings.set_boolean(
-            "focus-border-toggle",
-            !focusBorderEnabled
-          );
+          let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
+          this.ext.settings.set_boolean("focus-border-toggle", !focusBorderEnabled);
           break;
         case "TilingModeToggle":
           // FIXME, not sure if this toggle is still needed from a use case
           // perspective, since Extension.disable also should do the same thing.
-          let tilingModeEnabled = this.ext.settings.get_boolean(
-            "tiling-mode-enabled"
-          );
-          this.ext.settings.set_boolean(
-            "tiling-mode-enabled",
-            !tilingModeEnabled
-          );
+          let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
+          this.ext.settings.set_boolean("tiling-mode-enabled", !tilingModeEnabled);
           if (tilingModeEnabled) {
             this.floatAllWindows();
           } else {
@@ -677,9 +605,7 @@ var WindowManager = GObject.registerClass(
           this.updateDecorationLayout();
           break;
         case "GapSize":
-          let gapIncrement = this.ext.settings.get_uint(
-            "window-gap-size-increment"
-          );
+          let gapIncrement = this.ext.settings.get_uint("window-gap-size-increment");
           let amount = action.amount;
           gapIncrement = gapIncrement + amount;
           if (gapIncrement < 0) gapIncrement = 0;
@@ -687,11 +613,8 @@ var WindowManager = GObject.registerClass(
           this.ext.settings.set_uint("window-gap-size-increment", gapIncrement);
           break;
         case "WorkspaceActiveTileToggle":
-          let activeWorkspace =
-            global.workspace_manager.get_active_workspace_index();
-          let skippedWorkspaces = this.ext.settings.get_string(
-            "workspace-skip-tile"
-          );
+          let activeWorkspace = global.workspace_manager.get_active_workspace_index();
+          let skippedWorkspaces = this.ext.settings.get_string("workspace-skip-tile");
           let workspaceSkipped = false;
           let skippedArr = [];
           if (skippedWorkspaces.length === 0) {
@@ -728,24 +651,16 @@ var WindowManager = GObject.registerClass(
             }
           }
           Logger.debug(`Updated workspace skipped ${skippedArr.toString()}`);
-          this.ext.settings.set_string(
-            "workspace-skip-tile",
-            skippedArr.toString()
-          );
+          this.ext.settings.set_string("workspace-skip-tile", skippedArr.toString());
           this.updateBorderLayout();
           this.updateDecorationLayout();
           break;
         case "LayoutStackedToggle":
           if (!focusNodeWindow) return;
-          if (!this.ext.settings.get_boolean("stacked-tiling-mode-enabled"))
-            return;
+          if (!this.ext.settings.get_boolean("stacked-tiling-mode-enabled")) return;
 
           if (focusNodeWindow.parentNode.isMonitor()) {
-            this.tree.split(
-              focusNodeWindow,
-              Tree.ORIENTATION_TYPES.HORIZONTAL,
-              true
-            );
+            this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL, true);
           }
 
           currentLayout = focusNodeWindow.parentNode.layout;
@@ -770,15 +685,10 @@ var WindowManager = GObject.registerClass(
           break;
         case "LayoutTabbedToggle":
           if (!focusNodeWindow) return;
-          if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled"))
-            return;
+          if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled")) return;
 
           if (focusNodeWindow.parentNode.isMonitor()) {
-            this.tree.split(
-              focusNodeWindow,
-              Tree.ORIENTATION_TYPES.HORIZONTAL,
-              true
-            );
+            this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL, true);
           }
 
           currentLayout = focusNodeWindow.parentNode.layout;
@@ -808,10 +718,7 @@ var WindowManager = GObject.registerClass(
           if (existWindow && existWindow.get_workspace()) {
             existWindow
               .get_workspace()
-              .activate_with_focus(
-                existWindow,
-                global.display.get_current_time()
-              );
+              .activate_with_focus(existWindow, global.display.get_current_time());
             this.moveCenter(existWindow);
             Logger.warn("prefs is already open");
           } else {
@@ -877,10 +784,7 @@ var WindowManager = GObject.registerClass(
 
     get windowsActiveWorkspace() {
       let wsManager = global.workspace_manager;
-      return global.display.get_tab_list(
-        Meta.TabList.NORMAL_ALL,
-        wsManager.get_active_workspace()
-      );
+      return global.display.get_tab_list(Meta.TabList.NORMAL_ALL, wsManager.get_active_workspace());
     }
 
     get windowsAllWorkspaces() {
@@ -890,10 +794,7 @@ var WindowManager = GObject.registerClass(
       for (let i = 0; i < wsManager.get_n_workspaces(); i++) {
         Array.prototype.push.apply(
           windowsAll,
-          global.display.get_tab_list(
-            Meta.TabList.NORMAL_ALL,
-            wsManager.get_workspace_by_index(i)
-          )
+          global.display.get_tab_list(Meta.TabList.NORMAL_ALL, wsManager.get_workspace_by_index(i))
         );
       }
       Logger.debug(`open-windows: ${windowsAll.length}`);
@@ -905,17 +806,13 @@ var WindowManager = GObject.registerClass(
 
     getWindowsOnWorkspace(workspaceIndex) {
       const workspaceNode = this.tree.findNode(`ws${workspaceIndex}`);
-      const workspaceWindows = workspaceNode.getNodeByType(
-        Tree.NODE_TYPES.WINDOW
-      );
+      const workspaceWindows = workspaceNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
       return workspaceWindows;
     }
 
     determineSplitLayout() {
       // if the monitor width is less than height, the monitor could be vertical orientation;
-      let monitorRect = global.display.get_monitor_geometry(
-        global.display.get_current_monitor()
-      );
+      let monitorRect = global.display.get_monitor_geometry(global.display.get_current_monitor());
       if (monitorRect.width < monitorRect.height) {
         return Tree.LAYOUT_TYPES.VSPLIT;
       }
@@ -953,9 +850,7 @@ var WindowManager = GObject.registerClass(
           if (nodeWindow.tab) {
             // TODO: review the cleanup of the tab:St.Widget variable
             try {
-              nodeWindow.tab.remove_style_class_name(
-                "window-tabbed-tab-active"
-              );
+              nodeWindow.tab.remove_style_class_name("window-tabbed-tab-active");
             } catch (e) {
               Logger.warn(e);
             }
@@ -977,13 +872,7 @@ var WindowManager = GObject.registerClass(
       windowActor.remove_all_transitions();
 
       metaWindow.move_frame(true, rect.x, rect.y);
-      metaWindow.move_resize_frame(
-        true,
-        rect.x,
-        rect.y,
-        rect.width,
-        rect.height
-      );
+      metaWindow.move_resize_frame(true, rect.x, rect.y, rect.width, rect.height);
     }
 
     moveCenter(metaWindow) {
@@ -1006,12 +895,10 @@ var WindowManager = GObject.registerClass(
     }
 
     rectForMonitor(node, targetMonitor) {
-      if (!node || (node && node.nodeType !== Tree.NODE_TYPES.WINDOW))
-        return null;
+      if (!node || (node && node.nodeType !== Tree.NODE_TYPES.WINDOW)) return null;
       if (targetMonitor < 0) return null;
       let currentWorkArea = node.nodeValue.get_work_area_current_monitor();
-      let nextWorkArea =
-        node.nodeValue.get_work_area_for_monitor(targetMonitor);
+      let nextWorkArea = node.nodeValue.get_work_area_for_monitor(targetMonitor);
 
       if (currentWorkArea && nextWorkArea) {
         let rect = node.rect;
@@ -1028,24 +915,18 @@ var WindowManager = GObject.registerClass(
 
         if (nextWorkArea.y < currentWorkArea.y) {
           rect.y =
-            ((nextWorkArea.y + rect.y - currentWorkArea.y) /
-              currentWorkArea.height) *
+            ((nextWorkArea.y + rect.y - currentWorkArea.y) / currentWorkArea.height) *
             nextWorkArea.height;
         } else if (nextWorkArea.y > currentWorkArea.y) {
-          rect.y =
-            (rect.y / currentWorkArea.height) * nextWorkArea.height +
-            nextWorkArea.y;
+          rect.y = (rect.y / currentWorkArea.height) * nextWorkArea.height + nextWorkArea.y;
         }
 
         if (nextWorkArea.x < currentWorkArea.x) {
           rect.x =
-            ((nextWorkArea.x + rect.x - currentWorkArea.x) /
-              currentWorkArea.width) *
+            ((nextWorkArea.x + rect.x - currentWorkArea.x) / currentWorkArea.width) *
             nextWorkArea.width;
         } else if (nextWorkArea.x > currentWorkArea.x) {
-          rect.x =
-            (rect.x / currentWorkArea.width) * nextWorkArea.width +
-            nextWorkArea.x;
+          rect.x = (rect.x / currentWorkArea.width) * nextWorkArea.width + nextWorkArea.x;
         }
         return rect;
       }
@@ -1170,10 +1051,7 @@ var WindowManager = GObject.registerClass(
     }
 
     renderTree(from) {
-      if (
-        this._freezeRender ||
-        !this.ext.settings.get_boolean("tiling-mode-enabled")
-      ) {
+      if (this._freezeRender || !this.ext.settings.get_boolean("tiling-mode-enabled")) {
         Logger.trace(`render frozen`);
         return;
       }
@@ -1254,27 +1132,15 @@ var WindowManager = GObject.registerClass(
       if (metaWindow.get_wm_class() === null) return;
 
       let borders = [];
-      let focusBorderEnabled = this.ext.settings.get_boolean(
-        "focus-border-toggle"
-      );
-      let splitBorderEnabled = this.ext.settings.get_boolean(
-        "split-border-toggle"
-      );
-      let tilingModeEnabled = this.ext.settings.get_boolean(
-        "tiling-mode-enabled"
-      );
+      let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
+      let splitBorderEnabled = this.ext.settings.get_boolean("split-border-toggle");
+      let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
       let gap = this.calculateGaps();
       let maximized = () => {
-        return (
-          metaWindow.get_maximized() !== 0 ||
-          metaWindow.is_fullscreen() ||
-          gap === 0
-        );
+        return metaWindow.get_maximized() !== 0 || metaWindow.is_fullscreen() || gap === 0;
       };
       let monitorCount = global.display.get_n_monitors();
-      let tiledChildren = this.tree.getTiledChildren(
-        nodeWindow.parentNode.childNodes
-      );
+      let tiledChildren = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
       let inset = 3;
       let parentNode = nodeWindow.parentNode;
 
@@ -1384,17 +1250,13 @@ var WindowManager = GObject.registerClass(
       let gap = gapSize * gapIncrement;
       let metaWindow = this.focusMetaWindow;
       if (metaWindow && metaWindow.get_workspace()) {
-        let monitorWs = `mo${metaWindow.get_monitor()}ws${metaWindow
-          .get_workspace()
-          .index()}`;
+        let monitorWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
         let monitorWsNode = this.tree.findNode(monitorWs);
         if (monitorWsNode) {
           let tiled = monitorWsNode
             .getNodeByMode(WINDOW_MODES.TILE)
             .filter((t) => t.nodeType === Tree.NODE_TYPES.WINDOW);
-          let hideGapWhenSingle = settings.get_boolean(
-            "window-gap-hidden-on-single"
-          );
+          let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
           if (tiled.length === 1 && hideGapWhenSingle) {
             gap = 0;
           }
@@ -1424,9 +1286,7 @@ var WindowManager = GObject.registerClass(
           if (!parentFocusNode) {
             // Else it could be the initial window
             // get the containing monitor instead
-            let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow
-              .get_workspace()
-              .index()}`;
+            let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
             Logger.debug(
               `checking parentFocusNode using current metaWindow workspace monitor ${metaMonWs}`
             );
@@ -1439,26 +1299,18 @@ var WindowManager = GObject.registerClass(
               .get_active_workspace_index();
             const activeMonitor = global.display.get_current_monitor();
             let metaMonWs = `mo${activeMonitor}ws${activeWorkspace}`;
-            Logger.debug(
-              `checking parentFocusNode using active workspace monitor ${metaMonWs}`
-            );
+            Logger.debug(`checking parentFocusNode using active workspace monitor ${metaMonWs}`);
             parentFocusNode = this.tree.findNode(metaMonWs);
           }
           if (!parentFocusNode) {
             // there is nothing to attach to
-            Logger.warn(
-              `track-window: nothing to attach to for ${metaWindow.get_title()}`
-            );
+            Logger.warn(`track-window: nothing to attach to for ${metaWindow.get_title()}`);
             return;
           }
           Logger.info(
-            `track-window: ${metaWindow.get_title()} attaching to ${
-              parentFocusNode.nodeValue
-            }`
+            `track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`
           );
-          Logger.warn(
-            `track-window: allow-resize ${metaWindow.allows_resize()}`
-          );
+          Logger.warn(`track-window: allow-resize ${metaWindow.allows_resize()}`);
 
           nodeWindow = this.tree.createNode(
             parentFocusNode.nodeValue,
@@ -1469,9 +1321,7 @@ var WindowManager = GObject.registerClass(
 
           metaWindow.firstRender = true;
 
-          let childNodes = this.tree.getTiledChildren(
-            nodeWindow.parentNode.childNodes
-          );
+          let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
           childNodes.forEach((n) => {
             n.percent = 0.0;
           });
@@ -1490,9 +1340,7 @@ var WindowManager = GObject.registerClass(
               this.updateMetaPositionSize(_metaWindow, from);
             }),
             metaWindow.connect("focus", (_metaWindowFocus) => {
-              let tilingModeEnabled = this.ext.settings.get_boolean(
-                "tiling-mode-enabled"
-              );
+              let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
               if (
                 (tilingModeEnabled && !_metaWindowFocus.firstRender) ||
                 !tilingModeEnabled ||
@@ -1535,9 +1383,7 @@ var WindowManager = GObject.registerClass(
         }
 
         if (!windowActor.actorSignals) {
-          let actorSignals = [
-            windowActor.connect("destroy", this.windowDestroy.bind(this)),
-          ];
+          let actorSignals = [windowActor.connect("destroy", this.windowDestroy.bind(this))];
           windowActor.actorSignals = actorSignals;
           Logger.debug(`track-window:binding-actor-signal`);
         }
@@ -1586,10 +1432,7 @@ var WindowManager = GObject.registerClass(
     updateStackedFocus(focusNodeWindow) {
       if (!focusNodeWindow) return;
       const parentNode = focusNodeWindow.parentNode;
-      if (
-        parentNode.layout === Tree.LAYOUT_TYPES.STACKED &&
-        !this._freezeRender
-      ) {
+      if (parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
         parentNode.appendChild(focusNodeWindow);
         focusNodeWindow.nodeValue.raise();
         this.queueEvent({
@@ -1603,10 +1446,7 @@ var WindowManager = GObject.registerClass(
 
     updateTabbedFocus(focusNodeWindow) {
       if (!focusNodeWindow) return;
-      if (
-        focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED &&
-        !this._freezeRender
-      ) {
+      if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
         const metaWindow = focusNodeWindow.nodeValue;
         metaWindow.raise();
       }
@@ -1626,9 +1466,7 @@ var WindowManager = GObject.registerClass(
         if (activeWorkspaceForWin) {
           let wsIndex = activeWorkspaceForWin.index();
           if (skipArr[i].trim() === `${wsIndex}`) {
-            Logger.debug(
-              `workspace ${wsIndex} skipped for window ${metaWindow.get_wm_class()}`
-            );
+            Logger.debug(`workspace ${wsIndex} skipped for window ${metaWindow.get_wm_class()}`);
             skipThisWs = true;
             break;
           }
@@ -1707,9 +1545,7 @@ var WindowManager = GObject.registerClass(
       let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
       if (focusNodeWindow) {
         this.tree.attachNode = focusNodeWindow.parentNode;
-        Logger.trace(
-          `on-destroy: finding next attach node ${this.tree.attachNode.nodeType}`
-        );
+        Logger.trace(`on-destroy: finding next attach node ${this.tree.attachNode.nodeType}`);
       }
 
       this.queueEvent(
@@ -1736,9 +1572,7 @@ var WindowManager = GObject.registerClass(
       if (this._validWindow(metaWindow)) {
         if (metaWindow.get_workspace() === null) return;
         let existNodeWindow = this.tree.findNode(metaWindow);
-        let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow
-          .get_workspace()
-          .index()}`;
+        let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
         let metaMonWsNode = this.tree.findNode(metaMonWs);
         if (existNodeWindow) {
           if (existNodeWindow.parentNode && metaMonWsNode) {
@@ -1767,9 +1601,7 @@ var WindowManager = GObject.registerClass(
             }
           }
         }
-        Logger.debug(
-          `update-ws-mon:${from}: moved ${metaWindow.get_wm_class()} to ${metaMonWs}`
-        );
+        Logger.debug(`update-ws-mon:${from}: moved ${metaWindow.get_wm_class()} to ${metaMonWs}`);
         this.renderTree(from);
       }
       this.updateBorderLayout();
@@ -1786,9 +1618,7 @@ var WindowManager = GObject.registerClass(
       let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
       if (!focusNodeWindow) return;
 
-      let tilingModeEnabled = this.ext.settings.get_boolean(
-        "tiling-mode-enabled"
-      );
+      let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
 
       if (focusNodeWindow.grabMode && tilingModeEnabled) {
         if (focusNodeWindow.grabMode === GRAB_TYPES.RESIZING) {
@@ -1823,15 +1653,11 @@ var WindowManager = GObject.registerClass(
       let allWindows = activeWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
       let allHiddenWindows = allWindows.filter((w) => {
         let metaWindow = w.nodeValue;
-        Logger.trace(
-          `deco-update: window shown ${metaWindow.showing_on_its_workspace()}`
-        );
+        Logger.trace(`deco-update: window shown ${metaWindow.showing_on_its_workspace()}`);
         return !metaWindow.showing_on_its_workspace() || metaWindow.minimized;
       });
 
-      Logger.debug(
-        `deco-update: all ${allWindows.length} hidden ${allHiddenWindows.length}`
-      );
+      Logger.debug(`deco-update: all ${allWindows.length} hidden ${allHiddenWindows.length}`);
 
       // Then if all hidden, do not proceed showing the decorations at all;
       if (allWindows.length === allHiddenWindows.length) return;
@@ -1884,10 +1710,7 @@ var WindowManager = GObject.registerClass(
 
     floatingWindow(node) {
       if (!node) return false;
-      return (
-        node.nodeType === Tree.NODE_TYPES.WINDOW &&
-        node.mode === WINDOW_MODES.FLOAT
-      );
+      return node.nodeType === Tree.NODE_TYPES.WINDOW && node.mode === WINDOW_MODES.FLOAT;
     }
 
     /**
@@ -1915,11 +1738,7 @@ var WindowManager = GObject.registerClass(
 
     minimizedWindow(node) {
       if (!node) return false;
-      return (
-        node._type === Tree.NODE_TYPES.WINDOW &&
-        node._data &&
-        node._data.minimized
-      );
+      return node._type === Tree.NODE_TYPES.WINDOW && node._data && node._data.minimized;
     }
 
     swapWindowsUnderPointer(focusNodeWindow) {
@@ -1928,8 +1747,7 @@ var WindowManager = GObject.registerClass(
         return;
       }
       let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
-      if (nodeWinAtPointer)
-        this.tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
+      if (nodeWinAtPointer) this.tree.swapPairs(focusNodeWindow, nodeWinAtPointer);
     }
 
     /**
@@ -1942,8 +1760,7 @@ var WindowManager = GObject.registerClass(
         Logger.debug(`move-grab: was cancelled`);
         return;
       }
-      if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE)
-        return;
+      if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
 
       let nodeWinAtPointer = this.nodeWinAtPointer;
 
@@ -1951,10 +1768,8 @@ var WindowManager = GObject.registerClass(
         const targetRect = this.tree.processGap(nodeWinAtPointer);
         const parentNodeTarget = nodeWinAtPointer.parentNode;
         const currPointer = this.getPointer();
-        const horizontal =
-          parentNodeTarget.isHSplit() || parentNodeTarget.isTabbed();
-        const isMonParent =
-          parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
+        const horizontal = parentNodeTarget.isHSplit() || parentNodeTarget.isTabbed();
+        const isMonParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
         const isConParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.CON;
         const stacked = parentNodeTarget.isStacked();
         const tabbed = parentNodeTarget.isTabbed();
@@ -2054,15 +1869,11 @@ var WindowManager = GObject.registerClass(
         if (isCenter) {
           Logger.debug("move-pointer: is center");
           if (stackedOrTabbed) {
-            Logger.debug(
-              `move-pointer: con already stacked ${stacked} or ${tabbed}`
-            );
+            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             containerNode = parentNodeTarget;
             referenceNode = null;
             previewParams = {
-              className: stacked
-                ? "window-tilepreview-stacked"
-                : "window-tilepreview-tabbed",
+              className: stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed",
               targetRect: targetRect,
             };
           } else {
@@ -2092,9 +1903,7 @@ var WindowManager = GObject.registerClass(
             // treat any windows on stacked or tabbed layouts to be
             // a single node unit: the con itself and then
             // split left, top, right or bottom accordingly (subsequent if conditions):
-            Logger.debug(
-              `move-pointer: con already stacked ${stacked} or ${tabbed}`
-            );
+            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             childNode.detachWindow = true;
             if (!isMonParent) {
               Logger.debug(`move-pointer: parent is not monitor`);
@@ -2127,9 +1936,7 @@ var WindowManager = GObject.registerClass(
             // treat any windows on stacked or tabbed layouts to be
             // a single node unit: the con itself and then
             // split left, top, right or bottom accordingly (subsequent if conditions):
-            Logger.debug(
-              `move-pointer: con already stacked ${stacked} or ${tabbed}`
-            );
+            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             childNode.detachWindow = true;
             if (!isMonParent) {
               Logger.debug(`move-pointer: parent is not monitor`);
@@ -2161,16 +1968,12 @@ var WindowManager = GObject.registerClass(
             // treat any windows on stacked or tabbed layouts to be
             // a single node unit: the con itself and then
             // split left, top, right or bottom accordingly (subsequent if conditions):
-            Logger.debug(
-              `move-pointer: con already stacked ${stacked} or ${tabbed}`
-            );
+            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             if (!isMonParent) {
               containerNode = parentNodeTarget;
               referenceNode = null;
               previewParams = {
-                className: stacked
-                  ? "window-tilepreview-stacked"
-                  : "window-tilepreview-tabbed",
+                className: stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed",
                 targetRect: targetRect,
               };
             } else {
@@ -2199,16 +2002,12 @@ var WindowManager = GObject.registerClass(
             // treat any windows on stacked or tabbed layouts to be
             // a single node unit: the con itself and then
             // split left, top, right or bottom accordingly (subsequent if conditions):
-            Logger.debug(
-              `move-pointer: con already stacked ${stacked} or ${tabbed}`
-            );
+            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             if (!isMonParent) {
               containerNode = parentNodeTarget;
               referenceNode = null;
               previewParams = {
-                className: stacked
-                  ? "window-tilepreview-stacked"
-                  : "window-tilepreview-tabbed",
+                className: stacked ? "window-tilepreview-stacked" : "window-tilepreview-tabbed",
                 targetRect: targetRect,
               };
             } else {
@@ -2245,8 +2044,7 @@ var WindowManager = GObject.registerClass(
             previewParams.className = "window-tilepreview-tiled";
           }
         } else if (isCenter) {
-          if (!stackedOrTabbed)
-            previewParams.className = this._getDragDropCenterPreviewStyle();
+          if (!stackedOrTabbed) previewParams.className = this._getDragDropCenterPreviewStyle();
         }
 
         if (!preview) {
@@ -2294,9 +2092,7 @@ var WindowManager = GObject.registerClass(
             } else if (isTop || isBottom) {
               childNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
             } else if (isCenter) {
-              const centerLayout = this.ext.settings
-                .get_string("dnd-center-layout")
-                .toUpperCase();
+              const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
               Logger.debug(`move-pointer: center layout ${centerLayout}`);
               childNode.layout = Tree.LAYOUT_TYPES[centerLayout];
             }
@@ -2313,8 +2109,7 @@ var WindowManager = GObject.registerClass(
             if (isLeft || isRight) {
               containerNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
             } else if (isTop || isBottom) {
-              if (!stackedOrTabbed)
-                containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+              if (!stackedOrTabbed) containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
             } else if (isCenter) {
               if (containerNode.isHSplit() || containerNode.isVSplit()) {
                 const centerLayout = this.ext.settings
@@ -2336,10 +2131,7 @@ var WindowManager = GObject.registerClass(
     findNodeWindowAtPointer(focusNodeWindow) {
       let pointerCoord = global.get_pointer();
 
-      let nodeWinAtPointer = this._findNodeWindowAtPointer(
-        focusNodeWindow.nodeValue,
-        pointerCoord
-      );
+      let nodeWinAtPointer = this._findNodeWindowAtPointer(focusNodeWindow.nodeValue, pointerCoord);
       return nodeWinAtPointer;
     }
 
@@ -2387,9 +2179,7 @@ var WindowManager = GObject.registerClass(
         focusNodeWindow.initGrabOp = grabOp;
         focusNodeWindow.initRect = Utils.removeGapOnRect(frameRect, gaps);
       }
-      Logger.debug(
-        `grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`
-      );
+      Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
     }
 
     _handleGrabOpEnd(_display, _metaWindow, grabOp) {
@@ -2403,10 +2193,7 @@ var WindowManager = GObject.registerClass(
       if (focusNodeWindow && !this.cancelGrab) {
         // WINDOW_BASE is when grabbing the window decoration
         // COMPOSITOR is when something like Overview requesting a grab, especially when Super is pressed.
-        if (
-          grabOp === Meta.GrabOp.WINDOW_BASE ||
-          grabOp === Meta.GrabOp.COMPOSITOR
-        ) {
+        if (grabOp === Meta.GrabOp.WINDOW_BASE || grabOp === Meta.GrabOp.COMPOSITOR) {
           if (this.allowDragDropTile()) {
             this.moveWindowToPointer(focusNodeWindow);
           }
@@ -2480,10 +2267,7 @@ var WindowManager = GObject.registerClass(
       if (orientation === Tree.ORIENTATION_TYPES.HORIZONTAL) {
         if (sameParent) {
           // use the window or con pairs
-          if (
-            this.tree.getTiledChildren(parentNodeForFocus.childNodes).length <=
-            1
-          ) {
+          if (this.tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
             Logger.warn(`not valid for resize`);
             return;
           }
@@ -2514,11 +2298,7 @@ var WindowManager = GObject.registerClass(
         } else {
           // use the parent pairs (con to another con or window)
           if (resizePairForWindow && resizePairForWindow.parentNode) {
-            if (
-              this.tree.getTiledChildren(
-                resizePairForWindow.parentNode.childNodes
-              ).length <= 1
-            ) {
+            if (this.tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
               Logger.warn(`not valid for resize`);
               return;
             }
@@ -2530,8 +2310,7 @@ var WindowManager = GObject.registerClass(
             } else {
               index = index - 1;
             }
-            parentNodeForFocus =
-              resizePairForWindow.parentNode.childNodes[index];
+            parentNodeForFocus = resizePairForWindow.parentNode.childNodes[index];
             firstRect = parentNodeForFocus.rect;
             secondRect = resizePairForWindow.rect;
             if (!firstRect || !secondRect) {
@@ -2542,8 +2321,7 @@ var WindowManager = GObject.registerClass(
             parentRect = parentNodeForFocus.parentNode.rect;
             let changePx = currentRect.width - firstWindowRect.width;
             let firstPercent = (firstRect.width + changePx) / parentRect.width;
-            let secondPercent =
-              (secondRect.width - changePx) / parentRect.width;
+            let secondPercent = (secondRect.width - changePx) / parentRect.width;
             parentNodeForFocus.percent = firstPercent;
             resizePairForWindow.percent = secondPercent;
           }
@@ -2551,10 +2329,7 @@ var WindowManager = GObject.registerClass(
       } else if (orientation === Tree.ORIENTATION_TYPES.VERTICAL) {
         if (sameParent) {
           // use the window or con pairs
-          if (
-            this.tree.getTiledChildren(parentNodeForFocus.childNodes).length <=
-            1
-          ) {
+          if (this.tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
             Logger.warn(`not valid for resize`);
             return;
           }
@@ -2576,18 +2351,13 @@ var WindowManager = GObject.registerClass(
           parentRect = parentNodeForFocus.rect;
           let changePx = currentRect.height - firstRect.height;
           let firstPercent = (firstRect.height + changePx) / parentRect.height;
-          let secondPercent =
-            (secondRect.height - changePx) / parentRect.height;
+          let secondPercent = (secondRect.height - changePx) / parentRect.height;
           focusNodeWindow.percent = firstPercent;
           resizePairForWindow.percent = secondPercent;
         } else {
           // use the parent pairs (con to another con or window)
           if (resizePairForWindow && resizePairForWindow.parentNode) {
-            if (
-              this.tree.getTiledChildren(
-                resizePairForWindow.parentNode.childNodes
-              ).length <= 1
-            ) {
+            if (this.tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
               Logger.warn(`not valid for resize`);
               return;
             }
@@ -2599,8 +2369,7 @@ var WindowManager = GObject.registerClass(
             } else {
               index = index - 1;
             }
-            parentNodeForFocus =
-              resizePairForWindow.parentNode.childNodes[index];
+            parentNodeForFocus = resizePairForWindow.parentNode.childNodes[index];
             firstRect = parentNodeForFocus.rect;
             secondRect = resizePairForWindow.rect;
             if (!firstRect || !secondRect) {
@@ -2610,10 +2379,8 @@ var WindowManager = GObject.registerClass(
 
             parentRect = parentNodeForFocus.parentNode.rect;
             let changePx = currentRect.height - firstWindowRect.height;
-            let firstPercent =
-              (firstRect.height + changePx) / parentRect.height;
-            let secondPercent =
-              (secondRect.height - changePx) / parentRect.height;
+            let firstPercent = (firstRect.height + changePx) / parentRect.height;
+            let secondPercent = (secondRect.height - changePx) / parentRect.height;
             parentNodeForFocus.percent = firstPercent;
             resizePairForWindow.percent = secondPercent;
           }
@@ -2622,8 +2389,7 @@ var WindowManager = GObject.registerClass(
     }
 
     _handleMoving(focusNodeWindow) {
-      if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE)
-        return;
+      if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
 
       const nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
       this.nodeWinAtPointer = nodeWinAtPointer;
@@ -2666,9 +2432,7 @@ var WindowManager = GObject.registerClass(
         windowTitle.length === 0 ||
         !metaWindow.allows_resize();
 
-      const knownFloats = this.windowProps.overrides.filter(
-        (wprop) => wprop.mode === "float"
-      );
+      const knownFloats = this.windowProps.overrides.filter((wprop) => wprop.mode === "float");
 
       let floatOverride =
         knownFloats.filter((kf) => {
@@ -2685,8 +2449,7 @@ var WindowManager = GObject.registerClass(
               matchTitle = kf.wmTitle === windowTitle;
             } else {
               let titles = kf.wmTitle.split(",");
-              matchTitle =
-                titles.filter((t) => windowTitle.includes(t)).length > 0;
+              matchTitle = titles.filter((t) => windowTitle.includes(t)).length > 0;
             }
           }
           if (kf.wmClass) {

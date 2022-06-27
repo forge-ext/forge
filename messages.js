@@ -34,10 +34,7 @@ let pkgVersion = imports.misc.config.PACKAGE_VERSION;
 
 var pkg_ext_text = `${pkgVersion}-${Me.metadata.version}`;
 var prefs_title =
-  "Forge" +
-  " " +
-  _("Settings") +
-  (!Settings.production ? " - DEV" : ` - ${pkg_ext_text}`);
+  "Forge" + " " + _("Settings") + (!Settings.production ? " - DEV" : ` - ${pkg_ext_text}`);
 var prefs_wip_text = _("Development in Progress...");
 var prefs_general_about = _("About");
 var prefs_general_appearance = _("Appearance");
@@ -50,9 +47,7 @@ var prefs_appearance_windows = _("Window");
 var prefs_appearance_window_gaps_title = _("Gaps");
 var prefs_appearance_window_gaps_size_label = _("Gaps Size");
 var prefs_appearance_window_gaps_increment_label = _("Gaps Size Increments");
-var prefs_appearance_window_gaps_hidden_single_label = _(
-  "Gaps Hidden when Single"
-);
+var prefs_appearance_window_gaps_hidden_single_label = _("Gaps Hidden when Single");
 var prefs_appearance_color = _("Color");
 var prefs_appearance_color_border_size_label = _("Border Size");
 var prefs_appearance_color_border_color_label = _("Border Color");
@@ -62,9 +57,7 @@ var prefs_appearance_color_border_changes_apply = _("Apply Changes");
 var prefs_appearance_color_border_size_reset = _("Reset");
 var prefs_appearance_color_border_color_reset = _("Reset");
 var prefs_appearance_layout = _("Layout");
-var prefs_appearance_layout_dnd_default_layout = _(
-  "Default Drag-and-Drop Center Layout"
-);
+var prefs_appearance_layout_dnd_default_layout = _("Default Drag-and-Drop Center Layout");
 var prefs_appearance_layout_dnd_default_layout_option_tabbed = _("Tabbed");
 var prefs_appearance_layout_dnd_default_layout_option_stacked = _("Stacked");
 
@@ -81,9 +74,7 @@ var prefs_keyboard_container_shortcuts = _("Container Shortcuts");
 var prefs_keyboard_focus_shortcuts = _("Focus Shortcuts");
 var prefs_keyboard_other_shortcuts = _("Other Shortcuts");
 var prefs_keyboard_function_mod_keys = _("Modifier Keys");
-var prefs_keyboard_other_mod_mask_header = _(
-  "Drag-Drop Tiling Modifier Key Options"
-);
+var prefs_keyboard_other_mod_mask_header = _("Drag-Drop Tiling Modifier Key Options");
 var prefs_keyboard_other_mod_mask_informational1 = _(
   "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
 );
@@ -104,9 +95,7 @@ var prefs_experimental_settings_title = _(
 var prefs_experimental_stacked_tiling_label = _(
   "Stacked Tiling Mode (Stack windows on top of each other while still being tiled)"
 );
-var prefs_experimental_tabbed_tiling_label = _(
-  "Tabbed Tiling Mode (Group tiled windows as tabs)"
-);
+var prefs_experimental_tabbed_tiling_label = _("Tabbed Tiling Mode (Group tiled windows as tabs)");
 
 var prefs_keyboard_update_keys_title = _("Update Keybindings");
 var prefs_keyboard_update_keys_syntax_label = _("Syntax");
@@ -117,9 +106,7 @@ var prefs_keyboard_update_keys_instructions_text = _(
   "Delete text to unset. Press Return key to accept. Focus out to ignore."
 );
 var prefs_keyboard_update_keys_resets_label = _("Resets");
-var prefs_keyboard_update_keys_resets_sub_1_label = _(
-  "to previous value when invalid"
-);
+var prefs_keyboard_update_keys_resets_sub_1_label = _("to previous value when invalid");
 var prefs_keyboard_update_keys_column_1_header = _("Action");
 var prefs_keyboard_update_keys_column_2_header = _("Shortcut");
 var prefs_keyboard_update_keys_column_3_header = _("Notes");
