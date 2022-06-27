@@ -432,7 +432,6 @@ var WindowManager = GObject.registerClass(
             // Do not check if the node window is null, some of the commands do not need the focus window
             let focusNodeWindow = this.findNodeWindow(focusWindow);
             let currentLayout;
-            let wasFrozen;
 
             switch(action.name) {
                 case "FloatToggle":
@@ -464,7 +463,16 @@ var WindowManager = GObject.registerClass(
                     }
 
                     this.tree.resetSiblingPercent(existParent);
-                    this.renderTree("float-toggle");
+                    this.forceRender(() => {
+                        this.renderTree("float-toggle");
+                        this.queueEvent({
+                            name: "update-layouts",
+                            callback: () => {
+                                this.updateBorderLayout();
+                                this.updateDecorationLayout();
+                            }
+                        }, 100);
+                    });
                     break;
                 case "Move":
                     this.unfreezeRender();
@@ -498,11 +506,10 @@ var WindowManager = GObject.registerClass(
                             prev.parentNode.lastTabFocus = prev.nodeValue;
                         this.renderTree("move-window");
                     }
-                    this.updateBorderLayout();
-                    wasFrozen = this._freezeRender;
-                    if (wasFrozen) this.unfreezeRender();
-                    this.updateDecorationLayout();
-                    if (wasFrozen) this.freezeRender();
+                    this.forceRender(() => {
+                        this.updateBorderLayout();
+                        this.updateDecorationLayout();
+                    });
 
                     break;
                 case "Focus":
@@ -534,11 +541,10 @@ var WindowManager = GObject.registerClass(
                     focusNodeWindow.nodeValue.raise();
                     this.updateTabbedFocus(focusNodeWindow);
                     this.updateStackedFocus(focusNodeWindow);
-                    wasFrozen = this._freezeRender;
-                    if (wasFrozen) this.unfreezeRender();
-                    this.updateDecorationLayout();
-                    this.renderTree("swap");
-                    if (wasFrozen) this.freezeRender();
+                    this.forceRender(() => {
+                        this.updateDecorationLayout();
+                        this.renderTree("swap");
+                    });
                     break;
                 case "Split":
                     if (!focusNodeWindow) return;
@@ -1337,11 +1343,11 @@ var WindowManager = GObject.registerClass(
                                 }
                                 this.tree.attachNode = focusNodeWindow;
                             }
-                            let wasFrozen = this._freezeRender;
-                            if (wasFrozen) this.unfreezeRender();
-                            this.renderTree("focus");
-                            this.updateDecorationLayout();
-                            if (wasFrozen) this.freezeRender();
+
+                            this.forceRender(() => {
+                                this.renderTree("focus");
+                                this.updateDecorationLayout();
+                            });
 
                             Logger.debug(`window:focus`);
                         }),
@@ -1379,17 +1385,16 @@ var WindowManager = GObject.registerClass(
 
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${metaWindow.get_monitor()}`);
-
-                let renderRaise = () => {
-                    metaWindow.raise();
-                    this.renderTree(`from-freeze-window-create`);
-                    this.updateBorderLayout();
-                }
-
                 this.queueEvent({
-                    name: "render after create",
-                    callback: renderRaise
-                }, 500);
+                    name: "window-create-queue",
+                    callback: () => {
+                        this.forceRender(() => {
+                            this.renderTree("window-create");
+                            this.updateBorderLayout();
+                            this.updateDecorationLayout();
+                        });
+                    }
+                }, 300);
             } 
         }
 
@@ -1651,6 +1656,13 @@ var WindowManager = GObject.registerClass(
 
         unfreezeRender() {
             this._freezeRender = false;
+        }
+
+        forceRender(callback = {}) {
+            let wasFrozen = this._freezeRender;
+            if (wasFrozen) this.unfreezeRender();
+            callback();
+            if (wasFrozen) this.freezeRender();
         }
 
         floatingWindow(node) {
