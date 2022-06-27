@@ -71,30 +71,52 @@ var WindowManager = GObject.registerClass(
             Logger.info("forge initialized");
         }
 
-        addFloatOverride(metaWindow) {
-            Logger.info(`Add Float override for window ${metaWindow.get_title()}`);
+        addFloatOverride(metaWindow, byClass = true) {
             let overrides = this.windowProps.overrides;
             let wmTitle = metaWindow.get_title();
             let wmClass = metaWindow.get_wm_class();
+
+            if (!byClass) {
+                Logger.info(`Add Float override for title ${wmTitle} and class ${wmClass}`);
+            } else {
+                Logger.info(`Add Float override for class ${wmClass}`);
+            }
+
             for (let override in overrides) {
-                if (override.wmClass === wmClass && override.wmTitle === wmTitle) return;
+                if (!byClass) {
+                    if (override.wmClass === wmClass && override.wmTitle === wmTitle) return;
+                } else {
+                    if (override.wmClass === wmClass && !override.wmTitle) return;
+                }
             }
             overrides.push({
                 wmClass: wmClass,
-                wmTitle: wmTitle,
+                wmTitle: !byClass ? wmTitle : undefined,
                 mode: "float"
             })
             this.windowProps.overrides = overrides;
             this.ext.configMgr.windowProps = this.windowProps;
         }
 
-        removeFloatOverride(metaWindow) {
-            Logger.info(`Remove Float override for window ${metaWindow.get_title()}`);
+        removeFloatOverride(metaWindow, byClass = true) {
             let overrides = this.windowProps.overrides;
             let wmTitle = metaWindow.get_title();
             let wmClass = metaWindow.get_wm_class();
 
-            overrides = overrides.filter((override) => !(override.wmTitle === wmTitle && override.wmClass === wmClass));
+            if (!byClass) {
+                Logger.info(`Remove Float override for title ${wmTitle} and class ${wmClass}`);
+            } else {
+                Logger.info(`Remove Float override for class ${wmClass}`);
+            }
+
+            if (byClass) {
+                // remove purely wmClass - by checking also if override title exists
+                overrides = overrides.filter((override) => 
+                    !(override.wmClass === wmClass) && !override.wmTitle);
+            } else {
+                overrides = overrides.filter((override) => 
+                    !(override.wmClass === wmClass && override.wmTitle === wmTitle));
+            }
 
             this.windowProps.overrides = overrides;
             this.ext.configMgr.windowProps = this.windowProps;
@@ -102,46 +124,30 @@ var WindowManager = GObject.registerClass(
 
         toggleFloatingMode(action, metaWindow) {
             let nodeWindow = this.findNodeWindow(metaWindow);
-            let floatExemptToggle = action.name === "AlwaysFloatToggle";
-            let floatingExempt = this.isFloatingExempt(metaWindow);
-            Logger.info(`Floating exempt ${metaWindow.get_wm_class()} ${floatingExempt}`);
-
-            if (floatingExempt) {
-                if (floatExemptToggle) {
-                    this.removeFloatOverride(metaWindow);
-                } else {
-                    return;
-                }
-            } else {
-                if (floatExemptToggle) {
-                    this.addFloatOverride(metaWindow);
-                }
-            }
-
             if (!nodeWindow || !(action || action.mode)) return;
             if (nodeWindow.nodeType !== Tree.NODE_TYPES.WINDOW) return;
-            const actionMode = action.mode.toUpperCase();
 
-            let actionFloat = actionMode === WINDOW_MODES.FLOAT;
+            let floatToggle = action.name === "FloatToggle";
+            let floatClassToggle = action.name === "FloatClassToggle";
+            let floatingExempt = this.isFloatingExempt(metaWindow);
 
-            if (actionFloat) {
-                if (!this.floatingWindow(nodeWindow)) {
+            if (floatingExempt) {
+                if (floatClassToggle) {
+                    this.removeFloatOverride(metaWindow);
+                } else if (floatToggle) {
+                    this.removeFloatOverride(metaWindow, false);
+                }
+                nodeWindow.mode = WINDOW_MODES.TILE;
+                if (!this.isActiveWindowWorkspaceTiled(metaWindow)) {
                     nodeWindow.mode = WINDOW_MODES.FLOAT;
-                    this.queueEvent({
-                        name: "raise-float",
-                        callback: () => {
-                            nodeWindow.nodeValue.raise();
-                        }
-                    });
-                } else {
-                    if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
-                        nodeWindow.mode = WINDOW_MODES.TILE;
-                    }
                 }
             } else {
-                if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
-                    nodeWindow.mode = WINDOW_MODES.TILE;
+                if (floatClassToggle) {
+                    this.addFloatOverride(metaWindow);
+                } else if (floatToggle) {
+                    this.addFloatOverride(metaWindow, false);
                 }
+                nodeWindow.mode = WINDOW_MODES.FLOAT;
             }
         }
 
@@ -435,7 +441,7 @@ var WindowManager = GObject.registerClass(
 
             switch(action.name) {
                 case "FloatToggle":
-                case "AlwaysFloatToggle":
+                case "FloatClassToggle":
 
                     this.toggleFloatingMode(action, focusWindow);
 
@@ -513,9 +519,6 @@ var WindowManager = GObject.registerClass(
 
                     break;
                 case "Focus":
-                    this.unfreezeRender();
-                    this.updateDecorationLayout();
-                    this.freezeRender();
                     let focusDirection = Utils.resolveDirection(action.direction);
                     focusNodeWindow = this.tree.focus(focusNodeWindow, focusDirection);
                     if (!focusNodeWindow) {
@@ -525,11 +528,13 @@ var WindowManager = GObject.registerClass(
                         if (!focusNodeWindow) return;
                         if (this.eventQueue.length <= 0) {
                             Logger.info("focus queue is last, unfreezing render");
-                            this.unfreezeRender();
-                            this.updateDecorationLayout();
-                            this.updateTabbedFocus(focusNodeWindow);
-                            this.updateStackedFocus(focusNodeWindow);
-                            this.renderTree("focus-queue");
+                            this.forceRender(() => {
+                                this.updateTabbedFocus(focusNodeWindow);
+                                this.updateStackedFocus(focusNodeWindow);
+                                this.renderTree("focus-queue");
+                                this.updateDecorationLayout();
+                                this.updateBorderLayout();
+                            });
                         }
                     }})
                     break;
@@ -816,12 +821,13 @@ var WindowManager = GObject.registerClass(
 
         hideWindowBorders() {
             this.tree.nodeWindows.forEach((nodeWindow) => {
-                if (nodeWindow._actor) { 
-                    if (nodeWindow._actor.border) {
-                        nodeWindow._actor.border.hide();
+                let actor = nodeWindow.windowActor;
+                if (actor) { 
+                    if (actor.border) {
+                        actor.border.hide();
                     }
-                    if (nodeWindow._actor.splitBorder) {
-                        nodeWindow._actor.splitBorder.hide();
+                    if (actor.splitBorder) {
+                        actor.splitBorder.hide();
                     }
                 }
                 if (nodeWindow.parentNode.isTabbed()) {
@@ -1040,7 +1046,7 @@ var WindowManager = GObject.registerClass(
             
             if (!this._renderTreeSrcId) {
                 this._renderTreeSrcId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-                    this.processFloatingExempts();
+                    this.processFloats();
                     this.tree.render(from);
                     this._renderTreeSrcId = 0;
                     return false;
@@ -1048,10 +1054,12 @@ var WindowManager = GObject.registerClass(
             }
         }
 
-        processFloatingExempts() {
+        processFloats() {
             this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW).forEach((nodeWindow) => {
                 if (this.isFloatingExempt(nodeWindow.nodeValue)) {
                     nodeWindow.mode = WINDOW_MODES.FLOAT;
+                } else {
+                    nodeWindow.mode = WINDOW_MODES.TILE;
                 }
             });
         }
@@ -1103,6 +1111,7 @@ var WindowManager = GObject.registerClass(
             if (!windowActor) return;
             let nodeWindow = this.findNodeWindow(metaWindow);
             if (!nodeWindow) return;
+            if (metaWindow.get_wm_class() === null) return;
 
             let borders = [];
             let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
@@ -1277,34 +1286,18 @@ var WindowManager = GObject.registerClass(
                     Logger.info(`track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`);
                     Logger.warn(`track-window: allow-resize ${metaWindow.allows_resize()}`);
 
-                    let windowType = metaWindow.get_window_type();
+                    nodeWindow = this.tree.createNode(
+                        parentFocusNode.nodeValue,
+                        Tree.NODE_TYPES.WINDOW,
+                        metaWindow,
+                        WINDOW_MODES.FLOAT);
 
-                    // Floated Windows
-                    if (windowType === Meta.WindowType.DIALOG ||
-                        windowType === Meta.WindowType.MODAL_DIALOG ||
-                        metaWindow.get_transient_for() !== null ||
-                        !metaWindow.allows_resize() ||
-                        this.isFloatingExempt(metaWindow)
-                    ) {
-                        // TODO - prepare to handle floated windows
-                        nodeWindow = this.tree.createNode(
-                            parentFocusNode.nodeValue,
-                            Tree.NODE_TYPES.WINDOW,
-                            metaWindow,
-                            WINDOW_MODES.FLOAT);
-                    } else {
-                        // Tiled Windows
-                        nodeWindow = this.tree.createNode(
-                            parentFocusNode.nodeValue,
-                            Tree.NODE_TYPES.WINDOW,
-                            metaWindow);
-                        metaWindow.firstRender = true;
+                    metaWindow.firstRender = true;
 
-                        let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
-                        childNodes.forEach((n) => {
-                            n.percent = 0.0;
-                        });
-                    }
+                    let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
+                    childNodes.forEach((n) => {
+                        n.percent = 0.0;
+                    });
                 }
 
                 let windowActor = metaWindow.get_compositor_private();
@@ -1347,6 +1340,7 @@ var WindowManager = GObject.registerClass(
                             this.forceRender(() => {
                                 this.renderTree("focus");
                                 this.updateDecorationLayout();
+                                this.updateBorderLayout();
                             });
 
                             Logger.debug(`window:focus`);
@@ -1379,9 +1373,6 @@ var WindowManager = GObject.registerClass(
                 }
 
                 this.openCenterPrefs(metaWindow);
-                if (nodeWindow != undefined && nodeWindow.isFloat()) {
-                    this.moveCenter(metaWindow);
-                }
 
                 Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
                 Logger.trace(` on monitor: ${metaWindow.get_monitor()}`);
@@ -1592,8 +1583,7 @@ var WindowManager = GObject.registerClass(
                     this.renderTree(from);
                 }
             }
-            if (!focusMetaWindow.firstRender)
-                this.updateBorderLayout();
+            this.updateBorderLayout();
             this.updateDecorationLayout();
             Logger.trace(`${from} ${focusMetaWindow.get_wm_class()}`);
         }
@@ -2368,7 +2358,7 @@ var WindowManager = GObject.registerClass(
             const knownFloats = this.windowProps.overrides
                     .filter((wprop) => wprop.mode === "float");
 
-            return knownFloats.filter((kf) => { 
+            let floatOverride = knownFloats.filter((kf) => { 
                 Logger.trace(`meta title ${windowTitle}, class ${metaWindow.get_wm_class()}; known title ${kf.wmTitle}, class ${kf.wmClass}`);
                 let matchTitle = false;
                 let matchClass = false;
@@ -2396,6 +2386,16 @@ var WindowManager = GObject.registerClass(
                 }
 
             }).length > 0;
+
+            if (!floatOverride) {
+                let windowType = metaWindow.get_window_type();
+                return windowType === Meta.WindowType.DIALOG ||
+                    windowType === Meta.WindowType.MODAL_DIALOG ||
+                    metaWindow.get_transient_for() !== null ||
+                    metaWindow.get_wm_class() === null ||
+                   !metaWindow.allows_resize();
+            }
+            return true;
         }
 
         _getDragDropCenterPreviewStyle() {
