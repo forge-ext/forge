@@ -1128,7 +1128,7 @@ var WindowManager = GObject.registerClass(
             let inset = 3;
             let parentNode = nodeWindow.parentNode;
 
-            const floatingWindow = this.floatingWindow(nodeWindow);
+            const floatingWindow = nodeWindow.isFloat();
             const tiledBorder = windowActor.border;
 
             if (parentNode.isTabbed()) {
@@ -1140,7 +1140,7 @@ var WindowManager = GObject.registerClass(
             if (tiledBorder && focusBorderEnabled) {
                 if (!maximized() ||
                     gap === 0 && tiledChildren.length === 1 && monitorCount > 1 ||
-                    gap === 0 && tiledChildren.length > 1 || floatingWindow) {
+                    gap === 0 && tiledChildren.length > 1) {
                     if (tilingModeEnabled) {
                         if (parentNode.isStacked()) {
                             if (!floatingWindow) {
@@ -1179,7 +1179,7 @@ var WindowManager = GObject.registerClass(
             // It should only show when V or H-Split and with single child CONs
             if (splitBorderEnabled &&
                 tilingModeEnabled &&
-                !this.floatingWindow(nodeWindow) &&
+                !nodeWindow.isFloat() &&
                 parentNode.childNodes.length === 1 &&
                 (parentNode.isCon() || parentNode.isMonitor()) &&
                 !(parentNode.isTabbed() || parentNode.isStacked())) {
