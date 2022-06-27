@@ -1,0 +1,29 @@
+{
+  "name": "forge",
+  "version": "22.51.0",
+  "description": "Forge - Tiling Extension for GNOME",
+  "main": "extension.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmmaranan/forge.git"
+  },
+  "keywords": [
+    "gnome",
+    "forge",
+    "tiling",
+    "javascript",
+    "gnome-shell"
+  ],
+  "author": "Jose Maranan",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/jmmaranan/forge/issues"
+  },
+  "homepage": "https://github.com/jmmaranan/forge#readme",
+  "devDependencies": {
+    "prettier": "^2.7.1"
+  }
+}

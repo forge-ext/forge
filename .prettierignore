@@ -1,3 +1,11 @@
+css
+config
+templates
+*.zip
+LICENSE
+Makefile
+*.md
+
 dist
 *~
 temp
