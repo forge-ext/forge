@@ -200,7 +200,7 @@ var Keybindings = GObject.registerClass(
                 },
                 "window-toggle-always-float": () => {
                     let action = {
-                        name: "AlwaysFloatToggle",
+                        name: "FloatClassToggle",
                         mode: "float",
                         x : "center",
                         y : "center",
