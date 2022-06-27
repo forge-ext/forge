@@ -1355,7 +1355,7 @@ var WindowManager = GObject.registerClass(
 
                 if (!windowActor.actorSignals) {
                     let actorSignals = [
-                        windowActor.connect("destroy", this._windowDestroy.bind(this)),
+                        windowActor.connect("destroy", this.windowDestroy.bind(this)),
                     ];
                     windowActor.actorSignals = actorSignals;
                     Logger.debug(`track-window:binding-actor-signal`);
@@ -1478,7 +1478,7 @@ var WindowManager = GObject.registerClass(
                 windowType === Meta.WindowType.DIALOG;
         }
 
-        _windowDestroy(actor) {
+        windowDestroy(actor) {
             // Release any resources on the window
             let border = actor.border;
             if (border) {
@@ -1514,8 +1514,17 @@ var WindowManager = GObject.registerClass(
                 Logger.trace(`on-destroy: finding next attach node ${this.tree.attachNode.nodeType}`);
             }
 
-            this.renderTree("window destroy");
-            this.updateBorderLayout();
+            this.queueEvent({
+                name: "render-after-destroy-queue",
+                callback: () => {
+                    this.forceRender(() => {
+                        this.renderTree("window-destroy");
+                        this.updateBorderLayout();
+                        this.updateDecorationLayout();
+                    });
+                }
+            }, 100);
+
             Logger.debug(`window-destroy`);
         }
 
@@ -2352,8 +2361,18 @@ var WindowManager = GObject.registerClass(
         }
 
         isFloatingExempt(metaWindow) {
-            const windowTitle = metaWindow.title;
-            if (!windowTitle || windowTitle === "" || windowTitle.length === 0) return false;
+            if (!metaWindow) return true;
+            let windowTitle = metaWindow.get_title();
+            let windowType = metaWindow.get_window_type();
+
+            let floatByType = windowType === Meta.WindowType.DIALOG ||
+                    windowType === Meta.WindowType.MODAL_DIALOG ||
+                    metaWindow.get_transient_for() !== null ||
+                    metaWindow.get_wm_class() === null ||
+                    windowTitle === null ||
+                    windowTitle === "" ||
+                    windowTitle.length === 0 ||
+                   !metaWindow.allows_resize();
 
             const knownFloats = this.windowProps.overrides
                     .filter((wprop) => wprop.mode === "float");
@@ -2387,15 +2406,7 @@ var WindowManager = GObject.registerClass(
 
             }).length > 0;
 
-            if (!floatOverride) {
-                let windowType = metaWindow.get_window_type();
-                return windowType === Meta.WindowType.DIALOG ||
-                    windowType === Meta.WindowType.MODAL_DIALOG ||
-                    metaWindow.get_transient_for() !== null ||
-                    metaWindow.get_wm_class() === null ||
-                   !metaWindow.allows_resize();
-            }
-            return true;
+            return floatByType || floatOverride;
         }
 
         _getDragDropCenterPreviewStyle() {
