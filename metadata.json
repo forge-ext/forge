@@ -1,6 +1,6 @@
 {
     "name": "Forge",
-    "description": "Tiling and window manager for GNOME\n\nCHANGES\n\n - GNOME 42 Update\n\n Please report bugs/issues on https://github.com/jmmaranan/forge/issues",
+    "description": "Tiling and window manager for GNOME\n\nCHANGES\n\n - Floating Window Exceptions\n\n Please report bugs/issues on https://github.com/jmmaranan/forge/issues",
     "gettext-domain": "forge",
     "uuid": "forge@jmmaranan.com",
     "settings-schema": "org.gnome.shell.extensions.forge",

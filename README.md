@@ -7,6 +7,10 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Download/clone the source and `make install`, restart gnome-shell after or `make dev`.
 - AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
 
+## ! Major Changes !
+- Floating windows were rewritten and persists between sessions.
+- Toggle floating by window title and entire window class using keyboard shortcuts.
+
 ## Development
 
 - The `main` branch contains gnome-4x code.
@@ -34,7 +38,8 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | --- | --- |
 | Open preferences | `<Super> + period` |
 | Toggle tiling mode |`<Super> + w` |
-| Toggle floating for active window | `<Super> + c` |
+| Persist toggle floating for active window | `<Super> + c` |
+| Persist toggle floating for active window and its window class | `<Super><Shift> + c` |
 | Focus left | `<Super> + h` |
 | Focus right | `<Super> + l` |
 | Focus up | `<Super> + k` |
