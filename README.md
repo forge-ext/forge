@@ -67,6 +67,10 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 For any shortcut conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
 
+## Forge Override Paths
+- Window Overrides: `$HOME/.config/forge/config/windows.json`
+- Stylesheet Overrides: `$HOME/.config/forge/stylesheet/forge/stylesheet.css`
+
 ## GNOME Defaults
 
 GNOME Shell has built in support for workspace management and seems to work well - so Forge will not touch those.
