@@ -263,19 +263,19 @@
         </key>
 
         <key type="as" name="window-layout-one-third-right">
-          <default><![CDATA[['<Ctrl><Super>g']]]></default>
+          <default><![CDATA[['<Ctrl><Alt>g']]]></default>
         </key>
 
         <key type="as" name="window-layout-two-third-right">
-          <default><![CDATA[['<Ctrl><Super>t']]]></default>
+          <default><![CDATA[['<Ctrl><Alt>t']]]></default>
         </key>
 
         <key type="as" name="window-layout-one-third-left">
-          <default><![CDATA[['<Ctrl><Super>d']]]></default>
+          <default><![CDATA[['<Ctrl><Alt>d']]]></default>
         </key>
 
         <key type="as" name="window-layout-two-third-left">
-          <default><![CDATA[['<Ctrl><Super>e']]]></default>
+          <default><![CDATA[['<Ctrl><Alt>e']]]></default>
         </key>
 
     </schema>

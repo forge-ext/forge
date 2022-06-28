@@ -53,10 +53,10 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Move active window right | `<Shift> + <Super> + l` |
 | Move active window up | `<Shift> + <Super> + k` |
 | Move active window down | `<Shift> + <Super> + j` |
-| Snap active window left two thirds | `<Ctrl><Super> + e` |
-| Snap active window right two thirds | `<Ctrl><Super> + t` |
-| Snap active window left third | `<Ctrl><Super> + d` |
-| Snap active window right third | `<Ctrl><Super> + g` |
+| Snap active window left two thirds | `<Ctrl><Alt> + e` |
+| Snap active window right two thirds | `<Ctrl><Alt> + t` |
+| Snap active window left third | `<Ctrl><Alt> + d` |
+| Snap active window right third | `<Ctrl><Alt> + g` |
 | Split container horizontally | `<Super> + z` |
 | Split container vertically | `<Super> + v` |
 | Toggle split container | `<Super> + g` |
