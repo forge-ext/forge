@@ -396,6 +396,38 @@ var Keybindings = GObject.registerClass(
           };
           this.extWm.command(action);
         },
+        "window-layout-one-third-right": () => {
+          let action = {
+            name: "WindowLayoutMove",
+            direction: "Right",
+            amount: 1 / 3,
+          };
+          this.extWm.command(action);
+        },
+        "window-layout-two-third-right": () => {
+          let action = {
+            name: "WindowLayoutMove",
+            direction: "Right",
+            amount: 2 / 3,
+          };
+          this.extWm.command(action);
+        },
+        "window-layout-one-third-left": () => {
+          let action = {
+            name: "WindowLayoutMove",
+            direction: "Left",
+            amount: 1 / 3,
+          };
+          this.extWm.command(action);
+        },
+        "window-layout-two-third-left": () => {
+          let action = {
+            name: "WindowLayoutMove",
+            direction: "Left",
+            amount: 2 / 3,
+          };
+          this.extWm.command(action);
+        },
       };
     }
   }

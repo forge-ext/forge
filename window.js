@@ -740,6 +740,41 @@ var WindowManager = GObject.registerClass(
             this.renderTree("swap-last-active");
           }
           break;
+        case "WindowLayoutMove":
+          if (focusNodeWindow) {
+            let workareaRect = focusNodeWindow.nodeValue.get_work_area_current_monitor();
+            let layoutAmount = action.amount;
+            let layoutDirection = action.direction.toUpperCase();
+            let layout = {};
+            switch (layoutDirection) {
+              case "LEFT":
+                layout.width = layoutAmount * workareaRect.width;
+                layout.height = workareaRect.height;
+                layout.x = workareaRect.x;
+                layout.y = workareaRect.y;
+                break;
+              case "RIGHT":
+                layout.width = layoutAmount * workareaRect.width;
+                layout.height = workareaRect.height;
+                layout.x = workareaRect.x + (workareaRect.width - layout.width);
+                layout.y = workareaRect.y;
+              // TODO - add for vertical layouts
+              default:
+                break;
+            }
+            Logger.debug(
+              `layout move x${layout.x},y${layout.y},w${layout.width},h${layout.height}`
+            );
+            focusNodeWindow.rect = layout;
+            focusNodeWindow.rect = this.tree.processGap(focusNodeWindow);
+            if (!focusNodeWindow.isFloat()) {
+              this.addFloatOverride(focusNodeWindow.nodeValue, false);
+            }
+            this.move(focusNodeWindow.nodeValue, focusNodeWindow.rect);
+            this.updateBorderLayout();
+            this.updateDecorationLayout();
+            this.renderTree("layout-move");
+          }
         default:
           break;
       }

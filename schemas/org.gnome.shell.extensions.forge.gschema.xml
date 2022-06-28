@@ -261,5 +261,22 @@
             <default><![CDATA[['<Super>Return']]]></default>
             <summary>Swap the last active window with the current one</summary>
         </key>
+
+        <key type="as" name="window-layout-one-third-right">
+          <default><![CDATA[['<Ctrl><Super>g']]]></default>
+        </key>
+
+        <key type="as" name="window-layout-two-third-right">
+          <default><![CDATA[['<Ctrl><Super>t']]]></default>
+        </key>
+
+        <key type="as" name="window-layout-one-third-left">
+          <default><![CDATA[['<Ctrl><Super>d']]]></default>
+        </key>
+
+        <key type="as" name="window-layout-two-third-left">
+          <default><![CDATA[['<Ctrl><Super>e']]]></default>
+        </key>
+
     </schema>
 </schemalist>
