@@ -740,7 +740,7 @@ var WindowManager = GObject.registerClass(
             this.renderTree("swap-last-active");
           }
           break;
-        case "WindowLayoutMove":
+        case "SnapLayoutMove":
           if (focusNodeWindow) {
             let workareaRect = focusNodeWindow.nodeValue.get_work_area_current_monitor();
             let layoutAmount = action.amount;
@@ -771,9 +771,14 @@ var WindowManager = GObject.registerClass(
               this.addFloatOverride(focusNodeWindow.nodeValue, false);
             }
             this.move(focusNodeWindow.nodeValue, focusNodeWindow.rect);
-            this.updateBorderLayout();
-            this.updateDecorationLayout();
-            this.renderTree("layout-move");
+            this.queueEvent({
+              name: "snap-layout-move",
+              callback: () => {
+                this.updateBorderLayout();
+                this.updateDecorationLayout();
+                this.renderTree("snap-layout-move");
+              },
+            });
           }
         default:
           break;

@@ -398,7 +398,7 @@ var Keybindings = GObject.registerClass(
         },
         "window-layout-one-third-right": () => {
           let action = {
-            name: "WindowLayoutMove",
+            name: "SnapLayoutMove",
             direction: "Right",
             amount: 1 / 3,
           };
@@ -406,7 +406,7 @@ var Keybindings = GObject.registerClass(
         },
         "window-layout-two-third-right": () => {
           let action = {
-            name: "WindowLayoutMove",
+            name: "SnapLayoutMove",
             direction: "Right",
             amount: 2 / 3,
           };
@@ -414,7 +414,7 @@ var Keybindings = GObject.registerClass(
         },
         "window-layout-one-third-left": () => {
           let action = {
-            name: "WindowLayoutMove",
+            name: "SnapLayoutMove",
             direction: "Left",
             amount: 1 / 3,
           };
@@ -422,7 +422,7 @@ var Keybindings = GObject.registerClass(
         },
         "window-layout-two-third-left": () => {
           let action = {
-            name: "WindowLayoutMove",
+            name: "SnapLayoutMove",
             direction: "Left",
             amount: 2 / 3,
           };

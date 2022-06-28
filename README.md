@@ -53,6 +53,10 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Move active window right | `<Shift> + <Super> + l` |
 | Move active window up | `<Shift> + <Super> + k` |
 | Move active window down | `<Shift> + <Super> + j` |
+| Snap active window left two thirds | `<Ctrl><Super> + e` |
+| Snap active window right two thirds | `<Ctrl><Super> + t` |
+| Snap active window left third | `<Ctrl><Super> + d` |
+| Snap active window right third | `<Ctrl><Super> + g` |
 | Split container horizontally | `<Super> + z` |
 | Split container vertically | `<Super> + v` |
 | Toggle split container | `<Super> + g` |
@@ -63,6 +67,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Toggle stacked layout | `<Shift> + <Super> + s` |
 | Toggle tabbed layout | `<Shift> + <Super> + t` |
 | Activate tile drag-drop | `Start dragging - Mod key configuration in prefs` |
+
 
 For any shortcut conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
