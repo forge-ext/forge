@@ -189,7 +189,7 @@ var WindowManager = GObject.registerClass(
           Logger.debug(`display:showing-desktop-changed`);
         }),
         display.connect("in-fullscreen-changed", () => {
-          this.updateBorderLayout();
+          this.renderTree("full-screen-changed");
         }),
         display.connect("workareas-changed", (_display) => {
           if (this.tree.getNodeByType("WINDOW").length > 0) {
@@ -203,7 +203,6 @@ var WindowManager = GObject.registerClass(
               Logger.debug(`rendering the tree`);
               this.renderTree("workareas-changed");
             }
-            this.updateBorderLayout();
           }
           Logger.debug(`workareas-changed`);
         }),
@@ -225,7 +224,6 @@ var WindowManager = GObject.registerClass(
 
           let prevFrozen = this._freezeRender;
           if (prevFrozen) this.unfreezeRender();
-          this.updateDecorationLayout();
           this.renderTree("minimize");
           if (prevFrozen) this.freezeRender();
 
@@ -239,7 +237,6 @@ var WindowManager = GObject.registerClass(
 
           let prevFrozen = this._freezeRender;
           if (prevFrozen) this.unfreezeRender();
-          this.updateDecorationLayout();
           this.renderTree("unminimize");
           if (prevFrozen) this.freezeRender();
 
@@ -255,7 +252,6 @@ var WindowManager = GObject.registerClass(
       this._workspaceManagerSignals = [
         globalWsm.connect("showing-desktop-changed", () => {
           this.hideWindowBorders();
-          this.updateDecorationLayout();
           this.trackCurrentMonWs();
           Logger.debug(`workspace:showing-desktop-changed`);
         }),
@@ -273,8 +269,6 @@ var WindowManager = GObject.registerClass(
         }),
         globalWsm.connect("workspace-switched", (_, _wsIndex) => {
           this.ext.indicator.updateTileIcon();
-          this.updateBorderLayout();
-          this.updateDecorationLayout();
           this.trackCurrentMonWs();
           this.renderTree("workspace-switched");
         }),
@@ -292,18 +286,16 @@ var WindowManager = GObject.registerClass(
       settings.connect("changed", (_, settingName) => {
         switch (settingName) {
           case "focus-border-toggle":
-            this.updateBorderLayout();
+            this.renderTree(settingName);
             break;
           case "tiling-mode-enabled":
             this.renderTree(settingName);
-            this.updateBorderLayout();
             break;
           case "window-gap-size-increment":
           case "window-gap-size":
           case "window-gap-hidden-on-single":
           case "workspace-skip-tile":
             this.renderTree(settingName);
-            this.updateBorderLayout();
             break;
           case "stacked-tiling-mode-enabled":
             if (!settings.get_boolean(settingName)) {
@@ -470,16 +462,6 @@ var WindowManager = GObject.registerClass(
           this.tree.resetSiblingPercent(existParent);
           this.forceRender(() => {
             this.renderTree("float-toggle");
-            this.queueEvent(
-              {
-                name: "update-layouts",
-                callback: () => {
-                  this.updateBorderLayout();
-                  this.updateDecorationLayout();
-                },
-              },
-              100
-            );
           });
           break;
         case "Move":
@@ -515,10 +497,6 @@ var WindowManager = GObject.registerClass(
             if (prev) prev.parentNode.lastTabFocus = prev.nodeValue;
             this.renderTree("move-window");
           }
-          this.forceRender(() => {
-            this.updateBorderLayout();
-            this.updateDecorationLayout();
-          });
 
           break;
         case "Focus":
@@ -537,8 +515,6 @@ var WindowManager = GObject.registerClass(
                   this.updateTabbedFocus(focusNodeWindow);
                   this.updateStackedFocus(focusNodeWindow);
                   this.renderTree("focus-queue");
-                  this.updateDecorationLayout();
-                  this.updateBorderLayout();
                 });
               }
             },
@@ -553,7 +529,6 @@ var WindowManager = GObject.registerClass(
           this.updateTabbedFocus(focusNodeWindow);
           this.updateStackedFocus(focusNodeWindow);
           this.forceRender(() => {
-            this.updateDecorationLayout();
             this.renderTree("swap");
           });
           break;
@@ -572,7 +547,6 @@ var WindowManager = GObject.registerClass(
             : Tree.ORIENTATION_TYPES.NONE;
           this.tree.split(focusNodeWindow, orientation);
           this.renderTree("split");
-          this.updateBorderLayout();
           break;
         case "LayoutToggle":
           if (!focusNodeWindow) return;
@@ -583,7 +557,6 @@ var WindowManager = GObject.registerClass(
             focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
           }
           this.tree.attachNode = focusNodeWindow.parentNode;
-          this.updateBorderLayout();
           this.renderTree("layout-split-toggle");
           break;
         case "FocusBorderToggle":
@@ -601,8 +574,6 @@ var WindowManager = GObject.registerClass(
             this.unfloatAllWindows();
           }
           this.renderTree(`tiling-mode-toggle ${!tilingModeEnabled}`);
-          this.updateBorderLayout();
-          this.updateDecorationLayout();
           break;
         case "GapSize":
           let gapIncrement = this.ext.settings.get_uint("window-gap-size-increment");
@@ -652,8 +623,7 @@ var WindowManager = GObject.registerClass(
           }
           Logger.debug(`Updated workspace skipped ${skippedArr.toString()}`);
           this.ext.settings.set_string("workspace-skip-tile", skippedArr.toString());
-          this.updateBorderLayout();
-          this.updateDecorationLayout();
+          this.renderTree("workspace-toggle");
           break;
         case "LayoutStackedToggle":
           if (!focusNodeWindow) return;
@@ -681,7 +651,6 @@ var WindowManager = GObject.registerClass(
           this.unfreezeRender();
           this.tree.attachNode = focusNodeWindow.parentNode;
           this.renderTree("layout-stacked-toggle");
-          this.updateBorderLayout();
           break;
         case "LayoutTabbedToggle":
           if (!focusNodeWindow) return;
@@ -704,7 +673,6 @@ var WindowManager = GObject.registerClass(
           this.unfreezeRender();
           this.tree.attachNode = focusNodeWindow.parentNode;
           this.renderTree("layout-tabbed-toggle");
-          this.updateBorderLayout();
           break;
         case "CancelOperation":
           Logger.debug(`trigger cancel operation`);
@@ -774,8 +742,6 @@ var WindowManager = GObject.registerClass(
             this.queueEvent({
               name: "snap-layout-move",
               callback: () => {
-                this.updateBorderLayout();
-                this.updateDecorationLayout();
                 this.renderTree("snap-layout-move");
               },
             });
@@ -1101,6 +1067,8 @@ var WindowManager = GObject.registerClass(
           this.processFloats();
           this.tree.render(from);
           this._renderTreeSrcId = 0;
+          this.updateDecorationLayout();
+          this.updateBorderLayout();
           return false;
         });
       }
@@ -1140,7 +1108,6 @@ var WindowManager = GObject.registerClass(
           this.tree._initWorkspaces();
           this.trackCurrentWindows();
           this.renderTree(from);
-          this.updateBorderLayout();
           this._reloadTreeSrcId = 0;
           this.trackCurrentWindows();
           return false;
@@ -1380,14 +1347,6 @@ var WindowManager = GObject.registerClass(
               this.updateMetaPositionSize(_metaWindow, from);
             }),
             metaWindow.connect("focus", (_metaWindowFocus) => {
-              let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
-              if (
-                (tilingModeEnabled && !_metaWindowFocus.firstRender) ||
-                !tilingModeEnabled ||
-                !this.isActiveWindowWorkspaceTiled(this.focusMetaWindow)
-              )
-                this.updateBorderLayout();
-
               let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
               if (focusNodeWindow) {
                 // handle the attach node
@@ -1408,8 +1367,6 @@ var WindowManager = GObject.registerClass(
 
               this.forceRender(() => {
                 this.renderTree("focus");
-                this.updateDecorationLayout();
-                this.updateBorderLayout();
               });
 
               Logger.debug(`window:focus`);
@@ -1448,8 +1405,6 @@ var WindowManager = GObject.registerClass(
             callback: () => {
               this.forceRender(() => {
                 this.renderTree("window-create");
-                this.updateBorderLayout();
-                this.updateDecorationLayout();
               });
             },
           },
@@ -1594,8 +1549,6 @@ var WindowManager = GObject.registerClass(
           callback: () => {
             this.forceRender(() => {
               this.renderTree("window-destroy");
-              this.updateBorderLayout();
-              this.updateDecorationLayout();
             });
           },
         },
@@ -1644,7 +1597,6 @@ var WindowManager = GObject.registerClass(
         Logger.debug(`update-ws-mon:${from}: moved ${metaWindow.get_wm_class()} to ${metaMonWs}`);
         this.renderTree(from);
       }
-      this.updateBorderLayout();
     }
 
     /**
@@ -2224,8 +2176,6 @@ var WindowManager = GObject.registerClass(
 
     _handleGrabOpEnd(_display, _metaWindow, grabOp) {
       this.unfreezeRender();
-      this.showWindowBorders();
-      this.updateDecorationLayout();
       let focusMetaWindow = this.focusMetaWindow;
       if (!focusMetaWindow) return;
       let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
