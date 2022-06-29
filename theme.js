@@ -80,7 +80,6 @@ var ThemeManager = GObject.registerClass(
       let firstDash = selector.indexOf("-");
       let secondDash = selector.indexOf("-", firstDash + 1);
       const scheme = selector.substr(firstDash + 1, secondDash - firstDash - 1);
-      Logger.debug(`first ${firstDash}, second ${secondDash}, scheme ${scheme}`);
       return scheme;
     }
 
@@ -99,7 +98,6 @@ var ThemeManager = GObject.registerClass(
         const matchRules = rules.filter(
           (r) => r.selectors.filter((s) => s === selector).length > 0
         );
-        Logger.debug(`matched rules ${matchRules.length}`);
         return matchRules.length > 0 ? matchRules[0] : {};
       }
       return {};
@@ -138,7 +136,6 @@ var ThemeManager = GObject.registerClass(
       let [success, contents] = cssFile.load_contents(null);
       if (success) {
         const cssContents = imports.byteArray.toString(contents);
-        Logger.trace(`${cssContents}`);
         this.cssAst = Css.parse(cssContents);
       }
     }
@@ -148,7 +145,6 @@ var ThemeManager = GObject.registerClass(
      */
     _updateCss() {
       if (!this.cssAst) {
-        Logger.warn(`There is no current CSS AST`);
         return;
       }
 
@@ -220,7 +216,6 @@ var ThemeManager = GObject.registerClass(
             theme.load_stylesheet(defaultStylesheetFile);
             Me.stylesheet = defaultStylesheetFile;
           }
-          Logger.debug(`stylesheet reloaded ${Me.stylesheet.get_path()}`);
         } catch (e) {
           Logger.error(`${uuid} - ${e}`);
           return;

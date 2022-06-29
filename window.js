@@ -67,12 +67,6 @@ var WindowManager = GObject.registerClass(
       let wmTitle = metaWindow.get_title();
       let wmClass = metaWindow.get_wm_class();
 
-      if (!byClass) {
-        Logger.info(`Add Float override for title ${wmTitle} and class ${wmClass}`);
-      } else {
-        Logger.info(`Add Float override for class ${wmClass}`);
-      }
-
       for (let override in overrides) {
         if (!byClass) {
           if (override.wmClass === wmClass && override.wmTitle === wmTitle) return;
@@ -93,12 +87,6 @@ var WindowManager = GObject.registerClass(
       let overrides = this.windowProps.overrides;
       let wmTitle = metaWindow.get_title();
       let wmClass = metaWindow.get_wm_class();
-
-      if (!byClass) {
-        Logger.info(`Remove Float override for title ${wmTitle} and class ${wmClass}`);
-      } else {
-        Logger.info(`Remove Float override for class ${wmClass}`);
-      }
 
       if (byClass) {
         // remove purely wmClass - by checking also if override title exists
@@ -145,7 +133,6 @@ var WindowManager = GObject.registerClass(
     }
 
     queueEvent(eventObj, interval = 220) {
-      Logger.trace(`queuing event ${eventObj.name}`);
       this.eventQueue.enqueue(eventObj);
 
       if (!this._queueSourceId) {
@@ -153,11 +140,9 @@ var WindowManager = GObject.registerClass(
           const currEventObj = this.eventQueue.dequeue();
           if (currEventObj) {
             currEventObj.callback();
-            Logger.trace(`firing callback ${currEventObj.name}!`);
           }
           const result = this.eventQueue.length !== 0;
           if (!result) {
-            Logger.trace(`queue-event done: removing ${this._queueSourceId}`);
             this._queueSourceId = 0;
           }
           return result;
@@ -180,13 +165,12 @@ var WindowManager = GObject.registerClass(
           this.updateMetaWorkspaceMonitor("window-entered-monitor", monitor, metaWindow);
         }),
         display.connect("window-left-monitor", () => {
-          Logger.debug("window-left-monitor");
+          // Empty
         }),
         display.connect("grab-op-begin", this._handleGrabOpBegin.bind(this)),
         display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
         display.connect("showing-desktop-changed", () => {
           // This is an unused signal listener
-          Logger.debug(`display:showing-desktop-changed`);
         }),
         display.connect("in-fullscreen-changed", () => {
           this.renderTree("full-screen-changed");
@@ -195,19 +179,16 @@ var WindowManager = GObject.registerClass(
           if (this.tree.getNodeByType("WINDOW").length > 0) {
             let reloadTree = this.workspaceAdded || this.workspaceRemoved;
             if (reloadTree) {
-              Logger.debug(`reloading the tree`);
               this.reloadTree("workareas-changed");
               this.workspaceRemoved = false;
               this.workspaceAdded = false;
             } else {
-              Logger.debug(`rendering the tree`);
               this.renderTree("workareas-changed");
             }
           }
-          Logger.debug(`workareas-changed`);
         }),
         display.connect("modifiers-accelerator-activated", (value) => {
-          Logger.warn(`mod-acc-activated: ${value}`);
+          // Empty
         }),
       ];
 
@@ -226,8 +207,6 @@ var WindowManager = GObject.registerClass(
           if (prevFrozen) this.unfreezeRender();
           this.renderTree("minimize");
           if (prevFrozen) this.freezeRender();
-
-          Logger.debug(`minimized ${this.focusMetaWindow.title}`);
         }),
         shellWm.connect("unminimize", () => {
           let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
@@ -239,11 +218,9 @@ var WindowManager = GObject.registerClass(
           if (prevFrozen) this.unfreezeRender();
           this.renderTree("unminimize");
           if (prevFrozen) this.freezeRender();
-
-          Logger.debug(`unminimize`);
         }),
         shellWm.connect("show-tile-preview", (_, _metaWindow, _rect, _num) => {
-          Logger.debug(`show-tile-preview`);
+          // Empty
         }),
       ];
 
@@ -253,17 +230,14 @@ var WindowManager = GObject.registerClass(
         globalWsm.connect("showing-desktop-changed", () => {
           this.hideWindowBorders();
           this.trackCurrentMonWs();
-          Logger.debug(`workspace:showing-desktop-changed`);
         }),
         globalWsm.connect("workspace-added", (_, wsIndex) => {
           let added = this.tree.addWorkspace(wsIndex);
-          Logger.debug(`${added ? "workspace-added" : "workspace-add-skipped"} ${wsIndex}`);
           this.trackCurrentMonWs();
           this.workspaceAdded = true;
         }),
         globalWsm.connect("workspace-removed", (_, wsIndex) => {
           let removed = this.tree.removeWorkspace(wsIndex);
-          Logger.debug(`${removed ? "workspace-removed" : "workspace-remove-skipped"} ${wsIndex}`);
           this.trackCurrentMonWs();
           this.workspaceRemoved = true;
         }),
@@ -345,7 +319,6 @@ var WindowManager = GObject.registerClass(
 
       this._overviewSignals = [
         Overview.connect("hiding", () => {
-          Logger.trace(`overview: hiding`);
           this.fromOverview = true;
           const eventObj = {
             name: "focus-after-overview",
@@ -359,7 +332,6 @@ var WindowManager = GObject.registerClass(
         }),
         Overview.connect("showing", () => {
           this.toOverview = true;
-          Logger.trace(`overview: showing`);
         }),
       ];
 
@@ -374,10 +346,6 @@ var WindowManager = GObject.registerClass(
 
       let currentMonWs = `mo${currentMonitor}ws${currentWorkspace}`;
       let activeMetaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-
-      Logger.debug(`current-pointer-monitor-workspace: ${currentMonWs}`);
-      Logger.debug(`current-window-monitor-workspace: ${activeMetaMonWs}`);
-
       let activeMonWsNode = this.tree.findNode(currentMonWs);
 
       const monWindows = activeMonWsNode
@@ -394,7 +362,6 @@ var WindowManager = GObject.registerClass(
         .map((w) => w.nodeValue);
       const sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
 
-      Logger.debug(`sorted windows ${sortedWindows.length}`);
       this.sortedWindows = sortedWindows;
       this.activeMonWsNode = activeMonWsNode;
       this.activeMetaMonWs = activeMetaMonWs;
@@ -476,7 +443,6 @@ var WindowManager = GObject.registerClass(
             name: "move",
             callback: () => {
               if (this.eventQueue.length <= 0) {
-                Logger.info("move queue is last, unfreezing render");
                 this.unfreezeRender();
                 if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
                   focusNodeWindow.parentNode.appendChild(focusNodeWindow);
@@ -510,7 +476,6 @@ var WindowManager = GObject.registerClass(
             callback: () => {
               if (!focusNodeWindow) return;
               if (this.eventQueue.length <= 0) {
-                Logger.info("focus queue is last, unfreezing render");
                 this.forceRender(() => {
                   this.updateTabbedFocus(focusNodeWindow);
                   this.updateStackedFocus(focusNodeWindow);
@@ -539,7 +504,6 @@ var WindowManager = GObject.registerClass(
             currentLayout === Tree.LAYOUT_TYPES.STACKED ||
             currentLayout === Tree.LAYOUT_TYPES.TABBED
           ) {
-            Logger.warn(`split not allowed on ${currentLayout}`);
             return;
           }
           let orientation = action.orientation
@@ -593,9 +557,6 @@ var WindowManager = GObject.registerClass(
             this.floatWorkspace(activeWorkspace);
           } else {
             skippedArr = skippedWorkspaces.split(",");
-            Logger.debug(
-              `workspace-tile-toggle: current workspace ${activeWorkspace}. List of skipped ${skippedWorkspaces}`
-            );
 
             for (let i = 0; i < skippedArr.length; i++) {
               if (`${skippedArr[i]}` === `${activeWorkspace}`) {
@@ -606,22 +567,15 @@ var WindowManager = GObject.registerClass(
 
             if (workspaceSkipped) {
               // tile this workspace
-              Logger.debug(
-                `workspace-tile-toggle: workspace is skipped, removing ${activeWorkspace}`
-              );
               let indexWs = skippedArr.indexOf(`${activeWorkspace}`);
               skippedArr.splice(indexWs, 1);
               this.unfloatWorkspace(activeWorkspace);
             } else {
               // skip tiling workspace
-              Logger.debug(
-                `workspace-tile-toggle: workspace is not skipped, inserting ${activeWorkspace}`
-              );
               skippedArr.push(`${activeWorkspace}`);
               this.floatWorkspace(activeWorkspace);
             }
           }
-          Logger.debug(`Updated workspace skipped ${skippedArr.toString()}`);
           this.ext.settings.set_string("workspace-skip-tile", skippedArr.toString());
           this.renderTree("workspace-toggle");
           break;
@@ -675,9 +629,7 @@ var WindowManager = GObject.registerClass(
           this.renderTree("layout-tabbed-toggle");
           break;
         case "CancelOperation":
-          Logger.debug(`trigger cancel operation`);
           if (focusNodeWindow.mode === WINDOW_MODES.GRAB_TILE) {
-            Logger.debug(`cancel-operation: grab-tile/swap`);
             this.cancelGrab = true;
           }
           break;
@@ -688,9 +640,7 @@ var WindowManager = GObject.registerClass(
               .get_workspace()
               .activate_with_focus(existWindow, global.display.get_current_time());
             this.moveCenter(existWindow);
-            Logger.warn("prefs is already open");
           } else {
-            Logger.debug("opening prefs");
             ExtensionUtils.openPrefs();
           }
           break;
@@ -702,7 +652,6 @@ var WindowManager = GObject.registerClass(
               focusNodeWindow.nodeValue,
               false
             );
-            Logger.info(`Last Active Window ${lastActiveWindow.title}`);
             let lastActiveNodeWindow = this.tree.findNode(lastActiveWindow);
             this.tree.swapPairs(lastActiveNodeWindow, focusNodeWindow);
             this.renderTree("swap-last-active");
@@ -730,9 +679,6 @@ var WindowManager = GObject.registerClass(
               default:
                 break;
             }
-            Logger.debug(
-              `layout move x${layout.x},y${layout.y},w${layout.width},h${layout.height}`
-            );
             focusNodeWindow.rect = layout;
             focusNodeWindow.rect = this.tree.processGap(focusNodeWindow);
             if (!focusNodeWindow.isFloat()) {
@@ -803,7 +749,6 @@ var WindowManager = GObject.registerClass(
           global.display.get_tab_list(Meta.TabList.NORMAL_ALL, wsManager.get_workspace_by_index(i))
         );
       }
-      Logger.debug(`open-windows: ${windowsAll.length}`);
       windowsAll.sort((w1, w2) => {
         return w1.get_stable_sequence() - w2.get_stable_sequence();
       });
@@ -1098,9 +1043,6 @@ var WindowManager = GObject.registerClass(
           let treeWorkspaces = this.tree.nodeWorkpaces;
           let wsManager = global.workspace_manager;
           let globalWsNum = wsManager.get_n_workspaces();
-          Logger.trace(
-            `tree-workspaces: ${treeWorkspaces.length}, global-workspaces: ${globalWsNum}`
-          );
           // empty out the root children nodes
           this.tree.childNodes.length = 0;
           this.tree.attachNode = undefined;
@@ -1214,7 +1156,6 @@ var WindowManager = GObject.registerClass(
           let splitBorder = new St.Bin({ style_class: "window-split-border" });
           global.window_group.add_child(splitBorder);
           windowActor.splitBorder = splitBorder;
-          Logger.debug(`focus-border: create split border`);
         }
 
         let splitBorder = windowActor.splitBorder;
@@ -1247,7 +1188,6 @@ var WindowManager = GObject.registerClass(
     updateBorderLayout() {
       this.hideWindowBorders();
       this.showWindowBorders();
-      Logger.trace(`show-border-focus-window`);
     }
 
     calculateGaps() {
@@ -1287,16 +1227,12 @@ var WindowManager = GObject.registerClass(
           let parentFocusNode = this.tree.attachNode;
           // check the parentFocusNode is in the tree
           if (parentFocusNode) {
-            Logger.debug(`checking parentFocusNode if detached from the tree`);
             parentFocusNode = this.tree.findNode(parentFocusNode.nodeValue);
           }
           if (!parentFocusNode) {
             // Else it could be the initial window
             // get the containing monitor instead
             let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-            Logger.debug(
-              `checking parentFocusNode using current metaWindow workspace monitor ${metaMonWs}`
-            );
             parentFocusNode = this.tree.findNode(metaMonWs);
           }
           if (!parentFocusNode) {
@@ -1306,18 +1242,12 @@ var WindowManager = GObject.registerClass(
               .get_active_workspace_index();
             const activeMonitor = global.display.get_current_monitor();
             let metaMonWs = `mo${activeMonitor}ws${activeWorkspace}`;
-            Logger.debug(`checking parentFocusNode using active workspace monitor ${metaMonWs}`);
             parentFocusNode = this.tree.findNode(metaMonWs);
           }
           if (!parentFocusNode) {
             // there is nothing to attach to
-            Logger.warn(`track-window: nothing to attach to for ${metaWindow.get_title()}`);
             return;
           }
-          Logger.info(
-            `track-window: ${metaWindow.get_title()} attaching to ${parentFocusNode.nodeValue}`
-          );
-          Logger.warn(`track-window: allow-resize ${metaWindow.allows_resize()}`);
 
           nodeWindow = this.tree.createNode(
             parentFocusNode.nodeValue,
@@ -1368,21 +1298,17 @@ var WindowManager = GObject.registerClass(
               this.forceRender(() => {
                 this.renderTree("focus");
               });
-
-              Logger.debug(`window:focus`);
             }),
             metaWindow.connect("workspace-changed", (metaWindowWs) => {
-              Logger.debug(`workspace-changed ${metaWindowWs.get_wm_class()}`);
+              // Empty
             }),
           ];
           metaWindow.windowSignals = windowSignals;
-          Logger.debug(`track-window:binding-metawindow-signal`);
         }
 
         if (!windowActor.actorSignals) {
           let actorSignals = [windowActor.connect("destroy", this.windowDestroy.bind(this))];
           windowActor.actorSignals = actorSignals;
-          Logger.debug(`track-window:binding-actor-signal`);
         }
 
         if (!windowActor.border) {
@@ -1392,13 +1318,10 @@ var WindowManager = GObject.registerClass(
 
           windowActor.border = border;
           border.show();
-          Logger.debug(`track-window:create-border`);
         }
 
         this.openCenterPrefs(metaWindow);
 
-        Logger.trace(` on workspace: ${metaWindow.get_workspace().index()}`);
-        Logger.trace(` on monitor: ${metaWindow.get_monitor()}`);
         this.queueEvent(
           {
             name: "window-create-queue",
@@ -1461,7 +1384,6 @@ var WindowManager = GObject.registerClass(
         if (activeWorkspaceForWin) {
           let wsIndex = activeWorkspaceForWin.index();
           if (skipArr[i].trim() === `${wsIndex}`) {
-            Logger.debug(`workspace ${wsIndex} skipped for window ${metaWindow.get_wm_class()}`);
             skipThisWs = true;
             break;
           }
@@ -1482,7 +1404,6 @@ var WindowManager = GObject.registerClass(
 
       for (let i = 0; i < skipArr.length; i++) {
         if (skipArr[i].trim() === `${wsIndex}`) {
-          Logger.debug(`workspace ${wsIndex} skipped`);
           skipThisWs = true;
           break;
         }
@@ -1495,7 +1416,6 @@ var WindowManager = GObject.registerClass(
       for (let i = 0; i < windowsAll.length; i++) {
         this.trackWindow(global.display, windowsAll[i]);
       }
-      Logger.debug(`track-current-windows`);
     }
 
     _validWindow(metaWindow) {
@@ -1531,7 +1451,6 @@ var WindowManager = GObject.registerClass(
       nodeWindow = this.tree.findNodeByActor(actor);
 
       if (nodeWindow) {
-        Logger.debug(`window destroyed ${nodeWindow.nodeValue.get_wm_class()}`);
         this.tree.removeNode(nodeWindow);
         this.renderTree("window-destroy");
       }
@@ -1540,7 +1459,6 @@ var WindowManager = GObject.registerClass(
       let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
       if (focusNodeWindow) {
         this.tree.attachNode = focusNodeWindow.parentNode;
-        Logger.trace(`on-destroy: finding next attach node ${this.tree.attachNode.nodeType}`);
       }
 
       this.queueEvent(
@@ -1554,8 +1472,6 @@ var WindowManager = GObject.registerClass(
         },
         100
       );
-
-      Logger.debug(`window-destroy`);
     }
 
     /**
@@ -1573,9 +1489,6 @@ var WindowManager = GObject.registerClass(
             // belongs to.
             let containsWindow = metaMonWsNode.contains(existNodeWindow);
             if (!containsWindow) {
-              Logger.debug(
-                `window ${metaWindow.get_wm_class()} is not in same monitor-workspace ${metaMonWs}`
-              );
               // handle cleanup of resize percentages
               let existParent = existNodeWindow.parentNode;
               this.tree.resetSiblingPercent(existParent);
@@ -1594,7 +1507,6 @@ var WindowManager = GObject.registerClass(
             }
           }
         }
-        Logger.debug(`update-ws-mon:${from}: moved ${metaWindow.get_wm_class()} to ${metaMonWs}`);
         this.renderTree(from);
       }
     }
@@ -1625,7 +1537,6 @@ var WindowManager = GObject.registerClass(
       }
       this.updateBorderLayout();
       this.updateDecorationLayout();
-      Logger.trace(`${from} ${focusMetaWindow.get_wm_class()}`);
     }
 
     updateDecorationLayout() {
@@ -1645,11 +1556,8 @@ var WindowManager = GObject.registerClass(
       let allWindows = activeWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
       let allHiddenWindows = allWindows.filter((w) => {
         let metaWindow = w.nodeValue;
-        Logger.trace(`deco-update: window shown ${metaWindow.showing_on_its_workspace()}`);
         return !metaWindow.showing_on_its_workspace() || metaWindow.minimized;
       });
-
-      Logger.debug(`deco-update: all ${allWindows.length} hidden ${allHiddenWindows.length}`);
 
       // Then if all hidden, do not proceed showing the decorations at all;
       if (allWindows.length === allHiddenWindows.length) return;
@@ -1719,7 +1627,6 @@ var WindowManager = GObject.registerClass(
       if (gdkDisplay) {
         let gdkScreen = gdkDisplay.get_default_screen();
         let gdkPointer = gdkDisplay.get_default_seat().get_pointer();
-        Logger.warn(`move-pointer with monitor to ${rect.x}, ${rect.y}`);
         gdkPointer.warp(gdkScreen, rect.x, rect.y);
       }
     }
@@ -1735,7 +1642,6 @@ var WindowManager = GObject.registerClass(
 
     swapWindowsUnderPointer(focusNodeWindow) {
       if (this.cancelGrab) {
-        Logger.debug(`swap-grab: was cancelled`);
         return;
       }
       let nodeWinAtPointer = this.findNodeWindowAtPointer(focusNodeWindow);
@@ -1749,7 +1655,6 @@ var WindowManager = GObject.registerClass(
      */
     moveWindowToPointer(focusNodeWindow, preview = false) {
       if (this.cancelGrab) {
-        Logger.debug(`move-grab: was cancelled`);
         return;
       }
       if (!focusNodeWindow || focusNodeWindow.mode !== WINDOW_MODES.GRAB_TILE) return;
@@ -1859,9 +1764,7 @@ var WindowManager = GObject.registerClass(
         const isCenter = Utils.rectContainsPoint(centerRegion, currPointer);
 
         if (isCenter) {
-          Logger.debug("move-pointer: is center");
           if (stackedOrTabbed) {
-            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             containerNode = parentNodeTarget;
             referenceNode = null;
             previewParams = {
@@ -1886,7 +1789,6 @@ var WindowManager = GObject.registerClass(
             }
           }
         } else if (isLeft) {
-          Logger.debug("move-pointer: is left");
           previewParams = {
             targetRect: previewRegions.left,
           };
@@ -1895,10 +1797,8 @@ var WindowManager = GObject.registerClass(
             // treat any windows on stacked or tabbed layouts to be
             // a single node unit: the con itself and then
             // split left, top, right or bottom accordingly (subsequent if conditions):
-            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             childNode.detachWindow = true;
             if (!isMonParent) {
-              Logger.debug(`move-pointer: parent is not monitor`);
               referenceNode = parentNodeTarget;
               containerNode = parentNodeTarget.parentNode;
             } else {
@@ -1908,12 +1808,10 @@ var WindowManager = GObject.registerClass(
             }
           } else {
             if (horizontal) {
-              Logger.debug("move-pointer: is left horizontal");
               containerNode = parentNodeTarget;
               referenceNode = nodeWinAtPointer;
             } else {
               // vertical orientation
-              Logger.debug("move-pointer: is left vertical");
               childNode.createCon = true;
               containerNode = parentNodeTarget;
               referenceNode = nodeWinAtPointer;
@@ -1923,15 +1821,12 @@ var WindowManager = GObject.registerClass(
           previewParams = {
             targetRect: previewRegions.right,
           };
-          Logger.debug("move-pointer: is right");
           if (stackedOrTabbed) {
             // treat any windows on stacked or tabbed layouts to be
             // a single node unit: the con itself and then
             // split left, top, right or bottom accordingly (subsequent if conditions):
-            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             childNode.detachWindow = true;
             if (!isMonParent) {
-              Logger.debug(`move-pointer: parent is not monitor`);
               referenceNode = parentNodeTarget.nextSibling;
               containerNode = parentNodeTarget.parentNode;
             } else {
@@ -1941,11 +1836,9 @@ var WindowManager = GObject.registerClass(
             }
           } else {
             if (horizontal) {
-              Logger.debug("move-pointer: is right horizontal");
               containerNode = parentNodeTarget;
               referenceNode = nodeWinAtPointer.nextSibling;
             } else {
-              Logger.debug("move-pointer: is right vertical");
               childNode.createCon = true;
               containerNode = parentNodeTarget;
               referenceNode = nodeWinAtPointer.nextSibling;
@@ -1955,12 +1848,10 @@ var WindowManager = GObject.registerClass(
           previewParams = {
             targetRect: previewRegions.top,
           };
-          Logger.debug("move-pointer: is top");
           if (stackedOrTabbed) {
             // treat any windows on stacked or tabbed layouts to be
             // a single node unit: the con itself and then
             // split left, top, right or bottom accordingly (subsequent if conditions):
-            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             if (!isMonParent) {
               containerNode = parentNodeTarget;
               referenceNode = null;
@@ -1975,12 +1866,10 @@ var WindowManager = GObject.registerClass(
             }
           } else {
             if (horizontal) {
-              Logger.debug("move-pointer: is top horizontal");
               childNode.createCon = true;
               containerNode = parentNodeTarget;
               referenceNode = nodeWinAtPointer;
             } else {
-              Logger.debug("move-pointer: is top vertical");
               containerNode = parentNodeTarget;
               referenceNode = nodeWinAtPointer;
             }
@@ -1989,12 +1878,10 @@ var WindowManager = GObject.registerClass(
           previewParams = {
             targetRect: previewRegions.bottom,
           };
-          Logger.debug("move-pointer: is bottom");
           if (stackedOrTabbed) {
             // treat any windows on stacked or tabbed layouts to be
             // a single node unit: the con itself and then
             // split left, top, right or bottom accordingly (subsequent if conditions):
-            Logger.debug(`move-pointer: con already stacked ${stacked} or ${tabbed}`);
             if (!isMonParent) {
               containerNode = parentNodeTarget;
               referenceNode = null;
@@ -2009,13 +1896,11 @@ var WindowManager = GObject.registerClass(
             }
           } else {
             if (horizontal) {
-              Logger.debug("move-pointer: is bottom horizontal");
               childNode = focusNodeWindow;
               childNode.createCon = true;
               containerNode = parentNodeTarget;
               referenceNode = nodeWinAtPointer.nextSibling;
             } else {
-              Logger.debug("move-pointer: is bottom vertical");
               childNode = focusNodeWindow;
               containerNode = parentNodeTarget;
               referenceNode = nodeWinAtPointer.nextSibling;
@@ -2056,18 +1941,13 @@ var WindowManager = GObject.registerClass(
             const numChild = parentNodeTarget.childNodes.length;
             const sameNumChild = numWin === numChild;
             // Child Node will still be created
-            Logger.debug(
-              `move-pointer: target parent type ${parentNodeTarget.nodeType} with ${numChild} total, ${numWin} only windows`
-            );
             if (
               !isCenter &&
               ((isConParent && numWin === 1 && sameNumChild) ||
                 (isMonParent && numWin == 2 && sameNumChild))
             ) {
-              Logger.debug(`move-pointer: re-using target container`);
               childNode = parentNodeTarget;
             } else {
-              Logger.debug(`move-pointer: creating new container`);
               childNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
               containerNode.insertBefore(childNode, referenceNode);
               childNode.appendChild(nodeWinAtPointer);
@@ -2085,7 +1965,6 @@ var WindowManager = GObject.registerClass(
               childNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
             } else if (isCenter) {
               const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
-              Logger.debug(`move-pointer: center layout ${centerLayout}`);
               childNode.layout = Tree.LAYOUT_TYPES[centerLayout];
             }
           } else if (childNode.detachWindow) {
@@ -2107,7 +1986,6 @@ var WindowManager = GObject.registerClass(
                 const centerLayout = this.ext.settings
                   .get_string("dnd-center-layout")
                   .toUpperCase();
-                Logger.debug(`move-pointer: center layout ${centerLayout}`);
                 containerNode.layout = Tree.LAYOUT_TYPES[centerLayout];
               }
             }
@@ -2171,7 +2049,6 @@ var WindowManager = GObject.registerClass(
         focusNodeWindow.initGrabOp = grabOp;
         focusNodeWindow.initRect = Utils.removeGapOnRect(frameRect, gaps);
       }
-      Logger.debug(`grab op begin ${grabOp}, orientation ${orientation}, direction ${direction}`);
     }
 
     _handleGrabOpEnd(_display, _metaWindow, grabOp) {
@@ -2198,8 +2075,6 @@ var WindowManager = GObject.registerClass(
       this.updateStackedFocus(focusNodeWindow);
       this.updateTabbedFocus(focusNodeWindow);
       this.nodeWinAtPointer = null;
-
-      Logger.debug(`grab op end ${grabOp}`);
     }
 
     _grabCleanup(focusNodeWindow) {
@@ -2249,7 +2124,6 @@ var WindowManager = GObject.registerClass(
         resizePairForWindow = this.tree.nextVisible(focusNodeWindow, direction);
       }
 
-      Logger.trace(`update-position-size: ${grabOp}`);
       let sameParent = resizePairForWindow
         ? resizePairForWindow.parentNode === focusNodeWindow.parentNode
         : false;
@@ -2258,7 +2132,6 @@ var WindowManager = GObject.registerClass(
         if (sameParent) {
           // use the window or con pairs
           if (this.tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
-            Logger.warn(`not valid for resize`);
             return;
           }
 
@@ -2275,7 +2148,6 @@ var WindowManager = GObject.registerClass(
           }
 
           if (!firstRect || !secondRect) {
-            Logger.warn(`first and second rect pairs not available`);
             return;
           }
 
@@ -2289,7 +2161,6 @@ var WindowManager = GObject.registerClass(
           // use the parent pairs (con to another con or window)
           if (resizePairForWindow && resizePairForWindow.parentNode) {
             if (this.tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
-              Logger.warn(`not valid for resize`);
               return;
             }
             let firstWindowRect = focusNodeWindow.initRect;
@@ -2304,7 +2175,6 @@ var WindowManager = GObject.registerClass(
             firstRect = parentNodeForFocus.rect;
             secondRect = resizePairForWindow.rect;
             if (!firstRect || !secondRect) {
-              Logger.warn(`first and second rect pairs not available`);
               return;
             }
 
@@ -2320,7 +2190,6 @@ var WindowManager = GObject.registerClass(
         if (sameParent) {
           // use the window or con pairs
           if (this.tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
-            Logger.warn(`not valid for resize`);
             return;
           }
           firstRect = focusNodeWindow.initRect;
@@ -2335,7 +2204,6 @@ var WindowManager = GObject.registerClass(
             }
           }
           if (!firstRect || !secondRect) {
-            Logger.warn(`first and second rect pairs not available`);
             return;
           }
           parentRect = parentNodeForFocus.rect;
@@ -2348,7 +2216,6 @@ var WindowManager = GObject.registerClass(
           // use the parent pairs (con to another con or window)
           if (resizePairForWindow && resizePairForWindow.parentNode) {
             if (this.tree.getTiledChildren(resizePairForWindow.parentNode.childNodes).length <= 1) {
-              Logger.warn(`not valid for resize`);
               return;
             }
             let firstWindowRect = focusNodeWindow.initRect;
@@ -2363,7 +2230,6 @@ var WindowManager = GObject.registerClass(
             firstRect = parentNodeForFocus.rect;
             secondRect = resizePairForWindow.rect;
             if (!firstRect || !secondRect) {
-              Logger.warn(`first and second rect pairs not available`);
               return;
             }
 
@@ -2426,11 +2292,6 @@ var WindowManager = GObject.registerClass(
 
       let floatOverride =
         knownFloats.filter((kf) => {
-          Logger.trace(
-            `meta title ${windowTitle}, class ${metaWindow.get_wm_class()}; known title ${
-              kf.wmTitle
-            }, class ${kf.wmClass}`
-          );
           let matchTitle = false;
           let matchClass = false;
 
@@ -2483,7 +2344,6 @@ var WindowManager = GObject.registerClass(
 
     get currentMonWs() {
       const monWs = `${this.currentMon}${this.currentWs}`;
-      Logger.debug(`current active mon ws: ${monWs}`);
       return monWs;
     }
 

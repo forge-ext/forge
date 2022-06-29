@@ -858,7 +858,6 @@ var WorkspaceSettingsPanel = GObject.registerClass(
 
           for (let i = 0; i < currEntryArr.length; i++) {
             if (isNaN(parseInt(currEntryArr[i]))) {
-              Logger.warn(`Entry${currEntryArr[i]} is not a valid workspace index`);
               errors += 1;
             }
           }

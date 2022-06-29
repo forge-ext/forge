@@ -232,7 +232,6 @@ var Node = GObject.registerClass(
     contains(node) {
       if (!node) return false;
       let searchNode = this.getNodeByValue(node.nodeValue);
-      if (searchNode) Logger.trace(`contains: ${searchNode.nodeValue}`);
       return searchNode ? true : false;
     }
 
@@ -269,13 +268,10 @@ var Node = GObject.registerClass(
       if (childNode.parentNode !== this) return null;
       if (newNode.parentNode) newNode.parentNode.removeChild(newNode);
       let index = childNode.index;
-      Logger.trace(`insert-before: child ${index}, items ${this.childNodes.length}`);
 
       if (childNode.index === 0) {
-        Logger.trace(`insert-append to start`);
         this.childNodes.unshift(newNode);
       } else if (childNode.index > 0) {
-        Logger.trace(`insert-splice`);
         this.childNodes.splice(index, 0, newNode);
       }
       newNode.parentNode = this;
@@ -365,9 +361,6 @@ var Node = GObject.registerClass(
         // Since contains() tries to find node on all descendants,
         // detach only from the immediate parent
         let parentNode = node.parentNode;
-        Logger.trace(
-          `Removing ${node.nodeType} with index ${node.index} from parent ${parentNode.nodeType}`
-        );
         refNode = parentNode.childNodes.splice(node.index, 1);
         refNode.parentNode = null;
       }
@@ -590,7 +583,6 @@ var Tree = GObject.registerClass(
       for (let i = 0; i < workspaces; i++) {
         this.addWorkspace(i);
       }
-      Logger.debug(`initialized workspaces: ${workspaces}`);
     }
 
     // TODO move to monitor.js
@@ -607,7 +599,6 @@ var Tree = GObject.registerClass(
         if (!global.window_group.contains(monitorWsNode.actorBin))
           global.window_group.add_child(monitorWsNode.actorBin);
       }
-      Logger.debug(`initialized monitors: ${monitors}`);
     }
 
     // TODO move to workspace.js
@@ -617,11 +608,8 @@ var Tree = GObject.registerClass(
 
       let existingWsNode = this.findNode(workspaceNodeValue);
       if (existingWsNode) {
-        Logger.debug(`workspace-node ${workspaceNodeValue} already exists`);
         return false;
       }
-
-      Logger.debug(`adding workspace: ${workspaceNodeValue}`);
 
       let newWsNode = this.createNode(this.nodeValue, NODE_TYPES.WORKSPACE, workspaceNodeValue);
 
@@ -642,9 +630,7 @@ var Tree = GObject.registerClass(
     removeWorkspace(wsIndex) {
       let workspaceNodeData = `ws${wsIndex}`;
       let existingWsNode = this.findNode(workspaceNodeData);
-      Logger.debug(`removing workspace: ${workspaceNodeData}`);
       if (!existingWsNode) {
-        Logger.debug(`workspace-node ${workspaceNodeData} does not exist`);
         return false;
       }
 
@@ -691,8 +677,6 @@ var Tree = GObject.registerClass(
           // Append as the last item of the container
           parentNode.appendChild(child);
         }
-
-        Logger.trace(`adding node ${type}: ${value} to ${parentObj}`);
       }
       return child;
     }
@@ -734,7 +718,6 @@ var Tree = GObject.registerClass(
     focus(node, direction) {
       if (!node) return null;
       let next = this.next(node, direction);
-      Logger.trace(`tree-focus: next ${next ? next.nodeType : undefined}`);
 
       if (!next) return null;
 
@@ -792,8 +775,6 @@ var Tree = GObject.registerClass(
       }
 
       if (!next) return null;
-
-      Logger.debug(`tree-focus: possible next ${next.nodeType}`);
 
       let metaWindow = next.nodeValue;
       if (!metaWindow) return null;
@@ -854,7 +835,6 @@ var Tree = GObject.registerClass(
       if (!next || next === -1) {
         if (next === -1) {
           // TODO - update appending or prepending on the same monitor
-          Logger.warn(`move-window: on edge? ${next}`);
           const currMonWsNode = this.extWm.currentMonWsNode;
           if (currMonWsNode) {
             if (position === POSITION.AFTER) {
@@ -868,8 +848,6 @@ var Tree = GObject.registerClass(
         return false;
       }
 
-      Logger.trace(`move-window: next ${next ? next.nodeType : undefined} ${position}`);
-
       let parentNode = node.parentNode;
       let parentTarget;
 
@@ -877,7 +855,6 @@ var Tree = GObject.registerClass(
         case NODE_TYPES.WINDOW:
           // If same parent, swap
           if (next === node.previousSibling || next === node.nextSibling) {
-            Logger.trace(`move-window: swap pairs`);
             parentTarget = next.parentNode;
             this.swapPairs(node, next);
             if (this.settings.get_boolean("move-pointer-focus-enabled")) {
@@ -888,7 +865,6 @@ var Tree = GObject.registerClass(
           } else {
             parentTarget = next.parentNode;
             if (parentTarget) {
-              Logger.trace(`move-window: next parent ${parentTarget.nodeValue}`);
               if (position === POSITION.AFTER) {
                 parentTarget.insertBefore(node, next);
               } else {
@@ -898,7 +874,6 @@ var Tree = GObject.registerClass(
           }
           break;
         case NODE_TYPES.CON:
-          Logger.trace(`move-to-con`);
           parentTarget = next;
 
           if (next.isStacked()) {
@@ -919,7 +894,6 @@ var Tree = GObject.registerClass(
             !next.contains(node) &&
             (node === currMonWsNode.firstChild || node === currMonWsNode.lastChild)
           ) {
-            Logger.trace("move to different monitor");
             let targetMonRect = this.extWm.rectForMonitor(node, Utils.monitorIndex(next.nodeValue));
             if (!targetMonRect) return false;
             if (position === POSITION.AFTER) {
@@ -931,7 +905,6 @@ var Tree = GObject.registerClass(
             this.extWm.move(node.nodeValue, rect);
             this.extWm.movePointerWith(node);
           } else {
-            Logger.trace("move within same monitor");
             if (position === POSITION.AFTER) {
               currMonWsNode.appendChild(node);
             } else {
@@ -999,7 +972,6 @@ var Tree = GObject.registerClass(
           }
         }
         node = node.parentNode;
-        Logger.trace(`tree-next: moving to parent ${node.nodeType}`);
       }
     }
 
@@ -1013,12 +985,9 @@ var Tree = GObject.registerClass(
         nodeWindow.nodeValue.get_monitor(),
         monitorDirection
       );
-      Logger.trace(`tree-next: targetMonitor is ${targetMonitor} on direction ${monitorDirection}`);
       if (targetMonitor < 0) return targetMonitor;
       let monWs = `mo${targetMonitor}ws${nodeWindow.nodeValue.get_workspace().index()}`;
-      Logger.trace(`tree-next: found monitor ${monWs}`);
       monitorNode = this.findNode(monWs);
-      Logger.trace(`tree-next: found node ${monitorNode ? monitorNode.nodeValue : "not found"}`);
       return monitorNode;
     }
 
@@ -1063,12 +1032,10 @@ var Tree = GObject.registerClass(
       let type = node.nodeType;
 
       if (type === NODE_TYPES.WINDOW && node.mode === Window.WINDOW_MODES.FLOAT) {
-        Logger.debug(`tree-split: cannot split ${type} that floats`);
         return;
       }
 
       if (!(type === NODE_TYPES.MONITOR || type === NODE_TYPES.CON || type === NODE_TYPES.WINDOW)) {
-        Logger.debug(`tree-split: cannot split ${type}`);
         return;
       }
 
@@ -1083,19 +1050,11 @@ var Tree = GObject.registerClass(
       ) {
         parentNode.layout =
           orientation === ORIENTATION_TYPES.HORIZONTAL ? LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;
-        Logger.debug(
-          `tree-split: toggle parent ${parentNode.nodeType} to layout: ${parentNode.layout}`
-        );
         this.attachNode = parentNode;
         return;
       }
 
       // Push down the Meta.Window into a new Container
-      Logger.trace(
-        `tree-split: parent node ${parentNode.nodeType} ${parentNode.nodeValue}, children ${numChildren}`
-      );
-      Logger.trace(`tree-split: node ${node.nodeValue} has children? ${node.childNodes.length}`);
-      Logger.debug(`tree-split: pushing down ${type} ${node.nodeValue.get_wm_class()} to CON`);
       let currentIndex = node.index;
       let container = new St.Bin();
       let newConNode = new Node(NODE_TYPES.CON, container);
@@ -1109,14 +1068,10 @@ var Tree = GObject.registerClass(
       this.createNode(container, node.nodeType, node.nodeValue);
       node.parentNode = newConNode;
       this.attachNode = newConNode;
-      Logger.trace(
-        `tree-split: container parent ${newConNode._parent.nodeValue} has children? ${newConNode.parentNode.childNodes.length}`
-      );
     }
 
     swap(node, direction) {
       let nextSwapNode = this.next(node, direction);
-      Logger.trace(`swap: next ${nextSwapNode ? nextSwapNode.nodeType : undefined}`);
       if (!nextSwapNode) {
         return;
       }
@@ -1143,12 +1098,8 @@ var Tree = GObject.registerClass(
       if (isNextNodeWin) {
         if (!this.extWm.sameParentMonitor(node, nextSwapNode)) {
           // TODO, there is a freeze bug if there are not in same monitor.
-          Logger.warn(`swap: not same monitor, do not swap`);
           return;
         }
-        Logger.debug(
-          `swap: result ${isNextNodeWin ? nextSwapNode.nodeValue.get_wm_class() : "undefined"}`
-        );
         this.swapPairs(node, nextSwapNode);
       }
       return nextSwapNode;
@@ -1236,13 +1187,10 @@ var Tree = GObject.registerClass(
     }
 
     render(from) {
-      Logger.debug(`---------------------------------------------`);
-      Logger.debug(`scale-factor ${Utils.dpi()}`);
       Logger.debug(`render tree ${from ? "from " + from : ""}`);
       this.processNode(this);
       this.apply(this);
       this.cleanTree();
-      Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
       let debugMode = true;
       if (debugMode) {
         this.debugTree();
@@ -1272,8 +1220,6 @@ var Tree = GObject.registerClass(
       );
       const hasOrphanCons = orphanCons.length > 0;
 
-      Logger.debug(`clean-tree: orphaned cons ${orphanCons.length}`);
-
       orphanCons.forEach((o) => {
         this.removeNode(o);
       });
@@ -1290,8 +1236,6 @@ var Tree = GObject.registerClass(
         c.layout = LAYOUT_TYPES.HSPLIT;
       });
 
-      Logger.debug(`clean-tree: multi-parent empty cons ${grandParentCons.length}`);
-
       if (hasOrphanCons) {
         this.processNode(this);
         this.apply(this);
@@ -1306,7 +1250,6 @@ var Tree = GObject.registerClass(
     processNode(node) {
       if (!node) return;
 
-      Logger.debug(`processing ${node.nodeType}`);
       // Render the Root, Workspace and Monitor
       // For now, we let them render their children recursively
       if (node.nodeType === NODE_TYPES.ROOT) {
@@ -1340,7 +1283,6 @@ var Tree = GObject.registerClass(
             .get_active_workspace()
             .get_work_area_for_monitor(monitorIndex);
           if (!monitorArea) return; // there is no visible child window
-          Logger.trace(`processing workarea`);
           node.rect = monitorArea;
           node.rect = this.processGap(node);
         }
@@ -1551,7 +1493,6 @@ var Tree = GObject.registerClass(
           childNode.percent && childNode.percent > 0.0 && !grabTiled
             ? childNode.percent
             : 1.0 / childItems.length;
-        Logger.trace(`percent ${percent}, c${childNode._type}`);
         sizes[index] = Math.floor(percent * totalSize);
       });
       // TODO - make sure the totalSize = the sizes total
@@ -1559,10 +1500,8 @@ var Tree = GObject.registerClass(
     }
 
     findFirstNodeWindowFrom(node) {
-      Logger.trace(`finding at least one node window`);
       let results = node.getNodeByType(NODE_TYPES.WINDOW);
       if (results.length > 0) {
-        Logger.trace(`found results`);
         return results[0];
       }
       return null;
@@ -1570,9 +1509,6 @@ var Tree = GObject.registerClass(
 
     resetSiblingPercent(parentNode) {
       if (!parentNode) return;
-      Logger.trace(
-        `resetting child-nodes for ${parentNode.nodeType} with id ${parentNode.nodeValue}`
-      );
       let children = parentNode.childNodes;
       children.forEach((n) => {
         n.percent = 0.0;

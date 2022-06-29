@@ -78,7 +78,6 @@ function resolveX(rectRequest, metaWindow) {
       break;
   }
   val = monitorRect.x + val;
-  Logger.debug(`resolve x: ${val}`);
   return val;
 }
 
@@ -110,7 +109,6 @@ function resolveY(rectRequest, metaWindow) {
       break;
   }
   val = monitorRect.y + val;
-  Logger.debug(`resolve y: ${val}`);
   return val;
 }
 
@@ -131,7 +129,6 @@ function resolveWidth(rectRequest, metaWindow) {
     default:
       break;
   }
-  Logger.debug(`resolve width: ${val}`);
   return val;
 }
 
@@ -152,7 +149,6 @@ function resolveHeight(rectRequest, metaWindow) {
     default:
       break;
   }
-  Logger.debug(`resolve height: ${val}`);
   return val;
 }
 
