@@ -1241,6 +1241,7 @@ var Tree = GObject.registerClass(
       Logger.debug(`render tree ${from ? "from " + from : ""}`);
       this.processNode(this);
       this.apply(this);
+      this.extWm.updateDecorationLayout();
       this.cleanTree();
       Logger.debug(`workspaces: ${this.nodeWorkpaces.length}`);
       let debugMode = true;
