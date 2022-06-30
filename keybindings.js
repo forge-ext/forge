@@ -156,7 +156,6 @@ var Keybindings = GObject.registerClass(
 
     get modifierState() {
       const [_x, _y, state] = this.extWm.getPointer();
-      Logger.debug(`kbd: get mod state ${state}`);
       return state;
     }
 

@@ -1003,19 +1003,19 @@ var WindowManager = GObject.registerClass(
 
     renderTree(from) {
       if (this._freezeRender || !this.ext.settings.get_boolean("tiling-mode-enabled")) {
-        Logger.trace(`render frozen`);
-        return;
-      }
-
-      if (!this._renderTreeSrcId) {
-        this._renderTreeSrcId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-          this.processFloats();
-          this.tree.render(from);
-          this._renderTreeSrcId = 0;
-          this.updateDecorationLayout();
-          this.updateBorderLayout();
-          return false;
-        });
+        this.updateDecorationLayout();
+        this.updateBorderLayout();
+      } else {
+        if (!this._renderTreeSrcId) {
+          this._renderTreeSrcId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            this.processFloats();
+            this.tree.render(from);
+            this._renderTreeSrcId = 0;
+            this.updateDecorationLayout();
+            this.updateBorderLayout();
+            return false;
+          });
+        }
       }
     }
 
