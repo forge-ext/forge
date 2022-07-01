@@ -1431,18 +1431,18 @@ var WindowManager = GObject.registerClass(
       // Release any resources on the window
       let border = actor.border;
       if (border) {
-        border.hide();
         if (global.window_group) {
           global.window_group.remove_child(border);
+          border.hide();
           border = null;
         }
       }
 
       let splitBorder = actor.splitBorder;
       if (splitBorder) {
-        splitBorder.hide();
         if (global.window_group) {
           global.window_group.remove_child(splitBorder);
+          splitBorder.hide();
           splitBorder = null;
         }
       }
@@ -1460,18 +1460,6 @@ var WindowManager = GObject.registerClass(
       if (focusNodeWindow) {
         this.tree.attachNode = focusNodeWindow.parentNode;
       }
-
-      this.queueEvent(
-        {
-          name: "render-after-destroy-queue",
-          callback: () => {
-            this.forceRender(() => {
-              this.renderTree("window-destroy");
-            });
-          },
-        },
-        100
-      );
     }
 
     /**
