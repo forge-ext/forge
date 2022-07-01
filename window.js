@@ -232,19 +232,18 @@ var WindowManager = GObject.registerClass(
           this.trackCurrentMonWs();
         }),
         globalWsm.connect("workspace-added", (_, wsIndex) => {
-          let added = this.tree.addWorkspace(wsIndex);
+          this.tree.addWorkspace(wsIndex);
           this.trackCurrentMonWs();
           this.workspaceAdded = true;
         }),
         globalWsm.connect("workspace-removed", (_, wsIndex) => {
-          let removed = this.tree.removeWorkspace(wsIndex);
+          this.tree.removeWorkspace(wsIndex);
           this.trackCurrentMonWs();
           this.workspaceRemoved = true;
         }),
         globalWsm.connect("workspace-switched", (_, _wsIndex) => {
           this.ext.indicator.updateTileIcon();
           this.trackCurrentMonWs();
-          this.renderTree("workspace-switched");
         }),
       ];
 
@@ -1298,9 +1297,6 @@ var WindowManager = GObject.registerClass(
               this.forceRender(() => {
                 this.renderTree("focus");
               });
-            }),
-            metaWindow.connect("workspace-changed", (metaWindowWs) => {
-              // Empty
             }),
           ];
           metaWindow.windowSignals = windowSignals;
