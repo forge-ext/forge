@@ -245,6 +245,7 @@ var WindowManager = GObject.registerClass(
           this.renderTree("workspace-switched");
         }),
         globalWsm.connect("workspace-switched", (_, _wsIndex) => {
+          this.hideWindowBorders();
           this.ext.indicator.updateTileIcon();
           this.trackCurrentMonWs();
           this.renderTree("workspace-switched");
