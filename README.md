@@ -10,6 +10,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 ## ! Major Changes !
 - Floating windows were rewritten and persists between sessions.
 - Toggle floating by window title and entire window class using keyboard shortcuts.
+- Window Snapping 2/3, 1/3 or center.
 
 ## Development
 
@@ -34,12 +35,22 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 
 ## Forge Keybinding Defaults
 
+### New
+| Action | Shortcut |
+| --- | --- |
+| Snap active window left two thirds | `<Ctrl> + <Alt> + e` |
+| Snap active window right two thirds | `<Ctrl> + <Alt> + t` |
+| Snap active window left third | `<Ctrl> + <Alt> + d` |
+| Snap active window right third | `<Ctrl> + <Alt> + g` |
+| Persist toggle floating for active window | `<Super> + c` |
+| Persist toggle floating for active window and its window class | `<Super><Shift> + c` |
+
+### Current
+
 | Action | Shortcut |
 | --- | --- |
 | Open preferences | `<Super> + period` |
 | Toggle tiling mode |`<Super> + w` |
-| Persist toggle floating for active window | `<Super> + c` |
-| Persist toggle floating for active window and its window class | `<Super><Shift> + c` |
 | Focus left | `<Super> + h` |
 | Focus right | `<Super> + l` |
 | Focus up | `<Super> + k` |
@@ -53,10 +64,6 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Move active window right | `<Shift> + <Super> + l` |
 | Move active window up | `<Shift> + <Super> + k` |
 | Move active window down | `<Shift> + <Super> + j` |
-| Snap active window left two thirds | `<Ctrl><Alt> + e` |
-| Snap active window right two thirds | `<Ctrl><Alt> + t` |
-| Snap active window left third | `<Ctrl><Alt> + d` |
-| Snap active window right third | `<Ctrl><Alt> + g` |
 | Split container horizontally | `<Super> + z` |
 | Split container vertically | `<Super> + v` |
 | Toggle split container | `<Super> + g` |
