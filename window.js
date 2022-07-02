@@ -170,7 +170,7 @@ var WindowManager = GObject.registerClass(
         display.connect("grab-op-begin", this._handleGrabOpBegin.bind(this)),
         display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
         display.connect("showing-desktop-changed", () => {
-          // This is an unused signal listener
+          this.hideWindowBorders();
         }),
         display.connect("in-fullscreen-changed", () => {
           this.renderTree("full-screen-changed");
@@ -229,20 +229,18 @@ var WindowManager = GObject.registerClass(
       this._workspaceManagerSignals = [
         globalWsm.connect("showing-desktop-changed", () => {
           this.hideWindowBorders();
-          this.trackCurrentMonWs();
-          this.renderTree("workspace-switched");
         }),
         globalWsm.connect("workspace-added", (_, wsIndex) => {
           this.tree.addWorkspace(wsIndex);
           this.trackCurrentMonWs();
           this.workspaceAdded = true;
-          this.renderTree("workspace-switched");
+          this.renderTree("workspace-added");
         }),
         globalWsm.connect("workspace-removed", (_, wsIndex) => {
           this.tree.removeWorkspace(wsIndex);
           this.trackCurrentMonWs();
           this.workspaceRemoved = true;
-          this.renderTree("workspace-switched");
+          this.renderTree("workspace-removed");
         }),
         globalWsm.connect("workspace-switched", (_, _wsIndex) => {
           this.hideWindowBorders();
