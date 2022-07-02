@@ -1085,7 +1085,7 @@ var WindowManager = GObject.registerClass(
       let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
       let gap = this.calculateGaps();
       let maximized = () => {
-        return metaWindow.get_maximized() !== 0 || metaWindow.is_fullscreen() || gap === 0;
+        return metaWindow.get_maximized() === 3 || metaWindow.is_fullscreen() || gap === 0;
       };
       let monitorCount = global.display.get_n_monitors();
       let tiledChildren = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
@@ -1137,7 +1137,7 @@ var WindowManager = GObject.registerClass(
         }
       }
 
-      if (gap === 0) {
+      if (gap === 0 || metaWindow.get_maximized() === 1 || metaWindow.get_maximized() === 2) {
         inset = 0;
       }
 
@@ -1256,6 +1256,9 @@ var WindowManager = GObject.registerClass(
           );
 
           metaWindow.firstRender = true;
+          metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
+          metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
+          metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
 
           let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
           childNodes.forEach((n) => {
