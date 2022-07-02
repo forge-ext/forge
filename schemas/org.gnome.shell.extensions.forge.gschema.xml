@@ -225,7 +225,7 @@
         </key>
 
         <key type="as" name="window-toggle-float">
-            <default><![CDATA[['<Super>c']]]></default>
+          <default><![CDATA[['<Super>c','<Ctrl><Alt>c']]]></default>
             <summary>Toggle window float</summary>
         </key>
 
