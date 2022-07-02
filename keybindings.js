@@ -395,7 +395,7 @@ var Keybindings = GObject.registerClass(
           };
           this.extWm.command(action);
         },
-        "window-layout-one-third-right": () => {
+        "window-snap-one-third-right": () => {
           let action = {
             name: "SnapLayoutMove",
             direction: "Right",
@@ -403,7 +403,7 @@ var Keybindings = GObject.registerClass(
           };
           this.extWm.command(action);
         },
-        "window-layout-two-third-right": () => {
+        "window-snap-two-third-right": () => {
           let action = {
             name: "SnapLayoutMove",
             direction: "Right",
@@ -411,7 +411,7 @@ var Keybindings = GObject.registerClass(
           };
           this.extWm.command(action);
         },
-        "window-layout-one-third-left": () => {
+        "window-snap-one-third-left": () => {
           let action = {
             name: "SnapLayoutMove",
             direction: "Left",
@@ -419,11 +419,18 @@ var Keybindings = GObject.registerClass(
           };
           this.extWm.command(action);
         },
-        "window-layout-two-third-left": () => {
+        "window-snap-two-third-left": () => {
           let action = {
             name: "SnapLayoutMove",
             direction: "Left",
             amount: 2 / 3,
+          };
+          this.extWm.command(action);
+        },
+        "window-snap-center": () => {
+          let action = {
+            name: "SnapLayoutMove",
+            direction: "Center",
           };
           this.extWm.command(action);
         },

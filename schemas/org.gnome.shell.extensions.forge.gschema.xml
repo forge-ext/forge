@@ -225,7 +225,7 @@
         </key>
 
         <key type="as" name="window-toggle-float">
-          <default><![CDATA[['<Super>c','<Ctrl><Alt>c']]]></default>
+          <default><![CDATA[['<Super>c']]]></default>
             <summary>Toggle window float</summary>
         </key>
 
@@ -262,21 +262,24 @@
             <summary>Swap the last active window with the current one</summary>
         </key>
 
-        <key type="as" name="window-layout-one-third-right">
+        <key type="as" name="window-snap-one-third-right">
           <default><![CDATA[['<Ctrl><Alt>g']]]></default>
         </key>
 
-        <key type="as" name="window-layout-two-third-right">
+        <key type="as" name="window-snap-two-third-right">
           <default><![CDATA[['<Ctrl><Alt>t']]]></default>
         </key>
 
-        <key type="as" name="window-layout-one-third-left">
+        <key type="as" name="window-snap-one-third-left">
           <default><![CDATA[['<Ctrl><Alt>d']]]></default>
         </key>
 
-        <key type="as" name="window-layout-two-third-left">
+        <key type="as" name="window-snap-two-third-left">
           <default><![CDATA[['<Ctrl><Alt>e']]]></default>
         </key>
 
+        <key type="as" name="window-snap-center">
+          <default><![CDATA[['<Ctrl><Alt>c']]]></default>
+        </key>
     </schema>
 </schemalist>

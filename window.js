@@ -665,24 +665,41 @@ var WindowManager = GObject.registerClass(
             let layoutAmount = action.amount;
             let layoutDirection = action.direction.toUpperCase();
             let layout = {};
+            let processGap = false;
+
             switch (layoutDirection) {
               case "LEFT":
                 layout.width = layoutAmount * workareaRect.width;
                 layout.height = workareaRect.height;
                 layout.x = workareaRect.x;
                 layout.y = workareaRect.y;
+                processGap = true;
                 break;
               case "RIGHT":
                 layout.width = layoutAmount * workareaRect.width;
                 layout.height = workareaRect.height;
                 layout.x = workareaRect.x + (workareaRect.width - layout.width);
                 layout.y = workareaRect.y;
-              // TODO - add for vertical layouts
+                processGap = true;
+                break;
+              case "CENTER":
+                let metaRect = this.focusMetaWindow.get_frame_rect();
+                layout.x = "center";
+                layout.y = "center";
+                layout = {
+                  x: Utils.resolveX(layout, this.focusMetaWindow),
+                  y: Utils.resolveY(layout, this.focusMetaWindow),
+                  width: metaRect.width,
+                  height: metaRect.height,
+                };
+                break;
               default:
                 break;
             }
             focusNodeWindow.rect = layout;
-            focusNodeWindow.rect = this.tree.processGap(focusNodeWindow);
+            if (processGap) {
+              focusNodeWindow.rect = this.tree.processGap(focusNodeWindow);
+            }
             if (!focusNodeWindow.isFloat()) {
               this.addFloatOverride(focusNodeWindow.nodeValue, false);
             }
