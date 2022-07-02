@@ -29,12 +29,18 @@
 }
 
 .window-clone-border,
-.window-tiled-border,
-.workspace-thumbnail-indicator {
+.window-tiled-border {
   border-width: 3px;
   border-color: rgba(236, 94, 94, 1);
   border-style: solid;
   border-radius: 14px;
+}
+
+.workspace-thumbnail-indicator {
+  border-width: 3px;
+  border-color: rgba(236, 94, 94, 1);
+  border-style: solid;
+  border-radius: 6px;
 }
 
 .window-split-border {
