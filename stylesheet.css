@@ -34,14 +34,14 @@
   border-width: 3px;
   border-color: rgba(236, 94, 94, 1);
   border-style: solid;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .window-split-border {
   border-width: 3px;
   border-color: rgba(255, 246, 108, 1);
   border-style: solid;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .window-split-horizontal {
@@ -60,25 +60,25 @@
   border-width: 3px;
   border-color: rgba(247, 162, 43, 1);
   border-style: solid;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .window-tabbed-border {
   border-width: 3px;
   border-color: rgba(17, 199, 224, 1);
   border-style: solid;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .window-tabbed-bg {
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .window-tabbed-tab {
   background-color: rgba(54, 47, 45, 1);
   border-color: rgba(17, 199, 224, 0.6);
   border-width: 1px;
-  border-radius: 4px;
+  border-radius: 8px;
   color: white;
   margin: 1px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
@@ -106,14 +106,14 @@
   border-width: 3px;
   border-color: rgba(180, 167, 214, 1);
   border-style: solid;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .window-tilepreview-tiled {
   border-width: 1px;
   border-color: rgba(236, 94, 94, 0.4);
   border-style: solid;
-  border-radius: 3px;
+  border-radius: 8px;
   background-color: rgba(236, 94, 94, 0.3);
 }
 
@@ -121,7 +121,7 @@
   border-width: 1px;
   border-color: rgba(247, 162, 43, 0.4);
   border-style: solid;
-  border-radius: 3px;
+  border-radius: 8px;
   background-color: rgba(247, 162, 43, 0.3);
 }
 
@@ -129,7 +129,7 @@
   border-width: 1px;
   border-color: rgba(18, 199, 224, 0.4);
   border-style: solid;
-  border-radius: 3px;
+  border-radius: 8px;
   background-color: rgba(17, 199, 224, 0.3);
 }
 
