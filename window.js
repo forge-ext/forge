@@ -230,20 +230,24 @@ var WindowManager = GObject.registerClass(
         globalWsm.connect("showing-desktop-changed", () => {
           this.hideWindowBorders();
           this.trackCurrentMonWs();
+          this.renderTree("workspace-switched");
         }),
         globalWsm.connect("workspace-added", (_, wsIndex) => {
           this.tree.addWorkspace(wsIndex);
           this.trackCurrentMonWs();
           this.workspaceAdded = true;
+          this.renderTree("workspace-switched");
         }),
         globalWsm.connect("workspace-removed", (_, wsIndex) => {
           this.tree.removeWorkspace(wsIndex);
           this.trackCurrentMonWs();
           this.workspaceRemoved = true;
+          this.renderTree("workspace-switched");
         }),
         globalWsm.connect("workspace-switched", (_, _wsIndex) => {
           this.ext.indicator.updateTileIcon();
           this.trackCurrentMonWs();
+          this.renderTree("workspace-switched");
         }),
       ];
 
