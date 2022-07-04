@@ -1533,9 +1533,9 @@ var Tree = GObject.registerClass(
 
       if (node.isWindow()) {
         let metaWindow = node.nodeValue;
-        attributes += `class:'${metaWindow.get_wm_class()}',title:'${metaWindow.title}'${
-          metaWindow === this.extWm.focusMetaWindow ? " FOCUS" : ""
-        }`;
+        attributes += `class:'${metaWindow.get_wm_class()}',title:'${
+          metaWindow.title
+        }',string:'${metaWindow}'${metaWindow === this.extWm.focusMetaWindow ? " FOCUS" : ""}`;
       } else if (node.isCon() || node.isMonitor() || node.isWorkspace()) {
         attributes += `${node.nodeValue}`;
         if (node.isCon() || node.isMonitor()) {

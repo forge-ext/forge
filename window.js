@@ -1463,6 +1463,7 @@ var WindowManager = GObject.registerClass(
 
       if (nodeWindow) {
         this.tree.removeNode(nodeWindow);
+        this.renderTree("window-destroy-quick", true);
       }
 
       // find the next attachNode here
