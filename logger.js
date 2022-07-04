@@ -36,8 +36,12 @@ var LOG_LEVELS = {
   ALL: 7,
 };
 
-function logContext(msg) {
-  log(`Forge: ${msg}`);
+function logContext(msg, ...params) {
+  let formattedMessage = msg;
+  params.forEach((val) => {
+    formattedMessage = formattedMessage.replace("{}", val);
+  });
+  log(`Forge: ${formattedMessage}`);
 }
 
 function getLogLevel() {
@@ -50,26 +54,26 @@ function getLogLevel() {
   return loggingLevel;
 }
 
-function fatal(msg) {
-  if (getLogLevel() > LOG_LEVELS.OFF) logContext(`[FATAL] ${msg}`);
+function fatal(msg, ...params) {
+  if (getLogLevel() > LOG_LEVELS.OFF) logContext(`[FATAL] ${msg}`, ...params);
 }
 
-function error(msg) {
-  if (getLogLevel() > LOG_LEVELS.FATAL) logContext(`[ERROR] ${msg}`);
+function error(msg, ...params) {
+  if (getLogLevel() > LOG_LEVELS.FATAL) logContext(`[ERROR] ${msg}`, ...params);
 }
 
-function warn(msg) {
-  if (getLogLevel() > LOG_LEVELS.ERROR) logContext(`[WARN] ${msg}`);
+function warn(msg, ...params) {
+  if (getLogLevel() > LOG_LEVELS.ERROR) logContext(`[WARN] ${msg}`, ...params);
 }
 
-function info(msg) {
-  if (getLogLevel() > LOG_LEVELS.WARN) logContext(`[INFO] ${msg}`);
+function info(msg, ...params) {
+  if (getLogLevel() > LOG_LEVELS.WARN) logContext(`[INFO] ${msg}`, ...params);
 }
 
-function debug(msg) {
-  if (getLogLevel() > LOG_LEVELS.INFO) logContext(`[DEBUG] ${msg}`);
+function debug(msg, ...params) {
+  if (getLogLevel() > LOG_LEVELS.INFO) logContext(`[DEBUG] ${msg}`, ...params);
 }
 
-function trace(msg) {
-  if (getLogLevel() > LOG_LEVELS.DEBUG) logContext(`[TRACE] ${msg}`);
+function trace(msg, ...params) {
+  if (getLogLevel() > LOG_LEVELS.DEBUG) logContext(`[TRACE] ${msg}`, ...params);
 }

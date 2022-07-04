@@ -1273,9 +1273,6 @@ var WindowManager = GObject.registerClass(
           );
 
           metaWindow.firstRender = true;
-          metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
-          metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
-          metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
 
           let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
           childNodes.forEach((n) => {
@@ -1339,6 +1336,9 @@ var WindowManager = GObject.registerClass(
           {
             name: "window-create-queue",
             callback: () => {
+              metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
+              metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
+              metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
               this.renderTree("window-create", true);
             },
           },
