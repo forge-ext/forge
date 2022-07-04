@@ -429,9 +429,7 @@ var WindowManager = GObject.registerClass(
           }
 
           this.tree.resetSiblingPercent(existParent);
-          this.forceRender(() => {
-            this.renderTree("float-toggle");
-          });
+          this.renderTree("float-toggle", true);
           break;
         case "Move":
           this.unfreezeRender();
@@ -478,11 +476,9 @@ var WindowManager = GObject.registerClass(
             callback: () => {
               if (!focusNodeWindow) return;
               if (this.eventQueue.length <= 0) {
-                this.forceRender(() => {
-                  this.updateTabbedFocus(focusNodeWindow);
-                  this.updateStackedFocus(focusNodeWindow);
-                  this.renderTree("focus-queue");
-                });
+                this.updateTabbedFocus(focusNodeWindow);
+                this.updateStackedFocus(focusNodeWindow);
+                this.renderTree("focus-queue", true);
               }
             },
           });
@@ -495,9 +491,7 @@ var WindowManager = GObject.registerClass(
           focusNodeWindow.nodeValue.raise();
           this.updateTabbedFocus(focusNodeWindow);
           this.updateStackedFocus(focusNodeWindow);
-          this.forceRender(() => {
-            this.renderTree("swap");
-          });
+          this.renderTree("swap", true);
           break;
         case "Split":
           if (!focusNodeWindow) return;
@@ -1020,7 +1014,9 @@ var WindowManager = GObject.registerClass(
       this._signalsBound = false;
     }
 
-    renderTree(from) {
+    renderTree(from, force = false) {
+      let wasFrozen = this._freezeRender;
+      if (force && wasFrozen) this.unfreezeRender();
       if (this._freezeRender || !this.ext.settings.get_boolean("tiling-mode-enabled")) {
         this.updateDecorationLayout();
         this.updateBorderLayout();
@@ -1032,6 +1028,7 @@ var WindowManager = GObject.registerClass(
             this._renderTreeSrcId = 0;
             this.updateDecorationLayout();
             this.updateBorderLayout();
+            if (wasFrozen) this.freezeRender();
             return false;
           });
         }
@@ -1316,10 +1313,7 @@ var WindowManager = GObject.registerClass(
                 }
                 this.tree.attachNode = focusNodeWindow;
               }
-
-              this.forceRender(() => {
-                this.renderTree("focus");
-              });
+              this.renderTree("focus", true);
             }),
           ];
           metaWindow.windowSignals = windowSignals;
@@ -1345,9 +1339,7 @@ var WindowManager = GObject.registerClass(
           {
             name: "window-create-queue",
             callback: () => {
-              this.forceRender(() => {
-                this.renderTree("window-create");
-              });
+              this.renderTree("window-create", true);
             },
           },
           300
@@ -1471,7 +1463,6 @@ var WindowManager = GObject.registerClass(
 
       if (nodeWindow) {
         this.tree.removeNode(nodeWindow);
-        this.renderTree("window-destroy");
       }
 
       // find the next attachNode here
@@ -1479,6 +1470,13 @@ var WindowManager = GObject.registerClass(
       if (focusNodeWindow) {
         this.tree.attachNode = focusNodeWindow.parentNode;
       }
+
+      this.queueEvent({
+        name: "window-destroy",
+        callback: () => {
+          this.renderTree("window-destroy", true);
+        },
+      });
     }
 
     /**
@@ -1606,13 +1604,6 @@ var WindowManager = GObject.registerClass(
 
     unfreezeRender() {
       this._freezeRender = false;
-    }
-
-    forceRender(callback = {}) {
-      let wasFrozen = this._freezeRender;
-      if (wasFrozen) this.unfreezeRender();
-      callback();
-      if (wasFrozen) this.freezeRender();
     }
 
     floatingWindow(node) {
