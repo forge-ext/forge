@@ -171,6 +171,7 @@ var WindowManager = GObject.registerClass(
         display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
         display.connect("showing-desktop-changed", () => {
           this.hideWindowBorders();
+          this.updateDecorationLayout();
         }),
         display.connect("in-fullscreen-changed", () => {
           this.renderTree("full-screen-changed");
@@ -229,6 +230,7 @@ var WindowManager = GObject.registerClass(
       this._workspaceManagerSignals = [
         globalWsm.connect("showing-desktop-changed", () => {
           this.hideWindowBorders();
+          this.updateDecorationLayout();
         }),
         globalWsm.connect("workspace-added", (_, wsIndex) => {
           this.tree.addWorkspace(wsIndex);
@@ -1342,7 +1344,7 @@ var WindowManager = GObject.registerClass(
               this.renderTree("window-create", true);
             },
           },
-          300
+          200
         );
       }
     }
