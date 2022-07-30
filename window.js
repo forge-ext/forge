@@ -242,12 +242,14 @@ var WindowManager = GObject.registerClass(
           this.tree.removeWorkspace(wsIndex);
           this.trackCurrentMonWs();
           this.workspaceRemoved = true;
+          this.updateDecorationLayout();
           this.renderTree("workspace-removed");
         }),
         globalWsm.connect("workspace-switched", (_, _wsIndex) => {
           this.hideWindowBorders();
           this.ext.indicator.updateTileIcon();
           this.trackCurrentMonWs();
+          this.updateDecorationLayout();
           this.renderTree("workspace-switched");
         }),
       ];
