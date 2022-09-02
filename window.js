@@ -161,12 +161,6 @@ var WindowManager = GObject.registerClass(
 
       this._displaySignals = [
         display.connect("window-created", this.trackWindow.bind(this)),
-        display.connect("window-entered-monitor", (_, monitor, metaWindow) => {
-          this.updateMetaWorkspaceMonitor("window-entered-monitor", monitor, metaWindow);
-        }),
-        display.connect("window-left-monitor", () => {
-          // Empty
-        }),
         display.connect("grab-op-begin", this._handleGrabOpBegin.bind(this)),
         display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
         display.connect("showing-desktop-changed", () => {
@@ -187,9 +181,6 @@ var WindowManager = GObject.registerClass(
               this.renderTree("workareas-changed");
             }
           }
-        }),
-        display.connect("modifiers-accelerator-activated", (value) => {
-          // Empty
         }),
       ];
 
@@ -1241,36 +1232,46 @@ var WindowManager = GObject.registerClass(
     trackWindow(_display, metaWindow) {
       // Make window types configurable
       if (this._validWindow(metaWindow)) {
-        let nodeWindow;
         let existNodeWindow = this.tree.findNode(metaWindow);
+        Logger.debug(`Meta Window ${metaWindow.get_title()} ${metaWindow.get_window_type()}`);
         if (!existNodeWindow) {
-          let parentFocusNode = this.tree.attachNode;
-          // check the parentFocusNode is in the tree
-          if (parentFocusNode) {
-            parentFocusNode = this.tree.findNode(parentFocusNode.nodeValue);
-          }
-          if (!parentFocusNode) {
-            // Else it could be the initial window
-            // get the containing monitor instead
-            let metaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-            parentFocusNode = this.tree.findNode(metaMonWs);
-          }
-          if (!parentFocusNode) {
-            // Use the current workspace monitor node where the pointer is
-            const activeWorkspace = global.display
-              .get_workspace_manager()
-              .get_active_workspace_index();
-            const activeMonitor = global.display.get_current_monitor();
-            let metaMonWs = `mo${activeMonitor}ws${activeWorkspace}`;
-            parentFocusNode = this.tree.findNode(metaMonWs);
-          }
-          if (!parentFocusNode) {
-            // there is nothing to attach to
-            return;
+          let attachTarget;
+
+          const activeMonitor = global.display.get_current_monitor();
+          const activeWorkspace = global.display
+            .get_workspace_manager()
+            .get_active_workspace_index();
+          let metaMonWs = `mo${activeMonitor}ws${activeWorkspace}`;
+
+          // Check if the active monitor / workspace has windows
+          let metaMonWsNode = this.tree.findNode(metaMonWs);
+          let windowNodes = metaMonWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
+          let hasWindows = windowNodes.length > 0;
+
+          attachTarget = this.tree.attachNode && this.tree.attachNode.nodeValue;
+
+          // If has windows
+          if (hasWindows) {
+            // Check if there is an attachNode and a child of the active monitor / workspace
+            if (attachTarget) {
+              // If not child window, pick the first window
+              if (
+                !(
+                  windowNodes.filter((nodeWin) => nodeWin.nodeValue === attachTarget).length > 0 ||
+                  attachTarget === metaMonWs
+                )
+              ) {
+                attachTarget = windowNodes[0].nodeValue;
+              }
+            } else {
+              attachTarget = metaMonWs;
+            }
+          } else {
+            attachTarget = metaMonWs;
           }
 
-          nodeWindow = this.tree.createNode(
-            parentFocusNode.nodeValue,
+          let nodeWindow = this.tree.createNode(
+            attachTarget,
             Tree.NODE_TYPES.WINDOW,
             metaWindow,
             WINDOW_MODES.FLOAT
