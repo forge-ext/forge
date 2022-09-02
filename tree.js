@@ -673,6 +673,9 @@ var Tree = GObject.registerClass(
         if (parentNode.isWindow()) {
           const grandParentNode = parentNode.parentNode;
           grandParentNode.insertBefore(child, parentNode.nextSibling);
+          Logger.debug(
+            `Parent is a window, attaching to this window's parent ${grandParentNode.nodeType}`
+          );
         } else {
           // Append as the last item of the container
           parentNode.appendChild(child);
