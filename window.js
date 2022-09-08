@@ -1255,12 +1255,7 @@ var WindowManager = GObject.registerClass(
             // Check if there is an attachNode and a child of the active monitor / workspace
             if (attachTarget) {
               // If not child window, pick the first window
-              if (
-                !(
-                  windowNodes.filter((nodeWin) => nodeWin.nodeValue === attachTarget).length > 0 ||
-                  attachTarget === metaMonWs
-                )
-              ) {
+              if (!metaMonWsNode.contains(this.tree.attachNode)) {
                 attachTarget = windowNodes[0].nodeValue;
               }
             } else {
