@@ -1245,6 +1245,12 @@ var WindowManager = GObject.registerClass(
 
           // Check if the active monitor / workspace has windows
           let metaMonWsNode = this.tree.findNode(metaMonWs);
+          if (!metaMonWsNode) {
+            // Reload the tree as a last resort
+            this.reloadTree("no-meta-monws");
+            return;
+          }
+
           let windowNodes = metaMonWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
           let hasWindows = windowNodes.length > 0;
 
@@ -1436,6 +1442,7 @@ var WindowManager = GObject.registerClass(
           metaWindow
         );
       }
+      this.updateDecorationLayout();
     }
 
     _validWindow(metaWindow) {
