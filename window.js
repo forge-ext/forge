@@ -172,9 +172,9 @@ var WindowManager = GObject.registerClass(
         }),
         display.connect("workareas-changed", (_display) => {
           if (this.tree.getNodeByType("WINDOW").length > 0) {
-            let reloadTree = this.workspaceAdded || this.workspaceRemoved;
-            if (reloadTree) {
-              this.reloadTree("workareas-changed");
+            let workspaceReload = this.workspaceAdded || this.workspaceRemoved;
+            if (workspaceReload) {
+              this.trackCurrentWindows();
               this.workspaceRemoved = false;
               this.workspaceAdded = false;
             } else {
@@ -345,6 +345,7 @@ var WindowManager = GObject.registerClass(
       let activeMetaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
       let activeMonWsNode = this.tree.findNode(currentMonWs);
 
+      if (!activeMonWsNode) return;
       const monWindows = activeMonWsNode
         .getNodeByType(Tree.NODE_TYPES.WINDOW)
         .filter(
@@ -1062,7 +1063,6 @@ var WindowManager = GObject.registerClass(
           this.trackCurrentWindows();
           this.renderTree(from);
           this._reloadTreeSrcId = 0;
-          this.trackCurrentWindows();
           return false;
         });
       }
@@ -1248,25 +1248,26 @@ var WindowManager = GObject.registerClass(
           let windowNodes = metaMonWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
           let hasWindows = windowNodes.length > 0;
 
-          attachTarget = this.tree.attachNode && this.tree.attachNode.nodeValue;
+          attachTarget = this.tree.attachNode;
+          attachTarget = attachTarget ? this.tree.findNode(attachTarget.nodeValue) : null;
 
-          // If has windows
-          if (hasWindows) {
-            // Check if there is an attachNode and a child of the active monitor / workspace
-            if (attachTarget) {
-              // If not child window, pick the first window
-              if (!metaMonWsNode.contains(this.tree.attachNode)) {
-                attachTarget = windowNodes[0].nodeValue;
+          if (!attachTarget) {
+            attachTarget = metaMonWsNode;
+          } else {
+            if (hasWindows) {
+              if (attachTarget && metaMonWsNode.contains(attachTarget)) {
+                // Use the attach target
+              } else {
+                // Find the first window
+                attachTarget = windowNodes[0];
               }
             } else {
-              attachTarget = metaMonWs;
+              attachTarget = metaMonWsNode;
             }
-          } else {
-            attachTarget = metaMonWs;
           }
 
           let nodeWindow = this.tree.createNode(
-            attachTarget,
+            attachTarget.nodeValue,
             Tree.NODE_TYPES.WINDOW,
             metaWindow,
             WINDOW_MODES.FLOAT
@@ -1423,9 +1424,17 @@ var WindowManager = GObject.registerClass(
     }
 
     trackCurrentWindows() {
+      this.tree.attachNode = null;
       let windowsAll = this.windowsAllWorkspaces;
       for (let i = 0; i < windowsAll.length; i++) {
-        this.trackWindow(global.display, windowsAll[i]);
+        let metaWindow = windowsAll[i];
+        this.trackWindow(global.display, metaWindow);
+        // This updates and handles dynamic workspaces
+        this.updateMetaWorkspaceMonitor(
+          "track-current-windows",
+          metaWindow.get_monitor(),
+          metaWindow
+        );
       }
     }
 
