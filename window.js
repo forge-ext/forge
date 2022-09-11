@@ -1281,76 +1281,69 @@ var WindowManager = GObject.registerClass(
 
           metaWindow.firstRender = true;
 
-          let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
-          childNodes.forEach((n) => {
-            n.percent = 0.0;
-          });
-        }
+          let windowActor = metaWindow.get_compositor_private();
 
-        let windowActor = metaWindow.get_compositor_private();
-
-        if (!metaWindow.windowSignals) {
-          let windowSignals = [
-            metaWindow.connect("position-changed", (_metaWindow) => {
-              let from = "position-changed";
-              this.updateMetaPositionSize(_metaWindow, from);
-            }),
-            metaWindow.connect("size-changed", (_metaWindow) => {
-              let from = "size-changed";
-              this.updateMetaPositionSize(_metaWindow, from);
-            }),
-            metaWindow.connect("focus", (_metaWindowFocus) => {
-              let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
-              if (focusNodeWindow) {
-                // handle the attach node
-                this.tree.attachNode = focusNodeWindow._parent;
-                this.updateStackedFocus(focusNodeWindow);
-                this.updateTabbedFocus(focusNodeWindow);
-                if (this.floatingWindow(focusNodeWindow)) {
-                  this.queueEvent({
-                    name: "raise-float",
-                    callback: () => {
-                      this.renderTree("raise-float-queue");
-                      focusNodeWindow.nodeValue.raise();
-                    },
-                  });
+          if (!metaWindow.windowSignals) {
+            let windowSignals = [
+              metaWindow.connect("position-changed", (_metaWindow) => {
+                let from = "position-changed";
+                this.updateMetaPositionSize(_metaWindow, from);
+              }),
+              metaWindow.connect("size-changed", (_metaWindow) => {
+                let from = "size-changed";
+                this.updateMetaPositionSize(_metaWindow, from);
+              }),
+              metaWindow.connect("focus", (_metaWindowFocus) => {
+                let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
+                if (focusNodeWindow) {
+                  // handle the attach node
+                  this.tree.attachNode = focusNodeWindow._parent;
+                  this.updateStackedFocus(focusNodeWindow);
+                  this.updateTabbedFocus(focusNodeWindow);
+                  if (this.floatingWindow(focusNodeWindow)) {
+                    this.queueEvent({
+                      name: "raise-float",
+                      callback: () => {
+                        this.renderTree("raise-float-queue");
+                        focusNodeWindow.nodeValue.raise();
+                      },
+                    });
+                  }
+                  this.tree.attachNode = focusNodeWindow;
                 }
-                this.tree.attachNode = focusNodeWindow;
-              }
-              this.renderTree("focus", true);
-            }),
-          ];
-          metaWindow.windowSignals = windowSignals;
+                this.renderTree("focus", true);
+              }),
+            ];
+            metaWindow.windowSignals = windowSignals;
+          }
+
+          if (!windowActor.actorSignals) {
+            let actorSignals = [windowActor.connect("destroy", this.windowDestroy.bind(this))];
+            windowActor.actorSignals = actorSignals;
+          }
+
+          if (!windowActor.border) {
+            let border = new St.Bin({ style_class: "window-tiled-border" });
+
+            if (global.window_group) global.window_group.add_child(border);
+
+            windowActor.border = border;
+            border.show();
+          }
+
+          this.openCenterPrefs(metaWindow);
+          metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
+          metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
+          metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
+          this.renderTree("window-create", true);
+
+          if (!nodeWindow.isFloat()) {
+            let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
+            childNodes.forEach((n) => {
+              n.percent = 0.0;
+            });
+          }
         }
-
-        if (!windowActor.actorSignals) {
-          let actorSignals = [windowActor.connect("destroy", this.windowDestroy.bind(this))];
-          windowActor.actorSignals = actorSignals;
-        }
-
-        if (!windowActor.border) {
-          let border = new St.Bin({ style_class: "window-tiled-border" });
-
-          if (global.window_group) global.window_group.add_child(border);
-
-          windowActor.border = border;
-          border.show();
-        }
-
-        this.openCenterPrefs(metaWindow);
-
-        this.queueEvent(
-          {
-            name: "window-create-queue",
-            callback: () => {
-              metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
-              metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
-              metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
-              this.renderTree("window-create", true);
-            },
-          },
-          200
-        );
       }
     }
 
