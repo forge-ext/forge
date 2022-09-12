@@ -472,6 +472,7 @@ var WindowManager = GObject.registerClass(
             callback: () => {
               if (!focusNodeWindow) return;
               if (this.eventQueue.length <= 0) {
+                this.unfreezeRender();
                 this.updateTabbedFocus(focusNodeWindow);
                 this.updateStackedFocus(focusNodeWindow);
                 this.renderTree("focus-queue", true);
@@ -1298,8 +1299,6 @@ var WindowManager = GObject.registerClass(
                 if (focusNodeWindow) {
                   // handle the attach node
                   this.tree.attachNode = focusNodeWindow._parent;
-                  this.updateStackedFocus(focusNodeWindow);
-                  this.updateTabbedFocus(focusNodeWindow);
                   if (this.floatingWindow(focusNodeWindow)) {
                     this.queueEvent({
                       name: "raise-float",
