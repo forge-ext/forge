@@ -162,6 +162,9 @@ var WindowManager = GObject.registerClass(
       this._displaySignals = [
         display.connect("window-created", this.trackWindow.bind(this)),
         display.connect("grab-op-begin", this._handleGrabOpBegin.bind(this)),
+        display.connect("window-entered-monitor", (_, monitor, metaWindow) => {
+          this.updateMetaWorkspaceMonitor("window-entered-monitor", monitor, metaWindow);
+        }),
         display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
         display.connect("showing-desktop-changed", () => {
           this.hideWindowBorders();
@@ -343,10 +346,8 @@ var WindowManager = GObject.registerClass(
 
       let currentMonWs = `mo${currentMonitor}ws${currentWorkspace}`;
       let activeMetaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-      let activeMonWsNode = this.tree.findNode(currentMonWs);
 
-      if (!activeMonWsNode) return;
-      const monWindows = activeMonWsNode
+      const monWindows = this.tree
         .getNodeByType(Tree.NODE_TYPES.WINDOW)
         .filter(
           (w) =>
@@ -358,11 +359,7 @@ var WindowManager = GObject.registerClass(
             currentMonWs === activeMetaMonWs
         )
         .map((w) => w.nodeValue);
-      const sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
-
-      this.sortedWindows = sortedWindows;
-      this.activeMonWsNode = activeMonWsNode;
-      this.activeMetaMonWs = activeMetaMonWs;
+      this.sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
     }
 
     // TODO move this to workspace.js
@@ -2034,8 +2031,6 @@ var WindowManager = GObject.registerClass(
     _handleGrabOpBegin(_display, _metaWindow, grabOp) {
       this.freezeRender();
       this.trackCurrentMonWs();
-      let orientation = Utils.orientationFromGrab(grabOp);
-      let direction = Utils.directionFromGrab(grabOp);
       let focusMetaWindow = this.focusMetaWindow;
 
       if (focusMetaWindow) {
