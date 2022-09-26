@@ -164,6 +164,7 @@ var WindowManager = GObject.registerClass(
         display.connect("grab-op-begin", this._handleGrabOpBegin.bind(this)),
         display.connect("window-entered-monitor", (_, monitor, metaWindow) => {
           this.updateMetaWorkspaceMonitor("window-entered-monitor", monitor, metaWindow);
+          this.trackCurrentMonWs();
         }),
         display.connect("grab-op-end", this._handleGrabOpEnd.bind(this)),
         display.connect("showing-desktop-changed", () => {
@@ -239,12 +240,12 @@ var WindowManager = GObject.registerClass(
           this.updateDecorationLayout();
           this.renderTree("workspace-removed");
         }),
-        globalWsm.connect("workspace-switched", (_, _wsIndex) => {
+        globalWsm.connect("active-workspace-changed", () => {
           this.hideWindowBorders();
           this.ext.indicator.updateTileIcon();
           this.trackCurrentMonWs();
           this.updateDecorationLayout();
-          this.renderTree("workspace-switched");
+          this.renderTree("active-workspace-changed");
         }),
       ];
 
@@ -346,19 +347,28 @@ var WindowManager = GObject.registerClass(
 
       let currentMonWs = `mo${currentMonitor}ws${currentWorkspace}`;
       let activeMetaMonWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
+      let currentWsNode = this.tree.findNode(`ws${currentWorkspace}`);
 
-      const monWindows = this.tree
-        .getNodeByType(Tree.NODE_TYPES.WINDOW)
-        .filter(
-          (w) =>
-            !w.nodeValue.minimized &&
-            w.isTile() &&
-            w.nodeValue !== metaWindow &&
-            // The searched window should be on the same monitor workspace
-            // This ensures that Forge already updated the workspace node tree:
-            currentMonWs === activeMetaMonWs
-        )
-        .map((w) => w.nodeValue);
+      if (!currentWsNode) {
+        return;
+      }
+
+      // Search for all the valid windows on the workspace
+      const monWindows = currentWsNode.getNodeByType(Tree.NODE_TYPES.WORKSPACE).flatMap((ws) => {
+        return ws
+          .getNodeByType(Tree.NODE_TYPES.WINDOW)
+          .filter(
+            (w) =>
+              !w.nodeValue.minimized &&
+              w.isTile() &&
+              w.nodeValue !== metaWindow &&
+              // The searched window should be on the same monitor workspace
+              // This ensures that Forge already updated the workspace node tree:
+              currentMonWs === activeMetaMonWs
+          )
+          .map((w) => w.nodeValue);
+      });
+
       this.sortedWindows = global.display.sort_windows_by_stacking(monWindows).reverse();
     }
 
@@ -1309,6 +1319,10 @@ var WindowManager = GObject.registerClass(
                 }
                 this.renderTree("focus", true);
               }),
+              metaWindow.connect("workspace-changed", (_metaWindow) => {
+                this.updateMetaWorkspaceMonitor("metawindow-workspace-changed", null, _metaWindow);
+                this.trackCurrentMonWs();
+              }),
             ];
             metaWindow.windowSignals = windowSignals;
           }
@@ -2017,6 +2031,11 @@ var WindowManager = GObject.registerClass(
       if (!metaWindow) return undefined;
 
       let sortedWindows = this.sortedWindows;
+
+      if (!sortedWindows) {
+        Logger.warn("No sorted windows");
+        return;
+      }
 
       for (let i = 0, n = sortedWindows.length; i < n; i++) {
         const w = sortedWindows[i];
