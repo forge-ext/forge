@@ -1347,12 +1347,10 @@ var WindowManager = GObject.registerClass(
           metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
           this.renderTree("window-create", true);
 
-          if (!nodeWindow.isFloat()) {
-            let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
-            childNodes.forEach((n) => {
-              n.percent = 0.0;
-            });
-          }
+          let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
+          childNodes.forEach((n) => {
+            n.percent = 0.0;
+          });
         }
       }
     }
