@@ -2302,7 +2302,7 @@ var WindowManager = GObject.registerClass(
               matchTitle = kf.wmTitle === windowTitle;
             } else {
               let titles = kf.wmTitle.split(",");
-              matchTitle = titles.filter((t) => windowTitle.includes(t)).length > 0;
+              matchTitle = titles.filter((t) => windowTitle && windowTitle.includes(t)).length > 0;
             }
           }
           if (kf.wmClass) {
