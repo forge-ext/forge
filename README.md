@@ -91,10 +91,15 @@ User is encouraged to bind the following:
 - Switching/moving windows to different workspaces
 - Switching to numbered, previous or next workspace
 
+## Local Development Setup
+
+- Install NodeJS 16+
+- Run `npm install`
+- Run `make dev`. Ctrl + C to cancel
+
 ## Contributing
 
 - Please be nice, friendly and welcoming on discussions/tickets.
-- Run `make dev` for local development.
 - See existing [issues](https://github.com/jmmaranan/forge/issues) or file a new ticket with title `bug: short description` if it doesn't exist.
 
 ## Credits
