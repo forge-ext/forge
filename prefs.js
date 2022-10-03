@@ -712,17 +712,8 @@ var AppearanceColorSettingsPanel = GObject.registerClass(
           // The primary color updates the focus hint:
           theme.setCssProperty(selector, "border-color", rgba.to_string());
 
-          // Only apply below on the primary/tiled scheme
-          if (colorScheme === "tiled") {
-            // Then the overview app icons, search and search results:
-            theme.setCssProperty(".search-entry:focus", "border-color", rgba.to_string());
-            theme.setCssProperty(".kbd-shortcut:focus", "border-color", rgba.to_string());
-            theme.setCssProperty(
-              ".search-provider-icon:focus",
-              "background-color",
-              overviewBackgroundRgba.to_string()
-            );
-          } else if (colorScheme === "tabbed") {
+          // Only apply below on the tabbed scheme
+          if (colorScheme === "tabbed") {
             const tabBorderRgba = rgba.copy();
             const tabActiveBackgroundRgba = rgba.copy();
             tabBorderRgba.alpha = 0.6;
