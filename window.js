@@ -1342,10 +1342,18 @@ var WindowManager = GObject.registerClass(
           }
 
           this.openCenterPrefs(metaWindow);
-          metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
-          metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
-          metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
-          this.renderTree("window-create", true);
+          this.queueEvent(
+            {
+              name: "window-create-queue",
+              callback: () => {
+                metaWindow.unmaximize(Meta.MaximizeFlags.HORIZONTAL);
+                metaWindow.unmaximize(Meta.MaximizeFlags.VERTICAL);
+                metaWindow.unmaximize(Meta.MaximizeFlags.BOTH);
+                this.renderTree("window-create", true);
+              },
+            },
+            200
+          );
 
           let childNodes = this.tree.getTiledChildren(nodeWindow.parentNode.childNodes);
           childNodes.forEach((n) => {
