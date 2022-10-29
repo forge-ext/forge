@@ -791,7 +791,7 @@ var WindowManager = GObject.registerClass(
       const workspaceWindows = this.getWindowsOnWorkspace(workspaceIndex);
       if (!workspaceWindows) return;
       workspaceWindows.forEach((w) => {
-        w.mode = WINDOW_MODES.FLOAT;
+        w.float = true;
       });
     }
 
@@ -799,7 +799,7 @@ var WindowManager = GObject.registerClass(
       const workspaceWindows = this.getWindowsOnWorkspace(workspaceIndex);
       if (!workspaceWindows) return;
       workspaceWindows.forEach((w) => {
-        w.mode = WINDOW_MODES.TILE;
+        w.tile = true;
       });
     }
 
@@ -1041,10 +1041,11 @@ var WindowManager = GObject.registerClass(
 
     processFloats() {
       this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW).forEach((nodeWindow) => {
-        if (this.isFloatingExempt(nodeWindow.nodeValue)) {
-          nodeWindow.mode = WINDOW_MODES.FLOAT;
+        let metaWindow = nodeWindow.nodeValue;
+        if (this.isFloatingExempt(metaWindow) || !this.isActiveWindowWorkspaceTiled(metaWindow)) {
+          nodeWindow.float = true;
         } else {
-          nodeWindow.mode = WINDOW_MODES.TILE;
+          nodeWindow.float = false;
         }
       });
     }
@@ -2054,7 +2055,6 @@ var WindowManager = GObject.registerClass(
     }
 
     _handleGrabOpBegin(_display, _metaWindow, grabOp) {
-      this.freezeRender();
       this.trackCurrentMonWs();
       let focusMetaWindow = this.focusMetaWindow;
 
@@ -2070,6 +2070,7 @@ var WindowManager = GObject.registerClass(
           focusNodeWindow.grabMode === GRAB_TYPES.MOVING &&
           focusNodeWindow.mode === WINDOW_MODES.TILE
         ) {
+          this.freezeRender();
           focusNodeWindow.mode = WINDOW_MODES.GRAB_TILE;
         }
 

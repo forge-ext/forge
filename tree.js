@@ -529,6 +529,27 @@ var Node = GObject.registerClass(
         if (titleLabel) titleLabel.label = this._getTitle();
       }
     }
+
+    set float(value) {
+      if (this.isWindow()) {
+        let metaWindow = this.nodeValue;
+        if (value) {
+          this.mode = Window.WINDOW_MODES.FLOAT;
+          if (!metaWindow.is_above()) {
+            metaWindow.make_above();
+          }
+        } else {
+          this.mode = Window.WINDOW_MODES.TILE;
+          if (metaWindow.is_above()) {
+            metaWindow.unmake_above();
+          }
+        }
+      }
+    }
+
+    set tile(value) {
+      this.float = !value;
+    }
   }
 );
 
@@ -1321,15 +1342,7 @@ var Tree = GObject.registerClass(
 
       if (node.isWindow()) {
         if (!node.rect) node.rect = node.nodeValue.get_work_area_current_monitor();
-        let metaWindow = node.nodeValue;
         node.renderRect = this.processGap(node);
-        let workspaceTiled = this.extWm.isActiveWindowWorkspaceTiled(metaWindow);
-
-        if (!workspaceTiled) {
-          node.mode = Window.WINDOW_MODES.FLOAT;
-        } else {
-          node.mode = Window.WINDOW_MODES.TILE;
-        }
       }
     }
 
