@@ -1333,11 +1333,13 @@ var WindowManager = GObject.registerClass(
               }),
               metaWindow.connect("focus", (_metaWindowFocus) => {
                 this.queueEvent({
-                  name: "focus-border-update",
+                  name: "focus-update",
                   callback: () => {
                     this.unfreezeRender();
                     this.updateBorderLayout();
                     this.updateDecorationLayout();
+                    this.updateStackedFocus();
+                    this.updateTabbedFocus();
                     this.freezeRender();
                   },
                 });
@@ -1418,7 +1420,9 @@ var WindowManager = GObject.registerClass(
       const parentNode = focusNodeWindow.parentNode;
       if (parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
         parentNode.appendChild(focusNodeWindow);
-        focusNodeWindow.nodeValue.raise();
+        parentNode.childNodes
+          .filter((child) => child.isWindow())
+          .forEach((child) => child.nodeValue.raise());
         this.queueEvent({
           name: "render-focus-stack",
           callback: () => {
