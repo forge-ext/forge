@@ -8,17 +8,18 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
 
 ## ! Major Changes !
-- Floating windows were rewritten and persists between sessions.
-- Toggle floating by window title and entire window class using keyboard shortcuts.
-- Window Snapping 2/3, 1/3 or center.
+- Floating windows are default always on top. Toggle available on preferences
 
 ## Development
-
 - The `main` branch contains gnome-4x code.
 - The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
 
-## Features
+## Local Development Setup
+- Install NodeJS 16+
+- Run `npm install`
+- Run `make dev`. Ctrl + C to cancel
 
+## Features
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm
 - Vim-like keybindings for navigation/swapping windows/moving windows in the containers
 - Drag and drop tiling
@@ -75,7 +76,6 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Toggle tabbed layout | `<Shift> + <Super> + t` |
 | Activate tile drag-drop | `Start dragging - Mod key configuration in prefs` |
 
-
 For any shortcut conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
 
@@ -90,12 +90,6 @@ GNOME Shell has built in support for workspace management and seems to work well
 User is encouraged to bind the following:
 - Switching/moving windows to different workspaces
 - Switching to numbered, previous or next workspace
-
-## Local Development Setup
-
-- Install NodeJS 16+
-- Run `npm install`
-- Run `make dev`. Ctrl + C to cancel
 
 ## Contributing
 
