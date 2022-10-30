@@ -112,7 +112,7 @@
             <summary>Move the pointer when focusing or swapping via kbd</summary>
         </key>
         <key type="b" name="float-always-on-top-enabled">
-            <default>false</default>
+            <default>true</default>
             <summary>Floating windows toggle always-on-top</summary>
         </key>
     </schema>
