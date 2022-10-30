@@ -533,10 +533,11 @@ var Node = GObject.registerClass(
     set float(value) {
       if (this.isWindow()) {
         let metaWindow = this.nodeValue;
+        let floatAlwaysOnTop = this.settings.get_boolean("float-always-on-top-enabled");
         if (value) {
           this.mode = Window.WINDOW_MODES.FLOAT;
           if (!metaWindow.is_above()) {
-            metaWindow.make_above();
+            floatAlwaysOnTop && metaWindow.make_above();
           }
         } else {
           this.mode = Window.WINDOW_MODES.TILE;
@@ -583,7 +584,6 @@ var Tree = GObject.registerClass(
       let rootBin = new St.Bin();
       super._init(NODE_TYPES.ROOT, rootBin);
       this._extWm = extWm;
-      this._floats = new Node();
       this.settings = this.extWm.ext.settings;
       this.layout = LAYOUT_TYPES.ROOT;
       if (!global.window_group.contains(rootBin)) global.window_group.add_child(rootBin);
@@ -672,11 +672,6 @@ var Tree = GObject.registerClass(
       return nodeWindows;
     }
 
-    get floats() {
-      if (!this._floats) this._floats = new Node();
-      return this._floats;
-    }
-
     /**
      * Creates a new Node and attaches it to a parent toData.
      * Parent can be MONITOR or CON types only.
@@ -687,6 +682,7 @@ var Tree = GObject.registerClass(
 
       if (parentNode) {
         child = new Node(type, value);
+        child.settings = this.settings;
 
         if (child.isWindow()) child.mode = mode;
 
@@ -1082,6 +1078,8 @@ var Tree = GObject.registerClass(
       let currentIndex = node.index;
       let container = new St.Bin();
       let newConNode = new Node(NODE_TYPES.CON, container);
+      newConNode.settings = this.settings;
+
       // Take the direction of the parent
       newConNode.layout =
         orientation === ORIENTATION_TYPES.HORIZONTAL ? LAYOUT_TYPES.HSPLIT : LAYOUT_TYPES.VSPLIT;

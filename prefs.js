@@ -1262,6 +1262,7 @@ var ExperimentalSettingsPanel = GObject.registerClass(
       let experimentalFrame = new FrameListBox();
       let experimentStackedTilingRow = new ListBoxRow();
 
+      // Stacked Windows switch
       let experimentStackedTilingLabel = createLabel(Msgs.prefs_experimental_stacked_tiling_label);
       let experimentStackedTilingSwitch = new Gtk.Switch();
       experimentStackedTilingSwitch.set_active(
@@ -1283,6 +1284,7 @@ var ExperimentalSettingsPanel = GObject.registerClass(
 
       experimentalFrame.add(experimentStackedTilingRow);
 
+      // Tabbed Windows switch
       let experimentTabbedTilingRow = new ListBoxRow();
       let experimentTabbedTilingLabel = createLabel(Msgs.prefs_experimental_tabbed_tiling_label);
       let experimentTabbedTilingSwitch = new Gtk.Switch();
@@ -1304,6 +1306,32 @@ var ExperimentalSettingsPanel = GObject.registerClass(
       experimentTabbedTilingRow.add(experimentTabbedTilingSwitch);
 
       experimentalFrame.add(experimentTabbedTilingRow);
+
+      // Floating Windows Always On Top Switch
+      let experimentFloatAlwaysOnTopRow = new ListBoxRow();
+      let experimentFloatAlwaysOnTopLabel = createLabel(
+        Msgs.prefs_experimental_float_always_on_top
+      );
+      let experimentFloatAlwaysOnTopSwitch = new Gtk.Switch();
+      experimentFloatAlwaysOnTopSwitch.set_active(
+        this.settings.get_boolean("float-always-on-top-enabled")
+      );
+      experimentFloatAlwaysOnTopSwitch.connect("state-set", (_, state) => {
+        this.settings.set_boolean("float-always-on-top-enabled", state);
+      });
+      this.settings.connect("changed", (_, keyName) => {
+        if (keyName === "float-always-on-top-enabled") {
+          experimentFloatAlwaysOnTopSwitch.set_active(
+            this.settings.get_boolean("float-always-on-top-enabled")
+          );
+        }
+      });
+
+      experimentFloatAlwaysOnTopRow.add(experimentFloatAlwaysOnTopLabel);
+      experimentFloatAlwaysOnTopRow.add(experimentFloatAlwaysOnTopSwitch);
+
+      experimentalFrame.add(experimentFloatAlwaysOnTopRow);
+
       this.append(experimentalFrame);
     }
   }

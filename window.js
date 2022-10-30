@@ -313,6 +313,13 @@ var WindowManager = GObject.registerClass(
           case "css-updated":
             this.theme.reloadStylesheet();
             break;
+          case "float-always-on-top-enabled":
+            if (!settings.get_boolean(settingName)) {
+              this.cleanupAlwaysFloat();
+            } else {
+              this.restoreAlwaysFloat();
+            }
+            break;
           default:
             break;
         }
@@ -337,6 +344,23 @@ var WindowManager = GObject.registerClass(
       ];
 
       this._signalsBound = true;
+    }
+
+    cleanupAlwaysFloat() {
+      // remove the setting for each node window
+      this.allNodeWindows.forEach((w) => {
+        if (w.mode === WINDOW_MODES.FLOAT) {
+          w.nodeValue.is_above() && w.nodeValue.unmake_above();
+        }
+      });
+    }
+
+    restoreAlwaysFloat() {
+      this.allNodeWindows.forEach((w) => {
+        if (w.mode === WINDOW_MODES.FLOAT) {
+          !w.nodeValue.is_above() && w.nodeValue.make_above();
+        }
+      });
     }
 
     trackCurrentMonWs() {
@@ -1040,7 +1064,7 @@ var WindowManager = GObject.registerClass(
     }
 
     processFloats() {
-      this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW).forEach((nodeWindow) => {
+      this.allNodeWindows.forEach((nodeWindow) => {
         let metaWindow = nodeWindow.nodeValue;
         if (this.isFloatingExempt(metaWindow) || !this.isActiveWindowWorkspaceTiled(metaWindow)) {
           nodeWindow.float = true;
@@ -1048,6 +1072,10 @@ var WindowManager = GObject.registerClass(
           nodeWindow.float = false;
         }
       });
+    }
+
+    get allNodeWindows() {
+      return this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW);
     }
 
     /**
@@ -1200,7 +1228,8 @@ var WindowManager = GObject.registerClass(
         }
         if (global.window_group && global.window_group.contains(border)) {
           global.window_group.remove_child(border);
-          global.window_group.add_child(border);
+          // Add the border just above the focused window
+          global.window_group.insert_child_above(border, metaWindow.get_compositor_private());
         }
       });
     }
@@ -1617,6 +1646,14 @@ var WindowManager = GObject.registerClass(
           let tiled = this.tree.getTiledChildren(con.childNodes);
           if (con.decoration && tiled.length > 0) {
             con.decoration.show();
+            if (global.window_group.contains(con.decoration)) {
+              global.window_group.remove_child(con.decoration);
+              // Show it below the focused window
+              global.window_group.insert_child_below(
+                con.decoration,
+                this.focusMetaWindow.get_compositor_private()
+              );
+            }
             con.childNodes.forEach((cn) => {
               cn.render();
             });
@@ -2056,6 +2093,7 @@ var WindowManager = GObject.registerClass(
 
     _handleGrabOpBegin(_display, _metaWindow, grabOp) {
       this.trackCurrentMonWs();
+      _metaWindow.activate(global.get_current_time());
       let focusMetaWindow = this.focusMetaWindow;
 
       if (focusMetaWindow) {

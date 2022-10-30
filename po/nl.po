@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-27 21:10-0400\n"
+"POT-Creation-Date: 2022-10-29 19:28-0400\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -210,80 +210,84 @@ msgstr "Gestapelde tegelmodus (stapel vensters in de tegelmodus)"
 msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
 msgstr "Tabblad-tegelmodus (groepeer getegelde vensters als tabbladen)"
 
-#: messages.js:100
+#: messages.js:99
+msgid "Float Mode Always On Top (Floating windows always above tiling windows)"
+msgstr ""
+
+#: messages.js:101
 msgid "Update Keybindings"
 msgstr "Sneltoetsen bijwerken"
 
-#: messages.js:101
+#: messages.js:102
 msgid "Syntax"
 msgstr "Syntaxis"
 
-#: messages.js:102
+#: messages.js:103
 msgid "Legend"
 msgstr "Legenda"
 
-#: messages.js:103
+#: messages.js:104
 msgid "Windows key"
 msgstr "Windows-toets"
 
-#: messages.js:104
+#: messages.js:105
 msgid "Control key"
 msgstr "Ctrl-toets"
 
-#: messages.js:106
+#: messages.js:107
 msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 "Wis de tekst om de toets wijzigen. Druk op enter om toe te passen. Klik "
 "erbuiten om te negeren."
 
-#: messages.js:108
+#: messages.js:109
 msgid "Resets"
 msgstr "Herstelt"
 
-#: messages.js:109
+#: messages.js:110
 msgid "to previous value when invalid"
 msgstr "de standaardwaarde indien ongeldig"
 
-#: messages.js:110
+#: messages.js:111
 msgid "Action"
 msgstr "Actie"
 
-#: messages.js:111
+#: messages.js:112
 msgid "Shortcut"
 msgstr "Sneltoets"
 
-#: messages.js:112
+#: messages.js:113
 msgid "Notes"
 msgstr "Opmerkingen"
 
-#: messages.js:114
+#: messages.js:115
 msgid "Forge Panel Settings"
 msgstr "Forge-paneelvoorkeuren"
 
-#: messages.js:115
+#: messages.js:116
 msgid "Tile Mode"
 msgstr "Tegelmodus"
 
-#: messages.js:116
+#: messages.js:117
 msgid "Open Preferences"
 msgstr "Voorkeuren openen"
 
-#: messages.js:121
+#: messages.js:122
 msgid "Tiled Focus Hint and Preview"
 msgstr "Hint bij tegelfocus en voorvertoning"
 
-#: messages.js:123
+#: messages.js:124
 msgid "Floated Focus Hint"
 msgstr "Focushint bij zwevende vensters"
 
-#: messages.js:125
+#: messages.js:126
 msgid "Split Direction Hint"
 msgstr "Hint bij veranderen van richting"
 
-#: messages.js:127
+#: messages.js:128
 msgid "Stacked Focus Hint and Preview"
 msgstr "Hint bij gestapelde tegelfocus en voorvertoning"
 
-#: messages.js:129
+#: messages.js:130
 msgid "Tabbed Focus Hint and Preview"
 msgstr "Hint bij tabblad-tegelfocus en voorvertoning"
