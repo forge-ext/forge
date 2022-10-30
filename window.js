@@ -1332,6 +1332,15 @@ var WindowManager = GObject.registerClass(
                 this.updateMetaPositionSize(_metaWindow, from);
               }),
               metaWindow.connect("focus", (_metaWindowFocus) => {
+                this.queueEvent({
+                  name: "focus-border-update",
+                  callback: () => {
+                    this.unfreezeRender();
+                    this.updateBorderLayout();
+                    this.updateDecorationLayout();
+                    this.freezeRender();
+                  },
+                });
                 let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
                 if (focusNodeWindow) {
                   // handle the attach node
@@ -2093,7 +2102,6 @@ var WindowManager = GObject.registerClass(
 
     _handleGrabOpBegin(_display, _metaWindow, grabOp) {
       this.trackCurrentMonWs();
-      _metaWindow.activate(global.get_current_time());
       let focusMetaWindow = this.focusMetaWindow;
 
       if (focusMetaWindow) {

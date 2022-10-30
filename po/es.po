@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-29 19:28-0400\n"
+"POT-Creation-Date: 2022-10-29 21:19-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -202,82 +202,82 @@ msgstr ""
 msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
 msgstr ""
 
-#: messages.js:99
+#: messages.js:100
 msgid "Float Mode Always On Top (Floating windows always above tiling windows)"
 msgstr ""
 
-#: messages.js:101
+#: messages.js:103
 msgid "Update Keybindings"
 msgstr ""
 
-#: messages.js:102
+#: messages.js:104
 msgid "Syntax"
 msgstr ""
 
-#: messages.js:103
+#: messages.js:105
 msgid "Legend"
 msgstr ""
 
-#: messages.js:104
+#: messages.js:106
 msgid "Windows key"
 msgstr ""
 
-#: messages.js:105
+#: messages.js:107
 msgid "Control key"
 msgstr ""
 
-#: messages.js:107
+#: messages.js:109
 msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 
-#: messages.js:109
+#: messages.js:111
 msgid "Resets"
 msgstr ""
 
-#: messages.js:110
+#: messages.js:112
 msgid "to previous value when invalid"
 msgstr ""
 
-#: messages.js:111
+#: messages.js:113
 msgid "Action"
 msgstr ""
 
-#: messages.js:112
+#: messages.js:114
 msgid "Shortcut"
 msgstr ""
 
-#: messages.js:113
+#: messages.js:115
 msgid "Notes"
 msgstr ""
 
-#: messages.js:115
+#: messages.js:117
 msgid "Forge Panel Settings"
 msgstr ""
 
-#: messages.js:116
+#: messages.js:118
 msgid "Tile Mode"
 msgstr ""
 
-#: messages.js:117
+#: messages.js:119
 msgid "Open Preferences"
 msgstr ""
 
-#: messages.js:122
+#: messages.js:124
 msgid "Tiled Focus Hint and Preview"
 msgstr ""
 
-#: messages.js:124
+#: messages.js:126
 msgid "Floated Focus Hint"
 msgstr ""
 
-#: messages.js:126
+#: messages.js:128
 msgid "Split Direction Hint"
 msgstr ""
 
-#: messages.js:128
+#: messages.js:130
 msgid "Stacked Focus Hint and Preview"
 msgstr ""
 
-#: messages.js:130
+#: messages.js:132
 msgid "Tabbed Focus Hint and Preview"
 msgstr ""
