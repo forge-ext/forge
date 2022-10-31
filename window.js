@@ -1340,7 +1340,6 @@ var WindowManager = GObject.registerClass(
                     this.updateDecorationLayout();
                     this.updateStackedFocus();
                     this.updateTabbedFocus();
-                    this.freezeRender();
                   },
                 });
                 let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
