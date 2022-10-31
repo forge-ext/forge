@@ -270,7 +270,7 @@ var WindowManager = GObject.registerClass(
           case "window-gap-size":
           case "window-gap-hidden-on-single":
           case "workspace-skip-tile":
-            this.renderTree(settingName);
+            this.renderTree(settingName, true);
             break;
           case "stacked-tiling-mode-enabled":
             if (!settings.get_boolean(settingName)) {
@@ -1382,7 +1382,7 @@ var WindowManager = GObject.registerClass(
             border.show();
           }
 
-          this.openCenterPrefs(metaWindow);
+          this.postProcessWindow(nodeWindow);
           this.queueEvent(
             {
               name: "window-create-queue",
@@ -1404,9 +1404,10 @@ var WindowManager = GObject.registerClass(
       }
     }
 
-    openCenterPrefs(metaWindow) {
+    postProcessWindow(nodeWindow) {
+      let metaWindow = nodeWindow.nodeValue;
       if (metaWindow) {
-        if (metaWindow.get_title() === Msgs.prefs_title) {
+        if (metaWindow.get_title() === Msgs.prefs_title || nodeWindow.isFloat()) {
           metaWindow
             .get_workspace()
             .activate_with_focus(metaWindow, global.display.get_current_time());

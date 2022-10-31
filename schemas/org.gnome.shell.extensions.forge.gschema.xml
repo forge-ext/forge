@@ -123,16 +123,6 @@
             <summary>Toggle the focused window's border</summary>
         </key>
 
-        <key type="as" name="focus-border-size-increase">
-            <default><![CDATA[['<Shift><Super>plus']]]></default>
-            <summary>Increase the size of the focus border</summary>
-        </key>
-
-        <key type="as" name="focus-border-size-decrease">
-            <default><![CDATA[['<Shift><Super>minus']]]></default>
-            <summary>Decrease the size of the focus border</summary>
-        </key>
-
         <key type="as" name="window-gap-size-increase">
             <default><![CDATA[['<Ctrl><Super>plus']]]></default>
             <summary>Increase the size of gaps between windows/cons</summary>
