@@ -2436,50 +2436,64 @@ var WindowManager = GObject.registerClass(
 
     isFloatingExempt(metaWindow) {
       if (!metaWindow) return true;
-      let windowTitle = metaWindow.get_title();
-      let windowType = metaWindow.get_window_type();
+      return this.isFloatByType(metaWindow) || this.isWindowMode(metaWindow, "float");
+    }
 
-      let floatByType =
+    isFloatByType(metaWindow) {
+      const windowTitle = metaWindow.title;
+      const windowType = metaWindow.window_type;
+      const windowClass = metaWindow.wm_class;
+
+      return (
         windowType === Meta.WindowType.DIALOG ||
         windowType === Meta.WindowType.MODAL_DIALOG ||
         metaWindow.get_transient_for() !== null ||
-        metaWindow.get_wm_class() === null ||
+        windowClass === null ||
         windowTitle === null ||
         windowTitle === "" ||
         windowTitle.length === 0 ||
-        !metaWindow.allows_resize();
+        !metaWindow.allows_resize()
+      );
+    }
 
-      const knownFloats = this.windowProps.overrides.filter((wprop) => wprop.mode === "float");
+    isWindowMode(metaWindow, mode) {
+      const modeMatches = this.windowProps.overrides.filter((prop) => prop.mode === mode);
+      const windowTitle = metaWindow.title;
+      const windowClass = metaWindow.wm_class;
 
-      let floatOverride =
-        knownFloats.filter((kf) => {
+      return (
+        modeMatches.filter((modeMatch) => {
           let matchTitle = false;
           let matchClass = false;
 
-          if (kf.wmTitle) {
-            if (kf.wmTitle === " ") {
-              matchTitle = kf.wmTitle === windowTitle;
+          if (modeMatch.wmTitle) {
+            if (modeMatch.wmTitle === " ") {
+              matchTitle = modeMatch.wmTitle === windowTitle;
             } else {
-              let titles = kf.wmTitle.split(",");
+              let titles = modeMatch.wmTitle.split(",");
               matchTitle = titles.filter((t) => windowTitle && windowTitle.includes(t)).length > 0;
             }
           }
-          if (kf.wmClass) {
-            matchClass = kf.wmClass.includes(metaWindow.get_wm_class());
+          if (modeMatch.wmClass) {
+            matchClass = modeMatch.wmClass.includes(windowClass);
           }
 
-          if (kf.wmClass && kf.wmTitle) {
+          if (modeMatch.wmClass && modeMatch.wmTitle) {
             return matchTitle && matchClass;
           } else {
-            if (kf.wmTitle) {
+            if (modeMatch.wmTitle) {
               return matchTitle;
             } else {
               return matchClass;
             }
           }
-        }).length > 0;
+        }).length > 0
+      );
+    }
 
-      return floatByType || floatOverride;
+    isScratchWindow(metaWindow) {
+      if (!metaWindow) return false;
+      return this.isWindowMode(metaWindow, "scratch");
     }
 
     _getDragDropCenterPreviewStyle() {
