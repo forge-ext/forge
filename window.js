@@ -1659,7 +1659,7 @@ var WindowManager = GObject.registerClass(
           let tiled = this.tree.getTiledChildren(con.childNodes);
           if (con.decoration && tiled.length > 0) {
             con.decoration.show();
-            if (global.window_group.contains(con.decoration)) {
+            if (global.window_group.contains(con.decoration) && this.focusMetaWindow) {
               global.window_group.remove_child(con.decoration);
               // Show it below the focused window
               global.window_group.insert_child_below(
