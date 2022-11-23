@@ -1406,7 +1406,7 @@ var WindowManager = GObject.registerClass(
     postProcessWindow(nodeWindow) {
       let metaWindow = nodeWindow.nodeValue;
       if (metaWindow) {
-        if (metaWindow.get_title() === Msgs.prefs_title || nodeWindow.isFloat()) {
+        if (metaWindow.get_title() === Msgs.prefs_title) {
           metaWindow
             .get_workspace()
             .activate_with_focus(metaWindow, global.display.get_current_time());
