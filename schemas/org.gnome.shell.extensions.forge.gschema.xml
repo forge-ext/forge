@@ -115,6 +115,10 @@
             <default>true</default>
             <summary>Floating windows toggle always-on-top</summary>
         </key>
+        <key type="b" name="auto-split-enabled">
+            <default>true</default>
+            <summary>Enable auto split or quarter-tiling based based on smaller side</summary>
+        </key>
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->

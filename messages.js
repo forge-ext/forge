@@ -99,6 +99,7 @@ var prefs_experimental_tabbed_tiling_label = _("Tabbed Tiling Mode (Group tiled 
 var prefs_experimental_float_always_on_top = _(
   "Float Mode Always On Top (Floating windows always above tiling windows)"
 );
+var prefs_experimental_auto_split = _("Auto Split (Quarter Tiling)");
 
 var prefs_keyboard_update_keys_title = _("Update Keybindings");
 var prefs_keyboard_update_keys_syntax_label = _("Syntax");
