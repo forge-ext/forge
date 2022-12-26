@@ -1332,6 +1332,24 @@ var ExperimentalSettingsPanel = GObject.registerClass(
 
       experimentalFrame.add(experimentFloatAlwaysOnTopRow);
 
+      let experimentAutoSplitRow = new ListBoxRow();
+      let experimentAutoSplitLabel = createLabel(Msgs.prefs_experimental_auto_split);
+      let experimentAutoSplitSwitch = new Gtk.Switch();
+      experimentAutoSplitSwitch.set_active(this.settings.get_boolean("auto-split-enabled"));
+      experimentAutoSplitSwitch.connect("state-set", (_, state) => {
+        this.settings.set_boolean("auto-split-enabled", state);
+      });
+      this.settings.connect("changed", (_, keyName) => {
+        if (keyName === "auto-split-enabled") {
+          experimentAutoSplitSwitch.set_active(this.settings.get_boolean("auto-split-enabled"));
+        }
+      });
+
+      experimentAutoSplitRow.add(experimentAutoSplitLabel);
+      experimentAutoSplitRow.add(experimentAutoSplitSwitch);
+
+      experimentalFrame.add(experimentAutoSplitRow);
+
       this.append(experimentalFrame);
     }
   }

@@ -16,6 +16,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 
 ## Local Development Setup
 - Install NodeJS 16+
+- Install `gettext`
 - Run `npm install`
 - Run `make dev`. Ctrl + C to cancel
 
@@ -31,6 +32,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Stacked tiling layout
 - Works on GNOME 3.36+ (feature-freeze) and 40. X11 and Wayland
 - Swap current window with the last active window
+- Auto Split or Quarter Tiling
 
 ![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
 

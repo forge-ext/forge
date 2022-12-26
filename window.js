@@ -1268,6 +1268,20 @@ var WindowManager = GObject.registerClass(
      *
      */
     trackWindow(_display, metaWindow) {
+      let autoSplit = this.ext.settings.get_boolean("auto-split-enabled");
+      if (autoSplit && this.focusMetaWindow) {
+        let currentFocusNode = this.tree.findNode(this.focusMetaWindow);
+        if (currentFocusNode) {
+          let currentParentFocusNode = currentFocusNode.parentNode;
+          let layout = currentParentFocusNode.layout;
+          if (layout === Tree.LAYOUT_TYPES.HSPLIT || layout === Tree.LAYOUT_TYPES.VSPLIT) {
+            let frameRect = this.focusMetaWindow.get_frame_rect();
+            let splitHorizontal = frameRect.width > frameRect.height;
+            let orientation = splitHorizontal ? "horizontal" : "vertical";
+            this.command({ name: "Split", orientation: orientation });
+          }
+        }
+      }
       // Make window types configurable
       if (this._validWindow(metaWindow)) {
         let existNodeWindow = this.tree.findNode(metaWindow);
