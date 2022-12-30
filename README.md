@@ -8,7 +8,8 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
 
 ## ! Major Changes !
-- Floating windows are default always on top. Toggle available on preferences
+- Implemented quarter tiling. See https://github.com/jmmaranan/forge/issues/166. Toggle available on preferences
+- Implemented floating windows are default always on top. Toggle available on preferences
 
 ## Development
 - The `main` branch contains gnome-4x code.
