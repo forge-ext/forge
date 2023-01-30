@@ -1227,8 +1227,12 @@ var Tree = GObject.registerClass(
         .filter((t) => t.nodeType === NODE_TYPES.WINDOW);
       tiledChildren.forEach((w) => {
         if (w.renderRect) {
-          let metaWin = w.nodeValue;
-          this.extWm.move(metaWin, w.renderRect);
+          if (w.renderRect.width > 0 && w.renderRect.height > 0) {
+            let metaWin = w.nodeValue;
+            this.extWm.move(metaWin, w.renderRect);
+          } else {
+            Logger.debug(`ignoring apply for ${w.renderRect.width}x${w.renderRect.height}`);
+          }
         }
 
         if (w.nodeValue.firstRender) w.nodeValue.firstRender = false;
