@@ -1351,13 +1351,15 @@ var Tree = GObject.registerClass(
       let nodeY = node.rect.y;
       let gap = this.extWm.calculateGaps();
 
-      nodeX += gap;
-      nodeY += gap;
+      if ((nodeWidth > (gap * 2)) && (nodeHeight > (gap * 2))) {
+        nodeX += gap;
+        nodeY += gap;
 
-      // TODO - detect inbetween windows and adjust accordingly
-      // Also adjust depending on display scaling
-      nodeWidth -= gap * 2;
-      nodeHeight -= gap * 2;
+        // TODO - detect inbetween windows and adjust accordingly
+        // Also adjust depending on display scaling
+        nodeWidth -= gap * 2;
+        nodeHeight -= gap * 2;
+      }
       return { x: nodeX, y: nodeY, width: nodeWidth, height: nodeHeight };
     }
 
@@ -1555,6 +1557,10 @@ var Tree = GObject.registerClass(
         if (node.isCon() || node.isMonitor()) {
           attributes += `,layout:${node.layout}`;
         }
+      }
+
+      if (node.rect) {
+        attributes += `,rect:${node.rect.width}x${node.rect.height}+${node.rect.x}+${node.rect.y}`;
       }
 
       if (level !== 0) Logger.debug(`${spacing}|`);
