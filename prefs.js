@@ -1350,6 +1350,24 @@ var ExperimentalSettingsPanel = GObject.registerClass(
 
       experimentalFrame.add(experimentAutoSplitRow);
 
+      let experimentPreviewHintRow = new ListBoxRow();
+      let experimentPreviewHintLabel = createLabel(Msgs.prefs_experimental_preview_hint);
+      let experimentPreviewHintSwitch = new Gtk.Switch();
+      experimentPreviewHintSwitch.set_active(this.settings.get_boolean("preview-hint-enabled"));
+      experimentPreviewHintSwitch.connect("state-set", (_, state) => {
+        this.settings.set_boolean("preview-hint-enabled", state);
+      });
+      this.settings.connect("changed", (_, keyName) => {
+        if (keyName === "preview-hint-enabled") {
+          experimentPreviewHintSwitch.set_active(this.settings.get_boolean("preview-hint-enabled"));
+        }
+      });
+
+      experimentPreviewHintRow.add(experimentPreviewHintLabel);
+      experimentPreviewHintRow.add(experimentPreviewHintSwitch);
+
+      experimentalFrame.add(experimentPreviewHintRow);
+
       this.append(experimentalFrame);
     }
   }

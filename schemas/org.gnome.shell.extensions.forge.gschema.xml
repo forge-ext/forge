@@ -119,6 +119,10 @@
             <default>true</default>
             <summary>Enable auto split or quarter-tiling based based on smaller side</summary>
         </key>
+        <key type="b" name="preview-hint-enabled">
+            <default>true</default>
+            <summary>Whether to show preview hint DND</summary>
+        </key>
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->

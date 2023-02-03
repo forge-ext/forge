@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-30 09:32-0500\n"
+"POT-Creation-Date: 2023-02-02 20:48-0500\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -210,78 +210,82 @@ msgstr ""
 msgid "Auto Split (Quarter Tiling)"
 msgstr ""
 
-#: messages.js:104
-msgid "Update Keybindings"
+#: messages.js:103
+msgid "Preview Hint Toggle"
 msgstr ""
 
 #: messages.js:105
-msgid "Syntax"
+msgid "Update Keybindings"
 msgstr ""
 
 #: messages.js:106
-msgid "Legend"
+msgid "Syntax"
 msgstr ""
 
 #: messages.js:107
-msgid "Windows key"
+msgid "Legend"
 msgstr ""
 
 #: messages.js:108
+msgid "Windows key"
+msgstr ""
+
+#: messages.js:109
 msgid "Control key"
 msgstr ""
 
-#: messages.js:110
+#: messages.js:111
 msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 
-#: messages.js:112
+#: messages.js:113
 msgid "Resets"
 msgstr ""
 
-#: messages.js:113
+#: messages.js:114
 msgid "to previous value when invalid"
 msgstr ""
 
-#: messages.js:114
+#: messages.js:115
 msgid "Action"
 msgstr ""
 
-#: messages.js:115
+#: messages.js:116
 msgid "Shortcut"
 msgstr ""
 
-#: messages.js:116
+#: messages.js:117
 msgid "Notes"
 msgstr ""
 
-#: messages.js:118
+#: messages.js:119
 msgid "Forge Panel Settings"
 msgstr ""
 
-#: messages.js:119
+#: messages.js:120
 msgid "Tile Mode"
 msgstr ""
 
-#: messages.js:120
+#: messages.js:121
 msgid "Open Preferences"
 msgstr ""
 
-#: messages.js:125
+#: messages.js:126
 msgid "Tiled Focus Hint and Preview"
 msgstr ""
 
-#: messages.js:127
+#: messages.js:128
 msgid "Floated Focus Hint"
 msgstr ""
 
-#: messages.js:129
+#: messages.js:130
 msgid "Split Direction Hint"
 msgstr ""
 
-#: messages.js:131
+#: messages.js:132
 msgid "Stacked Focus Hint and Preview"
 msgstr ""
 
-#: messages.js:133
+#: messages.js:134
 msgid "Tabbed Focus Hint and Preview"
 msgstr ""

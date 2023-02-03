@@ -1762,8 +1762,9 @@ var WindowManager = GObject.registerClass(
         const stackedOrTabbed = stacked || tabbed;
         const updatePreview = (focusNodeWindow, previewParams) => {
           let previewHint = focusNodeWindow.previewHint;
+          let previewHintEnabled = this.ext.settings.get_boolean("preview-hint-enabled");
           const previewRect = previewParams.targetRect;
-          if (previewHint) {
+          if (previewHint && previewHintEnabled) {
             if (!previewRect) {
               previewHint.hide();
               return;
