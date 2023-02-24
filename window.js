@@ -175,6 +175,10 @@ var WindowManager = GObject.registerClass(
           this.renderTree("full-screen-changed");
         }),
         display.connect("workareas-changed", (_display) => {
+          if (global.display.get_n_monitors() == 0) {
+            Logger.debug(`workareas-changed: no monitors, ignoring signal`);
+            return;
+          }
           if (this.tree.getNodeByType("WINDOW").length > 0) {
             let workspaceReload = this.workspaceAdded || this.workspaceRemoved;
             if (workspaceReload) {
