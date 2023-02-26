@@ -742,14 +742,9 @@ var WindowManager = GObject.registerClass(
           if (!focusNodeWindow) return;
           if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled")) return;
 
-          currentLayout = focusNodeWindow.parentNode.layout;
+          let showTabs = this.ext.settings.get_boolean("showtab-decoration-enabled");
+          this.ext.settings.set_boolean("showtab-decoration-enabled", !showTabs);
 
-          if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
-            let showTabs = this.ext.settings.get_boolean("showtab-decoration-enabled");
-            this.ext.settings.set_boolean("showtab-decoration-enabled", !showTabs);
-          } else {
-            return;
-          }
           this.unfreezeRender();
           this.tree.attachNode = focusNodeWindow.parentNode;
           this.renderTree("showtab-decoration-enabled");

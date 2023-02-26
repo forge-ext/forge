@@ -34,6 +34,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Works on GNOME 3.36+ (feature-freeze) and 40. X11 and Wayland
 - Swap current window with the last active window
 - Auto Split or Quarter Tiling
+- Show/hide tab decoration via keybinding https://github.com/jmmaranan/forge/issues/180
 
 ![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
 
@@ -42,12 +43,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 ### New
 | Action | Shortcut |
 | --- | --- |
-| Snap active window left two thirds | `<Ctrl> + <Alt> + e` |
-| Snap active window right two thirds | `<Ctrl> + <Alt> + t` |
-| Snap active window left third | `<Ctrl> + <Alt> + d` |
-| Snap active window right third | `<Ctrl> + <Alt> + g` |
-| Persist toggle floating for active window | `<Super> + c` |
-| Persist toggle floating for active window and its window class | `<Super><Shift> + c` |
+| Show/hide tab decoration | `<Ctrl> + <Alt> + y` |
 
 ### Current
 
@@ -78,6 +74,12 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Toggle stacked layout | `<Shift> + <Super> + s` |
 | Toggle tabbed layout | `<Shift> + <Super> + t` |
 | Activate tile drag-drop | `Start dragging - Mod key configuration in prefs` |
+| Snap active window left two thirds | `<Ctrl> + <Alt> + e` |
+| Snap active window right two thirds | `<Ctrl> + <Alt> + t` |
+| Snap active window left third | `<Ctrl> + <Alt> + d` |
+| Snap active window right third | `<Ctrl> + <Alt> + g` |
+| Persist toggle floating for active window | `<Super> + c` |
+| Persist toggle floating for active window and its window class | `<Super><Shift> + c` |
 
 For any shortcut conflicts, the user has to manually configure those for now from the
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
