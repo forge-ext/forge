@@ -1211,6 +1211,7 @@ var WindowManager = GObject.registerClass(
       // It should only show when V or H-Split and with single child CONs
       if (
         splitBorderEnabled &&
+        focusBorderEnabled &&
         tilingModeEnabled &&
         !nodeWindow.isFloat() &&
         parentNode.childNodes.length === 1 &&
@@ -1244,6 +1245,7 @@ var WindowManager = GObject.registerClass(
           border.show();
         }
         if (global.window_group && global.window_group.contains(border)) {
+          // TODO - sort the borders with split border being on top
           global.window_group.remove_child(border);
           // Add the border just above the focused window
           global.window_group.insert_child_above(border, metaWindow.get_compositor_private());
