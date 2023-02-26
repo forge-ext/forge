@@ -4,7 +4,7 @@
   "gettext-domain": "forge",
   "uuid": "forge@jmmaranan.com",
   "settings-schema": "org.gnome.shell.extensions.forge",
-  "shell-version": ["40", "41", "42", "43"],
+  "shell-version": ["40", "41", "42", "43", "44"],
   "version": "1.1-alpha",
   "url": "https://github.com/jmmaranan/forge"
 }
