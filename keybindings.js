@@ -365,6 +365,10 @@ var Keybindings = GObject.registerClass(
           let action = { name: "LayoutTabbedToggle" };
           this.extWm.command(action);
         },
+        "con-tabbed-showtab-decoration-toggle": () => {
+          let action = { name: "ShowTabDecorationToggle" };
+          this.extWm.command(action);
+        },
         "focus-border-toggle": () => {
           let action = { name: "FocusBorderToggle" };
           this.extWm.command(action);

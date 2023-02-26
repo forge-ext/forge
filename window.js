@@ -737,6 +737,24 @@ var WindowManager = GObject.registerClass(
               },
             });
           }
+
+        case "ShowTabDecorationToggle":
+          if (!focusNodeWindow) return;
+          if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled")) return;
+
+          currentLayout = focusNodeWindow.parentNode.layout;
+
+          if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
+            let showTabs = this.ext.settings.get_boolean("showtab-decoration-enabled");
+            this.ext.settings.set_boolean("showtab-decoration-enabled", !showTabs);
+          } else {
+            return;
+          }
+          this.unfreezeRender();
+          this.tree.attachNode = focusNodeWindow.parentNode;
+          this.renderTree("showtab-decoration-enabled");
+          break;
+
         default:
           break;
       }
@@ -1675,7 +1693,8 @@ var WindowManager = GObject.registerClass(
         let activeMonWsCons = monitorWs.getNodeByType(Tree.NODE_TYPES.CON);
         activeMonWsCons.forEach((con) => {
           let tiled = this.tree.getTiledChildren(con.childNodes);
-          if (con.decoration && tiled.length > 0) {
+          let showTabs = this.ext.settings.get_boolean("showtab-decoration-enabled");
+          if (con.decoration && tiled.length > 0 && showTabs) {
             con.decoration.show();
             if (global.window_group.contains(con.decoration) && this.focusMetaWindow) {
               global.window_group.remove_child(con.decoration);

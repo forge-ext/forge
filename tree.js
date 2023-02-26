@@ -584,6 +584,7 @@ var Tree = GObject.registerClass(
       let rootBin = new St.Bin();
       super._init(NODE_TYPES.ROOT, rootBin);
       this._extWm = extWm;
+      this.defaultStackHeight = 35;
       this.settings = this.extWm.ext.settings;
       this.layout = LAYOUT_TYPES.ROOT;
       if (!global.window_group.contains(rootBin)) global.window_group.add_child(rootBin);
@@ -1317,7 +1318,8 @@ var Tree = GObject.registerClass(
         let sizes = this.computeSizes(node, tiledChildren);
 
         params.sizes = sizes;
-        params.stackedHeight = 35 * Utils.dpi();
+        let showTabs = this.settings.get_boolean("showtab-decoration-enabled");
+        params.stackedHeight = showTabs ? this.defaultStackHeight : 0 * Utils.dpi();
         params.tiledChildren = tiledChildren;
 
         let decoration = node.decoration;
@@ -1427,11 +1429,12 @@ var Tree = GObject.registerClass(
       let nodeHeight = node.rect.height;
       let nodeX = node.rect.x;
       let nodeY = node.rect.y;
+      let stackHeight = this.defaultStackHeight;
 
       if (layout === LAYOUT_TYPES.STACKED) {
         if (node.childNodes.length > 1) {
-          nodeY += params.stackedHeight * index;
-          nodeHeight -= params.stackedHeight * index;
+          nodeY += stackHeight * index;
+          nodeHeight -= stackHeight * index;
         }
 
         child.rect = {
@@ -1486,11 +1489,14 @@ var Tree = GObject.registerClass(
             let decoration = node.decoration;
 
             if (decoration !== null && decoration !== undefined) {
-              decoration.set_size(adjustWidth, params.stackedHeight);
-              decoration.set_position(adjustX, adjustY);
-              if (params.tiledChildren.length > 0) decoration.show();
-
-              if (!decoration.contains(child.tab)) decoration.add(child.tab);
+                decoration.set_size(adjustWidth, params.stackedHeight);
+                decoration.set_position(adjustX, adjustY);
+                if (params.tiledChildren.length > 0 && params.stackedHeight !== 0) {
+                  decoration.show();
+                } else {
+                  decoration.hide();
+                }
+                if (!decoration.contains(child.tab)) decoration.add(child.tab);
             }
 
             child.render();
