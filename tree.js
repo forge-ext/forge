@@ -524,7 +524,7 @@ var Node = GObject.registerClass(
 
     render() {
       // Always update the title for the tab
-      if (this.tab) {
+      if (this.tab !== null && this.tab !== undefined) {
         let titleLabel = this.tab.get_child_at_index(1);
         if (titleLabel) titleLabel.label = this._getTitle();
       }
@@ -1355,7 +1355,7 @@ var Tree = GObject.registerClass(
       let nodeY = node.rect.y;
       let gap = this.extWm.calculateGaps();
 
-      if ((nodeWidth > (gap * 2)) && (nodeHeight > (gap * 2))) {
+      if (nodeWidth > gap * 2 && nodeHeight > gap * 2) {
         nodeX += gap;
         nodeY += gap;
 
@@ -1468,7 +1468,6 @@ var Tree = GObject.registerClass(
           nodeY = nodeRect.y + params.stackedHeight;
           nodeHeight = nodeRect.height - params.stackedHeight;
           if (node.decoration && child.isWindow()) {
-            let decoration = node.decoration;
             let gap = this.extWm.calculateGaps();
             let renderRect = this.processGap(node);
             let borderWidth = child.actor.border.get_theme_node().get_border_width(St.Side.TOP);
@@ -1484,11 +1483,16 @@ var Tree = GObject.registerClass(
               nodeY = renderRect.y + params.stackedHeight + adjust / 4;
             }
 
-            decoration.set_size(adjustWidth, params.stackedHeight);
-            decoration.set_position(adjustX, adjustY);
-            if (params.tiledChildren.length > 0) decoration.show();
+            let decoration = node.decoration;
 
-            if (!decoration.contains(child.tab)) decoration.add(child.tab);
+            if (decoration !== null && decoration !== undefined) {
+              decoration.set_size(adjustWidth, params.stackedHeight);
+              decoration.set_position(adjustX, adjustY);
+              if (params.tiledChildren.length > 0) decoration.show();
+
+              if (!decoration.contains(child.tab)) decoration.add(child.tab);
+            }
+
             child.render();
           }
         }
