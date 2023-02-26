@@ -123,6 +123,10 @@
             <default>true</default>
             <summary>Whether to show preview hint DND</summary>
         </key>
+        <key type="b" name="showtab-decoration-enabled">
+            <default>true</default>
+            <summary>Whether to show the tab decoration or not</summary>
+        </key>
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->
@@ -164,6 +168,11 @@
         <key type="as" name="con-tabbed-layout-toggle">
             <default><![CDATA[['<Shift><Super>t']]]></default>
             <summary>Toggle tabbed layout</summary>
+        </key>
+
+        <key type="as" name="con-tabbed-showtab-decoration-toggle">
+            <default><![CDATA[['<Ctrl><Alt>y']]]></default>
+            <summary>Toggle showing the tab decoration layout</summary>
         </key>
 
         <key type="as" name="window-swap-left">
