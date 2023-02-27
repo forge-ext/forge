@@ -1,0 +1,297 @@
+# Forge Sample Translation
+msgid ""
+msgstr ""
+"Project-Id-Version: Forge\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-02 20:48-0500\n"
+"PO-Revision-Date: 2021-09-18 16:25-0400\n"
+"Last-Translator: Juarez Rudsatz <juarezr@gmail.com>\n"
+"Language-Team: \n"
+"Language: pt-br\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: messages.js:37
+msgid "Settings"
+msgstr "Configurações"
+
+#: messages.js:38
+msgid "Development in Progress..."
+msgstr "Desenvolvimento em andamento..."
+
+#: messages.js:39
+msgid "About"
+msgstr "Sobre"
+
+#: messages.js:40
+msgid "Appearance"
+msgstr "Aparência"
+
+#: messages.js:41
+msgid "Development"
+msgstr "Desenvolvimento"
+
+#: messages.js:42
+msgid "Experimental"
+msgstr "Experimental"
+
+#: messages.js:43
+msgid "Home"
+msgstr "Início"
+
+#: messages.js:44
+msgid "Keyboard"
+msgstr "Teclado"
+
+#: messages.js:46
+msgid "Window"
+msgstr "Janela"
+
+#: messages.js:47
+msgid "Gaps"
+msgstr "Espaçamento"
+
+#: messages.js:48
+msgid "Gaps Size"
+msgstr "Tamanho do Espaçamento"
+
+#: messages.js:49
+msgid "Gaps Size Increments"
+msgstr "Incremento no Tamanho do Espaçamento"
+
+#: messages.js:50
+msgid "Gaps Hidden when Single"
+msgstr "Espaçamento Omitido quando Sozinho"
+
+#: messages.js:51
+msgid "Color"
+msgstr "Cor"
+
+#: messages.js:52
+msgid "Border Size"
+msgstr "Tamanho de Borda"
+
+#: messages.js:53
+msgid "Border Color"
+msgstr "Cor da Borda"
+
+#: messages.js:54
+msgid "Palette Mode"
+msgstr "Modo de Paleta"
+
+#: messages.js:55
+msgid "Editor Mode"
+msgstr "Modo de Edição"
+
+#: messages.js:56
+msgid "Apply Changes"
+msgstr "Aplicar Mudanças"
+
+#: messages.js:57 messages.js:58
+msgid "Reset"
+msgstr "Restaurar"
+
+#: messages.js:59
+msgid "Layout"
+msgstr "Arranjo"
+
+#: messages.js:60
+msgid "Default Drag-and-Drop Center Layout"
+msgstr "Arranjo de Arrastar/Soltar Padrão"
+
+#: messages.js:61
+msgid "Tabbed"
+msgstr "Em Abas"
+
+#: messages.js:62
+msgid "Stacked"
+msgstr "Empilhado"
+
+#: messages.js:64
+msgid "Workspace"
+msgstr "Área de Trabalho"
+
+#: messages.js:65
+msgid "Update Workspace Settings"
+msgstr "Atualizar Configurações de Área de Trabalho"
+
+#: messages.js:66
+msgid "Skip Workspace Tiling"
+msgstr "Ignorar Emparelhamento de Área de Trabalho"
+
+#: messages.js:68
+msgid ""
+"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
+"accept"
+msgstr ""
+"Informe índices para ignorar. Ex: 0,1. Texto em branco para desabilitar. "
+"Enter para aceitar"
+
+#: messages.js:71
+msgid "Window Shortcuts"
+msgstr "Atalhos de Janela"
+
+#: messages.js:72
+msgid "Workspace Shortcuts"
+msgstr "Atalhos de Área de Trabalho"
+
+#: messages.js:73
+msgid "Container Shortcuts"
+msgstr "Atalhos de Container"
+
+#: messages.js:74
+msgid "Focus Shortcuts"
+msgstr "Atalhos de Foco"
+
+#: messages.js:75
+msgid "Other Shortcuts"
+msgstr "Outros Atalhos"
+
+#: messages.js:76
+msgid "Modifier Keys"
+msgstr "Teclas Modificadoras"
+
+#: messages.js:77
+msgid "Drag-Drop Tiling Modifier Key Options"
+msgstr "Opções de Teclas Modificadoras de Arrastar/Soltar"
+
+#: messages.js:79
+msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
+msgstr "Altere o modificador para janelas <b>emparelhadas</b> através do mouse e arrastar/soltar"
+
+#: messages.js:82
+msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
+msgstr "Selecione <i>Nenhum</i> para <u>sempre emparelhar imediatamente<u> por padrão"
+
+#: messages.js:84
+msgid "Tile Modifier"
+msgstr "Modificador de Emparelhamento"
+
+#: messages.js:85
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: messages.js:86
+msgid "Super"
+msgstr "Super"
+
+#: messages.js:87
+msgid "Alt"
+msgstr "Alt"
+
+#: messages.js:88
+msgid "None"
+msgstr "Nenhum"
+
+#: messages.js:90
+msgid "Logger Level"
+msgstr "Nivel de Log"
+
+#: messages.js:93
+msgid ""
+"CAUTION: These settings when enabled are buggy or can cause the shell to "
+"crash"
+msgstr ""
+"CUIDADO: Estas configurações, quando ativadas, são problemáticas ou podem "
+"causar a queda da interface"
+
+#: messages.js:96
+msgid ""
+"Stacked Tiling Mode (Stack windows on top of each other while still being "
+"tiled)"
+msgstr ""
+"Modo de Emparelhamento Empilhado (Empilhar janelas um em cima da outra "
+"mesmo ainda sendo emparelhadas)"
+
+#: messages.js:98
+msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
+msgstr "Modo de Emparelhamento em Abas (Agrupar janelas emparelhadas em abas)"
+
+#: messages.js:100
+msgid "Float Mode Always On Top (Floating windows always above tiling windows)"
+msgstr "Modo Flutuante Sempre no Topo (Janelas flutuantes sempre acima de janelas emparelhadas)"
+
+#: messages.js:102
+msgid "Auto Split (Quarter Tiling)"
+msgstr "Divisão Automática (Metade)"
+
+#: messages.js:103
+msgid "Preview Hint Toggle"
+msgstr "Alternar Ver Dica"
+
+#: messages.js:105
+msgid "Update Keybindings"
+msgstr "Atualizar Atalhos"
+
+#: messages.js:106
+msgid "Syntax"
+msgstr "Sintaxe"
+
+#: messages.js:107
+msgid "Legend"
+msgstr "Legenda"
+
+#: messages.js:108
+msgid "Windows key"
+msgstr "tecla Windows"
+
+#: messages.js:109
+msgid "Control key"
+msgstr "tecla Control"
+
+#: messages.js:111
+msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
+msgstr "Apague o texto para desativar. Pressione a tecla Enter para aceitar. Mude o foco para ignorar."
+
+#: messages.js:113
+msgid "Resets"
+msgstr "Restaurar"
+
+#: messages.js:114
+msgid "to previous value when invalid"
+msgstr "para o valor anterior quando inválido"
+
+#: messages.js:115
+msgid "Action"
+msgstr "Ação"
+
+#: messages.js:116
+msgid "Shortcut"
+msgstr "Atalho"
+
+#: messages.js:117
+msgid "Notes"
+msgstr "Nota"
+
+#: messages.js:119
+msgid "Forge Panel Settings"
+msgstr "Painel de Configuração do Forge"
+
+#: messages.js:120
+msgid "Tile Mode"
+msgstr "Modo de Emparelhamento"
+
+#: messages.js:121
+msgid "Open Preferences"
+msgstr "Abrir Preferências"
+
+#: messages.js:126
+msgid "Tiled Focus Hint and Preview"
+msgstr "Sinalizador de Foco Emparelhado e Pré-Visualização"
+
+#: messages.js:128
+msgid "Floated Focus Hint"
+msgstr "Sinalizador de Foco Flutuante"
+
+#: messages.js:130
+msgid "Split Direction Hint"
+msgstr "Sinalizador de Separação de Direção"
+
+#: messages.js:132
+msgid "Stacked Focus Hint and Preview"
+msgstr "Sinalizador de Foco Empilhado e Pré-Visualização"
+
+#: messages.js:134
+msgid "Tabbed Focus Hint and Preview"
+msgstr "Sinalizador de Foco em Abas e Pré-Visualização"
