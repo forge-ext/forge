@@ -1,0 +1,315 @@
+# Forge Sample Translation
+# William Roy <wroy@proton.me>, 2023.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Forge\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-02 20:48-0500\n"
+"PO-Revision-Date: 2023-02-28 17:16-0500\n"
+"Last-Translator: William Roy <wroy@proton.me>\n"
+"Language-Team: French - Canada <wroy@proton.me>\n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"X-Generator: Gtranslator 42.0\n"
+
+#: messages.js:37
+msgid "Settings"
+msgstr "Paramètres"
+
+#: messages.js:38
+msgid "Development in Progress..."
+msgstr "Développement en cours..."
+
+#: messages.js:39
+msgid "About"
+msgstr "À propos de"
+
+#: messages.js:40
+msgid "Appearance"
+msgstr "Apparence"
+
+#: messages.js:41
+msgid "Development"
+msgstr "Développement"
+
+#: messages.js:42
+msgid "Experimental"
+msgstr "Expérimental"
+
+#: messages.js:43
+msgid "Home"
+msgstr "Accueil"
+
+#: messages.js:44
+msgid "Keyboard"
+msgstr "Clavier"
+
+#: messages.js:46
+msgid "Window"
+msgstr "Fenêtre"
+
+#: messages.js:47
+msgid "Gaps"
+msgstr "Marges"
+
+# I'm not sure that marges are a correct translation of gaps. There are other possibilities. 
+#: messages.js:48
+msgid "Gaps Size"
+msgstr "Taille des marges"
+
+#: messages.js:49
+msgid "Gaps Size Increments"
+msgstr "Incréments de taille des marges"
+
+#: messages.js:50
+msgid "Gaps Hidden when Single"
+msgstr "Marges masquées lorsqu'il y a une seule fenêtre"
+
+#: messages.js:51
+msgid "Color"
+msgstr "Couleur"
+
+#: messages.js:52
+msgid "Border Size"
+msgstr "Taille de la bordure"
+
+#: messages.js:53
+msgid "Border Color"
+msgstr "Couleur de la bordure"
+
+#: messages.js:54
+msgid "Palette Mode"
+msgstr "Mode Palette"
+
+#: messages.js:55
+msgid "Editor Mode"
+msgstr "Mode éditeur"
+
+#: messages.js:56
+msgid "Apply Changes"
+msgstr "Appliquer les changements"
+
+#: messages.js:57 messages.js:58
+msgid "Reset"
+msgstr "Réinitialiser"
+
+#: messages.js:59
+msgid "Layout"
+msgstr "Disposition"
+
+#: messages.js:60
+msgid "Default Drag-and-Drop Center Layout"
+msgstr "Disposition centrale par défaut du glisser-déposer"
+
+#: messages.js:61
+msgid "Tabbed"
+msgstr "Onglets"
+
+#: messages.js:62
+msgid "Stacked"
+msgstr "Empilés"
+
+#: messages.js:64
+msgid "Workspace"
+msgstr "Espace de travail"
+
+#: messages.js:65
+msgid "Update Workspace Settings"
+msgstr "Mettre à jour les paramètres de l'espace de travail"
+
+#: messages.js:66
+msgid "Skip Workspace Tiling"
+msgstr "Désactiver la disposition en mosaïque de l'espace de travail"
+
+#: messages.js:68
+msgid ""
+"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
+"accept"
+msgstr ""
+"Indiquez les indices des espaces de travail à ignorer. Ex: 0,1. Laissez vide "
+"pour désactiver. Appuyez sur Entrée pour valider."
+
+#: messages.js:71
+msgid "Window Shortcuts"
+msgstr "Raccourcis de la fenêtre"
+
+#: messages.js:72
+msgid "Workspace Shortcuts"
+msgstr "Raccourcis de l'espace de travail"
+
+#: messages.js:73
+msgid "Container Shortcuts"
+msgstr "Raccourcis pour les conteneurs"
+
+#: messages.js:74
+msgid "Focus Shortcuts"
+msgstr "Raccourcis de focus"
+
+#: messages.js:75
+msgid "Other Shortcuts"
+msgstr "Autres raccourcis"
+
+#: messages.js:76
+msgid "Modifier Keys"
+msgstr "Touches modificateurs"
+
+#: messages.js:77
+msgid "Drag-Drop Tiling Modifier Key Options"
+msgstr "Options de touche modificateur pour le glisser-déposer en mosaïque"
+
+#: messages.js:79
+msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
+msgstr ""
+"Modifier la touche de modification pour les fenêtres en <b>mosaïque</b> via "
+"la souris ou le glisser-déposer"
+
+#: messages.js:82
+msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
+msgstr ""
+"Sélectionnez <i>Aucun</i> pour <u>toujours afficher en mosaïque "
+"immédiatement</u> par défaut"
+
+#: messages.js:84
+msgid "Tile Modifier"
+msgstr "Touche modificateur pour la mosaïque"
+
+#: messages.js:85
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: messages.js:86
+msgid "Super"
+msgstr "Super"
+
+#: messages.js:87
+msgid "Alt"
+msgstr "Alt"
+
+#: messages.js:88
+msgid "None"
+msgstr "Aucune"
+
+#: messages.js:90
+msgid "Logger Level"
+msgstr "Niveau de journalisation"
+
+#: messages.js:93
+msgid ""
+"CAUTION: These settings when enabled are buggy or can cause the shell to "
+"crash"
+msgstr ""
+"ATTENTION : Ces paramètres, lorsqu'ils sont activés, sont bogués ou peuvent "
+"causer un plantage de l'environnement de bureau"
+
+#: messages.js:96
+msgid ""
+"Stacked Tiling Mode (Stack windows on top of each other while still being "
+"tiled)"
+msgstr ""
+"Mode de mosaïque en pile (empile les fenêtres les unes sur les autres tout "
+"en étant toujours en mosaïque)"
+
+#: messages.js:98
+msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
+msgstr ""
+"Mode mosaïque avec onglets (Groupe les fenêtres en mosaïque en tant "
+"qu'onglets)"
+
+#: messages.js:100
+msgid "Float Mode Always On Top (Floating windows always above tiling windows)"
+msgstr ""
+"Mode flottant toujours au-dessus (Les fenêtres flottantes toujours au-dessus "
+"des fenêtres en mosaïque)"
+
+#: messages.js:102
+msgid "Auto Split (Quarter Tiling)"
+msgstr "Fractionnement automatique (Mosaïque en quart)"
+
+#: messages.js:103
+msgid "Preview Hint Toggle"
+msgstr "Basculer l'indice de prévisualisation"
+
+#: messages.js:105
+msgid "Update Keybindings"
+msgstr "Mettre à jour les raccourcis clavier"
+
+#: messages.js:106
+msgid "Syntax"
+msgstr "Syntaxe"
+
+#: messages.js:107
+msgid "Legend"
+msgstr "légende"
+
+#: messages.js:108
+msgid "Windows key"
+msgstr "Touche Windows"
+
+#: messages.js:109
+msgid "Control key"
+msgstr "Touche contrôle"
+
+#: messages.js:111
+msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
+msgstr ""
+"Supprimez le texte pour annuler. Appuyez sur la touche Entrée pour accepter. "
+"Cliquez ailleurs pour ignorer."
+
+# Seems to go hand in hand with the next one.
+# e.g. Resets to previous value when invalid.
+#: messages.js:113
+msgid "Resets"
+msgstr "Remise"
+
+#: messages.js:114
+msgid "to previous value when invalid"
+msgstr "à la valeur précédente en cas d'invalidité"
+
+#: messages.js:115
+msgid "Action"
+msgstr "Action"
+
+#: messages.js:116
+msgid "Shortcut"
+msgstr "Raccourcis"
+
+#: messages.js:117
+msgid "Notes"
+msgstr "Notes"
+
+# I'm not sure about that. It translates a bit oddly. 
+#: messages.js:119
+msgid "Forge Panel Settings"
+msgstr "Paramètres du panneau de Forge"
+
+#: messages.js:120
+msgid "Tile Mode"
+msgstr "Mode mosaïque"
+
+#: messages.js:121
+msgid "Open Preferences"
+msgstr "Ouvrir les préférences"
+
+#: messages.js:126
+msgid "Tiled Focus Hint and Preview"
+msgstr "Indice de prévisualisation et aperçu de la mise au point en mosaïque"
+
+#: messages.js:128
+msgid "Floated Focus Hint"
+msgstr "Indice de focus flottant"
+
+#: messages.js:130
+msgid "Split Direction Hint"
+msgstr "Indicateur pour la direction du fractionnement"
+
+#: messages.js:132
+msgid "Stacked Focus Hint and Preview"
+msgstr "Indicateur de focus empilé et prévisualisation"
+
+#: messages.js:134
+msgid "Tabbed Focus Hint and Preview"
+msgstr "Indicateur de focus en onglets et prévisualisation"
