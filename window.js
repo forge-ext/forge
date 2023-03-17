@@ -502,18 +502,6 @@ var WindowManager = GObject.registerClass(
           if (!focusNodeWindow) {
             focusNodeWindow = this.findNodeWindow(this.focusMetaWindow);
           }
-          this.queueEvent({
-            name: "focus",
-            callback: () => {
-              if (!focusNodeWindow) return;
-              if (this.eventQueue.length <= 0) {
-                this.unfreezeRender();
-                this.updateTabbedFocus(focusNodeWindow);
-                this.updateStackedFocus(focusNodeWindow);
-                this.renderTree("focus-queue", true);
-              }
-            },
-          });
           break;
         case "Swap":
           if (!focusNodeWindow) return;
@@ -1384,7 +1372,6 @@ var WindowManager = GObject.registerClass(
                       name: "raise-float",
                       callback: () => {
                         this.renderTree("raise-float-queue");
-                        focusNodeWindow.nodeValue.raise();
                       },
                     });
                   }
