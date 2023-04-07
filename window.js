@@ -1590,7 +1590,7 @@ var WindowManager = GObject.registerClass(
 
               // Ensure that the workspace tiling is honored
               if (this.isActiveWindowWorkspaceTiled(metaWindow)) {
-                if (!global.display.get_grab_op() === Meta.GrabOp.WINDOW_BASE)
+                if (!this.grabOp === Meta.GrabOp.WINDOW_BASE)
                   this.updateTabbedFocus(existNodeWindow);
                 this.updateStackedFocus(existNodeWindow);
               } else {
@@ -2127,6 +2127,7 @@ var WindowManager = GObject.registerClass(
     }
 
     _handleGrabOpBegin(_display, _metaWindow, grabOp) {
+      this.grabOp = grabOp;
       this.trackCurrentMonWs();
       let focusMetaWindow = this.focusMetaWindow;
 
@@ -2202,7 +2203,7 @@ var WindowManager = GObject.registerClass(
 
     _handleResizing(focusNodeWindow) {
       if (!focusNodeWindow) return;
-      let grabOp = global.display.get_grab_op();
+      let grabOp = this.grabOp;
       let initGrabOp = focusNodeWindow.initGrabOp;
       let direction = Utils.directionFromGrab(grabOp);
       let orientation = Utils.orientationFromGrab(grabOp);
