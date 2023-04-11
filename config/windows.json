@@ -15,6 +15,7 @@
     { "wmClass": "gnome-calculator", "mode": "float" },
     { "wmClass": "Gnome-terminal", "wmTitle": "Preferences – General", "mode": "float" },
     { "wmClass": "Guake", "mode": "float" },
-    { "wmClass": "zoom", "mode": "float" }
+    { "wmClass": "zoom", "mode": "float" },
+    { "wmClass": "Spotify", "mode": "float" }
   ]
 }
