@@ -724,6 +724,7 @@ var WindowManager = GObject.registerClass(
                 this.renderTree("snap-layout-move");
               },
             });
+            break;
           }
 
         case "ShowTabDecorationToggle":
@@ -738,9 +739,62 @@ var WindowManager = GObject.registerClass(
           this.renderTree("showtab-decoration-enabled");
           break;
 
+        case "WindowResizeHorizontalIncrease":
+          this.resize(5, Meta.GrabOp.KEYBOARD_RESIZING_E);
+          break;
+        case "WindowResizeHorizontalDecrease":
+          this.resize(5, Meta.GrabOp.KEYBOARD_RESIZING_W);
+          break;
+        case "WindowResizeVerticalIncrease":
+          this.resize(5, Meta.GrabOp.KEYBOARD_RESIZING_N);
+          break;
+        case "WindowResizeVerticalDecrease":
+          this.resize(5, Meta.GrabOp.KEYBOARD_RESIZING_S);
+          break;
+
         default:
           break;
       }
+    }
+
+    resize(amount, grabOp) {
+      this.queueEvent({
+        name: "queue-resize",
+        callback: () => {
+          let metaWindow = this.focusMetaWindow;
+          let display = global.display;
+
+          this._handleGrabOpBegin(display, metaWindow, grabOp);
+
+          let rect = metaWindow.get_frame_rect();
+          let direction = Utils.directionFromGrab(grabOp);
+
+          switch (direction) {
+            case Meta.MotionDirection.RIGHT:
+              rect.width = rect.width + amount;
+              break;
+            case Meta.MotionDirection.LEFT:
+              rect.width = rect.width - amount;
+              rect.x = rect.x + amount;
+              break;
+            case Meta.MotionDirection.UP:
+              rect.height = rect.height + amount;
+              break;
+            case Meta.MotionDirection.DOWN:
+              rect.height = rect.height - amount;
+              rect.y = rect.y + amount;
+              break;
+          }
+
+          this.move(metaWindow, rect);
+          this.queueEvent({
+            name: "manual-resize",
+            callback: () => {
+              this._handleGrabOpEnd(display, metaWindow, grabOp);
+            },
+          });
+        },
+      });
     }
 
     disable() {
