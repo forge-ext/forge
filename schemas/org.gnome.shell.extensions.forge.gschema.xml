@@ -292,5 +292,21 @@
         <key type="as" name="window-snap-center">
           <default><![CDATA[['<Ctrl><Alt>c']]]></default>
         </key>
+
+        <key type="as" name="window-resize-horizontal-increase">
+          <default><![CDATA[['<Ctrl><Super>o']]]></default>
+        </key>
+
+        <key type="as" name="window-resize-horizontal-decrease">
+          <default><![CDATA[['<Ctrl><Super>y']]]></default>
+        </key>
+
+        <key type="as" name="window-resize-vertical-increase">
+          <default><![CDATA[['<Ctrl><Super>i']]]></default>
+        </key>
+
+        <key type="as" name="window-resize-vertical-decrease">
+          <default><![CDATA[['<Ctrl><Super>u']]]></default>
+        </key>
     </schema>
 </schemalist>

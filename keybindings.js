@@ -438,6 +438,30 @@ var Keybindings = GObject.registerClass(
           };
           this.extWm.command(action);
         },
+        "window-resize-vertical-increase": () => {
+          let action = {
+            name: "WindowResizeVerticalIncrease",
+          };
+          this.extWm.command(action);
+        },
+        "window-resize-vertical-decrease": () => {
+          let action = {
+            name: "WindowResizeVerticalDecrease",
+          };
+          this.extWm.command(action);
+        },
+        "window-resize-horizontal-increase": () => {
+          let action = {
+            name: "WindowResizeHorizontalIncrease",
+          };
+          this.extWm.command(action);
+        },
+        "window-resize-horizontal-decrease": () => {
+          let action = {
+            name: "WindowResizeHorizontalDecrease",
+          };
+          this.extWm.command(action);
+        },
       };
     }
   }
