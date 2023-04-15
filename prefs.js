@@ -488,8 +488,8 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
       let gapSizeRow = new ListBoxRow();
       let gapSizeLabel = createLabel(Msgs.prefs_appearance_window_gaps_size_label);
       let gapSizeAdjust = new Gtk.Adjustment({
-        lower: 4,
-        step_increment: 4,
+        lower: 0,
+        step_increment: 1,
         upper: 32,
         value: this.settings.get_uint("window-gap-size"),
       });

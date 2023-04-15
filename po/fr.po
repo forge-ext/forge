@@ -63,7 +63,7 @@ msgstr "Taille des marges"
 
 #: messages.js:49
 msgid "Gaps Size Increments"
-msgstr "Incréments de taille des marges"
+msgstr "Multiplicateur de taille des marges"
 
 #: messages.js:50
 msgid "Gaps Hidden when Single"
