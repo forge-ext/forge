@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-02 20:48-0500\n"
+"POT-Creation-Date: 2023-04-18 21:56-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -57,7 +57,7 @@ msgid "Gaps Size"
 msgstr ""
 
 #: messages.js:49
-msgid "Gaps Size Increments"
+msgid "Gaps Size Multiplier"
 msgstr ""
 
 #: messages.js:50

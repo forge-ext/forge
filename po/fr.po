@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-02 20:48-0500\n"
+"POT-Creation-Date: 2023-04-18 21:56-0400\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: William Roy <wroy@proton.me>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -61,9 +61,11 @@ msgstr "Marges"
 msgid "Gaps Size"
 msgstr "Taille des marges"
 
+# I'm not sure that marges are a correct translation of gaps. There are other possibilities. 
 #: messages.js:49
-msgid "Gaps Size Increments"
-msgstr "Multiplicateur de taille des marges"
+#, fuzzy
+msgid "Gaps Size Multiplier"
+msgstr "Taille des marges"
 
 #: messages.js:50
 msgid "Gaps Hidden when Single"
@@ -313,3 +315,6 @@ msgstr "Indicateur de focus empilé et prévisualisation"
 #: messages.js:134
 msgid "Tabbed Focus Hint and Preview"
 msgstr "Indicateur de focus en onglets et prévisualisation"
+
+#~ msgid "Gaps Size Increments"
+#~ msgstr "Multiplicateur de taille des marges"

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-02 20:48-0500\n"
+"POT-Creation-Date: 2023-04-18 21:56-0400\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -59,8 +59,9 @@ msgid "Gaps Size"
 msgstr "Ruimte tussen vensters"
 
 #: messages.js:49
-msgid "Gaps Size Increments"
-msgstr "Ruimteverhogingen"
+#, fuzzy
+msgid "Gaps Size Multiplier"
+msgstr "Ruimte tussen vensters"
 
 #: messages.js:50
 msgid "Gaps Hidden when Single"
@@ -299,3 +300,6 @@ msgstr "Hint bij gestapelde tegelfocus en voorvertoning"
 #: messages.js:134
 msgid "Tabbed Focus Hint and Preview"
 msgstr "Hint bij tabblad-tegelfocus en voorvertoning"
+
+#~ msgid "Gaps Size Increments"
+#~ msgstr "Ruimteverhogingen"
