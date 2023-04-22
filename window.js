@@ -2161,7 +2161,11 @@ var WindowManager = GObject.registerClass(
       if (focusNodeWindow && !this.cancelGrab) {
         // WINDOW_BASE is when grabbing the window decoration
         // COMPOSITOR is when something like Overview requesting a grab, especially when Super is pressed.
-        if (grabOp === Meta.GrabOp.WINDOW_BASE || grabOp === Meta.GrabOp.COMPOSITOR) {
+        if (
+          grabOp === Meta.GrabOp.WINDOW_BASE ||
+          grabOp === Meta.GrabOp.COMPOSITOR ||
+          grabOp === Meta.GrabOp.MOVING_UNCONSTRAINED
+        ) {
           if (this.allowDragDropTile()) {
             this.moveWindowToPointer(focusNodeWindow);
           }
