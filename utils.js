@@ -292,7 +292,11 @@ function grabMode(grabOp) {
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN
   ) {
     return Window.GRAB_TYPES.RESIZING;
-  } else if (grabOp === Meta.GrabOp.KEYBOARD_MOVING || grabOp === Meta.GrabOp.MOVING) {
+  } else if (
+    grabOp === Meta.GrabOp.KEYBOARD_MOVING ||
+    grabOp === Meta.GrabOp.MOVING ||
+    grabOp === Meta.GrabOp.MOVING_UNCONSTRAINED
+  ) {
     return Window.GRAB_TYPES.MOVING;
   }
   return Window.GRAB_TYPES.UNKNOWN;
