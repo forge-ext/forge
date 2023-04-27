@@ -464,7 +464,7 @@ var Node = GObject.registerClass(
         x_expand: true,
         label: `${labelText}`,
       });
-      let iconBin = new St.Bin({
+      let iconBin = new St.Button({
         style_class: "window-tabbed-tab-icon",
       });
       let icon = app.create_icon_texture(24 * Utils.dpi());
@@ -478,7 +478,7 @@ var Node = GObject.registerClass(
       tabContents.add(titleButton);
       tabContents.add(closeButton);
 
-      titleButton.connect("clicked", () => {
+      let clickFn = () => {
         this.parentNode.childNodes.forEach((c) => {
           if (c.tab) {
             c.tab.remove_style_class_name("window-tabbed-tab-active");
@@ -487,8 +487,10 @@ var Node = GObject.registerClass(
         });
         tabContents.add_style_class_name("window-tabbed-tab-active");
         metaWin.activate(global.display.get_current_time());
-      });
+      };
 
+      iconBin.connect("clicked", clickFn);
+      titleButton.connect("clicked", clickFn);
       closeButton.connect("clicked", () => {
         metaWin.delete(global.get_current_time());
       });
