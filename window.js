@@ -2206,7 +2206,7 @@ var WindowManager = GObject.registerClass(
     }
 
     _handleResizing(focusNodeWindow) {
-      if (!focusNodeWindow) return;
+      if (!focusNodeWindow || focusNodeWindow.isFloat()) return;
       let grabOp = this.grabOp;
       let initGrabOp = focusNodeWindow.initGrabOp;
       let direction = Utils.directionFromGrab(grabOp);
