@@ -8,7 +8,7 @@ MESSAGES = messages.js
 all: build install enable restart
 
 # When developing locally
-dev: build debug disable install enable log
+dev: disable uninstall build debug install enable restart log
 
 prod: build install enable restart log
 
@@ -75,7 +75,7 @@ install:
 
 uninstall:
 	rm -rf $(INSTALL_PATH)
-	make restart
+	rm -rf .config/forge
 
 # When releasing
 dist: build
