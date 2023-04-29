@@ -8,7 +8,7 @@ MESSAGES = messages.js
 all: build install enable restart
 
 # When developing locally
-dev: build debug install enable restart log
+dev: build debug disable install enable log
 
 prod: build install enable restart log
 
