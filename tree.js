@@ -842,7 +842,7 @@ var Tree = GObject.registerClass(
         return false;
       };
 
-      return items.filter(filterFn);
+      return items ? items.filter(filterFn) : [];
     }
 
     /**
@@ -1352,12 +1352,15 @@ var Tree = GObject.registerClass(
       }
     }
 
+    /**
+     * Forge processes both non-Window and Window gaps
+     */
     processGap(node) {
       let nodeWidth = node.rect.width;
       let nodeHeight = node.rect.height;
       let nodeX = node.rect.x;
       let nodeY = node.rect.y;
-      let gap = this.extWm.calculateGaps();
+      let gap = this.extWm.calculateGaps(node);
 
       if (nodeWidth > gap * 2 && nodeHeight > gap * 2) {
         nodeX += gap;
@@ -1473,7 +1476,7 @@ var Tree = GObject.registerClass(
           nodeY = nodeRect.y + params.stackedHeight;
           nodeHeight = nodeRect.height - params.stackedHeight;
           if (node.decoration && child.isWindow()) {
-            let gap = this.extWm.calculateGaps();
+            let gap = this.extWm.calculateGaps(node);
             let renderRect = this.processGap(node);
             let borderWidth = child.actor.border.get_theme_node().get_border_width(St.Side.TOP);
 
@@ -1589,6 +1592,12 @@ var Tree = GObject.registerClass(
       node.childNodes.forEach((child) => {
         this.debugNode(child);
       });
+    }
+
+    findParent(childNode, parentNodeType) {
+      let parents = this.getNodeByType(parentNodeType);
+      // Only get the first parent
+      return parents.filter((p) => p.contains(childNode))[0];
     }
   }
 );

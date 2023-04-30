@@ -1137,7 +1137,7 @@ var WindowManager = GObject.registerClass(
       let focusBorderEnabled = this.ext.settings.get_boolean("focus-border-toggle");
       let splitBorderEnabled = this.ext.settings.get_boolean("split-border-toggle");
       let tilingModeEnabled = this.ext.settings.get_boolean("tiling-mode-enabled");
-      let gap = this.calculateGaps();
+      let gap = this.calculateGaps(nodeWindow);
       let maximized = () => {
         return metaWindow.get_maximized() === 3 || metaWindow.is_fullscreen() || gap === 0;
       };
@@ -1246,25 +1246,25 @@ var WindowManager = GObject.registerClass(
       this.showWindowBorders();
     }
 
-    calculateGaps() {
+    calculateGaps(node) {
+      if (!node) return 0;
+
       let settings = this.ext.settings;
       let gapSize = settings.get_uint("window-gap-size");
       let gapIncrement = settings.get_uint("window-gap-size-increment");
       let gap = gapSize * gapIncrement;
-      let metaWindow = this.focusMetaWindow;
-      if (metaWindow && metaWindow.get_workspace()) {
-        let monitorWs = `mo${metaWindow.get_monitor()}ws${metaWindow.get_workspace().index()}`;
-        let monitorWsNode = this.tree.findNode(monitorWs);
-        if (monitorWsNode) {
-          let tiled = monitorWsNode
+
+      if (!node.isRoot()) {
+        let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
+        let parentNode = this.tree.findParent(node, Tree.NODE_TYPES.MONITOR);
+        if (parentNode) {
+          let tiled = parentNode
             .getNodeByMode(WINDOW_MODES.TILE)
-            .filter((t) => t.nodeType === Tree.NODE_TYPES.WINDOW);
-          let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
-          if (tiled.length === 1 && hideGapWhenSingle) {
-            gap = 0;
-          }
+            .filter((t) => t.isWindow() && !t.nodeValue.minimized);
+          if (tiled.length == 1 && hideGapWhenSingle) gap = 0;
         }
       }
+
       return gap;
     }
 
@@ -1758,7 +1758,7 @@ var WindowManager = GObject.registerClass(
       let nodeWinAtPointer = this.nodeWinAtPointer;
 
       if (nodeWinAtPointer) {
-        const targetRect = this.tree.processGap(nodeWinAtPointer);
+        const targetRect = nodeWinAtPointer.nodeValue.get_frame_rect();
         const parentNodeTarget = nodeWinAtPointer.parentNode;
         const currPointer = this.getPointer();
         const horizontal = parentNodeTarget.isHSplit() || parentNodeTarget.isTabbed();
@@ -2132,11 +2132,11 @@ var WindowManager = GObject.registerClass(
       let focusMetaWindow = this.focusMetaWindow;
 
       if (focusMetaWindow) {
-        const frameRect = focusMetaWindow.get_frame_rect();
-        const gaps = this.calculateGaps();
-
         let focusNodeWindow = this.findNodeWindow(focusMetaWindow);
         if (!focusNodeWindow) return;
+
+        const frameRect = focusMetaWindow.get_frame_rect();
+        const gaps = this.calculateGaps(focusNodeWindow);
 
         focusNodeWindow.grabMode = Utils.grabMode(grabOp);
         if (
@@ -2215,7 +2215,7 @@ var WindowManager = GObject.registerClass(
       let position = Utils.positionFromGrabOp(grabOp);
       // normalize the rect without gaps
       let frameRect = this.focusMetaWindow.get_frame_rect();
-      let gaps = this.calculateGaps();
+      let gaps = this.calculateGaps(focusNodeWindow);
       let currentRect = Utils.removeGapOnRect(frameRect, gaps);
       let firstRect;
       let secondRect;
