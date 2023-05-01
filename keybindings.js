@@ -438,27 +438,59 @@ var Keybindings = GObject.registerClass(
           };
           this.extWm.command(action);
         },
-        "window-resize-vertical-increase": () => {
+        "window-resize-top-increase": () => {
           let action = {
-            name: "WindowResizeVerticalIncrease",
+            name: "WindowResizeTop",
+            amount: this.settings.get_uint("resize-amount"),
           };
           this.extWm.command(action);
         },
-        "window-resize-vertical-decrease": () => {
+        "window-resize-top-decrease": () => {
           let action = {
-            name: "WindowResizeVerticalDecrease",
+            name: "WindowResizeTop",
+            amount: -1 * this.settings.get_uint("resize-amount"),
           };
           this.extWm.command(action);
         },
-        "window-resize-horizontal-increase": () => {
+        "window-resize-bottom-increase": () => {
           let action = {
-            name: "WindowResizeHorizontalIncrease",
+            name: "WindowResizeBottom",
+            amount: this.settings.get_uint("resize-amount"),
           };
           this.extWm.command(action);
         },
-        "window-resize-horizontal-decrease": () => {
+        "window-resize-bottom-decrease": () => {
           let action = {
-            name: "WindowResizeHorizontalDecrease",
+            name: "WindowResizeBottom",
+            amount: -1 * this.settings.get_uint("resize-amount"),
+          };
+          this.extWm.command(action);
+        },
+        "window-resize-left-increase": () => {
+          let action = {
+            name: "WindowResizeLeft",
+            amount: this.settings.get_uint("resize-amount"),
+          };
+          this.extWm.command(action);
+        },
+        "window-resize-left-decrease": () => {
+          let action = {
+            name: "WindowResizeLeft",
+            amount: -1 * this.settings.get_uint("resize-amount"),
+          };
+          this.extWm.command(action);
+        },
+        "window-resize-right-increase": () => {
+          let action = {
+            name: "WindowResizeRight",
+            amount: this.settings.get_uint("resize-amount"),
+          };
+          this.extWm.command(action);
+        },
+        "window-resize-right-decrease": () => {
+          let action = {
+            name: "WindowResizeRight",
+            amount: -1 * this.settings.get_uint("resize-amount"),
           };
           this.extWm.command(action);
         },

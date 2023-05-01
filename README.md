@@ -7,10 +7,6 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Download/clone the source and `make install`, restart gnome-shell after or `make dev`.
 - AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
 
-## ! Major Changes !
-- Implemented quarter tiling. See https://github.com/jmmaranan/forge/issues/166. Toggle available on preferences
-- Implemented floating windows are default always on top. Toggle available on preferences
-
 ## Development
 - The `main` branch contains gnome-4x code.
 - The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
@@ -35,6 +31,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Swap current window with the last active window
 - Auto Split or Quarter Tiling
 - Show/hide tab decoration via keybinding https://github.com/jmmaranan/forge/issues/180
+- Window resize using keyboard shortcuts
 
 ![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
 
@@ -43,7 +40,14 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 ### New
 | Action | Shortcut |
 | --- | --- |
-| Show/hide tab decoration | `<Ctrl> + <Alt> + y` |
+| Increase active window size left | `<Ctrl> + <Super> + y` |
+| Decrease active window size left | `<Ctrl> + <Shift> + <Super> + o` |
+| Increase active window size bottom | `<Ctrl> + <Super> + u` |
+| Decrease active window size bottom | `<Ctrl> + <Shift> + <Super> + i` |
+| Increase active window size top | `<Ctrl> + <Super> + i` |
+| Decrease active window size top | `<Ctrl> + <Shift> + <Super> + u` |
+| Increase active window size right | `<Ctrl> + <Super> + o` |
+| Decrease active window size right | `<Ctrl> + <Shift> + <Super> + y` |
 
 ### Current
 
@@ -73,6 +77,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Toggle active workspace tiling | `<Shift> + <Super> + w` |
 | Toggle stacked layout | `<Shift> + <Super> + s` |
 | Toggle tabbed layout | `<Shift> + <Super> + t` |
+| Show/hide tab decoration | `<Ctrl> + <Alt> + y` |
 | Activate tile drag-drop | `Start dragging - Mod key configuration in prefs` |
 | Snap active window left two thirds | `<Ctrl> + <Alt> + e` |
 | Snap active window right two thirds | `<Ctrl> + <Alt> + t` |
