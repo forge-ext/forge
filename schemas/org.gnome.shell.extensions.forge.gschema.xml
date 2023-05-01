@@ -34,6 +34,13 @@
             </summary>
         </key>
 
+        <key type="u" name="resize-amount">
+            <default>15</default>
+            <summary>
+                The size of the gap between windows in the workarea
+            </summary>
+        </key>
+
         <key type="u" name="window-gap-size-increment">
             <default>1</default>
             <summary>
@@ -127,6 +134,7 @@
             <default>true</default>
             <summary>Whether to show the tab decoration or not</summary>
         </key>
+
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->
@@ -293,20 +301,36 @@
           <default><![CDATA[['<Ctrl><Alt>c']]]></default>
         </key>
 
-        <key type="as" name="window-resize-horizontal-increase">
-          <default><![CDATA[['<Ctrl><Super>o']]]></default>
-        </key>
-
-        <key type="as" name="window-resize-horizontal-decrease">
+        <key type="as" name="window-resize-left-increase">
           <default><![CDATA[['<Ctrl><Super>y']]]></default>
         </key>
 
-        <key type="as" name="window-resize-vertical-increase">
+        <key type="as" name="window-resize-left-decrease">
+            <default><![CDATA[['<Ctrl><Shift><Super>o']]]></default>
+        </key>
+
+        <key type="as" name="window-resize-bottom-increase">
+          <default><![CDATA[['<Ctrl><Super>u']]]></default>
+        </key>
+
+        <key type="as" name="window-resize-bottom-decrease">
+            <default><![CDATA[['<Ctrl><Shift><Super>i']]]></default>
+        </key>
+
+        <key type="as" name="window-resize-top-increase">
           <default><![CDATA[['<Ctrl><Super>i']]]></default>
         </key>
 
-        <key type="as" name="window-resize-vertical-decrease">
-          <default><![CDATA[['<Ctrl><Super>u']]]></default>
+        <key type="as" name="window-resize-top-decrease">
+            <default><![CDATA[['<Ctrl><Shift><Super>u']]]></default>
+        </key>
+
+        <key type="as" name="window-resize-right-increase">
+          <default><![CDATA[['<Ctrl><Super>o']]]></default>
+        </key>
+
+        <key type="as" name="window-resize-right-decrease">
+            <default><![CDATA[['<Ctrl><Shift><Super>y']]]></default>
         </key>
     </schema>
 </schemalist>

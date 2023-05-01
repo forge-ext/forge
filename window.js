@@ -739,20 +739,20 @@ var WindowManager = GObject.registerClass(
           this.renderTree("showtab-decoration-enabled");
           break;
 
-        case "WindowResizeHorizontalIncrease":
-          this.resize(Meta.GrabOp.KEYBOARD_RESIZING_E);
+        case "WindowResizeRight":
+          this.resize(Meta.GrabOp.KEYBOARD_RESIZING_E, action.amount);
           break;
 
-        case "WindowResizeHorizontalDecrease":
-          this.resize(Meta.GrabOp.KEYBOARD_RESIZING_W);
+        case "WindowResizeLeft":
+          this.resize(Meta.GrabOp.KEYBOARD_RESIZING_W, action.amount);
           break;
 
-        case "WindowResizeVerticalIncrease":
-          this.resize(Meta.GrabOp.KEYBOARD_RESIZING_N);
+        case "WindowResizeTop":
+          this.resize(Meta.GrabOp.KEYBOARD_RESIZING_N, action.amount);
           break;
 
-        case "WindowResizeVerticalDecrease":
-          this.resize(Meta.GrabOp.KEYBOARD_RESIZING_S);
+        case "WindowResizeBottom":
+          this.resize(Meta.GrabOp.KEYBOARD_RESIZING_S, action.amount);
           break;
 
         default:
@@ -760,10 +760,9 @@ var WindowManager = GObject.registerClass(
       }
     }
 
-    resize(grabOp) {
+    resize(grabOp, amount) {
       let metaWindow = this.focusMetaWindow;
       let display = global.display;
-      let amount = 15;
 
       this._handleGrabOpBegin(display, metaWindow, grabOp);
 
