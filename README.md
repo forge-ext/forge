@@ -30,7 +30,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Works on GNOME 3.36+ (feature-freeze) and 40. X11 and Wayland
 - Swap current window with the last active window
 - Auto Split or Quarter Tiling
-- Show/hide tab decoration via keybinding https://github.com/jmmaranan/forge/issues/180
+- Show/hide tab decoration via keybinding https://github.com/forge-ext/forge/issues/180
 - Window resize using keyboard shortcuts
 
 ![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
@@ -87,7 +87,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 | Persist toggle floating for active window and its window class | `<Super><Shift> + c` |
 
 For any shortcut conflicts, the user has to manually configure those for now from the
-`GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/jmmaranan/forge/issues/37
+`GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/forge-ext/forge/issues/37
 
 ## Forge Override Paths
 - Window Overrides: `$HOME/.config/forge/config/windows.json`
@@ -104,7 +104,7 @@ User is encouraged to bind the following:
 ## Contributing
 
 - Please be nice, friendly and welcoming on discussions/tickets.
-- See existing [issues](https://github.com/jmmaranan/forge/issues) or file a new ticket with title `bug: short description` if it doesn't exist.
+- See existing [issues](https://github.com/forge-ext/forge/issues) or file a new ticket with title `bug: short description` if it doesn't exist.
 
 ## Credits
 

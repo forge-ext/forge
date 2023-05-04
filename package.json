@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jmmaranan/forge.git"
+    "url": "git+https://github.com/forge-ext/forge.git"
   },
   "keywords": [
     "gnome",
@@ -21,9 +21,9 @@
   "author": "Jose Maranan",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/jmmaranan/forge/issues"
+    "url": "https://github.com/forge-ext/forge/issues"
   },
-  "homepage": "https://github.com/jmmaranan/forge#readme",
+  "homepage": "https://github.com/forge-ext/forge#readme",
   "devDependencies": {
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
