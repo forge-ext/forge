@@ -48,6 +48,10 @@ var prefs_appearance_window_gaps_title = _("Gaps");
 var prefs_appearance_window_gaps_size_label = _("Gaps Size");
 var prefs_appearance_window_gaps_increment_label = _("Gaps Size Multiplier");
 var prefs_appearance_window_gaps_hidden_single_label = _("Gaps Hidden when Single");
+
+var prefs_appearance_borders_title = _("Borders");
+var prefs_appearance_focus_borders_label = _("Show Focus Hint Border");
+
 var prefs_appearance_color = _("Color");
 var prefs_appearance_color_border_size_label = _("Border Size");
 var prefs_appearance_color_border_color_label = _("Border Color");

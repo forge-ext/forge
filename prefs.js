@@ -478,9 +478,13 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
     _init(prefsWidget) {
       super._init(prefsWidget, `Appearance Window Settings`);
       this.settings = prefsWidget.settings;
+      this.initGapsSection();
+      this.initBordersSection();
+    }
 
-      let appearanceWindowFrame = new FrameListBox();
+    initGapsSection() {
       // Gaps Section
+      let gapsWindowFrame = new FrameListBox();
       let gapHeader = createLabel(Msgs.prefs_appearance_window_gaps_title);
       this.append(gapHeader);
 
@@ -557,11 +561,38 @@ var AppearanceWindowSettingsPanel = GObject.registerClass(
       gapHiddenWhenSingleRow.add(gapHiddenWhenSingleLabel);
       gapHiddenWhenSingleRow.add(gapHiddenWhenSingleSwitch);
 
-      appearanceWindowFrame.add(gapSizeRow);
-      appearanceWindowFrame.add(gapSizeIncrementRow);
-      appearanceWindowFrame.add(gapHiddenWhenSingleRow);
+      gapsWindowFrame.add(gapSizeRow);
+      gapsWindowFrame.add(gapSizeIncrementRow);
+      gapsWindowFrame.add(gapHiddenWhenSingleRow);
 
-      this.append(appearanceWindowFrame);
+      this.append(gapsWindowFrame);
+    }
+
+    initBordersSection() {
+      // Borders Section
+      let bordersWindowFrame = new FrameListBox();
+      let bordersHeader = createLabel(Msgs.prefs_appearance_borders_title);
+
+      let showFocusBorderRow = new ListBoxRow();
+      let showFocusBorderLabel = createLabel(Msgs.prefs_appearance_focus_borders_label);
+      let showFocusBorderSwitch = new Gtk.Switch();
+      showFocusBorderSwitch.set_active(this.settings.get_boolean("focus-border-toggle"));
+      showFocusBorderSwitch.connect("state-set", (_, state) => {
+        this.settings.set_boolean("focus-border-toggle", state);
+      });
+      this.settings.connect("changed", (_, keyName) => {
+        if (keyName === "focus-border-toggle") {
+          showFocusBorderSwitch.set_active(
+            this.settings.get_boolean("focus-border-toggle")
+          );
+        }
+      });
+      showFocusBorderRow.add(showFocusBorderLabel);
+      showFocusBorderRow.add(showFocusBorderSwitch);
+      bordersWindowFrame.add(showFocusBorderRow);
+
+      this.append(bordersHeader);
+      this.append(bordersWindowFrame)
     }
   }
 );
