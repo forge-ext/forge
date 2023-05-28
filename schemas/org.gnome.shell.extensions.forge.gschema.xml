@@ -3,7 +3,7 @@
     <schema id="org.gnome.shell.extensions.forge" path="/org/gnome/shell/extensions/forge/">
         <!-- Main Settings -->
         <key type="b" name="focus-border-toggle">
-            <default>false</default>
+            <default>true</default>
             <summary>Show window border on focused window</summary>
         </key>
 
