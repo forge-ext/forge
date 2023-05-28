@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-28 19:28+0300\n"
+"POT-Creation-Date: 2023-05-30 13:02+0300\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -196,7 +196,7 @@ msgstr ""
 
 #: messages.js:97
 msgid ""
-"CAUTION: These settings when enabled are buggy or can cause the shell to "
+"<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to "
 "crash"
 msgstr ""
 

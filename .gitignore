@@ -8,3 +8,4 @@ gschemas.compiled
 po/forge.pot
 .vscode
 node_modules
+preferences/metadata.js

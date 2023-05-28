@@ -8,7 +8,8 @@ MESSAGES = messages.js
 all: build install enable restart
 
 # When developing locally
-dev: disable uninstall build debug install enable restart log
+test-x: disable uninstall build debug install enable restart log
+test-wayland: clean build debug install test-shell log
 
 prod: build install enable restart log
 
@@ -21,13 +22,21 @@ schemas/gschemas.compiled: schemas/*.gschema.xml
 patchcss:
 	# TODO: add the script to update css tag when delivering theme.js
 
-build: clean metadata.json schemas compilemsgs
+metadata:
+	echo "var developers = Object.entries([" > preferences/metadata.js
+	git shortlog -sne >> preferences/metadata.js
+	awk -i inplace '!/dependabot|noreply/' preferences/metadata.js
+	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' preferences/metadata.js
+	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> preferences/metadata.js
+
+build: clean metadata.json schemas compilemsgs metadata
 	rm -rf temp
 	mkdir -p temp
 	cp metadata.json temp
-	cp -r icons temp
+	cp -r resources temp
 	cp -r schemas temp
 	cp -r config temp
+	cp -r preferences temp
 	cp *.js temp
 	cp *.css temp
 	cp LICENSE temp
@@ -60,6 +69,7 @@ compilemsgs: potfile $(MSGSRC:.po=.mo)
 	done;
 
 clean:
+	rm -f preferences/metadata.js
 	rm "$(UUID).zip" || echo "Nothing to delete"
 	rm -rf temp schemas/gschemas.compiled
 
@@ -94,3 +104,11 @@ log:
 
 journal:
 	journalctl -b 0 -r --since "1 hour ago"
+
+test-shell:
+	env GNOME_SHELL_SLOWDOWN_FACTOR=2 \
+		MUTTER_DEBUG_DUMMY_MODE_SPECS=1500x1000 \
+	  MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1 \
+		dbus-run-session -- gnome-shell --nested --wayland
+
+

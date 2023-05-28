@@ -94,7 +94,7 @@ var prefs_keyboard_mod_mask_tile_none_label = _("None");
 var prefs_development_logging_level_label = _("Logger Level");
 
 var prefs_experimental_settings_title = _(
-  "CAUTION: These settings when enabled are buggy or can cause the shell to crash"
+  "<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to crash"
 );
 var prefs_experimental_stacked_tiling_label = _(
   "Stacked Tiling Mode (Stack windows on top of each other while still being tiled)"

@@ -20,20 +20,18 @@
 
 // Gnome imports
 const SessionMode = imports.ui.main.sessionMode;
-const Panel = imports.ui.main.panel;
 
 // Extension imports
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 // Application imports
-const Keybindings = Me.imports.keybindings;
 const Logger = Me.imports.logger;
-const PanelExt = Me.imports.panel;
 const Settings = Me.imports.settings;
-const Theme = Me.imports.theme;
-const Window = Me.imports.window;
-const Utils = Me.imports.utils;
+const { Keybindings } = Me.imports.keybindings;
+const { ThemeManager } = Me.imports.theme;
+const { WindowManager } = Me.imports.window;
+const { FeatureIndicator } = Me.imports.indicator;
 
 function init() {
   Logger.info("init");
@@ -51,7 +49,7 @@ class Extension {
     this.settings = Settings.getSettings();
     this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
     this.configMgr = new Settings.ConfigManager();
-    this.theme = new Theme.ThemeManager(this.settings, this.configMgr);
+    this.theme = new ThemeManager(this.settings, this.configMgr);
     this.theme.patchCss();
     this.theme.reloadStylesheet();
 
@@ -61,18 +59,9 @@ class Extension {
       return;
     }
 
-    if (!this.extWm) {
-      this.extWm = new Window.WindowManager(this);
-    }
-
-    if (!this.keybindings) {
-      this.keybindings = new Keybindings.Keybindings(this);
-    }
-
-    if (!this.indicator) {
-      this.indicator = new PanelExt.PanelIndicator(this.settings, this.extWm);
-      Panel.addToStatusArea("ForgeExt", this.indicator);
-    }
+    this.extWm ||= new WindowManager(this);
+    this.keybindings ||= new Keybindings(this);
+    this.indicator ||= new FeatureIndicator(this.settings, this.extWm);
 
     this.extWm.enable();
     this.keybindings.enable();
@@ -88,9 +77,9 @@ class Extension {
       return;
     }
 
-    if (this.extWm) this.extWm.disable();
+    this.extWm?.disable();
 
-    if (this.keybindings) this.keybindings.disable();
+    this.keybindings?.disable();
 
     if (this.indicator) {
       this.indicator.destroy();
