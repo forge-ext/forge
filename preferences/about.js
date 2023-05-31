@@ -24,7 +24,8 @@ function makeAboutButton(parent) {
 }
 
 function showAboutWindow(parent) {
-  const { version, description: comments } = Me.metadata;
+  const { version: v, description: comments } = Me.metadata;
+  const version = v.toString();
   const abt = new Adw.AboutWindow({
     ...parent && { transient_for: parent },
      // TODO: fetch these from github at build time
