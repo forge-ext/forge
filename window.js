@@ -246,7 +246,6 @@ var WindowManager = GObject.registerClass(
         }),
         globalWsm.connect("active-workspace-changed", () => {
           this.hideWindowBorders();
-          this.ext.indicator.updateTileIcon();
           this.trackCurrentMonWs();
           this.updateDecorationLayout();
           this.renderTree("active-workspace-changed");
