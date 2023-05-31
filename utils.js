@@ -30,6 +30,8 @@ const St = imports.gi.St;
 // Gnome-shell imports
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const Config = imports.misc.config;
+const [major, minor] = Config.PACKAGE_VERSION.split(".").map((s) => Number(s));
 
 // App imports
 const Logger = Me.imports.logger;
@@ -390,4 +392,8 @@ function _disableDecorations() {
 
 function dpi() {
   return St.ThemeContext.get_for_stage(global.stage).scale_factor;
+}
+
+function isGnome(majorVersion) {
+  return major == majorVersion;
 }
