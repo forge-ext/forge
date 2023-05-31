@@ -10,6 +10,7 @@ const QuickSettingsMenu = imports.ui.main.panel.statusArea.quickSettings;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Logger = Me.imports.logger;
+const Utils = Me.imports.utils;
 
 const iconName = "view-grid-symbolic";
 
@@ -29,7 +30,10 @@ const FeatureMenuToggle = GObject.registerClass(
   class FeatureMenuToggle extends QuickSettings.QuickMenuToggle {
     _init(settings, extWm) {
       const title = _("Tiling");
-      super._init({ title, iconName, toggleMode: true });
+      const initSettings = Utils.isGnome(44)
+        ? { title, iconName, toggleMode: true }
+        : { label: title, iconName, toggleMode: true };
+      super._init(initSettings);
 
       this._settings = settings;
       this._extWm = extWm;
