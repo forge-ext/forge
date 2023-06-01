@@ -107,11 +107,13 @@ var FeatureIndicator = GObject.registerClass(
     _addItems(items) {
       QuickSettingsMenu._addItems(items);
 
-      for (const item of items) {
-        QuickSettingsMenu.menu._grid.set_child_below_sibling(
-          item,
-          QuickSettingsMenu._backgroundApps.quickSettingsItems[0]
-        );
+      if (QuickSettingsMenu._backgroundApps) {
+        for (const item of items) {
+          QuickSettingsMenu.menu._grid.set_child_below_sibling(
+            item,
+            QuickSettingsMenu._backgroundApps.quickSettingsItems[0]
+          );
+        }
       }
     }
   }
