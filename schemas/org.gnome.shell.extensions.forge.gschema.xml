@@ -63,6 +63,11 @@
             <summary>Tiling mode on/off</summary>
         </key>
 
+        <key type="b" name="quick-settings-enabled">
+            <default>true</default>
+            <summary>Forge quick settings toggle</summary>
+        </key>
+
         <key type="s" name="workspace-skip-tile">
             <default>''</default>
             <summary>Skips tiling on the provided workspace indices</summary>
