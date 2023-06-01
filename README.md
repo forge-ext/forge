@@ -15,7 +15,20 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Install NodeJS 16+
 - Install `gettext`
 - Run `npm install`
-- Run `make dev`. Ctrl + C to cancel
+- Commands:
+
+```bash
+# X11
+make test-x
+
+# Wayland
+make test-wayland
+
+# Formatting, when you do npm install, 
+# husky gets installed should force prettier formatting during commit
+
+npm run format
+```
 
 ## Features
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm

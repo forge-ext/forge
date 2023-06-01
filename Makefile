@@ -111,4 +111,5 @@ test-shell:
 	  MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1 \
 		dbus-run-session -- gnome-shell --nested --wayland
 
-
+format:
+	npm run format
