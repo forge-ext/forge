@@ -42,7 +42,7 @@ const { WorkspacePage } = Me.imports.preferences.workspace;
 const { SettingsPage } = Me.imports.preferences.settings;
 
 function init() {
-  const iconPath = Me.dir.get_child('resources').get_child('icons').get_path();
+  const iconPath = Me.dir.get_child("resources").get_child("icons").get_path();
   const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
   iconTheme.add_search_path(iconPath);
 }
@@ -59,4 +59,3 @@ function fillPreferencesWindow(window) {
   window.search_enabled = true;
   window.can_navigate_back = true;
 }
-

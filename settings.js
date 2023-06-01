@@ -196,7 +196,9 @@ var ConfigManager = GObject.registerClass(
 
       const PERMISSIONS_MODE = 0o744;
 
-      if (GLib.mkdir_with_parents(windowConfigFile.get_parent().get_path(), PERMISSIONS_MODE) === 0) {
+      if (
+        GLib.mkdir_with_parents(windowConfigFile.get_parent().get_path(), PERMISSIONS_MODE) === 0
+      ) {
         let [_, _tag] = windowConfigFile.replace_contents(
           windowConfigContents,
           null,
