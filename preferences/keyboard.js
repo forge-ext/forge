@@ -75,13 +75,18 @@ ${Msgs.prefs_keyboard_update_keys_instructions_text} <i>${
                 return settings.get_strv(bind).join(",");
               },
               to(settings, bind, value) {
-                const mappings = value.split(",").map((x) => {
-                  const [, key, mods] = Gtk.accelerator_parse(x);
-                  return Gtk.accelerator_valid(key, mods) && Gtk.accelerator_name(key, mods);
-                });
-                if (mappings.every((x) => !!x)) {
-                  Logger.info("setting", bind, "to", mappings);
-                  settings.set_strv(bind, mappings);
+                if (!!value) {
+                  const mappings = value.split(",").map((x) => {
+                    const [, key, mods] = Gtk.accelerator_parse(x);
+                    return Gtk.accelerator_valid(key, mods) && Gtk.accelerator_name(key, mods);
+                  });
+                  if (mappings.every((x) => !!x)) {
+                    Logger.info("setting", bind, "to", mappings);
+                    settings.set_strv(bind, mappings);
+                  }
+                } else {
+                  // If value deleted, unset the mapping
+                  settings.set_strv(bind, []);
                 }
               },
             },
