@@ -12,8 +12,9 @@
     { "wmClass": "Com.github.donadigo.eddy", "mode": "float" },
     { "wmClass": "Conky", "mode": "float" },
     { "wmClass": "Gnome-initial-setup", "mode": "float" },
-    { "wmClass": "gnome-calculator", "mode": "float" },
-    { "wmClass": "Gnome-terminal", "wmTitle": "Preferences – General", "mode": "float" },
+    { "wmClass": "org.gnome.Calculator", "mode": "float" },
+    { "wmClass": "gnome-terminal-server", "wmTitle": "Preferences – General", "mode": "float" },
+    { "wmClass": "gnome-terminal-preferences", "mode": "float" },
     { "wmClass": "Guake", "mode": "float" },
     { "wmClass": "zoom", "mode": "float" },
     { "wmClass": "Spotify", "mode": "float" }
