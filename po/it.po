@@ -1,0 +1,327 @@
+# Forge Italian Translation
+# Albano Battistella <albanobattistella@gmail.com>, 2023.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Forge\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-30 12:27+0300\n"
+"PO-Revision-Date: 2023-06-20 09:16+0100\n"
+"Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
+"Language-Team: Italian <albanobattistella@gmail.com>\n"
+"Language: Italian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"X-Generator: Gtranslator 42.0\n"
+
+#: messages.js:37
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: messages.js:38
+msgid "Development in Progress..."
+msgstr "Sviluppo in corso..."
+
+#: messages.js:39
+msgid "About"
+msgstr "Informazioni"
+
+#: messages.js:40
+msgid "Appearance"
+msgstr "Aspetto"
+
+#: messages.js:41
+msgid "Development"
+msgstr "Sviluppo"
+
+#: messages.js:42
+msgid "Experimental"
+msgstr "Sperimentale"
+
+#: messages.js:43
+msgid "Home"
+msgstr "Home"
+
+#: messages.js:44
+msgid "Keyboard"
+msgstr "Tastiera"
+
+#: messages.js:46
+msgid "Window"
+msgstr "Finestra"
+
+#: messages.js:47
+msgid "Gaps"
+msgstr "Margini"
+
+# I'm not sure that marges are a correct translation of gaps. There are other possibilities. 
+#: messages.js:48
+msgid "Gaps Size"
+msgstr "Dimensione dei margini"
+
+# I'm not sure that marges are a correct translation of gaps. There are other possibilities. 
+#: messages.js:49
+msgid "Gaps Size Multiplier"
+msgstr "Moltiplicatore delle dimensioni dei margini"
+
+#: messages.js:50
+msgid "Gaps Hidden when Single"
+msgstr "Margini nascosti quando c'è una sola finestra"
+
+#: messages.js:52
+msgid "Borders"
+msgstr "Bordi"
+
+#: messages.js:53
+msgid "Show Focus Hint Border"
+msgstr "Mostra suggerimento del bordo di messa a fuoco"
+
+#: messages.js:55
+msgid "Color"
+msgstr "Colore"
+
+#: messages.js:56
+msgid "Border Size"
+msgstr "Dimensione del bordo"
+
+#: messages.js:57
+msgid "Border Color"
+msgstr "Couleur de la bordure"
+
+#: messages.js:58
+msgid "Palette Mode"
+msgstr "Modalità tavolozza"
+
+#: messages.js:59
+msgid "Editor Mode"
+msgstr "Modalità editor"
+
+#: messages.js:60
+msgid "Apply Changes"
+msgstr "Applicare le modifiche"
+
+#: messages.js:61 messages.js:62
+msgid "Reset"
+msgstr "Ripristina"
+
+#: messages.js:63
+msgid "Layout"
+msgstr "Layout"
+
+#: messages.js:64
+msgid "Default Drag-and-Drop Center Layout"
+msgstr "Layout di trascinamento della selezione centrale predefinito"
+
+#: messages.js:65
+msgid "Tabbed"
+msgstr "Schede"
+
+#: messages.js:66
+msgid "Stacked"
+msgstr "Impilate"
+
+#: messages.js:68
+msgid "Workspace"
+msgstr "Spazio di lavoro"
+
+#: messages.js:69
+msgid "Update Workspace Settings"
+msgstr "Aggiorna le impostazioni dell'area di lavoro"
+
+#: messages.js:70
+msgid "Skip Workspace Tiling"
+msgstr "Disabilita l'affiancamento dell'area di lavoro"
+
+#: messages.js:72
+msgid ""
+"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
+"accept"
+msgstr ""
+"Specificare gli indici degli spazi di lavoro da ignorare. Es: 0,1. Lasciare vuoto "
+"per disabilitare. Premi Invio per accettare."
+
+#: messages.js:75
+msgid "Window Shortcuts"
+msgstr "Scorciatoie della finestra"
+
+#: messages.js:76
+msgid "Workspace Shortcuts"
+msgstr "Scorciatoie dell'area di lavoro"
+
+#: messages.js:77
+msgid "Container Shortcuts"
+msgstr "Scorciatoie per i container"
+
+#: messages.js:78
+msgid "Focus Shortcuts"
+msgstr "Scorciatoie per la messa a fuoco"
+
+#: messages.js:79
+msgid "Other Shortcuts"
+msgstr "Autres raccourcis"
+
+#: messages.js:80
+msgid "Modifier Keys"
+msgstr "Tasti di modifica"
+
+#: messages.js:81
+msgid "Drag-Drop Tiling Modifier Key Options"
+msgstr "Opzioni del tasto modificatore per affiancare il trascinamento della selezione"
+
+#: messages.js:83
+msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
+msgstr ""
+"Modifica il tasto modificatore per <b>affiancare</b> le finestre tramite "
+"mouse o trascina e rilascia"
+
+#: messages.js:86
+msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
+msgstr ""Seleziona <i>Nessuno</i> per <u>affiancare sempre"
+"immediatamente</u> per impostazione predefinita"
+
+
+#: messages.js:88
+msgid "Tile Modifier"
+msgstr "Tasto di modifica per l'affiancamento"
+
+#: messages.js:89
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: messages.js:90
+msgid "Super"
+msgstr "Super"
+
+#: messages.js:91
+msgid "Alt"
+msgstr "Alt"
+
+#: messages.js:92
+msgid "None"
+msgstr "Nessuno"
+
+#: messages.js:94
+msgid "Logger Level"
+msgstr "Livello Log"
+
+#: messages.js:97
+#, fuzzy
+msgid ""
+"<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell "
+"to crash"
+msgstr ""
+"<b>ATTENZIONE</b>: l'attivazione di questa impostazione può portare a bug o causare il crash "
+"della shell"
+
+#: messages.js:100
+msgid ""
+"Stacked Tiling Mode (Stack windows on top of each other while still being "
+"tiled)"
+msgstr ""
+"Modalità di affiancamento in pila (impila le finestre una sopra l'altra mentre "
+"pur essendo ancora affiancate)"
+
+#: messages.js:102
+msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
+msgstr ""
+"Modalità affiancata con schede (raggruppa le finestre affiancate come schede)"
+
+#: messages.js:104
+msgid "Float Mode Always On Top (Floating windows always above tiling windows)"
+msgstr ""
+"Modalità mobile sempre in primo piano (finestre mobili sempre in primo piano"
+"finestre affiancate)"
+
+#: messages.js:106
+msgid "Auto Split (Quarter Tiling)"
+msgstr "Divisione automatica (sezione in quarti)"
+
+#: messages.js:107
+msgid "Preview Hint Toggle"
+msgstr "Attiva/disattiva l'indice di anteprima"
+
+#: messages.js:109
+msgid "Update Keybindings"
+msgstr "Aggiorna le scorciatoie da tastiera"
+
+#: messages.js:110
+msgid "Syntax"
+msgstr "Sintassi"
+
+#: messages.js:111
+msgid "Legend"
+msgstr "leggenda"
+
+#: messages.js:112
+msgid "Windows key"
+msgstr "Tasto Windows"
+
+#: messages.js:113
+msgid "Control key"
+msgstr "Tasto di controllo"
+
+#: messages.js:115
+msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
+msgstr ""
+"Elimina il testo per annullare. Premi il tasto Invio per accettare."
+"Fai clic altrove per ignorare."
+
+# Seems to go hand in hand with the next one.
+# e.g. Resets to previous value when invalid.
+#: messages.js:117
+msgid "Resets"
+msgstr "Ripristinare"
+
+#: messages.js:118
+msgid "to previous value when invalid"
+msgstr "al valore precedente in caso di invalidità"
+
+#: messages.js:119
+msgid "Action"
+msgstr "Azione"
+
+#: messages.js:120
+msgid "Shortcut"
+msgstr "Scorciatoie"
+
+#: messages.js:121
+msgid "Notes"
+msgstr "Note"
+
+# I'm not sure about that. It translates a bit oddly. 
+#: messages.js:123
+msgid "Forge Panel Settings"
+msgstr "Impostazioni del pannello di Forge"
+
+#: messages.js:124
+msgid "Tile Mode"
+msgstr "Modalità affiancata"
+
+#: messages.js:125
+msgid "Open Preferences"
+msgstr "Apri le preferenze"
+
+#: messages.js:130
+msgid "Tiled Focus Hint and Preview"
+msgstr "Indice di anteprima e di messa a fuoco affiancata"
+
+#: messages.js:132
+msgid "Floated Focus Hint"
+msgstr "Indice di messa a fuoco fluttuante"
+
+#: messages.js:134
+msgid "Split Direction Hint"
+msgstr "Indicatore per la direzione di divisione"
+
+#: messages.js:136
+msgid "Stacked Focus Hint and Preview"
+msgstr "Indicatore di messa a fuoco in pila e anteprima"
+
+#: messages.js:138
+msgid "Tabbed Focus Hint and Preview"
+msgstr "Indicatore di messa a fuoco a schede e anteprima"
+
+#~ msgid "Gaps Size Increments"
+#~ msgstr "Moltiplicatore della dimensione del margine"
