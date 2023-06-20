@@ -1253,6 +1253,17 @@ var Tree = GObject.registerClass(
         this.removeNode(o);
       });
 
+      const invalidWindows = this.getNodeByType(NODE_TYPES.WINDOW).filter((w) => {
+        const metaWindow = w.nodeValue;
+        const title = metaWindow.title;
+        const wmClass = metaWindow.wm_class;
+        return wmClass === "gjs";
+      });
+
+      invalidWindows.forEach((w) => {
+        this.removeNode(w);
+      });
+
       // Phase 2: remove any empty parent cons up to the single intermediate parent-window level
       // Basically, flatten them?
       // [con[con[con[con[window]]]]] --> [con[window]]
@@ -1265,7 +1276,7 @@ var Tree = GObject.registerClass(
         c.layout = LAYOUT_TYPES.HSPLIT;
       });
 
-      if (hasOrphanCons) {
+      if (hasOrphanCons || invalidWindows.length > 0) {
         this.processNode(this);
         this.apply(this);
       }
