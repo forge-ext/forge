@@ -178,7 +178,7 @@ msgstr ""
 
 #: messages.js:86
 msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
-msgstr ""Seleziona <i>Nessuno</i> per <u>affiancare sempre"
+msgstr "Seleziona <i>Nessuno</i> per <u>affiancare sempre"
 "immediatamente</u> per impostazione predefinita"
 
 
