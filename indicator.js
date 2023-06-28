@@ -81,6 +81,11 @@ var FeatureIndicator = GObject.registerClass(
       // Showing the indicator when the feature is enabled
       this._settings = settings;
 
+      const tilingModeEnabled = this._settings.get_boolean("tiling-mode-enabled");
+      const quickSettingsEnabled = this._settings.get_boolean("quick-settings-enabled");
+
+      this._indicator.visible = tilingModeEnabled && quickSettingsEnabled;
+
       this._settings.connect("changed", (_, name) => {
         switch (name) {
           case "tiling-mode-enabled":
