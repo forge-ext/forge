@@ -59,6 +59,7 @@ var WindowManager = GObject.registerClass(
       this._tree = new Tree.Tree(this);
       this.eventQueue = new Tree.Queue();
       this.theme = this.ext.theme;
+      this.lastFocusedWindow = null;
       Logger.info("forge initialized");
     }
 
@@ -337,6 +338,7 @@ var WindowManager = GObject.registerClass(
               const focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
               this.updateStackedFocus(focusNodeWindow);
               this.updateTabbedFocus(focusNodeWindow);
+              this.updatePointerPosition(focusNodeWindow);
             },
           };
           this.queueEvent(eventObj);
@@ -491,6 +493,7 @@ var WindowManager = GObject.registerClass(
           });
           if (moved) {
             if (prev) prev.parentNode.lastTabFocus = prev.nodeValue;
+            this.updatePointerPosition(focusNodeWindow);
             this.renderTree("move-window");
           }
 
@@ -1417,6 +1420,8 @@ var WindowManager = GObject.registerClass(
                     this.updateDecorationLayout();
                     this.updateStackedFocus();
                     this.updateTabbedFocus();
+                    let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
+                    this.updatePointerPosition(focusNodeWindow);
                   },
                 });
                 let focusNodeWindow = this.tree.findNode(this.focusMetaWindow);
@@ -1513,6 +1518,15 @@ var WindowManager = GObject.registerClass(
       if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
         const metaWindow = focusNodeWindow.nodeValue;
         metaWindow.raise();
+      }
+    }
+
+    updatePointerPosition(focusNodeWindow) {
+      if (!focusNodeWindow) return;
+      if (this.ext.settings.get_boolean("move-pointer-focus-enabled")) {
+        this.storePointerLastPosition(this.lastFocusedWindow);
+        this.movePointerToNodeWindow(focusNodeWindow);
+        this.lastFocusedWindow = focusNodeWindow;
       }
     }
 
@@ -2148,6 +2162,69 @@ var WindowManager = GObject.registerClass(
         }
         childNode.createCon = false;
         childNode.detachWindow = false;
+      }
+    }
+
+    movePointerToNodeWindow(nodeWindow) {
+      if (this.canMovePointerInsideNodeWindow(nodeWindow)) {
+        const newCoord = this.getPointerPositionInside(nodeWindow);
+        if (newCoord && newCoord.x && newCoord.y) {
+          let seat = Clutter.get_default_backend().get_default_seat();
+          if (seat) {
+            let wmTitle = nodeWindow.nodeValue.get_title();
+            Logger.debug(`moved pointer to (${newCoord.x},${newCoord.y} at ${wmTitle}`);
+            seat.warp_pointer(newCoord.x, newCoord.y);
+          }
+        }
+      }
+    }
+
+    canMovePointerInsideNodeWindow(nodeWindow) {
+      if (nodeWindow && nodeWindow._data) {
+        const metaWindow = nodeWindow.nodeValue;
+        const metaRect = metaWindow.get_frame_rect();
+        const pointerCoord = global.get_pointer();
+        return metaRect 
+          // xdg-copy creates a 1x1 pixel window to capture mouse events.
+          && metaRect.width > 8
+          && metaRect.height > 8
+          && !Utils.rectContainsPoint(metaRect, pointerCoord)
+          && !metaWindow.minimized
+          && !Overview.visible;
+      }
+      return false;
+    }
+
+    getPointerPositionInside(nodeWindow) {
+      if (nodeWindow && nodeWindow._data) {
+        const metaRect = nodeWindow.nodeValue.get_frame_rect();
+        if (nodeWindow.pointer) {
+          return {
+            x: metaRect.x + nodeWindow.pointer.x,
+            y: metaRect.y + nodeWindow.pointer.y,
+          };
+        }
+        return {
+          x: metaRect.x + metaRect.width / 2,
+          y: metaRect.y + metaRect.height / 2,
+        };
+      }
+      return null;
+    }
+
+    storePointerLastPosition(nodeWindow) {
+      if (nodeWindow && nodeWindow._data) {
+        const metaWindow = nodeWindow.nodeValue;
+        const metaRect = metaWindow.get_frame_rect();
+        const [mouse_x, mouse_y] = global.get_pointer();
+        let px = mouse_x - metaRect.x;
+        let py = mouse_y - metaRect.y;
+        if (px > 0 && py > 0) {
+          nodeWindow.pointer = { x: px, y: py, };
+          Logger.debug(nodeWindow, `stored pointer at (${px},${py} for ${metaWindow.get_title() }`);
+        } else {
+          nodeWindow.pointer = null;
+        }
       }
     }
 

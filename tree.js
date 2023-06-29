@@ -79,6 +79,7 @@ var Node = GObject.registerClass(
       this.tab = null;
       this.decoration = null;
       this.app = null;
+      this.pointer = null;
 
       if (this.isWindow()) {
         // When destroy() is called on Meta.Window, it might not be
