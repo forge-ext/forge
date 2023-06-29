@@ -97,6 +97,19 @@ var SettingsPage = GObject.registerClass(
         ],
       });
 
+      this.add_group({
+        title: _("Behavior"),
+        children: [
+          new SwitchRow({
+            title: _("Move Pointer to the Focused Window"),
+            subtitle: _("Move the pointer when focusing or swapping via keyboard"),
+            experimental: true,
+            settings,
+            bind: "move-pointer-focus-enabled",
+          }),
+        ]
+      });
+
       if (!production) {
         this.add_group({
           title: _("Logger"),
