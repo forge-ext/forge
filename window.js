@@ -2186,13 +2186,24 @@ var WindowManager = GObject.registerClass(
         const metaWindow = nodeWindow.nodeValue;
         const metaRect = metaWindow.get_frame_rect();
         const pointerCoord = global.get_pointer();
-        return metaRect 
+        return metaRect
           // xdg-copy creates a 1x1 pixel window to capture mouse events.
           && metaRect.width > 8
           && metaRect.height > 8
           && !Utils.rectContainsPoint(metaRect, pointerCoord)
           && !metaWindow.minimized
-          && !Overview.visible;
+          && !Overview.visible
+          && !this.nodeParentHasFocus(nodeWindow, pointerCoord)
+          ;
+      }
+      return false;
+    }
+
+    nodeParentHasFocus(nodeWindow, pointerCoord) {
+      if (pointerCoord && nodeWindow && nodeWindow.parentNode) {
+        if (nodeWindow.parentNode.isCon() && nodeWindow.parentNode.rect) {
+          return Utils.rectContainsPoint(nodeWindow.parentNode.rect, pointerCoord);
+        }
       }
       return false;
     }
@@ -2208,7 +2219,7 @@ var WindowManager = GObject.registerClass(
         }
         return {
           x: metaRect.x + metaRect.width / 2,
-          y: metaRect.y + metaRect.height / 2,
+          y: metaRect.y + 8, // on: titlebar: near to app toolbars, menubar, tabs, etc...
         };
       }
       return null;
