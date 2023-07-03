@@ -513,6 +513,7 @@ var WindowManager = GObject.registerClass(
           focusNodeWindow.nodeValue.raise();
           this.updateTabbedFocus(focusNodeWindow);
           this.updateStackedFocus(focusNodeWindow);
+          this.updatePointerPosition(focusNodeWindow);
           this.renderTree("swap", true);
           break;
         case "Split":
@@ -672,6 +673,7 @@ var WindowManager = GObject.registerClass(
             );
             let lastActiveNodeWindow = this.tree.findNode(lastActiveWindow);
             this.tree.swapPairs(lastActiveNodeWindow, focusNodeWindow);
+            this.updatePointerPosition(focusNodeWindow);
             this.renderTree("swap-last-active");
           }
           break;
