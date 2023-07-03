@@ -1563,7 +1563,23 @@ var Tree = GObject.registerClass(
     }
 
     debugTree() {
+      this.debugChildNodes(this);
+    }
+
+    debugChildNodes(node) {
       this.debugNode(this);
+      node.childNodes.forEach((child) => {
+        this.debugChildNodes(child);
+      });
+    }
+
+    debugParentNodes(node) {
+      if (node) {
+        if (node.parentNode) {
+          this.debugParentNodes(node.parentNode);
+        }
+        this.debugNode(node);
+      }
     }
 
     debugNode(node) {
@@ -1592,6 +1608,13 @@ var Tree = GObject.registerClass(
 
       if (node.rect) {
         attributes += `,rect:${node.rect.width}x${node.rect.height}+${node.rect.x}+${node.rect.y}`;
+        const pointerCoord = global.get_pointer();
+        const pointerInside = Utils.rectContainsPoint(node.rect, pointerCoord) ? 'yes' : 'no';
+        attributes += `,pointer:${pointerInside}`;
+      }
+
+      if (node.pointer) {
+        attributes += `,last_position:${node.pointer.x}+${node.pointer.y}`;
       }
 
       if (level !== 0) Logger.debug(`${spacing}|`);
@@ -1600,10 +1623,6 @@ var Tree = GObject.registerClass(
           node.index !== null ? node.index : "-"
         } @${attributes}`
       );
-
-      node.childNodes.forEach((child) => {
-        this.debugNode(child);
-      });
     }
 
     findParent(childNode, parentNodeType) {
