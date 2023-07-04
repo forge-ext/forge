@@ -1526,6 +1526,7 @@ var WindowManager = GObject.registerClass(
     updatePointerPosition(focusNodeWindow) {
       if (!focusNodeWindow) return;
       if (this.ext.settings.get_boolean("move-pointer-focus-enabled")) {
+        this.tree.debugParentNodes(focusNodeWindow);
         this.storePointerLastPosition(this.lastFocusedWindow);
         this.movePointerToNodeWindow(focusNodeWindow);
         this.lastFocusedWindow = focusNodeWindow;
@@ -2167,14 +2168,14 @@ var WindowManager = GObject.registerClass(
       }
     }
 
-    movePointerToNodeWindow(nodeWindow) {
+    movePointerToNodeWindow(nodeWindow) {     
       if (this.canMovePointerInsideNodeWindow(nodeWindow)) {
         const newCoord = this.getPointerPositionInside(nodeWindow);
         if (newCoord && newCoord.x && newCoord.y) {
           let seat = Clutter.get_default_backend().get_default_seat();
           if (seat) {
             let wmTitle = nodeWindow.nodeValue.get_title();
-            Logger.debug(`moved pointer to (${newCoord.x},${newCoord.y} at ${wmTitle}`);
+            Logger.debug(nodeWindow, `moved pointer to [${wmTitle}] at (${newCoord.x},${newCoord.y})`);
             seat.warp_pointer(newCoord.x, newCoord.y);
           }
         }
@@ -2210,16 +2211,18 @@ var WindowManager = GObject.registerClass(
 
     getPointerPositionInside(nodeWindow) {
       if (nodeWindow && nodeWindow._data) {
-        const metaRect = nodeWindow.nodeValue.get_frame_rect();
-        if (nodeWindow.pointer) {
-          return {
-            x: metaRect.x + nodeWindow.pointer.x,
-            y: metaRect.y + nodeWindow.pointer.y,
-          };
-        }
+        const metaWindow = nodeWindow.nodeValue;
+        const metaRect = metaWindow.get_frame_rect();
+        // on: last position of cursor inside window
+        // on: titlebar: near to app toolbars, menubar, tabs, etc...
+        let [wx, wy] = nodeWindow.pointer 
+          ? [ nodeWindow.pointer.x, nodeWindow.pointer.y ]
+          : [ metaRect.width / 2,  8 ]; 
+        let px = wx >= metaRect.width ? metaRect.width - 8 : wx;
+        let py = wy >= metaRect.height ? metaRect.height - 8 : wy;
         return {
-          x: metaRect.x + metaRect.width / 2,
-          y: metaRect.y + 8, // on: titlebar: near to app toolbars, menubar, tabs, etc...
+          x: metaRect.x + px,
+          y: metaRect.y + py, 
         };
       }
       return null;
@@ -2229,14 +2232,14 @@ var WindowManager = GObject.registerClass(
       if (nodeWindow && nodeWindow._data) {
         const metaWindow = nodeWindow.nodeValue;
         const metaRect = metaWindow.get_frame_rect();
-        const [mouse_x, mouse_y] = global.get_pointer();
-        let px = mouse_x - metaRect.x;
-        let py = mouse_y - metaRect.y;
-        if (px > 0 && py > 0) {
-          nodeWindow.pointer = { x: px, y: py, };
-          Logger.debug(nodeWindow, `stored pointer at (${px},${py} for ${metaWindow.get_title() }`);
-        } else {
-          nodeWindow.pointer = null;
+        const pointerCoord = global.get_pointer();
+        if (Utils.rectContainsPoint(metaRect, pointerCoord)) {
+          let px = pointerCoord[0] - metaRect.x;
+          let py = pointerCoord[1] - metaRect.y;
+          if (px > 0 && py > 0) {
+            nodeWindow.pointer = { x: px, y: py, };
+            Logger.debug(nodeWindow, `stored pointer for [${metaWindow.get_title()}] at (${px},${py})`);
+          }
         }
       }
     }
