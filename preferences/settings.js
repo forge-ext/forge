@@ -58,6 +58,12 @@ var SettingsPage = GObject.registerClass(
             settings,
             bind: "focus-border-toggle",
           }),
+          new SwitchRow({
+            title: _("Show Window Split Hint Border"),
+            subtitle: _("Show split direction border on focused window"),
+            settings,
+            bind: "split-border-toggle",
+          }),
           new DropDownRow({
             title: Msgs.prefs_appearance_layout_dnd_default_layout,
             settings,
