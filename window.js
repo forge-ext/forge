@@ -1257,6 +1257,7 @@ var WindowManager = GObject.registerClass(
         focusBorderEnabled &&
         tilingModeEnabled &&
         !nodeWindow.isFloat() &&
+        !maximized &&
         parentNode.childNodes.length === 1 &&
         (parentNode.isCon() || parentNode.isMonitor()) &&
         !(parentNode.isTabbed() || parentNode.isStacked())
