@@ -16,7 +16,6 @@
     { "wmClass": "gnome-terminal-server", "wmTitle": "Preferences – General", "mode": "float" },
     { "wmClass": "gnome-terminal-preferences", "mode": "float" },
     { "wmClass": "Guake", "mode": "float" },
-    { "wmClass": "zoom", "mode": "float" },
-    { "wmClass": "Spotify", "mode": "float" }
+    { "wmClass": "zoom", "mode": "float" }
   ]
 }
