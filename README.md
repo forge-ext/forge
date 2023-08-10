@@ -2,34 +2,6 @@
 
 Forge is a GNOME Shell extension that provides tiling/window management.
 
-## Installation
-- Extensions GNOME site: https://extensions.gnome.org/extension/4481/forge/
-- Download/clone the source and `make install`, restart gnome-shell after or `make dev`.
-- AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
-
-## Development
-- The `main` branch contains gnome-4x code.
-- The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
-
-## Local Development Setup
-- Install NodeJS 16+
-- Install `gettext`
-- Run `npm install`
-- Commands:
-
-```bash
-# X11
-make test-x
-
-# Wayland
-make test-wayland
-
-# Formatting, when you do npm install, 
-# husky gets installed should force prettier formatting during commit
-
-npm run format
-```
-
 ## Features
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm
 - Vim-like keybindings for navigation/swapping windows/moving windows in the containers
@@ -46,11 +18,15 @@ npm run format
 - Show/hide tab decoration via keybinding https://github.com/forge-ext/forge/issues/180
 - Window resize using keyboard shortcuts
 
+## Installation
+- Extensions GNOME site: https://extensions.gnome.org/extension/4481/forge/
+- Download/clone the source and `make install`, restart gnome-shell after or `make dev`.
+- AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
+
 ![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
 
 ## Forge Keybinding Defaults
 
-### New
 | Action | Shortcut |
 | --- | --- |
 | Increase active window size left | `<Ctrl> + <Super> + y` |
@@ -61,11 +37,6 @@ npm run format
 | Decrease active window size top | `<Ctrl> + <Shift> + <Super> + u` |
 | Increase active window size right | `<Ctrl> + <Super> + o` |
 | Decrease active window size right | `<Ctrl> + <Shift> + <Super> + y` |
-
-### Current
-
-| Action | Shortcut |
-| --- | --- |
 | Open preferences | `<Super> + period` |
 | Toggle tiling mode |`<Super> + w` |
 | Focus left | `<Super> + h` |
@@ -114,6 +85,29 @@ User is encouraged to bind the following:
 - Switching/moving windows to different workspaces
 - Switching to numbered, previous or next workspace
 
+## Development
+- The `main` branch contains gnome-4x code.
+- The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
+
+## Local Development Setup
+- Install NodeJS 16+
+- Install `gettext`
+- Run `npm install`
+- Commands:
+
+```bash
+# X11
+make test-x
+
+# Wayland
+make test-wayland
+
+# Formatting, when you do npm install, 
+# husky gets installed should force prettier formatting during commit
+
+npm run format
+```
+
 ## Contributing
 
 - Please be nice, friendly and welcoming on discussions/tickets.
@@ -122,6 +116,7 @@ User is encouraged to bind the following:
 ## Credits
 
 Thank you to: 
-- Michael Stapelberg/contributors for i3.
-- System76/contributors for pop-shell.
-- ReworkCSS/contributors for css-parse/css-stringify.
+- Forge extension contributors
+- Michael Stapelberg/contributors for i3
+- System76/contributors for pop-shell
+- ReworkCSS/contributors for css-parse/css-stringify
