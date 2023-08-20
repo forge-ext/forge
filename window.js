@@ -488,12 +488,12 @@ var WindowManager = GObject.registerClass(
                   if (prev) prev.parentNode.lastTabFocus = prev.nodeValue;
                   this.renderTree("move-tabbed-queue");
                 }
+                this.updatePointerPosition(focusNodeWindow);
               }
             },
           });
           if (moved) {
             if (prev) prev.parentNode.lastTabFocus = prev.nodeValue;
-            this.updatePointerPosition(focusNodeWindow);
             this.renderTree("move-window");
           }
 
