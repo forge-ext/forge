@@ -1494,6 +1494,8 @@ var WindowManager = GObject.registerClass(
             .get_workspace()
             .activate_with_focus(metaWindow, global.display.get_current_time());
           this.moveCenter(metaWindow);
+        } else {
+          this.updatePointerPosition(metaWindow);          
         }
       }
     }
