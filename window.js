@@ -2196,16 +2196,17 @@ var WindowManager = GObject.registerClass(
           && !Utils.rectContainsPoint(metaRect, pointerCoord)
           && !metaWindow.minimized
           && !Overview.visible
-          && !this.nodeParentHasFocus(nodeWindow, pointerCoord)
+          && !this.pointerIsOverParentDecoration(nodeWindow, pointerCoord)
           ;
       }
       return false;
     }
 
-    nodeParentHasFocus(nodeWindow, pointerCoord) {
+    pointerIsOverParentDecoration(nodeWindow, pointerCoord) {
       if (pointerCoord && nodeWindow && nodeWindow.parentNode) {
-        if (nodeWindow.parentNode.isCon() && nodeWindow.parentNode.rect) {
-          return Utils.rectContainsPoint(nodeWindow.parentNode.rect, pointerCoord);
+        let node = nodeWindow.parentNode;
+        if (node.isTabbed() || node.isStacked()) {
+          return Utils.rectContainsPoint(node.rect, pointerCoord);
         }
       }
       return false;
