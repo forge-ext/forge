@@ -23,7 +23,6 @@ import Shell from "gi://Shell";
 import St from "gi://St";
 
 // App imports
-import * as Logger from "./logger.js";
 import * as Utils from "./utils.js";
 import * as Window from "./window.js";
 
@@ -577,6 +576,7 @@ export const Queue = GObject.registerClass(
 
 export const Tree = GObject.registerClass(
   class Tree extends Node {
+    /** @param {Window.WindowManager} extWm */
     constructor(extWm) {
       let rootBin = new St.Bin();
       super(NODE_TYPES.ROOT, rootBin);
@@ -589,8 +589,13 @@ export const Tree = GObject.registerClass(
       this._initWorkspaces();
     }
 
+    /** @type {Window.WindowManager} */
     get extWm() {
       return this._extWm;
+    }
+
+    get logger() {
+      return this.extWm.ext.logger;
     }
 
     /**
@@ -688,7 +693,7 @@ export const Tree = GObject.registerClass(
         if (parentNode.isWindow()) {
           const grandParentNode = parentNode.parentNode;
           grandParentNode.insertBefore(child, parentNode.nextSibling);
-          Logger.debug(
+          this.logger.debug(
             `Parent is a window, attaching to this window's parent ${grandParentNode.nodeType}`
           );
         } else {
@@ -1207,7 +1212,7 @@ export const Tree = GObject.registerClass(
     }
 
     render(from) {
-      Logger.debug(`render tree ${from ? "from " + from : ""}`);
+      this.logger.debug(`render tree ${from ? "from " + from : ""}`);
       this.processNode(this);
       this.apply(this);
       this.cleanTree();
@@ -1215,7 +1220,7 @@ export const Tree = GObject.registerClass(
       if (debugMode) {
         this.debugTree();
       }
-      Logger.debug(`*********************************************`);
+      this.logger.debug(`*********************************************`);
     }
 
     apply(node) {
@@ -1229,7 +1234,7 @@ export const Tree = GObject.registerClass(
             let metaWin = w.nodeValue;
             this.extWm.move(metaWin, w.renderRect);
           } else {
-            Logger.debug(`ignoring apply for ${w.renderRect.width}x${w.renderRect.height}`);
+            this.logger.debug(`ignoring apply for ${w.renderRect.width}x${w.renderRect.height}`);
           }
         }
 
@@ -1588,8 +1593,8 @@ export const Tree = GObject.registerClass(
         attributes += `,rect:${node.rect.width}x${node.rect.height}+${node.rect.x}+${node.rect.y}`;
       }
 
-      if (level !== 0) Logger.debug(`${spacing}|`);
-      Logger.debug(
+      if (level !== 0) this.logger.debug(`${spacing}|`);
+      this.logger.debug(
         `${spacing}${rootSpacing}${dashes} ${node.nodeType}#${
           node.index !== null ? node.index : "-"
         } @${attributes}`

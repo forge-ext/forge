@@ -23,7 +23,6 @@ import GObject from "gi://GObject";
 
 // Application imports
 import { stringify, parse } from "./css/index.js";
-import * as Logger from "./logger.js";
 import * as Settings from "./settings.js";
 
 export const ThemeManager = GObject.registerClass(
@@ -213,7 +212,7 @@ export const ThemeManager = GObject.registerClass(
             this.extension.stylesheet = defaultStylesheetFile;
           }
         } catch (e) {
-          Logger.error(`${uuid} - ${e}`);
+          this.extension.logger.error(`${uuid} - ${e}`);
           return;
         }
       }

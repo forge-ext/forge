@@ -1,0 +1,10 @@
+{
+  "include": [
+    "@girs/adw-1",
+    "@girs/gio-2.0",
+    "@girs/gjs",
+    "@girs/gobject-2.0",
+    "@girs/gtk-4.0"
+  ],
+  "compilerOptions": {}
+}
