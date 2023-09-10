@@ -4,9 +4,9 @@ import GObject from "gi://GObject";
 import Gdk from "gi://Gdk";
 
 // Extension imports
-import { ColorRow, PreferencesPage, ResetButton, SpinButtonRow, SwitchRow } from "../widgets.js";
+import { ColorRow, PreferencesPage, ResetButton, SpinButtonRow, SwitchRow } from "./widgets.js";
 
-import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 // Application imports
 import * as Logger from "../logger.js";

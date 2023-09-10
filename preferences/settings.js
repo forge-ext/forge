@@ -1,10 +1,10 @@
-import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 // Application imports
 import * as Logger from "../logger.js";
 import * as Msgs from "../messages.js";
 
-import { DropDownRow, SwitchRow, PreferencesPage } from "../widgets.js";
+import { DropDownRow, SwitchRow, PreferencesPage } from "./widgets.js";
 import { makeAboutButton } from "./about.js";
 import { production } from "../settings.js";
 

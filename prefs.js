@@ -23,7 +23,7 @@ import Gtk from "gi://Gtk";
 import {
   ExtensionPreferences,
   gettext as _,
-} from "resource:///org/gnome/shell/extensions/extension.js";
+} from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 import { KeyboardPage } from "./preferences/keyboard.js";
 import { AppearancePage } from "./preferences/appearance.js";
