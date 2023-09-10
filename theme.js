@@ -22,17 +22,18 @@ import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 
 // Application imports
-import * as Css from "./css.js";
+import { stringify, parse } from "./css/index.js";
 import * as Logger from "./logger.js";
 import * as Settings from "./settings.js";
 
 export const ThemeManager = GObject.registerClass(
   class ThemeManager extends GObject.Object {
-    constructor(settings, configMgr, options = { prefsMode: false }) {
+    constructor(extension, options = { prefsMode: false }) {
       super();
-      this.extensionPath = `${Me.dir.get_path()}`;
-      this.settings = settings;
-      this.configMgr = configMgr;
+      this.extension = extension;
+      this.extensionPath = `${this.extension.dir.get_path()}`;
+      this.settings = this.extension.settings;
+      this.configMgr = this.extension.configMgr;
       this.options = options;
       this._importCss();
       this.defaultPalette = this.getDefaultPalette();
@@ -131,7 +132,7 @@ export const ThemeManager = GObject.registerClass(
       let [success, contents] = cssFile.load_contents(null);
       if (success) {
         const cssContents = imports.byteArray.toString(contents);
-        this.cssAst = Css.parse(cssContents);
+        this.cssAst = parse(cssContents);
       }
     }
 
@@ -148,7 +149,7 @@ export const ThemeManager = GObject.registerClass(
         cssFile = this.configMgr.defaultStylesheetFile;
       }
 
-      const cssContents = Css.stringify(this.cssAst);
+      const cssContents = stringify(this.cssAst);
       const PERMISSIONS_MODE = 0o744;
 
       if (GLib.mkdir_with_parents(cssFile.get_parent().get_path(), PERMISSIONS_MODE) === 0) {
@@ -194,7 +195,7 @@ export const ThemeManager = GObject.registerClass(
       if (this.options.prefsMode) {
         this.settings.set_string("css-updated", Date.now().toString());
       } else {
-        const uuid = Me.metadata.uuid;
+        const uuid = this.extension.metadata.uuid;
         const St = imports.gi.St;
         const stylesheetFile = this.configMgr.stylesheetFile;
         const defaultStylesheetFile = this.configMgr.defaultStylesheetFile;
@@ -206,10 +207,10 @@ export const ThemeManager = GObject.registerClass(
           theme.unload_stylesheet(stylesheetFile);
           if (production) {
             theme.load_stylesheet(stylesheetFile);
-            Me.stylesheet = stylesheetFile;
+            this.extension.stylesheet = stylesheetFile;
           } else {
             theme.load_stylesheet(defaultStylesheetFile);
-            Me.stylesheet = defaultStylesheetFile;
+            this.extension.stylesheet = defaultStylesheetFile;
           }
         } catch (e) {
           Logger.error(`${uuid} - ${e}`);

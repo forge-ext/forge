@@ -32,15 +32,15 @@ import { SettingsPage } from "./preferences/settings.js";
 
 export default class ForgeExtentionPreferences extends ExtensionPreferences {
   init() {
-    const iconPath = Me.dir.get_child("resources").get_child("icons").get_path();
+    const iconPath = this.dir.get_child("resources").get_child("icons").get_path();
     const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
     iconTheme.add_search_path(iconPath);
   }
 
   fillPreferencesWindow(window) {
-    const settings = ExtensionUtils.getSettings();
+    const settings = this.getSettings();
     window._settings = settings;
-    const kbdSettings = ExtensionUtils.getSettings("org.gnome.shell.extensions.forge.keybindings");
+    const kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
     window._kbdSettings = kbdSettings;
     window.add(new SettingsPage({ settings, window }));
     window.add(new AppearancePage({ settings }));

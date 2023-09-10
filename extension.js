@@ -17,6 +17,7 @@
  */
 
 // Gnome imports
+import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 import * as SessionMode from "resource:///org/gnome/shell/ui/main/sessionMode.js";
 
 import { PACKAGE_VERSION } from "resource:///org/gnome/shell/misc/config.js";
@@ -33,9 +34,10 @@ import { FeatureIndicator } from "./indicator.js";
 
 import { production } from "./settings.js";
 
-export default class ForgeExtension {
-  constructor() {
+export default class ForgeExtension extends Extension {
+  constructor(metadata) {
     Logger.info("init");
+    super(metadata);
     this.indicator = null;
     this.prefs_title = `Forge ${_("Settings")} - ${
       !production ? "DEV" : `${PACKAGE_VERSION}-${this.metadata.version}`
@@ -46,8 +48,8 @@ export default class ForgeExtension {
     Logger.info("enable");
     this.settings = Settings.getSettings();
     this.kbdSettings = Settings.getSettings("org.gnome.shell.extensions.forge.keybindings");
-    this.configMgr = new Settings.ConfigManager();
-    this.theme = new ThemeManager(this.settings, this.configMgr);
+    this.configMgr = new Settings.ConfigManager(this);
+    this.theme = new ThemeManager(this);
     this.theme.patchCss();
     this.theme.reloadStylesheet();
 
