@@ -5,23 +5,25 @@ import { EntryRow, PreferencesPage } from "../widgets.js";
 
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
-export const WorkspacePage = GObject.registerClass(
-  class WorkspacePage extends PreferencesPage {
-    constructor({ settings }) {
-      super({ title: _("Workspace"), icon_name: "shell-overview-symbolic" });
-      this.add_group({
-        title: _("Update Workspace Settings"),
-        description: _(
-          "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to accept"
-        ),
-        children: [
-          new EntryRow({
-            title: _("Skip Workspace Tiling"),
-            settings,
-            bind: "workspace-skip-tile",
-          }),
-        ],
-      });
-    }
+export class WorkspacePage extends PreferencesPage {
+  static {
+    GObject.registerClass(this);
   }
-);
+
+  constructor({ settings }) {
+    super({ title: _("Workspace"), icon_name: "shell-overview-symbolic" });
+    this.add_group({
+      title: _("Update Workspace Settings"),
+      description: _(
+        "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to accept"
+      ),
+      children: [
+        new EntryRow({
+          title: _("Skip Workspace Tiling"),
+          settings,
+          bind: "workspace-skip-tile",
+        }),
+      ],
+    });
+  }
+}

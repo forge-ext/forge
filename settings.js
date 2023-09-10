@@ -26,136 +26,136 @@ import GObject from "gi://GObject";
 // Dev or Prod mode, see Makefile:debug
 export const production = true;
 
-export const ConfigManager = GObject.registerClass(
-  class ConfigManager extends GObject.Object {
-    /** @type {ForgeExtension} */
-    extension;
+export class ConfigManager extends GObject.Object {
+  static {
+    GObject.registerClass(this);
+  }
 
-    #confDir = GLib.get_user_config_dir();
+  /** @type {ForgeExtension} */
+  extension;
 
-    constructor(extension) {
-      super();
-      this.extension = extension;
+  #confDir = GLib.get_user_config_dir();
+
+  constructor(extension) {
+    super();
+    this.extension = extension;
+  }
+
+  get confDir() {
+    return `${this.#confDir}/forge`;
+  }
+
+  get defaultStylesheetFile() {
+    const defaultStylesheet = GLib.build_filenamev([
+      `${this.extension.dir.get_path()}`,
+      `stylesheet.css`,
+    ]);
+
+    this.extension.logger.trace(`default-stylesheet: ${defaultStylesheet}`);
+
+    const defaultStylesheetFile = Gio.File.new_for_path(defaultStylesheet);
+    if (defaultStylesheetFile.query_exists(null)) {
+      return defaultStylesheetFile;
     }
 
-    get confDir() {
-      return `${this.#confDir}/forge`;
+    return null;
+  }
+
+  get stylesheetFile() {
+    const profileSettingPath = `${this.confDir}/stylesheet/forge`;
+    const settingFile = "stylesheet.css";
+    const defaultSettingFile = this.defaultStylesheetFile;
+    return this.loadFile(profileSettingPath, settingFile, defaultSettingFile);
+  }
+
+  get defaultWindowConfigFile() {
+    const defaultWindowConfig = GLib.build_filenamev([
+      `${this.extension.dir.get_path()}`,
+      `config`,
+      `windows.json`,
+    ]);
+
+    this.extension.logger.trace(`default-window-config: ${defaultWindowConfig}`);
+    const defaultWindowConfigFile = Gio.File.new_for_path(defaultWindowConfig);
+
+    if (defaultWindowConfigFile.query_exists(null)) {
+      return defaultWindowConfigFile;
     }
 
-    get defaultStylesheetFile() {
-      const defaultStylesheet = GLib.build_filenamev([
-        `${this.extension.dir.get_path()}`,
-        `stylesheet.css`,
-      ]);
+    return null;
+  }
 
-      this.extension.logger.trace(`default-stylesheet: ${defaultStylesheet}`);
+  get windowConfigFile() {
+    const profileSettingPath = `${this.confDir}/config`;
+    const settingFile = "windows.json";
+    const defaultSettingFile = this.defaultWindowConfigFile;
+    return this.loadFile(profileSettingPath, settingFile, defaultSettingFile);
+  }
 
-      const defaultStylesheetFile = Gio.File.new_for_path(defaultStylesheet);
-      if (defaultStylesheetFile.query_exists(null)) {
-        return defaultStylesheetFile;
-      }
+  loadFile(path, file, defaultFile) {
+    const customSetting = GLib.build_filenamev([path, file]);
+    this.extension.logger.trace(`custom-setting-file: ${customSetting}`);
 
-      return null;
-    }
-
-    get stylesheetFile() {
-      const profileSettingPath = `${this.confDir}/stylesheet/forge`;
-      const settingFile = "stylesheet.css";
-      const defaultSettingFile = this.defaultStylesheetFile;
-      return this.loadFile(profileSettingPath, settingFile, defaultSettingFile);
-    }
-
-    get defaultWindowConfigFile() {
-      const defaultWindowConfig = GLib.build_filenamev([
-        `${this.extension.dir.get_path()}`,
-        `config`,
-        `windows.json`,
-      ]);
-
-      this.extension.logger.trace(`default-window-config: ${defaultWindowConfig}`);
-      const defaultWindowConfigFile = Gio.File.new_for_path(defaultWindowConfig);
-
-      if (defaultWindowConfigFile.query_exists(null)) {
-        return defaultWindowConfigFile;
-      }
-
-      return null;
-    }
-
-    get windowConfigFile() {
-      const profileSettingPath = `${this.confDir}/config`;
-      const settingFile = "windows.json";
-      const defaultSettingFile = this.defaultWindowConfigFile;
-      return this.loadFile(profileSettingPath, settingFile, defaultSettingFile);
-    }
-
-    loadFile(path, file, defaultFile) {
-      const customSetting = GLib.build_filenamev([path, file]);
-      this.extension.logger.trace(`custom-setting-file: ${customSetting}`);
-
-      const customSettingFile = Gio.File.new_for_path(customSetting);
-      if (customSettingFile.query_exists(null)) {
-        return customSettingFile;
-      } else {
-        const profileCustomSettingDir = Gio.File.new_for_path(path);
-        if (!profileCustomSettingDir.query_exists(null)) {
-          if (profileCustomSettingDir.make_directory_with_parents(null)) {
-            const createdStream = customSettingFile.create(Gio.FileCreateFlags.NONE, null);
-            const defaultContents = this.loadFileContents(defaultFile);
-            this.extension.logger.trace(defaultContents);
-            createdStream.write_all(defaultContents, null);
-          }
+    const customSettingFile = Gio.File.new_for_path(customSetting);
+    if (customSettingFile.query_exists(null)) {
+      return customSettingFile;
+    } else {
+      const profileCustomSettingDir = Gio.File.new_for_path(path);
+      if (!profileCustomSettingDir.query_exists(null)) {
+        if (profileCustomSettingDir.make_directory_with_parents(null)) {
+          const createdStream = customSettingFile.create(Gio.FileCreateFlags.NONE, null);
+          const defaultContents = this.loadFileContents(defaultFile);
+          this.extension.logger.trace(defaultContents);
+          createdStream.write_all(defaultContents, null);
         }
       }
-
-      return null;
     }
 
-    loadFileContents(configFile) {
-      let [success, contents] = configFile.load_contents(null);
-      if (success) {
-        const stringContents = imports.byteArray.toString(contents);
-        return stringContents;
-      }
-    }
+    return null;
+  }
 
-    get windowProps() {
-      let windowConfigFile = this.windowConfigFile;
-      let windowProps = null;
-      if (!windowConfigFile || !production) {
-        windowConfigFile = this.defaultWindowConfigFile;
-      }
-
-      let [success, contents] = windowConfigFile.load_contents(null);
-      if (success) {
-        const windowConfigContents = imports.byteArray.toString(contents);
-        this.extension.logger.trace(`${windowConfigContents}`);
-        windowProps = JSON.parse(windowConfigContents);
-      }
-      return windowProps;
-    }
-
-    set windowProps(props) {
-      let windowConfigFile = this.windowConfigFile;
-      if (!windowConfigFile || !production) {
-        windowConfigFile = this.defaultWindowConfigFile;
-      }
-
-      let windowConfigContents = JSON.stringify(props, null, 4);
-
-      const PERMISSIONS_MODE = 0o744;
-
-      if (
-        GLib.mkdir_with_parents(windowConfigFile.get_parent().get_path(), PERMISSIONS_MODE) === 0
-      ) {
-        let [_, _tag] = windowConfigFile.replace_contents(
-          windowConfigContents,
-          null,
-          false,
-          Gio.FileCreateFlags.REPLACE_DESTINATION,
-          null
-        );
-      }
+  loadFileContents(configFile) {
+    let [success, contents] = configFile.load_contents(null);
+    if (success) {
+      const stringContents = imports.byteArray.toString(contents);
+      return stringContents;
     }
   }
-);
+
+  get windowProps() {
+    let windowConfigFile = this.windowConfigFile;
+    let windowProps = null;
+    if (!windowConfigFile || !production) {
+      windowConfigFile = this.defaultWindowConfigFile;
+    }
+
+    let [success, contents] = windowConfigFile.load_contents(null);
+    if (success) {
+      const windowConfigContents = imports.byteArray.toString(contents);
+      this.extension.logger.trace(`${windowConfigContents}`);
+      windowProps = JSON.parse(windowConfigContents);
+    }
+    return windowProps;
+  }
+
+  set windowProps(props) {
+    let windowConfigFile = this.windowConfigFile;
+    if (!windowConfigFile || !production) {
+      windowConfigFile = this.defaultWindowConfigFile;
+    }
+
+    let windowConfigContents = JSON.stringify(props, null, 4);
+
+    const PERMISSIONS_MODE = 0o744;
+
+    if (GLib.mkdir_with_parents(windowConfigFile.get_parent().get_path(), PERMISSIONS_MODE) === 0) {
+      let [_, _tag] = windowConfigFile.replace_contents(
+        windowConfigContents,
+        null,
+        false,
+        Gio.FileCreateFlags.REPLACE_DESTINATION,
+        null
+      );
+    }
+  }
+}

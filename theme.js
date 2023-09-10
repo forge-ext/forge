@@ -23,207 +23,214 @@ import GObject from "gi://GObject";
 
 // Application imports
 import { stringify, parse } from "./css/index.js";
-import * as Settings from "./settings.js";
+import { production } from "./settings.js";
 
-export const ThemeManager = GObject.registerClass(
-  class ThemeManager extends GObject.Object {
-    constructor(extension, options = { prefsMode: false }) {
-      super();
-      this.extension = extension;
-      this.extensionPath = `${this.extension.dir.get_path()}`;
-      this.settings = this.extension.settings;
-      this.configMgr = this.extension.configMgr;
-      this.options = options;
-      this._importCss();
-      this.defaultPalette = this.getDefaultPalette();
+/** @typedef {import('./extension.js').default} ForgeExtension */
 
-      // A random number to denote an update on the css, usually the possible next version
-      // in extensions.gnome.org
-      // TODO: need to research the most effective way to bring in CSS updates
-      //  since the schema css-last-update might be triggered when there is a
-      //  code change on the schema unrelated to css updates.
-      //  For now tagging works. See @this.patchCss() and @this._needUpdate().
-      this.cssTag = 37;
+export class ThemeManager extends GObject.Object {
+  static {
+    GObject.registerClass(this);
+  }
 
-      // TODO: should the patchCss() call be done here?
+  /** @type {ForgeExtension} */
+  extension;
+
+  /** @type {string} */
+  extensionPath;
+
+  constructor(extension, options = { prefsMode: false }) {
+    super();
+    this.extension = extension;
+    this.extensionPath = `${this.extension.dir.get_path()}`;
+    this.options = options;
+    this._importCss();
+    this.defaultPalette = this.getDefaultPalette();
+
+    // A random number to denote an update on the css, usually the possible next version
+    // in extensions.gnome.org
+    // TODO: need to research the most effective way to bring in CSS updates
+    //  since the schema css-last-update might be triggered when there is a
+    //  code change on the schema unrelated to css updates.
+    //  For now tagging works. See @this.patchCss() and @this._needUpdate().
+    this.cssTag = 37;
+
+    // TODO: should the patchCss() call be done here?
+  }
+
+  addPx(value) {
+    return `${value}px`;
+  }
+
+  removePx(value) {
+    return value.replace("px", "");
+  }
+
+  getDefaultPalette() {
+    return {
+      tiled: this.getDefaults("tiled"),
+      split: this.getDefaults("split"),
+      floated: this.getDefaults("floated"),
+      stacked: this.getDefaults("stacked"),
+      tabbed: this.getDefaults("tabbed"),
+    };
+  }
+
+  /**
+   * The scheme name is in between the CSS selector name
+   * E.g. window-tiled-color should return `tiled`
+   */
+  getColorSchemeBySelector(selector) {
+    if (!selector.includes("-")) return null;
+    let firstDash = selector.indexOf("-");
+    let secondDash = selector.indexOf("-", firstDash + 1);
+    const scheme = selector.substr(firstDash + 1, secondDash - firstDash - 1);
+    return scheme;
+  }
+
+  getDefaults(color) {
+    return {
+      color: this.getCssProperty(`.${color}`, "color").value,
+      "border-width": this.removePx(this.getCssProperty(`.${color}`, "border-width").value),
+      opacity: this.getCssProperty(`.${color}`, "opacity").value,
+    };
+  }
+
+  getCssRule(selector) {
+    if (this.cssAst) {
+      const rules = this.cssAst.stylesheet.rules;
+      // return only the first match, Forge CSS authors should make sure class names are unique :)
+      const matchRules = rules.filter((r) => r.selectors.filter((s) => s === selector).length > 0);
+      return matchRules.length > 0 ? matchRules[0] : {};
+    }
+    return {};
+  }
+
+  getCssProperty(selector, propertyName) {
+    const cssRule = this.getCssRule(selector);
+
+    if (cssRule) {
+      const matchDeclarations = cssRule.declarations.filter((d) => d.property === propertyName);
+      return matchDeclarations.length > 0 ? matchDeclarations[0] : {};
     }
 
-    addPx(value) {
-      return `${value}px`;
+    return {};
+  }
+
+  setCssProperty(selector, propertyName, propertyValue) {
+    const cssProperty = this.getCssProperty(selector, propertyName);
+    if (cssProperty) {
+      cssProperty.value = propertyValue;
+      this._updateCss();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Returns the AST for stylesheet.css
+   */
+  _importCss() {
+    let cssFile = this.extension.configMgr.stylesheetFile;
+    if (!cssFile || !production) {
+      cssFile = this.extension.configMgr.defaultStylesheetFile;
     }
 
-    removePx(value) {
-      return value.replace("px", "");
-    }
-
-    getDefaultPalette() {
-      return {
-        tiled: this.getDefaults("tiled"),
-        split: this.getDefaults("split"),
-        floated: this.getDefaults("floated"),
-        stacked: this.getDefaults("stacked"),
-        tabbed: this.getDefaults("tabbed"),
-      };
-    }
-
-    /**
-     * The scheme name is in between the CSS selector name
-     * E.g. window-tiled-color should return `tiled`
-     */
-    getColorSchemeBySelector(selector) {
-      if (!selector.includes("-")) return null;
-      let firstDash = selector.indexOf("-");
-      let secondDash = selector.indexOf("-", firstDash + 1);
-      const scheme = selector.substr(firstDash + 1, secondDash - firstDash - 1);
-      return scheme;
-    }
-
-    getDefaults(color) {
-      return {
-        color: this.getCssProperty(`.${color}`, "color").value,
-        "border-width": this.removePx(this.getCssProperty(`.${color}`, "border-width").value),
-        opacity: this.getCssProperty(`.${color}`, "opacity").value,
-      };
-    }
-
-    getCssRule(selector) {
-      if (this.cssAst) {
-        const rules = this.cssAst.stylesheet.rules;
-        // return only the first match, Forge CSS authors should make sure class names are unique :)
-        const matchRules = rules.filter(
-          (r) => r.selectors.filter((s) => s === selector).length > 0
-        );
-        return matchRules.length > 0 ? matchRules[0] : {};
-      }
-      return {};
-    }
-
-    getCssProperty(selector, propertyName) {
-      const cssRule = this.getCssRule(selector);
-
-      if (cssRule) {
-        const matchDeclarations = cssRule.declarations.filter((d) => d.property === propertyName);
-        return matchDeclarations.length > 0 ? matchDeclarations[0] : {};
-      }
-
-      return {};
-    }
-
-    setCssProperty(selector, propertyName, propertyValue) {
-      const cssProperty = this.getCssProperty(selector, propertyName);
-      if (cssProperty) {
-        cssProperty.value = propertyValue;
-        this._updateCss();
-        return true;
-      }
-      return false;
-    }
-
-    /**
-     * Returns the AST for stylesheet.css
-     */
-    _importCss() {
-      let cssFile = this.configMgr.stylesheetFile;
-      if (!cssFile || !Settings.production) {
-        cssFile = this.configMgr.defaultStylesheetFile;
-      }
-
-      let [success, contents] = cssFile.load_contents(null);
-      if (success) {
-        const cssContents = imports.byteArray.toString(contents);
-        this.cssAst = parse(cssContents);
-      }
-    }
-
-    /**
-     * Writes the AST back to stylesheet.css and reloads the theme
-     */
-    _updateCss() {
-      if (!this.cssAst) {
-        return;
-      }
-
-      let cssFile = this.configMgr.stylesheetFile;
-      if (!cssFile || !Settings.production) {
-        cssFile = this.configMgr.defaultStylesheetFile;
-      }
-
-      const cssContents = stringify(this.cssAst);
-      const PERMISSIONS_MODE = 0o744;
-
-      if (GLib.mkdir_with_parents(cssFile.get_parent().get_path(), PERMISSIONS_MODE) === 0) {
-        let [success, _tag] = cssFile.replace_contents(
-          cssContents,
-          null,
-          false,
-          Gio.FileCreateFlags.REPLACE_DESTINATION,
-          null
-        );
-        if (success) {
-          this.reloadStylesheet();
-        }
-      }
-    }
-
-    /**
-     * BREAKING: Patches the CSS by overriding the $HOME/.config stylesheet
-     * at the moment.
-     *
-     * TODO: work needed to consolidate the existing config stylesheet and
-     * when the extension default stylesheet gets an update.
-     */
-    patchCss() {
-      if (this._needUpdate()) {
-        let originalCss = this.configMgr.defaultStylesheetFile;
-        let configCss = this.configMgr.stylesheetFile;
-        let copyConfigCss = Gio.File.new_for_path(this.configMgr.stylesheetFileName + ".bak");
-        let backupFine = configCss.copy(copyConfigCss, Gio.FileCopyFlags.OVERWRITE, null, null);
-        let copyFine = originalCss.copy(configCss, Gio.FileCopyFlags.OVERWRITE, null, null);
-        if (backupFine && copyFine) {
-          this.settings.set_uint("css-last-update", this.cssTag);
-          return true;
-        }
-      }
-      return false;
-    }
-
-    /**
-     * Credits: ExtensionSystem.js:_callExtensionEnable()
-     */
-    reloadStylesheet() {
-      if (this.options.prefsMode) {
-        this.settings.set_string("css-updated", Date.now().toString());
-      } else {
-        const uuid = this.extension.metadata.uuid;
-        const St = imports.gi.St;
-        const stylesheetFile = this.configMgr.stylesheetFile;
-        const defaultStylesheetFile = this.configMgr.defaultStylesheetFile;
-        const production = Settings.production;
-        let theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
-
-        try {
-          theme.unload_stylesheet(defaultStylesheetFile);
-          theme.unload_stylesheet(stylesheetFile);
-          if (production) {
-            theme.load_stylesheet(stylesheetFile);
-            this.extension.stylesheet = stylesheetFile;
-          } else {
-            theme.load_stylesheet(defaultStylesheetFile);
-            this.extension.stylesheet = defaultStylesheetFile;
-          }
-        } catch (e) {
-          this.extension.logger.error(`${uuid} - ${e}`);
-          return;
-        }
-      }
-    }
-
-    _needUpdate() {
-      let cssTag = this.cssTag;
-      return this.settings.get_uint("css-last-update") !== cssTag;
+    let [success, contents] = cssFile.load_contents(null);
+    if (success) {
+      const cssContents = imports.byteArray.toString(contents);
+      this.cssAst = parse(cssContents);
     }
   }
-);
+
+  /**
+   * Writes the AST back to stylesheet.css and reloads the theme
+   */
+  _updateCss() {
+    if (!this.cssAst) {
+      return;
+    }
+
+    let cssFile = this.extension.configMgr.stylesheetFile;
+    if (!cssFile || !production) {
+      cssFile = this.extension.configMgr.defaultStylesheetFile;
+    }
+
+    const cssContents = stringify(this.cssAst);
+    const PERMISSIONS_MODE = 0o744;
+
+    if (GLib.mkdir_with_parents(cssFile.get_parent().get_path(), PERMISSIONS_MODE) === 0) {
+      let [success, _tag] = cssFile.replace_contents(
+        cssContents,
+        null,
+        false,
+        Gio.FileCreateFlags.REPLACE_DESTINATION,
+        null
+      );
+      if (success) {
+        this.reloadStylesheet();
+      }
+    }
+  }
+
+  /**
+   * BREAKING: Patches the CSS by overriding the $HOME/.config stylesheet
+   * at the moment.
+   *
+   * TODO: work needed to consolidate the existing config stylesheet and
+   * when the extension default stylesheet gets an update.
+   */
+  patchCss() {
+    if (this._needUpdate()) {
+      let originalCss = this.extension.configMgr.defaultStylesheetFile;
+      let configCss = this.extension.configMgr.stylesheetFile;
+      let copyConfigCss = Gio.File.new_for_path(
+        this.extension.configMgr.stylesheetFileName + ".bak"
+      );
+      let backupFine = configCss.copy(copyConfigCss, Gio.FileCopyFlags.OVERWRITE, null, null);
+      let copyFine = originalCss.copy(configCss, Gio.FileCopyFlags.OVERWRITE, null, null);
+      if (backupFine && copyFine) {
+        this.extension.settings.set_uint("css-last-update", this.cssTag);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Credits: ExtensionSystem.js:_callExtensionEnable()
+   */
+  reloadStylesheet() {
+    if (this.options.prefsMode) {
+      this.extension.settings.set_string("css-updated", Date.now().toString());
+    } else {
+      const uuid = this.extension.metadata.uuid;
+      const St = imports.gi.St;
+      const stylesheetFile = this.extension.configMgr.stylesheetFile;
+      const defaultStylesheetFile = this.extension.configMgr.defaultStylesheetFile;
+      let theme = St.ThemeContext.get_for_stage(global.stage).get_theme();
+
+      try {
+        theme.unload_stylesheet(defaultStylesheetFile);
+        theme.unload_stylesheet(stylesheetFile);
+        if (production) {
+          theme.load_stylesheet(stylesheetFile);
+          this.extension.stylesheet = stylesheetFile;
+        } else {
+          theme.load_stylesheet(defaultStylesheetFile);
+          this.extension.stylesheet = defaultStylesheetFile;
+        }
+      } catch (e) {
+        this.extension.logger.error(`${uuid} - ${e}`);
+        return;
+      }
+    }
+  }
+
+  _needUpdate() {
+    let cssTag = this.cssTag;
+    return this.extension.settings.get_uint("css-last-update") !== cssTag;
+  }
+}
 
 /**
  * Credits: Color Space conversion functions from CSS Tricks
