@@ -16,6 +16,8 @@
  *
  */
 
+import { production } from "./settings.js";
+
 export class Logger {
   static LOG_LEVELS = {
     OFF: 0,
@@ -35,8 +37,7 @@ export class Logger {
   }
 
   get #level() {
-    let loggingEnabled =
-      this.#settings.get_boolean("logging-enabled") || !this.#settings.production;
+    let loggingEnabled = this.#settings.get_boolean("logging-enabled") || !production;
     return !loggingEnabled ? Logger.LOG_LEVELS.OFF : this.#settings.get_uint("log-level");
   }
 
