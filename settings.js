@@ -82,7 +82,9 @@ function getSettingsSchema(schema) {
 
 export const ConfigManager = GObject.registerClass(
   class ConfigManager extends GObject.Object {
-    _init() {
+    constructor(extension) {
+      super();
+      this._extension = extension;
       this._confDir = GLib.get_user_config_dir();
     }
 
@@ -91,7 +93,10 @@ export const ConfigManager = GObject.registerClass(
     }
 
     get defaultStylesheetFile() {
-      const defaultStylesheet = GLib.build_filenamev([`${Me.dir.get_path()}`, `stylesheet.css`]);
+      const defaultStylesheet = GLib.build_filenamev([
+        `${this._extension.dir.get_path()}`,
+        `stylesheet.css`,
+      ]);
 
       Logger.trace(`default-stylesheet: ${defaultStylesheet}`);
 
@@ -112,7 +117,7 @@ export const ConfigManager = GObject.registerClass(
 
     get defaultWindowConfigFile() {
       const defaultWindowConfig = GLib.build_filenamev([
-        `${Me.dir.get_path()}`,
+        `${this._extension.dir.get_path()}`,
         `config`,
         `windows.json`,
       ]);

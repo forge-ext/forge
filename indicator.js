@@ -61,7 +61,7 @@ const FeatureMenuToggle = GObject.registerClass(
 
       // Ensure the settings are unavailable when the screen is locked
       settingsItem.visible = Main.sessionMode.allowSettings;
-      this.menu._settingsActions[Me.uuid] = settingsItem;
+      this.menu._settingsActions[this._extWm.ext.uuid] = settingsItem;
     }
   }
 );
