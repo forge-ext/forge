@@ -9,15 +9,20 @@ Modified to work in GNOME-Shell by Forge
 ### Usage
 
 ```js
-const Css = Me.imports.css;
+import {
+  parse,
+  stringify,
+  write,
+  load,
+} from './css/index.js';
 
 // Raw APIs from ReworkCSS
-let obj = Css.parse('body { font-size: 12px; }');
-let code = Css.stringify(obj);
+let obj = parse('body { font-size: 12px; }');
+let code = stringify(obj);
 
 // Convenience
-Css.write(code, "/path/to/stylesheet.css");
-let ast = Css.load("/path/to/stylesheet.css");
+write(code, "/path/to/stylesheet.css");
+let ast = load("/path/to/stylesheet.css");
 
 // ... Do something with AST ...
 
