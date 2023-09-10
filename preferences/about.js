@@ -2,7 +2,7 @@
 import Adw from "gi://Adw";
 import Gtk from "gi://Gtk";
 
-import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 import { developers } from "./metadata.js";
 import { PACKAGE_VERSION } from "resource:///org/gnome/shell/misc/config.js";

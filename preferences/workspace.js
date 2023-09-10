@@ -3,9 +3,9 @@ import GObject from "gi://GObject";
 
 import { EntryRow, PreferencesPage } from "../widgets.js";
 
-import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
-var WorkspacePage = GObject.registerClass(
+export const WorkspacePage = GObject.registerClass(
   class WorkspacePage extends PreferencesPage {
     constructor({ settings }) {
       super({ title: _("Workspace"), icon_name: "shell-overview-symbolic" });

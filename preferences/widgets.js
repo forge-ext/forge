@@ -8,7 +8,7 @@ import Gdk from "gi://Gdk";
 
 import * as Logger from "./logger.js";
 
-import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 export const PreferencesPage = GObject.registerClass(
   class PreferencesPage extends Adw.PreferencesPage {
@@ -232,7 +232,9 @@ export const EntryRow = GObject.registerClass(
 export const RadioRow = GObject.registerClass(
   class RadioRow extends Adw.ActionRow {
     static orientation = Gtk.Orientation.HORIZONTAL;
+
     static spacing = 10;
+
     static valign = Gtk.Align.CENTER;
 
     constructor({ title, subtitle = "", settings, bind, options }) {

@@ -3,9 +3,9 @@ import Adw from "gi://Adw";
 import GObject from "gi://GObject";
 import Gtk from "gi://Gtk";
 
-import { EntryRow, PreferencesPage, RadioRow } from "../widgets.js";
+import { EntryRow, PreferencesPage, RadioRow } from "./widgets.js";
 
-import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 // Application imports
 import * as Logger from "../logger.js";
