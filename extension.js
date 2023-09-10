@@ -16,32 +16,30 @@
  *
  */
 
-"use strict";
-
 // Gnome imports
-const SessionMode = imports.ui.main.sessionMode;
+import * as SessionMode from "resource:///org/gnome/shell/ui/main/sessionMode.js";
 
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import { PACKAGE_VERSION } from "resource:///org/gnome/shell/misc/config.js";
+
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 // Application imports
-const Logger = Me.imports.logger;
-const Settings = Me.imports.settings;
-const { Keybindings } = Me.imports.keybindings;
-const { ThemeManager } = Me.imports.theme;
-const { WindowManager } = Me.imports.window;
-const { FeatureIndicator } = Me.imports.indicator;
+import * as Logger from "./logger.js";
+import * as Settings from "./settings.js";
+import { Keybindings } from "./keybindings.js";
+import { ThemeManager } from "./theme.js";
+import { WindowManager } from "./window.js";
+import { FeatureIndicator } from "./indicator.js";
 
-function init() {
-  Logger.info("init");
-  ExtensionUtils.initTranslations();
-  return new Extension();
-}
+import { production } from "./settings.js";
 
-class Extension {
+export default class ForgeExtension {
   constructor() {
+    Logger.info("init");
     this.indicator = null;
+    this.prefs_title = `Forge ${_("Settings")} - ${
+      !production ? "DEV" : `${PACKAGE_VERSION}-${this.metadata.version}`
+    }`;
   }
 
   enable() {

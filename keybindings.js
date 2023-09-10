@@ -16,33 +16,21 @@
  *
  */
 
-"use strict";
-
 // Gnome imports
-const Gdk = imports.gi.Gdk;
-const GLib = imports.gi.GLib;
-const GObject = imports.gi.GObject;
-const Meta = imports.gi.Meta;
-const Shell = imports.gi.Shell;
-const St = imports.gi.St;
-const Util = imports.misc.util;
+import GObject from "gi://GObject";
+import Meta from "gi://Meta";
+import Shell from "gi://Shell";
 
 // Gnome Shell imports
-const DND = imports.ui.dnd;
-const Main = imports.ui.main;
-
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import * as Main from "resource://org/gnome/shell/ui/main.js";
 
 // App imports
-const Logger = Me.imports.logger;
-const Msgs = Me.imports.messages;
-const Window = Me.imports.window;
+import * as Logger from "./logger.js";
 
-var Keybindings = GObject.registerClass(
+export const Keybindings = GObject.registerClass(
   class Keybindings extends GObject.Object {
-    _init(ext) {
+    constructor(ext) {
+      super();
       Logger.debug(`created keybindings`);
       this._grabbers = new Map();
       // this._bindSignals();

@@ -1,25 +1,22 @@
-"use strict";
+import GObject from "gi://GObject";
+import Gio from "gi://Gio";
 
-const { GObject, Gio } = imports.gi;
+import * as Main from "resource:///org/gnome/shell/ui/main.js";
+import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
+import * as QuickSettings from "resource:///org/gnome/shell/ui/quickSettings.js";
+import * as QuickSettingsMenu from "resource:///org/gnome/shell/ui/main/panel/statusArea/quickSettings.js";
 
-const Main = imports.ui.main;
-const PopupMenu = imports.ui.popupMenu;
-const QuickSettings = imports.ui.quickSettings;
-const QuickSettingsMenu = imports.ui.main.panel.statusArea.quickSettings;
-
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Logger = Me.imports.logger;
-const Utils = Me.imports.utils;
+import * as Logger from "./logger.js";
+import * as Utils from "./utils.js";
 
 const iconName = "view-grid-symbolic";
 
 const SettingsPopupSwitch = GObject.registerClass(
   class SettingsPopupSwitch extends PopupMenu.PopupSwitchMenuItem {
-    _init(title, settings, bind) {
+    constructor(title, settings, bind) {
       this._settings = settings;
       const active = !!this._settings.get_boolean(bind);
-      super._init(title, active);
+      super(title, active);
       Logger.info(bind, active);
       this.connect("toggled", (item) => this._settings.set_boolean(bind, item.state));
     }
@@ -28,12 +25,12 @@ const SettingsPopupSwitch = GObject.registerClass(
 
 const FeatureMenuToggle = GObject.registerClass(
   class FeatureMenuToggle extends QuickSettings.QuickMenuToggle {
-    _init(settings, extWm) {
+    constructor(settings, extWm) {
       const title = _("Tiling");
       const initSettings = Utils.isGnome(44)
         ? { title, iconName, toggleMode: true }
         : { label: title, iconName, toggleMode: true };
-      super._init(initSettings);
+      super(initSettings);
 
       this._settings = settings;
       this._extWm = extWm;
@@ -69,10 +66,10 @@ const FeatureMenuToggle = GObject.registerClass(
   }
 );
 
-var FeatureIndicator = GObject.registerClass(
+export const FeatureIndicator = GObject.registerClass(
   class FeatureIndicator extends QuickSettings.SystemIndicator {
-    _init(settings, extWm) {
-      super._init();
+    constructor(settings, extWm) {
+      super();
 
       // Create the icon for the indicator
       this._indicator = this._addIndicator();

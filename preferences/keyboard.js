@@ -1,22 +1,21 @@
-"use strict";
+// Gnome imports
+import Adw from "gi://Adw";
+import GObject from "gi://GObject";
+import Gtk from "gi://Gtk";
 
-const { Adw, GObject, Gtk } = imports.gi;
+import { EntryRow, PreferencesPage, RadioRow } from "../widgets.js";
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const { EntryRow, PreferencesPage, RadioRow, SwitchRow } = Me.imports.widgets;
-
-const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 // Application imports
-const Logger = Me.imports.logger;
-const Msgs = Me.imports.messages;
-const Settings = Me.imports.settings;
+import * as Logger from "../logger.js";
+import * as Msgs from "../messages.js";
+import * as Settings from "../settings.js";
 
-var KeyboardPage = GObject.registerClass(
+export const KeyboardPage = GObject.registerClass(
   class KeyboardPage extends PreferencesPage {
-    _init({ settings }) {
-      super._init({ title: _("Keyboard"), icon_name: "input-keyboard-symbolic" });
+    constructor({ settings }) {
+      super({ title: _("Keyboard"), icon_name: "input-keyboard-symbolic" });
 
       const description = `${_(
         "Syntax"

@@ -1,20 +1,14 @@
-"use strict";
-
 // Gnome imports
-const { Adw, GObject } = imports.gi;
+import GObject from "gi://GObject";
 
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import { EntryRow, PreferencesPage } from "../widgets.js";
 
-const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
-
-const { EntryRow, PreferencesPage } = Me.imports.widgets;
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 var WorkspacePage = GObject.registerClass(
   class WorkspacePage extends PreferencesPage {
-    _init({ settings }) {
-      super._init({ title: _("Workspace"), icon_name: "shell-overview-symbolic" });
+    constructor({ settings }) {
+      super({ title: _("Workspace"), icon_name: "shell-overview-symbolic" });
       this.add_group({
         title: _("Update Workspace Settings"),
         description: _(

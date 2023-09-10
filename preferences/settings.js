@@ -1,30 +1,21 @@
-"use strict";
-
-// Gnome imports
-const { Adw, GObject, Gtk } = imports.gi;
-
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-
-const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 // Application imports
-const Logger = Me.imports.logger;
-const Msgs = Me.imports.messages;
+import * as Logger from "../logger.js";
+import * as Msgs from "../messages.js";
 
-const { DropDownRow, SwitchRow, PreferencesPage } = Me.imports.widgets;
-const { makeAboutButton } = Me.imports.preferences.about;
-const { production } = Me.imports.settings;
+import { DropDownRow, SwitchRow, PreferencesPage } from "../widgets.js";
+import { makeAboutButton } from "./about.js";
+import { production } from "../settings.js";
 
-var SettingsPage = GObject.registerClass(
+export const SettingsPage = GObject.registerClass(
   class SettingsPage extends PreferencesPage {
-    _init({ settings, window }) {
-      super._init({ title: _("Settings"), icon_name: "settings-symbolic" });
+    constructor({ settings, window, metadata }) {
+      super({ title: _("Settings"), icon_name: "settings-symbolic" });
       this.add_group({
         title: _("Settings"),
         description: _("Toggle Forge's high-level features"),
-        header_suffix: makeAboutButton(window),
+        header_suffix: makeAboutButton(window, metadata),
         children: [
           new SwitchRow({
             title: _("Stacked Tiling Mode"),

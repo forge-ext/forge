@@ -16,46 +16,37 @@
  *
  */
 
-"use strict";
-
 // Gnome imports
-const { Gdk, Gtk } = imports.gi;
+import Gdk from "gi://Gdk";
+import Gtk from "gi://Gtk";
 
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import {
+  ExtensionPreferences,
+  gettext as _,
+} from "resource:///org/gnome/shell/extensions/extension.js";
 
-const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+import { KeyboardPage } from "./preferences/keyboard.js";
+import { AppearancePage } from "./preferences/appearance.js";
+import { WorkspacePage } from "./preferences/workspace.js";
+import { SettingsPage } from "./preferences/settings.js";
 
-// Application imports
-const Css = Me.imports.css;
-const Logger = Me.imports.logger;
-const Msgs = Me.imports.messages;
-const Settings = Me.imports.settings;
-const Theme = Me.imports.theme;
+export default class ForgeExtentionPreferences extends ExtensionPreferences {
+  init() {
+    const iconPath = Me.dir.get_child("resources").get_child("icons").get_path();
+    const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+    iconTheme.add_search_path(iconPath);
+  }
 
-const { ColorRow, DropDownRow, EntryRow, RadioRow, SpinButtonRow, SwitchRow } = Me.imports.widgets;
-
-const { KeyboardPage } = Me.imports.preferences.keyboard;
-const { AppearancePage } = Me.imports.preferences.appearance;
-const { WorkspacePage } = Me.imports.preferences.workspace;
-const { SettingsPage } = Me.imports.preferences.settings;
-
-function init() {
-  const iconPath = Me.dir.get_child("resources").get_child("icons").get_path();
-  const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
-  iconTheme.add_search_path(iconPath);
-}
-
-function fillPreferencesWindow(window) {
-  const settings = ExtensionUtils.getSettings();
-  window._settings = settings;
-  const kbdSettings = ExtensionUtils.getSettings("org.gnome.shell.extensions.forge.keybindings");
-  window._kbdSettings = kbdSettings;
-  window.add(new SettingsPage({ settings, window }));
-  window.add(new AppearancePage({ settings }));
-  window.add(new WorkspacePage({ settings }));
-  window.add(new KeyboardPage({ settings: kbdSettings }));
-  window.search_enabled = true;
-  window.can_navigate_back = true;
+  fillPreferencesWindow(window) {
+    const settings = ExtensionUtils.getSettings();
+    window._settings = settings;
+    const kbdSettings = ExtensionUtils.getSettings("org.gnome.shell.extensions.forge.keybindings");
+    window._kbdSettings = kbdSettings;
+    window.add(new SettingsPage({ settings, window }));
+    window.add(new AppearancePage({ settings }));
+    window.add(new WorkspacePage({ settings }));
+    window.add(new KeyboardPage({ settings: kbdSettings }));
+    window.search_enabled = true;
+    window.can_navigate_back = true;
+  }
 }

@@ -16,115 +16,101 @@
  *
  */
 
-"use strict";
-
-const Gettext = imports.gettext;
-
 // Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-ExtensionUtils.initTranslations();
-Gettext.textdomain(Me.metadata["gettext-domain"]);
-const _ = Gettext.gettext;
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
-// App imports
-const Settings = Me.imports.settings;
+export const prefs_wip_text = _("Development in Progress...");
+export const prefs_general_about = _("About");
+export const prefs_general_appearance = _("Appearance");
+export const prefs_general_development = _("Development");
+export const prefs_general_experimental = _("Experimental");
+export const prefs_general_home = _("Home");
+export const prefs_general_keyboard = _("Keyboard");
 
-let pkgVersion = imports.misc.config.PACKAGE_VERSION;
+export const prefs_appearance_windows = _("Window");
+export const prefs_appearance_window_gaps_title = _("Gaps");
+export const prefs_appearance_window_gaps_size_label = _("Gaps Size");
+export const prefs_appearance_window_gaps_increment_label = _("Gaps Size Multiplier");
+export const prefs_appearance_window_gaps_hidden_single_label = _("Gaps Hidden when Single");
 
-var pkg_ext_text = `${pkgVersion}-${Me.metadata.version}`;
-var prefs_title =
-  "Forge" + " " + _("Settings") + (!Settings.production ? " - DEV" : ` - ${pkg_ext_text}`);
-var prefs_wip_text = _("Development in Progress...");
-var prefs_general_about = _("About");
-var prefs_general_appearance = _("Appearance");
-var prefs_general_development = _("Development");
-var prefs_general_experimental = _("Experimental");
-var prefs_general_home = _("Home");
-var prefs_general_keyboard = _("Keyboard");
+export const prefs_appearance_borders_title = _("Borders");
+export const prefs_appearance_focus_borders_label = _("Show Focus Hint Border");
 
-var prefs_appearance_windows = _("Window");
-var prefs_appearance_window_gaps_title = _("Gaps");
-var prefs_appearance_window_gaps_size_label = _("Gaps Size");
-var prefs_appearance_window_gaps_increment_label = _("Gaps Size Multiplier");
-var prefs_appearance_window_gaps_hidden_single_label = _("Gaps Hidden when Single");
+export const prefs_appearance_color = _("Color");
+export const prefs_appearance_color_border_size_label = _("Border Size");
+export const prefs_appearance_color_border_color_label = _("Border Color");
+export const prefs_appearance_color_border_palette_mode = _("Palette Mode");
+export const prefs_appearance_color_border_editor_mode = _("Editor Mode");
+export const prefs_appearance_color_border_changes_apply = _("Apply Changes");
+export const prefs_appearance_color_border_size_reset = _("Reset");
+export const prefs_appearance_color_border_color_reset = _("Reset");
+export const prefs_appearance_layout = _("Layout");
+export const prefs_appearance_layout_dnd_default_layout = _("Default Drag-and-Drop Center Layout");
+export const prefs_appearance_layout_dnd_default_layout_option_tabbed = _("Tabbed");
+export const prefs_appearance_layout_dnd_default_layout_option_stacked = _("Stacked");
 
-var prefs_appearance_borders_title = _("Borders");
-var prefs_appearance_focus_borders_label = _("Show Focus Hint Border");
-
-var prefs_appearance_color = _("Color");
-var prefs_appearance_color_border_size_label = _("Border Size");
-var prefs_appearance_color_border_color_label = _("Border Color");
-var prefs_appearance_color_border_palette_mode = _("Palette Mode");
-var prefs_appearance_color_border_editor_mode = _("Editor Mode");
-var prefs_appearance_color_border_changes_apply = _("Apply Changes");
-var prefs_appearance_color_border_size_reset = _("Reset");
-var prefs_appearance_color_border_color_reset = _("Reset");
-var prefs_appearance_layout = _("Layout");
-var prefs_appearance_layout_dnd_default_layout = _("Default Drag-and-Drop Center Layout");
-var prefs_appearance_layout_dnd_default_layout_option_tabbed = _("Tabbed");
-var prefs_appearance_layout_dnd_default_layout_option_stacked = _("Stacked");
-
-var prefs_workspace_settings = _("Workspace");
-var prefs_workspace_settings_title = _("Update Workspace Settings");
-var prefs_workspace_settings_skip_tiling_label = _("Skip Workspace Tiling");
-var prefs_workspace_settings_skip_tiling_instructions_text = _(
+export const prefs_workspace_settings = _("Workspace");
+export const prefs_workspace_settings_title = _("Update Workspace Settings");
+export const prefs_workspace_settings_skip_tiling_label = _("Skip Workspace Tiling");
+export const prefs_workspace_settings_skip_tiling_instructions_text = _(
   "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to accept"
 );
 
-var prefs_keyboard_window_shortcuts = _("Window Shortcuts");
-var prefs_keyboard_workspace_shortcuts = _("Workspace Shortcuts");
-var prefs_keyboard_container_shortcuts = _("Container Shortcuts");
-var prefs_keyboard_focus_shortcuts = _("Focus Shortcuts");
-var prefs_keyboard_other_shortcuts = _("Other Shortcuts");
-var prefs_keyboard_function_mod_keys = _("Modifier Keys");
-var prefs_keyboard_other_mod_mask_header = _("Drag-Drop Tiling Modifier Key Options");
-var prefs_keyboard_other_mod_mask_informational1 = _(
+export const prefs_keyboard_window_shortcuts = _("Window Shortcuts");
+export const prefs_keyboard_workspace_shortcuts = _("Workspace Shortcuts");
+export const prefs_keyboard_container_shortcuts = _("Container Shortcuts");
+export const prefs_keyboard_focus_shortcuts = _("Focus Shortcuts");
+export const prefs_keyboard_other_shortcuts = _("Other Shortcuts");
+export const prefs_keyboard_function_mod_keys = _("Modifier Keys");
+export const prefs_keyboard_other_mod_mask_header = _("Drag-Drop Tiling Modifier Key Options");
+export const prefs_keyboard_other_mod_mask_informational1 = _(
   "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
 );
-var prefs_keyboard_other_mod_mask_informational2 = _(
+export const prefs_keyboard_other_mod_mask_informational2 = _(
   "Select <i>None</i> to <u>always tile immediately</u> by default"
 );
-var prefs_keyboard_mod_mask_tile_label = _("Tile Modifier");
-var prefs_keyboard_mod_mask_tile_ctrl_label = _("Ctrl");
-var prefs_keyboard_mod_mask_tile_super_label = _("Super");
-var prefs_keyboard_mod_mask_tile_alt_label = _("Alt");
-var prefs_keyboard_mod_mask_tile_none_label = _("None");
+export const prefs_keyboard_mod_mask_tile_label = _("Tile Modifier");
+export const prefs_keyboard_mod_mask_tile_ctrl_label = _("Ctrl");
+export const prefs_keyboard_mod_mask_tile_super_label = _("Super");
+export const prefs_keyboard_mod_mask_tile_alt_label = _("Alt");
+export const prefs_keyboard_mod_mask_tile_none_label = _("None");
 
-var prefs_development_logging_level_label = _("Logger Level");
+export const prefs_development_logging_level_label = _("Logger Level");
 
-var prefs_experimental_settings_title = _(
+export const prefs_experimental_settings_title = _(
   "<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to crash"
 );
-var prefs_experimental_stacked_tiling_label = _(
+export const prefs_experimental_stacked_tiling_label = _(
   "Stacked Tiling Mode (Stack windows on top of each other while still being tiled)"
 );
-var prefs_experimental_tabbed_tiling_label = _("Tabbed Tiling Mode (Group tiled windows as tabs)");
-var prefs_experimental_float_always_on_top = _(
+export const prefs_experimental_tabbed_tiling_label = _(
+  "Tabbed Tiling Mode (Group tiled windows as tabs)"
+);
+export const prefs_experimental_float_always_on_top = _(
   "Float Mode Always On Top (Floating windows always above tiling windows)"
 );
-var prefs_experimental_auto_split = _("Auto Split (Quarter Tiling)");
-var prefs_experimental_preview_hint = _("Preview Hint Toggle");
+export const prefs_experimental_auto_split = _("Auto Split (Quarter Tiling)");
+export const prefs_experimental_preview_hint = _("Preview Hint Toggle");
 
-var prefs_keyboard_update_keys_title = _("Update Keybindings");
-var prefs_keyboard_update_keys_syntax_label = _("Syntax");
-var prefs_keyboard_update_keys_legend_label = _("Legend");
-var prefs_keyboard_update_keys_legend_sub_1_label = _("Windows key");
-var prefs_keyboard_update_keys_legend_sub_2_label = _("Control key");
-var prefs_keyboard_update_keys_instructions_text = _(
+export const prefs_keyboard_update_keys_title = _("Update Keybindings");
+export const prefs_keyboard_update_keys_syntax_label = _("Syntax");
+export const prefs_keyboard_update_keys_legend_label = _("Legend");
+export const prefs_keyboard_update_keys_legend_sub_1_label = _("Windows key");
+export const prefs_keyboard_update_keys_legend_sub_2_label = _("Control key");
+export const prefs_keyboard_update_keys_instructions_text = _(
   "Delete text to unset. Press Return key to accept. Focus out to ignore."
 );
-var prefs_keyboard_update_keys_resets_label = _("Resets");
-var prefs_keyboard_update_keys_resets_sub_1_label = _("to previous value when invalid");
-var prefs_keyboard_update_keys_column_1_header = _("Action");
-var prefs_keyboard_update_keys_column_2_header = _("Shortcut");
-var prefs_keyboard_update_keys_column_3_header = _("Notes");
+export const prefs_keyboard_update_keys_resets_label = _("Resets");
+export const prefs_keyboard_update_keys_resets_sub_1_label = _("to previous value when invalid");
+export const prefs_keyboard_update_keys_column_1_header = _("Action");
+export const prefs_keyboard_update_keys_column_2_header = _("Shortcut");
+export const prefs_keyboard_update_keys_column_3_header = _("Notes");
 
-var panel_indicator_button_text = _("Forge Panel Settings");
-var panel_indicator_tile_switch_text = _("Tile Mode");
-var panel_indicator_prefs_open_text = _("Open Preferences");
+export const panel_indicator_button_text = _("Forge Panel Settings");
+export const panel_indicator_tile_switch_text = _("Tile Mode");
+export const panel_indicator_prefs_open_text = _("Open Preferences");
 
-var getCssSelectorAsMessage = (selector) => {
+export const getCssSelectorAsMessage = (selector) => {
   switch (selector) {
     case ".window-tiled-border":
       return _("Tiled Focus Hint and Preview");

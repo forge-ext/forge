@@ -16,20 +16,12 @@
  *
  */
 
-'use strict';
-
 // Gnome imports
-const GLib = imports.gi.GLib;
-const GObject = imports.gi.GObject;
-const Meta = imports.gi.Meta;
-const Shell = imports.gi.Shell;
-const St = imports.gi.St;
-
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
+import Meta from 'gi://Meta';
+import Shell from 'gi://Shell';
+import St from 'gi://St';
 
 // Application imports
-const Logger = Me.imports.logger;
-
-// Copy-rename `module-name.js` to create a new module at the root directory.
+import * as Logger from './logger.js';

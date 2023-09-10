@@ -16,21 +16,15 @@
  *
  */
 
-"use strict";
-
 // Gnome imports
-const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
-const GObject = imports.gi.GObject;
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
 
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import Logger from "./logger.js";
 
 // Dev or Prod mode, see Makefile:debug
-var production = true;
-
-const Logger = Me.imports.logger;
+export const production = true;
 
 /**
  * getSettings:
@@ -44,7 +38,7 @@ const Logger = Me.imports.logger;
  *  - Code from convenience.js script by Dash-To-Panel
  *  - See credits also on that file for further derivatives.
  */
-function getSettings(schema) {
+export function getSettings(schema) {
   let settingsSchema = getSettingsSchema(schema);
   return new Gio.Settings({
     settings_schema: settingsSchema,
@@ -86,7 +80,7 @@ function getSettingsSchema(schema) {
   return settingsSchema;
 }
 
-var ConfigManager = GObject.registerClass(
+export const ConfigManager = GObject.registerClass(
   class ConfigManager extends GObject.Object {
     _init() {
       this._confDir = GLib.get_user_config_dir();

@@ -1,27 +1,24 @@
-"use strict";
-
 // Gnome imports
-const { Adw, GObject, Gdk, Gtk } = imports.gi;
+import Adw from "gi://Adw";
+import GObject from "gi://GObject";
+import Gdk from "gi://Gdk";
 
 // Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const { ColorRow, DropDownRow, PreferencesPage, ResetButton, SpinButtonRow, SwitchRow } =
-  Me.imports.widgets;
+import { ColorRow, PreferencesPage, ResetButton, SpinButtonRow, SwitchRow } from "../widgets.js";
 
-const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 // Application imports
-const Logger = Me.imports.logger;
-const Msgs = Me.imports.messages;
-const Settings = Me.imports.settings;
-const Theme = Me.imports.theme;
+import * as Logger from "../logger.js";
+import * as Msgs from "../messages.js";
+import * as Settings from "../settings.js";
+import * as Theme from "../theme.js";
 
-var AppearancePage = GObject.registerClass(
+export const AppearancePage = GObject.registerClass(
   class AppearancePage extends PreferencesPage {
-    _init({ settings }) {
+    constructor({ settings }) {
       this.settings = settings;
-      super._init({ title: _("Appearance"), icon_name: "brush-symbolic" });
+      super({ title: _("Appearance"), icon_name: "brush-symbolic" });
       this.themeMgr = new Theme.ThemeManager(settings, new Settings.ConfigManager(), {
         prefsMode: true,
       });
