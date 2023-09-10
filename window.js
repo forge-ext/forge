@@ -16,43 +16,33 @@
  *
  */
 
-"use strict";
-
 // Gnome imports
-const Clutter = imports.gi.Clutter;
-const Gdk = imports.gi.Gdk;
-const GLib = imports.gi.GLib;
-const GObject = imports.gi.GObject;
-const Meta = imports.gi.Meta;
-const Shell = imports.gi.Shell;
-const St = imports.gi.St;
+import Gdk from "gi://Gdk";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
+import Meta from "gi://Meta";
+import St from "gi://St";
 
 // Gnome Shell imports
-const DND = imports.ui.dnd;
-const Overview = imports.ui.main.overview;
-const SessionMode = imports.ui.main.sessionMode;
-
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import * as Overview from "resource:///org/gnome/shell/ui/main/overview.js";
 
 // App imports
-const Keybindings = Me.imports.keybindings;
-const Logger = Me.imports.logger;
-const Msgs = Me.imports.messages;
-const Theme = Me.imports.theme;
-const Tree = Me.imports.tree;
-const Utils = Me.imports.utils;
+import * as Keybindings from "./keybindings.js";
+import * as Logger from "./logger.js";
+import * as Msgs from "./messages.js";
+import * as Tree from "./tree.js";
+import * as Utils from "./utils.js";
 
-var WINDOW_MODES = Utils.createEnum(["FLOAT", "TILE", "GRAB_TILE", "DEFAULT"]);
+export const WINDOW_MODES = Utils.createEnum(["FLOAT", "TILE", "GRAB_TILE", "DEFAULT"]);
 
 // Simplify the grab modes
-var GRAB_TYPES = Utils.createEnum(["RESIZING", "MOVING", "UNKNOWN"]);
+export const GRAB_TYPES = Utils.createEnum(["RESIZING", "MOVING", "UNKNOWN"]);
 
-var WindowManager = GObject.registerClass(
+export const WindowManager = GObject.registerClass(
   class WindowManager extends GObject.Object {
-    _init(ext) {
-      super._init();
+    constructor(ext) {
+      super();
+
       this.ext = ext;
       this.windowProps = this.ext.configMgr.windowProps;
       this._kbd = this.ext.keybindings;

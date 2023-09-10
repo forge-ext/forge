@@ -23,7 +23,7 @@ patchcss:
 	# TODO: add the script to update css tag when delivering theme.js
 
 metadata:
-	echo "var developers = Object.entries([" > preferences/metadata.js
+	echo "export const developers = Object.entries([" > preferences/metadata.js
 	git shortlog -sne >> preferences/metadata.js
 	awk -i inplace '!/dependabot|noreply/' preferences/metadata.js
 	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' preferences/metadata.js

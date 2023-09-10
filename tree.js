@@ -16,30 +16,18 @@
  *
  */
 
-"use strict";
-
 // Gnome imports
-const GLib = imports.gi.GLib;
-const GObject = imports.gi.GObject;
-const Meta = imports.gi.Meta;
-const Shell = imports.gi.Shell;
-const St = imports.gi.St;
-
-// Gnome Shell imports
-const DND = imports.ui.dnd;
-const Main = imports.ui.main;
-
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import GObject from "gi://GObject";
+import Meta from "gi://Meta";
+import Shell from "gi://Shell";
+import St from "gi://St";
 
 // App imports
-const Logger = Me.imports.logger;
-const Settings = Me.imports.settings;
-const Utils = Me.imports.utils;
-const Window = Me.imports.window;
+import * as Logger from "./logger.js";
+import * as Utils from "./utils.js";
+import * as Window from "./window.js";
 
-var NODE_TYPES = Utils.createEnum([
+export const NODE_TYPES = Utils.createEnum([
   "ROOT",
   "MONITOR", //Output in i3
   "CON", //Container in i3
@@ -47,11 +35,18 @@ var NODE_TYPES = Utils.createEnum([
   "WORKSPACE",
 ]);
 
-var LAYOUT_TYPES = Utils.createEnum(["STACKED", "TABBED", "ROOT", "HSPLIT", "VSPLIT", "PRESET"]);
+export const LAYOUT_TYPES = Utils.createEnum([
+  "STACKED",
+  "TABBED",
+  "ROOT",
+  "HSPLIT",
+  "VSPLIT",
+  "PRESET",
+]);
 
-var ORIENTATION_TYPES = Utils.createEnum(["NONE", "HORIZONTAL", "VERTICAL"]);
+export const ORIENTATION_TYPES = Utils.createEnum(["NONE", "HORIZONTAL", "VERTICAL"]);
 
-var POSITION = Utils.createEnum(["BEFORE", "AFTER", "UNKNOWN"]);
+export const POSITION = Utils.createEnum(["BEFORE", "AFTER", "UNKNOWN"]);
 
 /**
  * The Node data representation of the following elements in the user's display:
@@ -62,10 +57,10 @@ var POSITION = Utils.createEnum(["BEFORE", "AFTER", "UNKNOWN"]);
  * Workspace
  *
  */
-var Node = GObject.registerClass(
+export const Node = GObject.registerClass(
   class Node extends GObject.Object {
-    _init(type, data) {
-      super._init();
+    constructor(type, data) {
+      super();
       // TODO - move to GObject property definitions?
       this._type = type; // see NODE_TYPES
       // _data: Meta.Window, unique id strings (Monitor,
@@ -559,10 +554,10 @@ var Node = GObject.registerClass(
 /**
  * An implementation of Queue using arrays
  */
-var Queue = GObject.registerClass(
+export const Queue = GObject.registerClass(
   class Queue extends GObject.Object {
-    _init() {
-      super._init();
+    constructor() {
+      super();
       this._elements = [];
     }
 
@@ -580,11 +575,11 @@ var Queue = GObject.registerClass(
   }
 );
 
-var Tree = GObject.registerClass(
+export const Tree = GObject.registerClass(
   class Tree extends Node {
-    _init(extWm) {
+    constructor(extWm) {
       let rootBin = new St.Bin();
-      super._init(NODE_TYPES.ROOT, rootBin);
+      super(NODE_TYPES.ROOT, rootBin);
       this._extWm = extWm;
       this.defaultStackHeight = 35;
       this.settings = this.extWm.ext.settings;

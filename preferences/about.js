@@ -1,38 +1,19 @@
-"use strict";
-
 // Gnome imports
-const { Adw, GObject, Gtk } = imports.gi;
+import Adw from "gi://Adw";
+import Gtk from "gi://Gtk";
 
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
-const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
-const { developers } = Me.imports.preferences.metadata;
-const gnomeVersion = imports.misc.config.PACKAGE_VERSION;
+import { developers } from "./metadata.js";
+import { PACKAGE_VERSION } from "resource:///org/gnome/shell/misc/config.js";
 
-// Application imports
-const Msgs = Me.imports.messages;
-
-function makeAboutButton(parent) {
-  const button = new Gtk.Button({
-    icon_name: "help-about-symbolic",
-    tooltip_text: _("About"),
-    valign: Gtk.Align.CENTER,
-  });
-  button.connect("clicked", () => showAboutWindow(parent));
-  return button;
-}
-
-function showAboutWindow(parent) {
-  const { version: v, description: comments } = Me.metadata;
-  const version = `${gnomeVersion}-${v.toString()}`;
+function showAboutWindow(parent, { version, description: comments }) {
   const abt = new Adw.AboutWindow({
     ...(parent && { transient_for: parent }),
     // TODO: fetch these from github at build time
     application_name: _("Forge"),
     application_icon: "forge-logo-symbolic",
-    version,
+    version: `${PACKAGE_VERSION}-${version.toString()}`,
     copyright: `© 2021-${new Date().getFullYear()} jmmaranan`,
     issue_url: "https://github.com/forge-ext/forge/issues/new",
     license_type: Gtk.License.GPL_3_0,
@@ -43,4 +24,14 @@ function showAboutWindow(parent) {
     translator_credits: _("translator-credits"),
   });
   abt.present();
+}
+
+export function makeAboutButton(parent, metadata) {
+  const button = new Gtk.Button({
+    icon_name: "help-about-symbolic",
+    tooltip_text: _("About"),
+    valign: Gtk.Align.CENTER,
+  });
+  button.connect("clicked", () => showAboutWindow(parent, metadata));
+  return button;
 }

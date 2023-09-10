@@ -16,25 +16,20 @@
  *
  */
 
-"use strict";
-
 // Gnome imports
-const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
-const GObject = imports.gi.GObject;
-
-// Extension imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import GObject from "gi://GObject";
 
 // Application imports
-const Css = Me.imports.css;
-const Logger = Me.imports.logger;
-const Settings = Me.imports.settings;
+import * as Css from "./css.js";
+import * as Logger from "./logger.js";
+import * as Settings from "./settings.js";
 
-var ThemeManager = GObject.registerClass(
+export const ThemeManager = GObject.registerClass(
   class ThemeManager extends GObject.Object {
-    _init(settings, configMgr, options = { prefsMode: false }) {
+    constructor(settings, configMgr, options = { prefsMode: false }) {
+      super();
       this.extensionPath = `${Me.dir.get_path()}`;
       this.settings = settings;
       this.configMgr = configMgr;
@@ -234,7 +229,7 @@ var ThemeManager = GObject.registerClass(
  * Credits: Color Space conversion functions from CSS Tricks
  * https://css-tricks.com/converting-color-spaces-in-javascript/
  */
-function RGBAToHexA(rgba) {
+export function RGBAToHexA(rgba) {
   let sep = rgba.indexOf(",") > -1 ? "," : " ";
   rgba = rgba.substr(5).split(")")[0].split(sep);
 
@@ -266,7 +261,7 @@ function RGBAToHexA(rgba) {
   return "#" + r + g + b + a;
 }
 
-function hexAToRGBA(h) {
+export function hexAToRGBA(h) {
   let r = 0,
     g = 0,
     b = 0,

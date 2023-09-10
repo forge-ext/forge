@@ -1,15 +1,16 @@
 /** @license (c) aylur. GPL v3 */
 
-"use strict";
+import Adw from "gi://Adw";
+import Gio from "gi://Gio";
+import Gtk from "gi://Gtk";
+import GObject from "gi://GObject";
+import Gdk from "gi://Gdk";
 
-const { Adw, Gio, Gtk, GObject, Gdk, GdkPixbuf } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Logger = Me.imports.logger;
+import * as Logger from "./logger.js";
 
-const _ = imports.gettext.domain(Me.metadata.uuid).gettext;
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
-var PreferencesPage = GObject.registerClass(
+export const PreferencesPage = GObject.registerClass(
   class PreferencesPage extends Adw.PreferencesPage {
     add_group({ title, description = "", children, header_suffix }) {
       const group = new Adw.PreferencesGroup({ title, description });
@@ -20,10 +21,10 @@ var PreferencesPage = GObject.registerClass(
   }
 );
 
-var SwitchRow = GObject.registerClass(
+export const SwitchRow = GObject.registerClass(
   class SwitchRow extends Adw.ActionRow {
-    _init({ title, settings, bind, subtitle = "", experimental }) {
-      super._init({ title, subtitle });
+    constructor({ title, settings, bind, subtitle = "", experimental }) {
+      super({ title, subtitle });
       const gswitch = new Gtk.Switch({
         active: settings.get_boolean(bind),
         valign: Gtk.Align.CENTER,
@@ -42,10 +43,10 @@ var SwitchRow = GObject.registerClass(
   }
 );
 
-var ColorRow = GObject.registerClass(
+export const ColorRow = GObject.registerClass(
   class ColorRow extends Adw.ActionRow {
-    _init({ title, init, onChange, subtitle = "" }) {
-      super._init({ title, subtitle });
+    constructor({ title, init, onChange, subtitle = "" }) {
+      super({ title, subtitle });
       let rgba = new Gdk.RGBA();
       rgba.parse(init);
       this.colorButton = new Gtk.ColorButton({ rgba, use_alpha: true, valign: Gtk.Align.CENTER });
@@ -58,10 +59,18 @@ var ColorRow = GObject.registerClass(
   }
 );
 
-var SpinButtonRow = GObject.registerClass(
+export const SpinButtonRow = GObject.registerClass(
   class SpinButtonRow extends Adw.ActionRow {
-    _init({ title, range: [low, high, step], subtitle = "", init, onChange, settings, bind }) {
-      super._init({ title, subtitle });
+    constructor({
+      title,
+      range: [low, high, step],
+      subtitle = "",
+      init,
+      onChange,
+      settings,
+      bind,
+    }) {
+      super({ title, subtitle });
       const gspin = Gtk.SpinButton.new_with_range(low, high, step);
       gspin.valign = Gtk.Align.CENTER;
       if (bind && settings) {
@@ -78,10 +87,10 @@ var SpinButtonRow = GObject.registerClass(
   }
 );
 
-var DropDownRow = GObject.registerClass(
+export const DropDownRow = GObject.registerClass(
   class DropDownRow extends Adw.ActionRow {
-    _init({ title, settings, bind, items, subtitle = "" }) {
-      super._init({ title, subtitle });
+    constructor({ title, settings, bind, items, subtitle = "" }) {
+      super({ title, subtitle });
       const model = new Gtk.StringList();
       const type = settings.get_value(bind)?.get_type() ?? "?";
       /**
@@ -176,10 +185,10 @@ var DropDownRow = GObject.registerClass(
   }
 );
 
-var ResetButton = GObject.registerClass(
+export const ResetButton = GObject.registerClass(
   class ResetButton extends Gtk.Button {
-    _init({ settings, bind, onReset }) {
-      super._init({
+    constructor({ settings, bind, onReset }) {
+      super({
         icon_name: "edit-clear-symbolic",
         tooltip_text: _("Reset"),
         valign: Gtk.Align.CENTER,
@@ -192,10 +201,10 @@ var ResetButton = GObject.registerClass(
   }
 );
 
-var EntryRow = GObject.registerClass(
+export const EntryRow = GObject.registerClass(
   class EntryRow extends Adw.EntryRow {
-    _init({ title, settings, bind, map }) {
-      super._init({ title });
+    constructor({ title, settings, bind, map }) {
+      super({ title });
       this.connect("changed", () => {
         const text = this.get_text();
         if (typeof text === "string")
@@ -220,13 +229,14 @@ var EntryRow = GObject.registerClass(
   }
 );
 
-var RadioRow = GObject.registerClass(
+export const RadioRow = GObject.registerClass(
   class RadioRow extends Adw.ActionRow {
     static orientation = Gtk.Orientation.HORIZONTAL;
     static spacing = 10;
     static valign = Gtk.Align.CENTER;
-    _init({ title, subtitle = "", settings, bind, options }) {
-      super._init({ title, subtitle });
+
+    constructor({ title, subtitle = "", settings, bind, options }) {
+      super({ title, subtitle });
       const current = settings.get_string(bind);
       const labels = Object.fromEntries(Object.entries(options).map(([k, v]) => [v, k]));
       const { orientation, spacing, valign } = RadioRow;

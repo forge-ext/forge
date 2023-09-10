@@ -19,32 +19,25 @@
  * Some code was also adapted from the upstream Gnome Shell source code.
  */
 
-"use strict";
-
 // Gnome imports
-const Gdk = imports.gi.Gdk;
-const Gio = imports.gi.Gio;
-const Meta = imports.gi.Meta;
-const St = imports.gi.St;
+import Gdk from "gi://Gdk.js";
+import Meta from "gi://Meta.js";
+import St from "gi://St.js";
 
 // Gnome-shell imports
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Config = imports.misc.config;
-const [major, minor] = Config.PACKAGE_VERSION.split(".").map((s) => Number(s));
+import Config from "resource:///org/gnome/shell/misc/config.js";
+const [major] = Config.PACKAGE_VERSION.split(".").map((s) => Number(s));
 
 // App imports
-const Logger = Me.imports.logger;
-const Settings = Me.imports.settings;
-const Tree = Me.imports.tree;
-const Window = Me.imports.window;
+import * as Tree from "./tree/js";
+import * as Window from "./window/js";
 
 /**
  *
  * Turns an array into an immutable enum-like object
  *
  */
-function createEnum(anArray) {
+export function createEnum(anArray) {
   const enumObj = {};
   for (const val of anArray) {
     enumObj[val] = val;
@@ -52,7 +45,7 @@ function createEnum(anArray) {
   return Object.freeze(enumObj);
 }
 
-function resolveX(rectRequest, metaWindow) {
+export function resolveX(rectRequest, metaWindow) {
   let metaRect = metaWindow.get_frame_rect();
   let monitorRect = metaWindow.get_work_area_current_monitor();
   let val = metaRect.x;
@@ -83,7 +76,7 @@ function resolveX(rectRequest, metaWindow) {
   return val;
 }
 
-function resolveY(rectRequest, metaWindow) {
+export function resolveY(rectRequest, metaWindow) {
   let metaRect = metaWindow.get_frame_rect();
   let monitorRect = metaWindow.get_work_area_current_monitor();
   let val = metaRect.y;
@@ -114,7 +107,7 @@ function resolveY(rectRequest, metaWindow) {
   return val;
 }
 
-function resolveWidth(rectRequest, metaWindow) {
+export function resolveWidth(rectRequest, metaWindow) {
   let metaRect = metaWindow.get_frame_rect();
   let monitorRect = metaWindow.get_work_area_current_monitor();
   let val = metaRect.width;
@@ -134,7 +127,7 @@ function resolveWidth(rectRequest, metaWindow) {
   return val;
 }
 
-function resolveHeight(rectRequest, metaWindow) {
+export function resolveHeight(rectRequest, metaWindow) {
   let metaRect = metaWindow.get_frame_rect();
   let monitorRect = metaWindow.get_work_area_current_monitor();
   let val = metaRect.height;
@@ -154,13 +147,13 @@ function resolveHeight(rectRequest, metaWindow) {
   return val;
 }
 
-function orientationFromDirection(direction) {
+export function orientationFromDirection(direction) {
   return direction === Meta.MotionDirection.LEFT || direction === Meta.MotionDirection.RIGHT
     ? Tree.ORIENTATION_TYPES.HORIZONTAL
     : Tree.ORIENTATION_TYPES.VERTICAL;
 }
 
-function orientationFromLayout(layout) {
+export function orientationFromLayout(layout) {
   switch (layout) {
     case Tree.LAYOUT_TYPES.HSPLIT:
     case Tree.LAYOUT_TYPES.TABBED:
@@ -173,13 +166,13 @@ function orientationFromLayout(layout) {
   }
 }
 
-function positionFromDirection(direction) {
+export function positionFromDirection(direction) {
   return direction === Meta.MotionDirection.LEFT || direction === Meta.MotionDirection.UP
     ? Tree.POSITION.BEFORE
     : Tree.POSITION.AFTER;
 }
 
-function resolveDirection(directionString) {
+export function resolveDirection(directionString) {
   if (directionString) {
     directionString = directionString.toUpperCase();
 
@@ -203,7 +196,7 @@ function resolveDirection(directionString) {
   return null;
 }
 
-function directionFrom(position, orientaton) {
+export function directionFrom(position, orientaton) {
   if (position === Tree.POSITION.AFTER) {
     if (orientaton === Tree.ORIENTATION_TYPES.HORIZONTAL) {
       return Meta.DisplayDirection.RIGHT;
@@ -219,7 +212,7 @@ function directionFrom(position, orientaton) {
   }
 }
 
-function rectContainsPoint(rect, pointP) {
+export function rectContainsPoint(rect, pointP) {
   if (!(rect && pointP)) return false;
   return (
     rect.x <= pointP[0] &&
@@ -229,7 +222,7 @@ function rectContainsPoint(rect, pointP) {
   );
 }
 
-function orientationFromGrab(grabOp) {
+export function orientationFromGrab(grabOp) {
   if (
     grabOp === Meta.GrabOp.RESIZING_N ||
     grabOp === Meta.GrabOp.RESIZING_S ||
@@ -248,7 +241,7 @@ function orientationFromGrab(grabOp) {
   return Tree.ORIENTATION_TYPES.NONE;
 }
 
-function positionFromGrabOp(grabOp) {
+export function positionFromGrabOp(grabOp) {
   if (
     grabOp === Meta.GrabOp.RESIZING_W ||
     grabOp === Meta.GrabOp.RESIZING_N ||
@@ -267,7 +260,7 @@ function positionFromGrabOp(grabOp) {
   return Tree.POSITION.UNKNOWN;
 }
 
-function allowResizeGrabOp(grabOp) {
+export function allowResizeGrabOp(grabOp) {
   return (
     grabOp === Meta.GrabOp.RESIZING_N ||
     grabOp === Meta.GrabOp.RESIZING_E ||
@@ -281,7 +274,7 @@ function allowResizeGrabOp(grabOp) {
   );
 }
 
-function grabMode(grabOp) {
+export function grabMode(grabOp) {
   if (
     grabOp === Meta.GrabOp.RESIZING_N ||
     grabOp === Meta.GrabOp.RESIZING_E ||
@@ -304,7 +297,7 @@ function grabMode(grabOp) {
   return Window.GRAB_TYPES.UNKNOWN;
 }
 
-function directionFromGrab(grabOp) {
+export function directionFromGrab(grabOp) {
   if (grabOp === Meta.GrabOp.RESIZING_E || grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E) {
     return Meta.MotionDirection.RIGHT;
   } else if (grabOp === Meta.GrabOp.RESIZING_W || grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W) {
@@ -316,7 +309,7 @@ function directionFromGrab(grabOp) {
   }
 }
 
-function removeGapOnRect(rectWithGap, gap) {
+export function removeGapOnRect(rectWithGap, gap) {
   rectWithGap.x = rectWithGap.x -= gap;
   rectWithGap.y = rectWithGap.y -= gap;
   rectWithGap.width = rectWithGap.width += gap * 2;
@@ -325,7 +318,7 @@ function removeGapOnRect(rectWithGap, gap) {
 }
 
 // Credits: PopShell
-function findWindowWith(title) {
+export function findWindowWith(title) {
   let display = global.display;
   let type = Meta.TabList.NORMAL_ALL;
   let workspaceMgr = display.get_workspace_manager();
@@ -347,7 +340,7 @@ function findWindowWith(title) {
   return undefined;
 }
 
-function oppositeDirectionOf(direction) {
+export function oppositeDirectionOf(direction) {
   if (direction === Meta.MotionDirection.LEFT) {
     return Meta.MotionDirection.RIGHT;
   } else if (direction === Meta.MotionDirection.RIGHT) {
@@ -359,7 +352,7 @@ function oppositeDirectionOf(direction) {
   }
 }
 
-function monitorIndex(monitorValue) {
+export function monitorIndex(monitorValue) {
   if (!monitorValue) return -1;
   let wsIndex = monitorValue.indexOf("ws");
   let indexVal = monitorValue.slice(0, wsIndex);
@@ -367,7 +360,7 @@ function monitorIndex(monitorValue) {
   return parseInt(indexVal);
 }
 
-function translateModifierType(name) {
+export function translateModifierType(name) {
   if (name === "Super" || name === "<Super>") {
     return Gdk.ModifierType.MOD4_MASK;
   }
@@ -382,7 +375,7 @@ function translateModifierType(name) {
   }
 }
 
-function _disableDecorations() {
+export function _disableDecorations() {
   let decos = global.window_group.get_children().filter((a) => a.type != null);
   decos.forEach((d) => {
     global.window_group.remove_child(d);
@@ -390,10 +383,10 @@ function _disableDecorations() {
   });
 }
 
-function dpi() {
+export function dpi() {
   return St.ThemeContext.get_for_stage(global.stage).scale_factor;
 }
 
-function isGnome(majorVersion) {
+export function isGnome(majorVersion) {
   return major == majorVersion;
 }
