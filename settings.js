@@ -21,84 +21,34 @@ import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 
-import Logger from "./logger.js";
+/** @typedef {import('./extension.js').default} ForgeExtension */
 
 // Dev or Prod mode, see Makefile:debug
 export const production = true;
 
-/**
- * getSettings:
- * @schema: (optional): the GSettings schema id
- *
- * Builds and return a GSettings schema for @schema, using schema files
- * in extensionsdir/schemas. If @schema is not provided, it is taken from
- * metadata['settings-schema'].
- *
- * Credits:
- *  - Code from convenience.js script by Dash-To-Panel
- *  - See credits also on that file for further derivatives.
- */
-export function getSettings(schema) {
-  let settingsSchema = getSettingsSchema(schema);
-  return new Gio.Settings({
-    settings_schema: settingsSchema,
-  });
-}
-
-/**
- * TODO patch this on GNOME 41
- */
-function getSettingsSchema(schema) {
-  let extension = ExtensionUtils.getCurrentExtension();
-
-  schema = schema || extension.metadata["settings-schema"];
-
-  const GioSSS = Gio.SettingsSchemaSource;
-
-  // Check if this extension was built with "make zip-file", and thus
-  // has the schema files in a subfolder
-  // otherwise assume that extension has been installed in the
-  // same prefix as gnome-shell (and therefore schemas are available
-  // in the standard folders)
-  let schemaDir = extension.dir.get_child("schemas");
-  let schemaSource;
-  if (schemaDir.query_exists(null)) {
-    schemaSource = GioSSS.new_from_directory(schemaDir.get_path(), GioSSS.get_default(), false);
-  } else {
-    schemaSource = GioSSS.get_default();
-  }
-
-  let settingsSchema = schemaSource.lookup(schema, true);
-  if (!settingsSchema)
-    throw new Error(
-      "Schema " +
-        schema +
-        " could not be found for extension " +
-        extension.metadata.uuid +
-        ". Please check your installation."
-    );
-  return settingsSchema;
-}
-
 export const ConfigManager = GObject.registerClass(
   class ConfigManager extends GObject.Object {
+    /** @type {ForgeExtension} */
+    extension;
+
+    #confDir = GLib.get_user_config_dir();
+
     constructor(extension) {
       super();
-      this._extension = extension;
-      this._confDir = GLib.get_user_config_dir();
+      this.extension = extension;
     }
 
     get confDir() {
-      return `${this._confDir}/forge`;
+      return `${this.#confDir}/forge`;
     }
 
     get defaultStylesheetFile() {
       const defaultStylesheet = GLib.build_filenamev([
-        `${this._extension.dir.get_path()}`,
+        `${this.extension.dir.get_path()}`,
         `stylesheet.css`,
       ]);
 
-      Logger.trace(`default-stylesheet: ${defaultStylesheet}`);
+      this.extension.logger.trace(`default-stylesheet: ${defaultStylesheet}`);
 
       const defaultStylesheetFile = Gio.File.new_for_path(defaultStylesheet);
       if (defaultStylesheetFile.query_exists(null)) {
@@ -117,12 +67,12 @@ export const ConfigManager = GObject.registerClass(
 
     get defaultWindowConfigFile() {
       const defaultWindowConfig = GLib.build_filenamev([
-        `${this._extension.dir.get_path()}`,
+        `${this.extension.dir.get_path()}`,
         `config`,
         `windows.json`,
       ]);
 
-      Logger.trace(`default-window-config: ${defaultWindowConfig}`);
+      this.extension.logger.trace(`default-window-config: ${defaultWindowConfig}`);
       const defaultWindowConfigFile = Gio.File.new_for_path(defaultWindowConfig);
 
       if (defaultWindowConfigFile.query_exists(null)) {
@@ -141,7 +91,7 @@ export const ConfigManager = GObject.registerClass(
 
     loadFile(path, file, defaultFile) {
       const customSetting = GLib.build_filenamev([path, file]);
-      Logger.trace(`custom-setting-file: ${customSetting}`);
+      this.extension.logger.trace(`custom-setting-file: ${customSetting}`);
 
       const customSettingFile = Gio.File.new_for_path(customSetting);
       if (customSettingFile.query_exists(null)) {
@@ -152,7 +102,7 @@ export const ConfigManager = GObject.registerClass(
           if (profileCustomSettingDir.make_directory_with_parents(null)) {
             const createdStream = customSettingFile.create(Gio.FileCreateFlags.NONE, null);
             const defaultContents = this.loadFileContents(defaultFile);
-            Logger.trace(defaultContents);
+            this.extension.logger.trace(defaultContents);
             createdStream.write_all(defaultContents, null);
           }
         }
@@ -179,7 +129,7 @@ export const ConfigManager = GObject.registerClass(
       let [success, contents] = windowConfigFile.load_contents(null);
       if (success) {
         const windowConfigContents = imports.byteArray.toString(contents);
-        Logger.trace(`${windowConfigContents}`);
+        this.extension.logger.trace(`${windowConfigContents}`);
         windowProps = JSON.parse(windowConfigContents);
       }
       return windowProps;

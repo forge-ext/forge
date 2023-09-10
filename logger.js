@@ -16,59 +16,60 @@
  *
  */
 
-// App imports
-import * as Settings from "./settings.js";
+export class Logger {
+  static LOG_LEVELS = {
+    OFF: 0,
+    FATAL: 1,
+    ERROR: 2,
+    WARN: 3,
+    INFO: 4,
+    DEBUG: 5,
+    TRACE: 6,
+    ALL: 7,
+  };
 
-export const LOG_LEVELS = {
-  OFF: 0,
-  FATAL: 1,
-  ERROR: 2,
-  WARN: 3,
-  INFO: 4,
-  DEBUG: 5,
-  TRACE: 6,
-  ALL: 7,
-};
+  #settings;
 
-// TODO: use console.* methods
-function logContext(msg, ...params) {
-  let formattedMessage = msg;
-  params.forEach((val) => {
-    formattedMessage = formattedMessage.replace("{}", val);
-  });
-  log(`Forge: ${formattedMessage}`);
-}
-
-function getLogLevel() {
-  let settings = Settings.getSettings();
-  let loggingEnabled = settings.get_boolean("logging-enabled") || !Settings.production;
-  let loggingLevel = settings.get_uint("log-level");
-  if (!loggingEnabled) {
-    loggingLevel = LOG_LEVELS.OFF;
+  constructor(settings) {
+    this.#settings = settings;
   }
-  return loggingLevel;
-}
 
-export function fatal(msg, ...params) {
-  if (getLogLevel() > LOG_LEVELS.OFF) logContext(`[FATAL] ${msg}`, ...params);
-}
+  get #level() {
+    let loggingEnabled =
+      this.#settings.get_boolean("logging-enabled") || !this.#settings.production;
+    return !loggingEnabled ? Logger.LOG_LEVELS.OFF : this.#settings.get_uint("log-level");
+  }
 
-export function error(msg, ...params) {
-  if (getLogLevel() > LOG_LEVELS.FATAL) logContext(`[ERROR] ${msg}`, ...params);
-}
+  // TODO: use console.* methods
+  logContext(msg, ...params) {
+    let formattedMessage = msg;
+    params.forEach((val) => {
+      formattedMessage = formattedMessage.replace("{}", val);
+    });
+    log(`Forge: ${formattedMessage}`);
+  }
 
-export function warn(msg, ...params) {
-  if (getLogLevel() > LOG_LEVELS.ERROR) logContext(`[WARN] ${msg}`, ...params);
-}
+  fatal(msg, ...params) {
+    if (this.#level > Logger.LOG_LEVELS.OFF) this.logContext(`[FATAL] ${msg}`, ...params);
+  }
 
-export function info(msg, ...params) {
-  if (getLogLevel() > LOG_LEVELS.WARN) logContext(`[INFO] ${msg}`, ...params);
-}
+  error(msg, ...params) {
+    if (this.#level > Logger.LOG_LEVELS.FATAL) this.logContext(`[ERROR] ${msg}`, ...params);
+  }
 
-export function debug(msg, ...params) {
-  if (getLogLevel() > LOG_LEVELS.INFO) logContext(`[DEBUG] ${msg}`, ...params);
-}
+  warn(msg, ...params) {
+    if (this.#level > Logger.LOG_LEVELS.ERROR) this.logContext(`[WARN] ${msg}`, ...params);
+  }
 
-export function trace(msg, ...params) {
-  if (getLogLevel() > LOG_LEVELS.DEBUG) logContext(`[TRACE] ${msg}`, ...params);
+  info(msg, ...params) {
+    if (this.#level > Logger.LOG_LEVELS.WARN) this.logContext(`[INFO] ${msg}`, ...params);
+  }
+
+  debug(msg, ...params) {
+    if (this.#level > Logger.LOG_LEVELS.INFO) this.logContext(`[DEBUG] ${msg}`, ...params);
+  }
+
+  trace(msg, ...params) {
+    if (this.#level > Logger.LOG_LEVELS.DEBUG) this.logContext(`[TRACE] ${msg}`, ...params);
+  }
 }

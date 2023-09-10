@@ -28,10 +28,11 @@ import * as Overview from "resource:///org/gnome/shell/ui/main/overview.js";
 
 // App imports
 import * as Keybindings from "./keybindings.js";
-import * as Logger from "./logger.js";
 import * as Msgs from "./messages.js";
 import * as Tree from "./tree.js";
 import * as Utils from "./utils.js";
+
+import ForgeExtension from "./extension.js";
 
 export const WINDOW_MODES = Utils.createEnum(["FLOAT", "TILE", "GRAB_TILE", "DEFAULT"]);
 
@@ -40,16 +41,19 @@ export const GRAB_TYPES = Utils.createEnum(["RESIZING", "MOVING", "UNKNOWN"]);
 
 export const WindowManager = GObject.registerClass(
   class WindowManager extends GObject.Object {
+    /** @type {ForgeExtension} */
+    ext;
+
+    /** @param {ForgeExtension} ext */
     constructor(ext) {
       super();
-
       this.ext = ext;
       this.windowProps = this.ext.configMgr.windowProps;
       this._kbd = this.ext.keybindings;
       this._tree = new Tree.Tree(this);
       this.eventQueue = new Tree.Queue();
       this.theme = this.ext.theme;
-      Logger.info("forge initialized");
+      this.ext.logger.info("forge initialized");
     }
 
     addFloatOverride(metaWindow, byClass = true) {
@@ -166,7 +170,7 @@ export const WindowManager = GObject.registerClass(
         }),
         display.connect("workareas-changed", (_display) => {
           if (global.display.get_n_monitors() == 0) {
-            Logger.debug(`workareas-changed: no monitors, ignoring signal`);
+            this.ext.logger.debug(`workareas-changed: no monitors, ignoring signal`);
             return;
           }
           if (this.tree.getNodeByType("WINDOW").length > 0) {
@@ -639,7 +643,7 @@ export const WindowManager = GObject.registerClass(
           }
           break;
         case "PrefsOpen":
-          let existWindow = Utils.findWindowWith(Msgs.prefs_title);
+          let existWindow = Utils.findWindowWith(this.ext.prefsTitle);
           if (existWindow && existWindow.get_workspace()) {
             existWindow
               .get_workspace()
@@ -792,13 +796,13 @@ export const WindowManager = GObject.registerClass(
       Utils._disableDecorations();
       this._removeSignals();
       this.disabled = true;
-      Logger.debug(`extension:disable`);
+      this.ext.logger.debug(`extension:disable`);
     }
 
     enable() {
       this._bindSignals();
       this.reloadTree("enable");
-      Logger.debug(`extension:enable`);
+      this.ext.logger.debug(`extension:enable`);
     }
 
     findNodeWindow(metaWindow) {
@@ -894,7 +898,7 @@ export const WindowManager = GObject.registerClass(
             try {
               nodeWindow.tab.remove_style_class_name("window-tabbed-tab-active");
             } catch (e) {
-              Logger.warn(e);
+              this.ext.logger.warn(e);
             }
           }
         }
@@ -1338,7 +1342,9 @@ export const WindowManager = GObject.registerClass(
       // Make window types configurable
       if (this._validWindow(metaWindow)) {
         let existNodeWindow = this.tree.findNode(metaWindow);
-        Logger.debug(`Meta Window ${metaWindow.get_title()} ${metaWindow.get_window_type()}`);
+        this.ext.logger.debug(
+          `Meta Window ${metaWindow.get_title()} ${metaWindow.get_window_type()}`
+        );
         if (!existNodeWindow) {
           let attachTarget;
 
@@ -1472,7 +1478,7 @@ export const WindowManager = GObject.registerClass(
     postProcessWindow(nodeWindow) {
       let metaWindow = nodeWindow.nodeValue;
       if (metaWindow) {
-        if (metaWindow.get_title() === Msgs.prefs_title) {
+        if (metaWindow.get_title() === this.ext.prefsTitle) {
           metaWindow
             .get_workspace()
             .activate_with_focus(metaWindow, global.display.get_current_time());
@@ -2158,7 +2164,7 @@ export const WindowManager = GObject.registerClass(
       let sortedWindows = this.sortedWindows;
 
       if (!sortedWindows) {
-        Logger.warn("No sorted windows");
+        this.ext.logger.warn("No sorted windows");
         return;
       }
 
