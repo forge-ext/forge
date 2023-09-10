@@ -4,9 +4,9 @@
 
 // http://www.w3.org/TR/CSS21/grammar.html
 // https://github.com/visionmedia/css-parse/pull/49#issuecomment-30088027
-var commentre = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g
+const commentre = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
 
-var parse = function(css, options) {
+export function parse(css, options) {
   options = options || {};
 
   /**
@@ -23,7 +23,7 @@ var parse = function(css, options) {
   function updatePosition(str) {
     var lines = str.match(/\n/g);
     if (lines) lineno += lines.length;
-    var i = str.lastIndexOf('\n');
+    var i = str.lastIndexOf("\n");
     column = ~i ? str.length - i : column + str.length;
   }
 
@@ -33,7 +33,7 @@ var parse = function(css, options) {
 
   function position() {
     var start = { line: lineno, column: column };
-    return function(node){
+    return function (node) {
       node.position = new Position(start);
       whitespace();
       return node;
@@ -44,17 +44,18 @@ var parse = function(css, options) {
    * Store position information for a node
    */
 
-  function Position(start) {
-    this.start = start;
-    this.end = { line: lineno, column: column };
-    this.source = options.source;
+  class Position {
+    /**
+     * Non-enumerable source string
+     */
+    content = css;
+
+    constructor(start) {
+      this.start = start;
+      this.end = { line: lineno, column: column };
+      this.source = options.source;
+    }
   }
-
-  /**
-   * Non-enumerable source string
-   */
-
-  Position.prototype.content = css;
 
   /**
    * Error `msg`.
@@ -63,7 +64,7 @@ var parse = function(css, options) {
   var errorsList = [];
 
   function error(msg) {
-    var err = new Error(options.source + ':' + lineno + ':' + column + ': ' + msg);
+    var err = new Error(options.source + ":" + lineno + ":" + column + ": " + msg);
     err.reason = msg;
     err.filename = options.source;
     err.line = lineno;
@@ -85,12 +86,12 @@ var parse = function(css, options) {
     var rulesList = rules();
 
     return {
-      type: 'stylesheet',
+      type: "stylesheet",
       stylesheet: {
         source: options.source,
         rules: rulesList,
-        parsingErrors: errorsList
-      }
+        parsingErrors: errorsList,
+      },
     };
   }
 
@@ -119,7 +120,7 @@ var parse = function(css, options) {
     var rules = [];
     whitespace();
     comments(rules);
-    while (css.length && css.charAt(0) != '}' && (node = atrule() || rule())) {
+    while (css.length && css.charAt(0) != "}" && (node = atrule() || rule())) {
       if (node !== false) {
         rules.push(node);
         comments(rules);
@@ -155,7 +156,7 @@ var parse = function(css, options) {
 
   function comments(rules) {
     rules = rules || [];
-    for (var c; c = comment();) {
+    for (var c; (c = comment()); ) {
       if (c !== false) {
         rules.push(c);
       }
@@ -169,14 +170,14 @@ var parse = function(css, options) {
 
   function comment() {
     var pos = position();
-    if ('/' != css.charAt(0) || '*' != css.charAt(1)) return;
+    if ("/" != css.charAt(0) || "*" != css.charAt(1)) return;
 
     var i = 2;
-    while ("" != css.charAt(i) && ('*' != css.charAt(i) || '/' != css.charAt(i + 1))) ++i;
+    while ("" != css.charAt(i) && ("*" != css.charAt(i) || "/" != css.charAt(i + 1))) ++i;
     i += 2;
 
-    if ("" === css.charAt(i-1)) {
-      return error('End of comment missing');
+    if ("" === css.charAt(i - 1)) {
+      return error("End of comment missing");
     }
 
     var str = css.slice(2, i - 2);
@@ -186,8 +187,8 @@ var parse = function(css, options) {
     column += 2;
 
     return pos({
-      type: 'comment',
-      comment: str
+      type: "comment",
+      comment: str,
     });
   }
 
@@ -201,13 +202,13 @@ var parse = function(css, options) {
     /* @fix Remove all comments from selectors
      * http://ostermiller.org/findcomment.html */
     return trim(m[0])
-      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '')
-      .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, function(m) {
-        return m.replace(/,/g, '\u200C');
+      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, "")
+      .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, function (m) {
+        return m.replace(/,/g, "\u200C");
       })
       .split(/\s*(?![^(]*\)),\s*/)
-      .map(function(s) {
-        return s.replace(/\u200C/g, ',');
+      .map(function (s) {
+        return s.replace(/\u200C/g, ",");
       });
   }
 
@@ -230,9 +231,9 @@ var parse = function(css, options) {
     var val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^\)]*?\)|[^};])+)/);
 
     var ret = pos({
-      type: 'declaration',
-      property: prop.replace(commentre, ''),
-      value: val ? trim(val[0]).replace(commentre, '') : ''
+      type: "declaration",
+      property: prop.replace(commentre, ""),
+      value: val ? trim(val[0]).replace(commentre, "") : "",
     });
 
     // ;
@@ -252,7 +253,7 @@ var parse = function(css, options) {
     comments(decls);
 
     // declarations
-    for (var decl; decl = declaration();) {
+    for (var decl; (decl = declaration()); ) {
       if (decl !== false) {
         decls.push(decl);
         comments(decls);
@@ -271,7 +272,7 @@ var parse = function(css, options) {
     var vals = [];
     var pos = position();
 
-    for (var m; m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/);) {
+    for (var m; (m = match(/^((\d+\.\d+|\.\d+|\d+)%?|[a-z]+)\s*/)); ) {
       vals.push(m[1]);
       match(/^,\s*/);
     }
@@ -279,9 +280,9 @@ var parse = function(css, options) {
     if (!vals.length) return;
 
     return pos({
-      type: 'keyframe',
+      type: "keyframe",
       values: vals,
-      declarations: declarations()
+      declarations: declarations(),
     });
   }
 
@@ -304,7 +305,7 @@ var parse = function(css, options) {
     if (!open()) return error("@keyframes missing '{'");
 
     var frames = comments();
-    for (var frame; frame = keyframe();) {
+    for (var frame; (frame = keyframe()); ) {
       frames.push(frame);
       frames = frames.concat(comments());
     }
@@ -312,10 +313,10 @@ var parse = function(css, options) {
     if (!close()) return error("@keyframes missing '}'");
 
     return pos({
-      type: 'keyframes',
+      type: "keyframes",
       name: name,
       vendor: vendor,
-      keyframes: frames
+      keyframes: frames,
     });
   }
 
@@ -337,9 +338,9 @@ var parse = function(css, options) {
     if (!close()) return error("@supports missing '}'");
 
     return pos({
-      type: 'supports',
+      type: "supports",
       supports: supports,
-      rules: style
+      rules: style,
     });
   }
 
@@ -360,8 +361,8 @@ var parse = function(css, options) {
     if (!close()) return error("@host missing '}'");
 
     return pos({
-      type: 'host',
-      rules: style
+      type: "host",
+      rules: style,
     });
   }
 
@@ -383,12 +384,11 @@ var parse = function(css, options) {
     if (!close()) return error("@media missing '}'");
 
     return pos({
-      type: 'media',
+      type: "media",
       media: media,
-      rules: style
+      rules: style,
     });
   }
-
 
   /**
    * Parse custom-media.
@@ -400,9 +400,9 @@ var parse = function(css, options) {
     if (!m) return;
 
     return pos({
-      type: 'custom-media',
+      type: "custom-media",
       name: trim(m[1]),
-      media: trim(m[2])
+      media: trim(m[2]),
     });
   }
 
@@ -421,7 +421,7 @@ var parse = function(css, options) {
     var decls = comments();
 
     // declarations
-    for (var decl; decl = declaration();) {
+    for (var decl; (decl = declaration()); ) {
       decls.push(decl);
       decls = decls.concat(comments());
     }
@@ -429,9 +429,9 @@ var parse = function(css, options) {
     if (!close()) return error("@page missing '}'");
 
     return pos({
-      type: 'page',
+      type: "page",
       selectors: sel,
-      declarations: decls
+      declarations: decls,
     });
   }
 
@@ -454,10 +454,10 @@ var parse = function(css, options) {
     if (!close()) return error("@document missing '}'");
 
     return pos({
-      type: 'document',
+      type: "document",
       document: doc,
       vendor: vendor,
-      rules: style
+      rules: style,
     });
   }
 
@@ -474,7 +474,7 @@ var parse = function(css, options) {
     var decls = comments();
 
     // declarations
-    for (var decl; decl = declaration();) {
+    for (var decl; (decl = declaration()); ) {
       decls.push(decl);
       decls = decls.concat(comments());
     }
@@ -482,8 +482,8 @@ var parse = function(css, options) {
     if (!close()) return error("@font-face missing '}'");
 
     return pos({
-      type: 'font-face',
-      declarations: decls
+      type: "font-face",
+      declarations: decls,
     });
   }
 
@@ -491,35 +491,34 @@ var parse = function(css, options) {
    * Parse import
    */
 
-  var atimport = _compileAtrule('import');
+  var atimport = _compileAtrule("import");
 
   /**
    * Parse charset
    */
 
-  var atcharset = _compileAtrule('charset');
+  var atcharset = _compileAtrule("charset");
 
   /**
    * Parse namespace
    */
 
-  var atnamespace = _compileAtrule('namespace');
+  var atnamespace = _compileAtrule("namespace");
 
   /**
    * Parse non-block at-rules
    */
 
-
   function _compileAtrule(name) {
-    var re = new RegExp('^@' + name + '\\s*([^;]+);');
-    return function() {
+    var re = new RegExp("^@" + name + "\\s*([^;]+);");
+    return function () {
       var pos = position();
       var m = match(re);
       if (!m) return;
       var ret = { type: name };
       ret[name] = m[1].trim();
       return pos(ret);
-    }
+    };
   }
 
   /**
@@ -527,19 +526,21 @@ var parse = function(css, options) {
    */
 
   function atrule() {
-    if (css[0] != '@') return;
+    if (css[0] != "@") return;
 
-    return atkeyframes()
-      || atmedia()
-      || atcustommedia()
-      || atsupports()
-      || atimport()
-      || atcharset()
-      || atnamespace()
-      || atdocument()
-      || atpage()
-      || athost()
-      || atfontface();
+    return (
+      atkeyframes() ||
+      atmedia() ||
+      atcustommedia() ||
+      atsupports() ||
+      atimport() ||
+      atcharset() ||
+      atnamespace() ||
+      atdocument() ||
+      atpage() ||
+      athost() ||
+      atfontface()
+    );
   }
 
   /**
@@ -550,50 +551,52 @@ var parse = function(css, options) {
     var pos = position();
     var sel = selector();
 
-    if (!sel) return error('selector missing');
+    if (!sel) return error("selector missing");
     comments();
 
     return pos({
-      type: 'rule',
+      type: "rule",
       selectors: sel,
-      declarations: declarations()
+      declarations: declarations(),
     });
   }
 
   return addParent(stylesheet());
-};
+}
 
 /**
  * Trim `str`.
  */
 
-function trim(str) {
-  return str ? str.replace(/^\s+|\s+$/g, '') : '';
+export function trim(str) {
+  return str ? str.replace(/^\s+|\s+$/g, "") : "";
 }
 
 /**
  * Adds non-enumerable parent node reference to each node.
  */
 
-function addParent(obj, parent) {
-  var isNode = obj && typeof obj.type === 'string';
+export function addParent(obj, parent) {
+  var isNode = obj && typeof obj.type === "string";
   var childParent = isNode ? obj : parent;
 
   for (var k in obj) {
     var value = obj[k];
     if (Array.isArray(value)) {
-      value.forEach(function(v) { addParent(v, childParent); });
-    } else if (value && typeof value === 'object') {
+      value.forEach(function (v) {
+        addParent(v, childParent);
+      });
+    } else if (value && typeof value === "object") {
       addParent(value, childParent);
     }
   }
 
   if (isNode) {
-    Object.defineProperty(obj, 'parent', {
+    Object.defineProperty(obj, "parent", {
       configurable: true,
       writable: true,
       enumerable: false,
-      value: parent || null
+      value: parent || null,
     });
   }
 
@@ -603,267 +606,266 @@ function addParent(obj, parent) {
 // Credits: https://github.com/reworkcss/css/blob/master/lib/stringify
 // Forge: derived the identity.js module only
 
-function Compiler(options) {
-  options = options || {};
-  this.indentation = typeof options.indent === 'string' ? options.indent : '  ';
+export class Compiler {
+  constructor(options) {
+    options ||= {};
+    this.indentation = typeof options.indent === "string" ? options.indent : "  ";
+  }
+
+  /**
+   * Emit `str`
+   */
+
+  emit(str) {
+    return str;
+  }
+
+  /**
+   * Visit `node`.
+   */
+
+  visit(node) {
+    return this[node.type](node);
+  }
+
+  /**
+   * Map visit over array of `nodes`, optionally using a `delim`
+   */
+
+  mapVisit(nodes, delim) {
+    var buf = "";
+    delim = delim || "";
+
+    for (var i = 0, length = nodes.length; i < length; i++) {
+      buf += this.visit(nodes[i]);
+      if (delim && i < length - 1) buf += this.emit(delim);
+    }
+
+    return buf;
+  }
+
+  /**
+   * Compile `node`.
+   */
+
+  compile(node) {
+    return this.stylesheet(node);
+  }
+
+  /**
+   * Visit stylesheet node.
+   */
+
+  stylesheet(node) {
+    return this.mapVisit(node.stylesheet.rules, "\n\n");
+  }
+
+  /**
+   * Visit comment node.
+   */
+
+  comment(node) {
+    return this.emit(this.indent() + "/*" + node.comment + "*/", node.position);
+  }
+
+  /**
+   * Visit import node.
+   */
+
+  import(node) {
+    return this.emit("@import " + node.import + ";", node.position);
+  }
+
+  /**
+   * Visit media node.
+   */
+
+  media(node) {
+    return (
+      this.emit("@media " + node.media, node.position) +
+      this.emit(" {\n" + this.indent(1)) +
+      this.mapVisit(node.rules, "\n\n") +
+      this.emit(this.indent(-1) + "\n}")
+    );
+  }
+
+  /**
+   * Visit document node.
+   */
+
+  document(node) {
+    var doc = "@" + (node.vendor || "") + "document " + node.document;
+
+    return (
+      this.emit(doc, node.position) +
+      this.emit(" " + " {\n" + this.indent(1)) +
+      this.mapVisit(node.rules, "\n\n") +
+      this.emit(this.indent(-1) + "\n}")
+    );
+  }
+
+  /**
+   * Visit charset node.
+   */
+  charset(node) {
+    return this.emit("@charset " + node.charset + ";", node.position);
+  }
+
+  /**
+   * Visit namespace node.
+   */
+  namespace(node) {
+    return this.emit("@namespace " + node.namespace + ";", node.position);
+  }
+
+  /**
+   * Visit supports node.
+   */
+
+  supports(node) {
+    return (
+      this.emit("@supports " + node.supports, node.position) +
+      this.emit(" {\n" + this.indent(1)) +
+      this.mapVisit(node.rules, "\n\n") +
+      this.emit(this.indent(-1) + "\n}")
+    );
+  }
+
+  /**
+   * Visit keyframes node.
+   */
+
+  keyframes(node) {
+    return (
+      this.emit("@" + (node.vendor || "") + "keyframes " + node.name, node.position) +
+      this.emit(" {\n" + this.indent(1)) +
+      this.mapVisit(node.keyframes, "\n") +
+      this.emit(this.indent(-1) + "}")
+    );
+  }
+
+  /**
+   * Visit keyframe node.
+   */
+
+  keyframe(node) {
+    var decls = node.declarations;
+
+    return (
+      this.emit(this.indent()) +
+      this.emit(node.values.join(", "), node.position) +
+      this.emit(" {\n" + this.indent(1)) +
+      this.mapVisit(decls, "\n") +
+      this.emit(this.indent(-1) + "\n" + this.indent() + "}\n")
+    );
+  }
+
+  /**
+   * Visit page node.
+   */
+
+  page(node) {
+    var sel = node.selectors.length ? node.selectors.join(", ") + " " : "";
+
+    return (
+      this.emit("@page " + sel, node.position) +
+      this.emit("{\n") +
+      this.emit(this.indent(1)) +
+      this.mapVisit(node.declarations, "\n") +
+      this.emit(this.indent(-1)) +
+      this.emit("\n}")
+    );
+  }
+
+  /**
+   * Visit font-face node.
+   */
+
+  ["font-face"] = function (node) {
+    return (
+      this.emit("@font-face ", node.position) +
+      this.emit("{\n") +
+      this.emit(this.indent(1)) +
+      this.mapVisit(node.declarations, "\n") +
+      this.emit(this.indent(-1)) +
+      this.emit("\n}")
+    );
+  };
+
+  /**
+   * Visit host node.
+   */
+
+  host(node) {
+    return (
+      this.emit("@host", node.position) +
+      this.emit(" {\n" + this.indent(1)) +
+      this.mapVisit(node.rules, "\n\n") +
+      this.emit(this.indent(-1) + "\n}")
+    );
+  }
+
+  /**
+   * Visit custom-media node.
+   */
+
+  ["custom-media"] = function (node) {
+    return this.emit("@custom-media " + node.name + " " + node.media + ";", node.position);
+  };
+
+  /**
+   * Visit rule node.
+   */
+
+  rule(node) {
+    var indent = this.indent();
+    var decls = node.declarations;
+    if (!decls.length) return "";
+
+    return (
+      this.emit(
+        node.selectors
+          .map(function (s) {
+            return indent + s;
+          })
+          .join(",\n"),
+        node.position
+      ) +
+      this.emit(" {\n") +
+      this.emit(this.indent(1)) +
+      this.mapVisit(decls, "\n") +
+      this.emit(this.indent(-1)) +
+      this.emit("\n" + this.indent() + "}")
+    );
+  }
+
+  /**
+   * Visit declaration node.
+   */
+
+  declaration(node) {
+    return (
+      this.emit(this.indent()) +
+      this.emit(node.property + ": " + node.value, node.position) +
+      this.emit(";")
+    );
+  }
+
+  /**
+   * Increase, decrease or return current indentation.
+   */
+
+  indent(level) {
+    this.level = this.level || 1;
+
+    if (null != level) {
+      this.level += level;
+      return "";
+    }
+
+    return Array(this.level).join(this.indentation);
+  }
 }
-
-/**
- * Emit `str`
- */
-
-Compiler.prototype.emit = function(str) {
-  return str;
-};
-
-/**
- * Visit `node`.
- */
-
-Compiler.prototype.visit = function(node){
-  return this[node.type](node);
-};
-
-/**
- * Map visit over array of `nodes`, optionally using a `delim`
- */
-
-Compiler.prototype.mapVisit = function(nodes, delim){
-  var buf = '';
-  delim = delim || '';
-
-  for (var i = 0, length = nodes.length; i < length; i++) {
-    buf += this.visit(nodes[i]);
-    if (delim && i < length - 1) buf += this.emit(delim);
-  }
-
-  return buf;
-};
-
-/**
- * Compile `node`.
- */
-
-Compiler.prototype.compile = function(node){
-  return this.stylesheet(node);
-};
-
-/**
- * Visit stylesheet node.
- */
-
-Compiler.prototype.stylesheet = function(node){
-  return this.mapVisit(node.stylesheet.rules, '\n\n');
-};
-
-/**
- * Visit comment node.
- */
-
-Compiler.prototype.comment = function(node){
-  return this.emit(this.indent() + '/*' + node.comment + '*/', node.position);
-};
-
-/**
- * Visit import node.
- */
-
-Compiler.prototype.import = function(node){
-  return this.emit('@import ' + node.import + ';', node.position);
-};
-
-/**
- * Visit media node.
- */
-
-Compiler.prototype.media = function(node){
-  return this.emit('@media ' + node.media, node.position)
-    + this.emit(
-        ' {\n'
-        + this.indent(1))
-    + this.mapVisit(node.rules, '\n\n')
-    + this.emit(
-        this.indent(-1)
-        + '\n}');
-};
-
-/**
- * Visit document node.
- */
-
-Compiler.prototype.document = function(node){
-  var doc = '@' + (node.vendor || '') + 'document ' + node.document;
-
-  return this.emit(doc, node.position)
-    + this.emit(
-        ' '
-      + ' {\n'
-      + this.indent(1))
-    + this.mapVisit(node.rules, '\n\n')
-    + this.emit(
-        this.indent(-1)
-        + '\n}');
-};
-
-/**
- * Visit charset node.
- */
-
-Compiler.prototype.charset = function(node){
-  return this.emit('@charset ' + node.charset + ';', node.position);
-};
-
-/**
- * Visit namespace node.
- */
-
-Compiler.prototype.namespace = function(node){
-  return this.emit('@namespace ' + node.namespace + ';', node.position);
-};
-
-/**
- * Visit supports node.
- */
-
-Compiler.prototype.supports = function(node){
-  return this.emit('@supports ' + node.supports, node.position)
-    + this.emit(
-      ' {\n'
-      + this.indent(1))
-    + this.mapVisit(node.rules, '\n\n')
-    + this.emit(
-        this.indent(-1)
-        + '\n}');
-};
-
-/**
- * Visit keyframes node.
- */
-
-Compiler.prototype.keyframes = function(node){
-  return this.emit('@' + (node.vendor || '') + 'keyframes ' + node.name, node.position)
-    + this.emit(
-      ' {\n'
-      + this.indent(1))
-    + this.mapVisit(node.keyframes, '\n')
-    + this.emit(
-        this.indent(-1)
-        + '}');
-};
-
-/**
- * Visit keyframe node.
- */
-
-Compiler.prototype.keyframe = function(node){
-  var decls = node.declarations;
-
-  return this.emit(this.indent())
-    + this.emit(node.values.join(', '), node.position)
-    + this.emit(
-      ' {\n'
-      + this.indent(1))
-    + this.mapVisit(decls, '\n')
-    + this.emit(
-      this.indent(-1)
-      + '\n'
-      + this.indent() + '}\n');
-};
-
-/**
- * Visit page node.
- */
-
-Compiler.prototype.page = function(node){
-  var sel = node.selectors.length
-    ? node.selectors.join(', ') + ' '
-    : '';
-
-  return this.emit('@page ' + sel, node.position)
-    + this.emit('{\n')
-    + this.emit(this.indent(1))
-    + this.mapVisit(node.declarations, '\n')
-    + this.emit(this.indent(-1))
-    + this.emit('\n}');
-};
-
-/**
- * Visit font-face node.
- */
-
-Compiler.prototype['font-face'] = function(node){
-  return this.emit('@font-face ', node.position)
-    + this.emit('{\n')
-    + this.emit(this.indent(1))
-    + this.mapVisit(node.declarations, '\n')
-    + this.emit(this.indent(-1))
-    + this.emit('\n}');
-};
-
-/**
- * Visit host node.
- */
-
-Compiler.prototype.host = function(node){
-  return this.emit('@host', node.position)
-    + this.emit(
-        ' {\n'
-        + this.indent(1))
-    + this.mapVisit(node.rules, '\n\n')
-    + this.emit(
-        this.indent(-1)
-        + '\n}');
-};
-
-/**
- * Visit custom-media node.
- */
-
-Compiler.prototype['custom-media'] = function(node){
-  return this.emit('@custom-media ' + node.name + ' ' + node.media + ';', node.position);
-};
-
-/**
- * Visit rule node.
- */
-
-Compiler.prototype.rule = function(node){
-  var indent = this.indent();
-  var decls = node.declarations;
-  if (!decls.length) return '';
-
-  return this.emit(node.selectors.map(function(s){ return indent + s }).join(',\n'), node.position)
-    + this.emit(' {\n')
-    + this.emit(this.indent(1))
-    + this.mapVisit(decls, '\n')
-    + this.emit(this.indent(-1))
-    + this.emit('\n' + this.indent() + '}');
-};
-
-/**
- * Visit declaration node.
- */
-
-Compiler.prototype.declaration = function(node){
-  return this.emit(this.indent())
-    + this.emit(node.property + ': ' + node.value, node.position)
-    + this.emit(';');
-};
-
-/**
- * Increase, decrease or return current indentation.
- */
-
-Compiler.prototype.indent = function(level) {
-  this.level = this.level || 1;
-
-  if (null != level) {
-    this.level += level;
-    return '';
-  }
-
-  return Array(this.level).join(this.indentation);
-};
 
 // Credits: https://github.com/reworkcss/css/tree/master/lib/stringify
 // Licensed under MIT
@@ -878,10 +880,9 @@ Compiler.prototype.indent = function(level) {
  * @api public
  */
 
-var stringify = function(node, _options){
-  _options = _options || {};
+export function stringify(node, _options) {
+  _options ||= {};
   var compiler = new Compiler(_options);
   var code = compiler.compile(node);
   return code;
-};
-
+}
