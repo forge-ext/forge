@@ -1,10 +1,12 @@
 import GObject from "gi://GObject";
 import Gio from "gi://Gio";
 
-import * as Main from "resource:///org/gnome/shell/ui/main.js";
-import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
-import * as QuickSettings from "resource:///org/gnome/shell/ui/quickSettings.js";
-import * as QuickSettingsMenu from "resource:///org/gnome/shell/ui/main/panel/statusArea/quickSettings.js";
+import { panel, sessionMode } from "resource:///org/gnome/shell/ui/main.js";
+import {
+  PopupSwitchMenuItem,
+  PopupSeparatorMenuItem,
+} from "resource:///org/gnome/shell/ui/popupMenu.js";
+import { QuickMenuToggle, SystemIndicator } from "resource:///org/gnome/shell/ui/quickSettings.js";
 
 import * as Utils from "./utils.js";
 
@@ -12,7 +14,7 @@ const iconName = "view-grid-symbolic";
 
 /** @typedef {import('./extension.js').default} ForgeExtension */
 
-class SettingsPopupSwitch extends PopupMenu.PopupSwitchMenuItem {
+class SettingsPopupSwitch extends PopupSwitchMenuItem {
   static {
     GObject.registerClass(this);
   }
@@ -34,7 +36,7 @@ class SettingsPopupSwitch extends PopupMenu.PopupSwitchMenuItem {
   }
 }
 
-class FeatureMenuToggle extends QuickSettings.QuickMenuToggle {
+class FeatureMenuToggle extends QuickMenuToggle {
   static {
     GObject.registerClass(this);
   }
@@ -80,16 +82,16 @@ class FeatureMenuToggle extends QuickSettings.QuickMenuToggle {
     );
 
     // Add an entry-point for more settings
-    this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+    this.menu.addMenuItem(new PopupSeparatorMenuItem());
     const settingsItem = this.menu.addAction(_("Settings"), () => ExtensionUtils.openPrefs());
 
     // Ensure the settings are unavailable when the screen is locked
-    settingsItem.visible = Main.sessionMode.allowSettings;
+    settingsItem.visible = sessionMode.allowSettings;
     this.menu._settingsActions[this._extWm.ext.uuid] = settingsItem;
   }
 }
 
-export class FeatureIndicator extends QuickSettings.SystemIndicator {
+export class FeatureIndicator extends SystemIndicator {
   static {
     GObject.registerClass(this);
   }
@@ -125,20 +127,20 @@ export class FeatureIndicator extends QuickSettings.SystemIndicator {
     });
 
     // Add the indicator to the panel and the toggle to the menu
-    QuickSettingsMenu._indicators.add_child(this);
+    panel.statusArea.quickSettings._indicators.add_child(this);
     this._addItems(this.quickSettingsItems);
   }
 
   // To add your toggle above another item, such as Background Apps, add it
   // using the built-in function, then move them afterwards.
   _addItems(items) {
-    QuickSettingsMenu._addItems(items);
+    panel.statusArea.quickSettings._addItems(items);
 
-    if (QuickSettingsMenu._backgroundApps) {
+    if (panel.statusArea.quickSettings._backgroundApps) {
       for (const item of items) {
-        QuickSettingsMenu.menu._grid.set_child_below_sibling(
+        panel.statusArea.quickSettings.menu._grid.set_child_below_sibling(
           item,
-          QuickSettingsMenu._backgroundApps.quickSettingsItems[0]
+          panel.statusArea.quickSettings._backgroundApps.quickSettingsItems[0]
         );
       }
     }
