@@ -24,7 +24,7 @@ import Shell from "gi://Shell";
 // Gnome Shell imports
 import { wm } from "resource://org/gnome/shell/ui/main.js";
 
-import { Logger } from './logger.js';
+import { Logger } from "./logger.js";
 
 export class Keybindings extends GObject.Object {
   static {
