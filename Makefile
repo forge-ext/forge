@@ -1,7 +1,6 @@
 UUID = "forge@jmmaranan.com"
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
-MESSAGES = messages.js
 
 .PHONY: all clean install schemas uninstall enable disable log debug patchcss
 
@@ -23,11 +22,11 @@ patchcss:
 	# TODO: add the script to update css tag when delivering theme.js
 
 metadata:
-	echo "export const developers = Object.entries([" > prefs/metadata.js
-	git shortlog -sne >> prefs/metadata.js
-	awk -i inplace '!/dependabot|noreply/' prefs/metadata.js
-	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' prefs/metadata.js
-	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> prefs/metadata.js
+	echo "export const developers = Object.entries([" > lib/prefs/metadata.js
+	git shortlog -sne >> lib/prefs/metadata.js
+	awk -i inplace '!/dependabot|noreply/' lib/prefs/metadata.js
+	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' lib/prefs/metadata.js
+	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> lib/prefs/metadata.js
 
 build: clean metadata.json schemas compilemsgs metadata
 	rm -rf temp
@@ -36,11 +35,10 @@ build: clean metadata.json schemas compilemsgs metadata
 	cp -r resources temp
 	cp -r schemas temp
 	cp -r config temp
-	cp -r preferences temp
+	cp -r lib temp
 	cp *.js temp
 	cp *.css temp
 	cp LICENSE temp
-	cp css/index.js temp/css.js
 	mkdir -p temp/locale
 	for msg in $(MSGSRC:.po=.mo); do \
 		msgf=temp/locale/`basename $$msg .mo`; \
@@ -59,9 +57,9 @@ debug:
 
 potfile: ./po/forge.pot
 
-./po/forge.pot: $(MESSAGES)
+./po/forge.pot: ./extension.js
 	mkdir -p po
-	xgettext --from-code=UTF-8 --output=po/forge.pot --package-name "Forge" $(MESSAGES)
+	xgettext --from-code=UTF-8 --output=po/forge.pot --package-name "Forge" ./extension.js
 
 compilemsgs: potfile $(MSGSRC:.po=.mo)
 	for msg in $(MSGSRC); do \
@@ -69,7 +67,7 @@ compilemsgs: potfile $(MSGSRC:.po=.mo)
 	done;
 
 clean:
-	rm -f prefs/metadata.js
+	rm -f lib/prefs/metadata.js
 	rm "$(UUID).zip" || echo "Nothing to delete"
 	rm -rf temp schemas/gschemas.compiled
 
