@@ -29,8 +29,8 @@ import Config from "resource:///org/gnome/shell/misc/config.js";
 const [major] = Config.PACKAGE_VERSION.split(".").map((s) => Number(s));
 
 // App imports
-import * as Tree from "./tree/js";
-import * as Window from "./window/js";
+import { ORIENTATION_TYPES, LAYOUT_TYPES, POSITION } from "./tree.js";
+import { GRAB_TYPES } from "./window.js";
 
 /**
  *
@@ -149,18 +149,18 @@ export function resolveHeight(rectRequest, metaWindow) {
 
 export function orientationFromDirection(direction) {
   return direction === Meta.MotionDirection.LEFT || direction === Meta.MotionDirection.RIGHT
-    ? Tree.ORIENTATION_TYPES.HORIZONTAL
-    : Tree.ORIENTATION_TYPES.VERTICAL;
+    ? ORIENTATION_TYPES.HORIZONTAL
+    : ORIENTATION_TYPES.VERTICAL;
 }
 
 export function orientationFromLayout(layout) {
   switch (layout) {
-    case Tree.LAYOUT_TYPES.HSPLIT:
-    case Tree.LAYOUT_TYPES.TABBED:
-      return Tree.ORIENTATION_TYPES.HORIZONTAL;
-    case Tree.LAYOUT_TYPES.VSPLIT:
-    case Tree.LAYOUT_TYPES.STACKED:
-      return Tree.ORIENTATION_TYPES.VERTICAL;
+    case LAYOUT_TYPES.HSPLIT:
+    case LAYOUT_TYPES.TABBED:
+      return ORIENTATION_TYPES.HORIZONTAL;
+    case LAYOUT_TYPES.VSPLIT:
+    case LAYOUT_TYPES.STACKED:
+      return ORIENTATION_TYPES.VERTICAL;
     default:
       break;
   }
@@ -168,8 +168,8 @@ export function orientationFromLayout(layout) {
 
 export function positionFromDirection(direction) {
   return direction === Meta.MotionDirection.LEFT || direction === Meta.MotionDirection.UP
-    ? Tree.POSITION.BEFORE
-    : Tree.POSITION.AFTER;
+    ? POSITION.BEFORE
+    : POSITION.AFTER;
 }
 
 export function resolveDirection(directionString) {
@@ -197,14 +197,14 @@ export function resolveDirection(directionString) {
 }
 
 export function directionFrom(position, orientaton) {
-  if (position === Tree.POSITION.AFTER) {
-    if (orientaton === Tree.ORIENTATION_TYPES.HORIZONTAL) {
+  if (position === POSITION.AFTER) {
+    if (orientaton === ORIENTATION_TYPES.HORIZONTAL) {
       return Meta.DisplayDirection.RIGHT;
     } else {
       return Meta.DisplayDirection.DOWN;
     }
-  } else if (position === Tree.POSITION.BEFORE) {
-    if (orientaton === Tree.ORIENTATION_TYPES.HORIZONTAL) {
+  } else if (position === POSITION.BEFORE) {
+    if (orientaton === ORIENTATION_TYPES.HORIZONTAL) {
       return Meta.DisplayDirection.LEFT;
     } else {
       return Meta.DisplayDirection.UP;
@@ -229,16 +229,16 @@ export function orientationFromGrab(grabOp) {
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N ||
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S
   ) {
-    return Tree.ORIENTATION_TYPES.VERTICAL;
+    return ORIENTATION_TYPES.VERTICAL;
   } else if (
     grabOp === Meta.GrabOp.RESIZING_E ||
     grabOp === Meta.GrabOp.RESIZING_W ||
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E ||
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W
   ) {
-    return Tree.ORIENTATION_TYPES.HORIZONTAL;
+    return ORIENTATION_TYPES.HORIZONTAL;
   }
-  return Tree.ORIENTATION_TYPES.NONE;
+  return ORIENTATION_TYPES.NONE;
 }
 
 export function positionFromGrabOp(grabOp) {
@@ -248,16 +248,16 @@ export function positionFromGrabOp(grabOp) {
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_W ||
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_N
   ) {
-    return Tree.POSITION.BEFORE;
+    return POSITION.BEFORE;
   } else if (
     grabOp === Meta.GrabOp.RESIZING_E ||
     grabOp === Meta.GrabOp.RESIZING_S ||
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_E ||
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S
   ) {
-    return Tree.POSITION.AFTER;
+    return POSITION.AFTER;
   }
-  return Tree.POSITION.UNKNOWN;
+  return POSITION.UNKNOWN;
 }
 
 export function allowResizeGrabOp(grabOp) {
@@ -286,15 +286,15 @@ export function grabMode(grabOp) {
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_S ||
     grabOp === Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN
   ) {
-    return Window.GRAB_TYPES.RESIZING;
+    return GRAB_TYPES.RESIZING;
   } else if (
     grabOp === Meta.GrabOp.KEYBOARD_MOVING ||
     grabOp === Meta.GrabOp.MOVING ||
     grabOp === Meta.GrabOp.MOVING_UNCONSTRAINED
   ) {
-    return Window.GRAB_TYPES.MOVING;
+    return GRAB_TYPES.MOVING;
   }
-  return Window.GRAB_TYPES.UNKNOWN;
+  return GRAB_TYPES.UNKNOWN;
 }
 
 export function directionFromGrab(grabOp) {
