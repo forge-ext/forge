@@ -24,6 +24,8 @@ import Shell from "gi://Shell";
 // Gnome Shell imports
 import { wm } from "resource://org/gnome/shell/ui/main.js";
 
+import { Logger } from './logger.js';
+
 export class Keybindings extends GObject.Object {
   static {
     GObject.registerClass(this);
@@ -34,7 +36,7 @@ export class Keybindings extends GObject.Object {
 
   constructor(ext) {
     super();
-    ext.logger.debug(`created keybindings`);
+    Logger.debug(`created keybindings`);
     this._grabbers = new Map();
     // this._bindSignals();
     this.ext = ext;
@@ -48,10 +50,10 @@ export class Keybindings extends GObject.Object {
   _acceleratorActivate(action) {
     let grabber = this._grabbers.get(action);
     if (grabber) {
-      this.ext.logger.debug(`Firing accelerator ${grabber.accelerator} : ${grabber.name}`);
+      Logger.debug(`Firing accelerator ${grabber.accelerator} : ${grabber.name}`);
       grabber.callback();
     } else {
-      this.ext.logger.error(`No listeners [action={${action}}]`);
+      Logger.error(`No listeners [action={${action}}]`);
     }
   }
 
@@ -75,7 +77,7 @@ export class Keybindings extends GObject.Object {
       );
     }
 
-    this.ext.logger.debug(`keybindings:enable`);
+    Logger.debug(`keybindings:enable`);
   }
 
   disable() {
@@ -85,7 +87,7 @@ export class Keybindings extends GObject.Object {
       wm.removeKeybinding(key);
     }
 
-    this.ext.logger.debug(`keybindings:disable`);
+    Logger.debug(`keybindings:disable`);
   }
 
   // @deprecated
@@ -128,12 +130,12 @@ export class Keybindings extends GObject.Object {
     let action = global.display.grab_accelerator(accelerator, grabFlags);
 
     if (action == Meta.KeyBindingAction.NONE) {
-      this.ext.logger.error(`Unable to grab accelerator [binding={${accelerator}}]`);
+      Logger.error(`Unable to grab accelerator [binding={${accelerator}}]`);
       // TODO - check the gnome keybindings for conflicts and notify the user
     } else {
       let name = Meta.external_binding_name_for_action(action);
 
-      this.ext.logger.debug(`Requesting WM to allow binding [name={${name}}]`);
+      Logger.debug(`Requesting WM to allow binding [name={${name}}]`);
       wm.allowKeybinding(name, Shell.ActionMode.ALL);
 
       this._grabbers.set(action, {

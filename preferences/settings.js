@@ -1,7 +1,7 @@
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 // Application imports
-import { LOG_LEVELS } from "../logger.js";
+import { Logger } from "../logger.js";
 import * as Msgs from "../messages.js";
 
 import { DropDownRow, SwitchRow, PreferencesPage } from "./widgets.js";
@@ -99,7 +99,7 @@ export class SettingsPage extends PreferencesPage {
             title: _("Logger Level"),
             settings,
             bind: "log-level",
-            items: Object.entries(LOG_LEVELS).map(([name, id]) => ({ id, name })),
+            items: Object.entries(Logger.LOG_LEVELS).map(([name, id]) => ({ id, name })),
           }),
         ],
       });

@@ -36,8 +36,6 @@ export default class ForgeExtension extends Extension {
 
   kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
 
-  logger = new Logger(this.settings);
-
   /** @type {ConfigManager} */
   configMgr;
 
@@ -59,7 +57,8 @@ export default class ForgeExtension extends Extension {
   sameSession = false;
 
   constructor(metadata) {
-    this.logger.info("init");
+    Logger.init(this.settings);
+    Logger.info("init");
     super(metadata);
     this.prefsTitle = `Forge ${_("Settings")} - ${
       !production ? "DEV" : `${PACKAGE_VERSION}-${this.metadata.version}`
@@ -67,14 +66,14 @@ export default class ForgeExtension extends Extension {
   }
 
   enable() {
-    this.logger.info("enable");
+    Logger.info("enable");
     this.configMgr = new ConfigManager(this);
     this.theme = new ThemeManager(this);
     this.theme.patchCss();
     this.theme.reloadStylesheet();
 
     if (this.sameSession) {
-      this.logger.debug(`enable: still in same session`);
+      Logger.debug(`enable: still in same session`);
       this.sameSession = false;
       return;
     }
@@ -85,15 +84,15 @@ export default class ForgeExtension extends Extension {
 
     this.extWm.enable();
     this.keybindings.enable();
-    this.logger.info(`enable: finalized vars`);
+    Logger.info(`enable: finalized vars`);
   }
 
   disable() {
-    this.logger.info("disable");
+    Logger.info("disable");
 
     if (isLocked) {
       this.sameSession = true;
-      this.logger.debug(`disable: still in same session`);
+      Logger.debug(`disable: still in same session`);
       return;
     }
 
@@ -106,7 +105,7 @@ export default class ForgeExtension extends Extension {
       this.indicator = null;
     }
 
-    this.logger.info(`disable: cleaning up vars`);
+    Logger.info(`disable: cleaning up vars`);
     this.extWm = null;
     this.keybindings = null;
     this.settings = null;

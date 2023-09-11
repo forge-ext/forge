@@ -21,6 +21,8 @@ import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 
+import { Logger } from './logger.js';
+
 /** @typedef {import('./extension.js').default} ForgeExtension */
 
 // Dev or Prod mode, see Makefile:debug
@@ -51,7 +53,7 @@ export class ConfigManager extends GObject.Object {
       `stylesheet.css`,
     ]);
 
-    this.extension.logger.trace(`default-stylesheet: ${defaultStylesheet}`);
+    Logger.trace(`default-stylesheet: ${defaultStylesheet}`);
 
     const defaultStylesheetFile = Gio.File.new_for_path(defaultStylesheet);
     if (defaultStylesheetFile.query_exists(null)) {
@@ -75,7 +77,7 @@ export class ConfigManager extends GObject.Object {
       `windows.json`,
     ]);
 
-    this.extension.logger.trace(`default-window-config: ${defaultWindowConfig}`);
+    Logger.trace(`default-window-config: ${defaultWindowConfig}`);
     const defaultWindowConfigFile = Gio.File.new_for_path(defaultWindowConfig);
 
     if (defaultWindowConfigFile.query_exists(null)) {
@@ -94,7 +96,7 @@ export class ConfigManager extends GObject.Object {
 
   loadFile(path, file, defaultFile) {
     const customSetting = GLib.build_filenamev([path, file]);
-    this.extension.logger.trace(`custom-setting-file: ${customSetting}`);
+    Logger.trace(`custom-setting-file: ${customSetting}`);
 
     const customSettingFile = Gio.File.new_for_path(customSetting);
     if (customSettingFile.query_exists(null)) {
@@ -105,7 +107,7 @@ export class ConfigManager extends GObject.Object {
         if (profileCustomSettingDir.make_directory_with_parents(null)) {
           const createdStream = customSettingFile.create(Gio.FileCreateFlags.NONE, null);
           const defaultContents = this.loadFileContents(defaultFile);
-          this.extension.logger.trace(defaultContents);
+          Logger.trace(defaultContents);
           createdStream.write_all(defaultContents, null);
         }
       }
@@ -132,7 +134,7 @@ export class ConfigManager extends GObject.Object {
     let [success, contents] = windowConfigFile.load_contents(null);
     if (success) {
       const windowConfigContents = imports.byteArray.toString(contents);
-      this.extension.logger.trace(`${windowConfigContents}`);
+      Logger.trace(`${windowConfigContents}`);
       windowProps = JSON.parse(windowConfigContents);
     }
     return windowProps;
