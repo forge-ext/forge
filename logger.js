@@ -19,6 +19,8 @@
 import { production } from "./settings.js";
 
 export class Logger {
+  static #settings;
+
   static LOG_LEVELS = {
     OFF: 0,
     FATAL: 1,
@@ -30,47 +32,42 @@ export class Logger {
     ALL: 7,
   };
 
-  #settings;
-
-  constructor(settings) {
+  static init(settings) {
     this.#settings = settings;
   }
 
-  get #level() {
-    let loggingEnabled = this.#settings.get_boolean("logging-enabled") || !production;
-    return !loggingEnabled ? Logger.LOG_LEVELS.OFF : this.#settings.get_uint("log-level");
+  static get #level() {
+    return !(this.#settings?.get_boolean?.("logging-enabled") || !production)
+      ? Logger.LOG_LEVELS.OFF
+      : this.#settings?.get_uint?.("log-level") ?? Infinity;
   }
 
   // TODO: use console.* methods
-  logContext(msg, ...params) {
-    let formattedMessage = msg;
-    params.forEach((val) => {
-      formattedMessage = formattedMessage.replace("{}", val);
-    });
-    log(`Forge: ${formattedMessage}`);
+  static format(msg, ...params) {
+    return params.reduce((acc, val) => acc.replace("{}", val), msg);
   }
 
-  fatal(msg, ...params) {
-    if (this.#level > Logger.LOG_LEVELS.OFF) this.logContext(`[FATAL] ${msg}`, ...params);
+  static fatal(...args) {
+    if (this.#level > Logger.LOG_LEVELS.OFF) console.error(`[Forge] [FATAL]`, ...args);
   }
 
-  error(msg, ...params) {
-    if (this.#level > Logger.LOG_LEVELS.FATAL) this.logContext(`[ERROR] ${msg}`, ...params);
+  static error(...args) {
+    if (this.#level > Logger.LOG_LEVELS.FATAL) console.error(`[Forge] [ERROR]`, ...args);
   }
 
-  warn(msg, ...params) {
-    if (this.#level > Logger.LOG_LEVELS.ERROR) this.logContext(`[WARN] ${msg}`, ...params);
+  static warn(...args) {
+    if (!this.#level > Logger.LOG_LEVELS.ERROR) console.warn(`[Forge] [WARN]`, ...args);
   }
 
-  info(msg, ...params) {
-    if (this.#level > Logger.LOG_LEVELS.WARN) this.logContext(`[INFO] ${msg}`, ...params);
+  static info(...args) {
+    if (!this.#level > Logger.LOG_LEVELS.WARN) console.info(`[Forge] [INFO]`, ...args);
   }
 
-  debug(msg, ...params) {
-    if (this.#level > Logger.LOG_LEVELS.INFO) this.logContext(`[DEBUG] ${msg}`, ...params);
+  static debug(...args) {
+    if (!this.#level > Logger.LOG_LEVELS.INFO) console.debug(`[Forge] [DEBUG]`, ...args);
   }
 
-  trace(msg, ...params) {
-    if (this.#level > Logger.LOG_LEVELS.DEBUG) this.logContext(`[TRACE] ${msg}`, ...params);
+  static trace(...args) {
+    if (!this.#level > Logger.LOG_LEVELS.DEBUG) console.debug(`[Forge] [TRACE]`, ...args);
   }
 }

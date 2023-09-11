@@ -27,6 +27,7 @@ import St from "gi://St";
 import * as Overview from "resource:///org/gnome/shell/ui/main/overview.js";
 
 // App imports
+import { Logger } from './logger.js';
 import * as Keybindings from "./keybindings.js";
 import * as Tree from "./tree.js";
 import * as Utils from "./utils.js";
@@ -55,7 +56,7 @@ export class WindowManager extends GObject.Object {
     this._tree = new Tree.Tree(this);
     this.eventQueue = new Tree.Queue();
     this.theme = this.ext.theme;
-    this.ext.logger.info("forge initialized");
+    Logger.info("forge initialized");
   }
 
   addFloatOverride(metaWindow, byClass = true) {
@@ -172,7 +173,7 @@ export class WindowManager extends GObject.Object {
       }),
       display.connect("workareas-changed", (_display) => {
         if (global.display.get_n_monitors() == 0) {
-          this.ext.logger.debug(`workareas-changed: no monitors, ignoring signal`);
+          Logger.debug(`workareas-changed: no monitors, ignoring signal`);
           return;
         }
         if (this.tree.getNodeByType("WINDOW").length > 0) {
@@ -798,13 +799,13 @@ export class WindowManager extends GObject.Object {
     Utils._disableDecorations();
     this._removeSignals();
     this.disabled = true;
-    this.ext.logger.debug(`extension:disable`);
+    Logger.debug(`extension:disable`);
   }
 
   enable() {
     this._bindSignals();
     this.reloadTree("enable");
-    this.ext.logger.debug(`extension:enable`);
+    Logger.debug(`extension:enable`);
   }
 
   findNodeWindow(metaWindow) {
@@ -900,7 +901,7 @@ export class WindowManager extends GObject.Object {
           try {
             nodeWindow.tab.remove_style_class_name("window-tabbed-tab-active");
           } catch (e) {
-            this.ext.logger.warn(e);
+            Logger.warn(e);
           }
         }
       }
@@ -1344,7 +1345,7 @@ export class WindowManager extends GObject.Object {
     // Make window types configurable
     if (this._validWindow(metaWindow)) {
       let existNodeWindow = this.tree.findNode(metaWindow);
-      this.ext.logger.debug(
+      Logger.debug(
         `Meta Window ${metaWindow.get_title()} ${metaWindow.get_window_type()}`
       );
       if (!existNodeWindow) {
@@ -2158,7 +2159,7 @@ export class WindowManager extends GObject.Object {
     let sortedWindows = this.sortedWindows;
 
     if (!sortedWindows) {
-      this.ext.logger.warn("No sorted windows");
+      Logger.warn("No sorted windows");
       return;
     }
 

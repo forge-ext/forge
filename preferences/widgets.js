@@ -6,7 +6,7 @@ import Gtk from "gi://Gtk";
 import GObject from "gi://GObject";
 import Gdk from "gi://Gdk";
 
-import * as Logger from "./logger.js";
+import { Logger } from "../logger.js";
 
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
@@ -176,7 +176,7 @@ export class DropDownRow extends Adw.ActionRow {
     }
     const glist = new Gtk.DropDown({ valign: Gtk.Align.CENTER, model, selected });
     glist.connect("notify::selected", (dropdown) => {
-      Logger.debug(dropdown.selected, glist.get_selected());
+      Logger.debug(Logger.format(dropdown.selected, glist.get_selected()));
       const { id } = items[glist.get_selected()];
       Logger.debug(id);
       set(bind, id);

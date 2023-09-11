@@ -23,6 +23,7 @@ import Shell from "gi://Shell";
 import St from "gi://St";
 
 // App imports
+import { Logger } from './logger.js';
 import * as Utils from "./utils.js";
 import * as Window from "./window.js";
 
@@ -601,10 +602,6 @@ export class Tree extends Node {
     return this._extWm;
   }
 
-  get logger() {
-    return this.extWm.ext.logger;
-  }
-
   /**
    * Handles new and existing workspaces in the tree
    */
@@ -700,7 +697,7 @@ export class Tree extends Node {
       if (parentNode.isWindow()) {
         const grandParentNode = parentNode.parentNode;
         grandParentNode.insertBefore(child, parentNode.nextSibling);
-        this.logger.debug(
+        Logger.debug(
           `Parent is a window, attaching to this window's parent ${grandParentNode.nodeType}`
         );
       } else {
@@ -1214,7 +1211,7 @@ export class Tree extends Node {
   }
 
   render(from) {
-    this.logger.debug(`render tree ${from ? "from " + from : ""}`);
+    Logger.debug(`render tree ${from ? "from " + from : ""}`);
     this.processNode(this);
     this.apply(this);
     this.cleanTree();
@@ -1222,7 +1219,7 @@ export class Tree extends Node {
     if (debugMode) {
       this.debugTree();
     }
-    this.logger.debug(`*********************************************`);
+    Logger.debug(`*********************************************`);
   }
 
   apply(node) {
@@ -1236,7 +1233,7 @@ export class Tree extends Node {
           let metaWin = w.nodeValue;
           this.extWm.move(metaWin, w.renderRect);
         } else {
-          this.logger.debug(`ignoring apply for ${w.renderRect.width}x${w.renderRect.height}`);
+          Logger.debug(`ignoring apply for ${w.renderRect.width}x${w.renderRect.height}`);
         }
       }
 
@@ -1593,8 +1590,8 @@ export class Tree extends Node {
       attributes += `,rect:${node.rect.width}x${node.rect.height}+${node.rect.x}+${node.rect.y}`;
     }
 
-    if (level !== 0) this.logger.debug(`${spacing}|`);
-    this.logger.debug(
+    if (level !== 0) Logger.debug(`${spacing}|`);
+    Logger.debug(
       `${spacing}${rootSpacing}${dashes} ${node.nodeType}#${
         node.index !== null ? node.index : "-"
       } @${attributes}`

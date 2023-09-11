@@ -24,6 +24,7 @@ import GObject from "gi://GObject";
 // Application imports
 import { stringify, parse } from "./css/index.js";
 import { production } from "./settings.js";
+import { Logger } from './logger.js';
 
 /** @typedef {import('./extension.js').default} ForgeExtension */
 
@@ -220,7 +221,7 @@ export class ThemeManager extends GObject.Object {
           this.extension.stylesheet = defaultStylesheetFile;
         }
       } catch (e) {
-        this.extension.logger.error(`${uuid} - ${e}`);
+        Logger.error(`${uuid} - ${e}`);
         return;
       }
     }
