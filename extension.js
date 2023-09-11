@@ -36,16 +36,6 @@ export default class ForgeExtension extends Extension {
 
   kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
 
-  configMgr = new ConfigManager(this);
-
-  theme = new ExtensionThemeManager(this);
-
-  extWm = new WindowManager(this);
-
-  keybindings = new Keybindings(this);
-
-  indicator = new FeatureIndicator(this);
-
   prefsTitle = `Forge ${_("Settings")} - ${
     !production ? "DEV" : `${PACKAGE_VERSION}-${this.metadata.version}`
   }`;
@@ -54,9 +44,13 @@ export default class ForgeExtension extends Extension {
 
   enable() {
     Logger.init(this.settings);
+    Logger.info("enable");
+    this.configMgr = new ConfigManager(this);
+    this.theme = new ExtensionThemeManager(this);
+    this.extWm = new WindowManager(this);
+    this.keybindings = new Keybindings(this);
     this.indicator ??= new FeatureIndicator(this);
 
-    Logger.info("enable");
     this.theme.patchCss();
     this.theme.reloadStylesheet();
 
@@ -83,9 +77,11 @@ export default class ForgeExtension extends Extension {
     this.extWm.disable();
     this.keybindings.disable();
 
-    if (this.indicator) {
-      this.indicator.destroy();
-      this.indicator = null;
-    }
+    this.indicator?.destroy();
+    this.indicator = null;
+    this.keybindings = null;
+    this.extWm = null;
+    this.themeWm = null;
+    this.configMgr = null;
   }
 }
