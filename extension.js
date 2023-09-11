@@ -21,54 +21,42 @@ import { sessionMode } from "resource:///org/gnome/shell/ui/main.js";
 import { PACKAGE_VERSION } from "resource:///org/gnome/shell/misc/config.js";
 import { Extension, gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
-// Application imports
-import { ConfigManager } from "./settings.js";
-import { Logger } from "./logger.js";
-import { Keybindings } from "./keybindings.js";
-import { ThemeManager } from "./theme.js";
-import { WindowManager } from "./window.js";
-import { FeatureIndicator } from "./indicator.js";
+// Shared state
+import { Logger } from "./lib/shared/logger.js";
+import { ConfigManager, production } from "./lib/shared/settings.js";
+import { ThemeManager } from "./lib/shared/theme.js";
 
-import { production } from "./settings.js";
+// Application imports
+import { Keybindings } from "./lib/extension/keybindings.js";
+import { WindowManager } from "./lib/extension/window.js";
+import { FeatureIndicator } from "./lib/extension/indicator.js";
 
 export default class ForgeExtension extends Extension {
   settings = this.getSettings();
 
   kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
 
-  /** @type {ConfigManager} */
-  configMgr;
+  configMgr = new ConfigManager(this);
 
-  /** @type {ThemeManager} */
-  theme;
+  theme = new ThemeManager(this);
 
-  /** @type {WindowManager} */
-  extWm;
+  extWm = new WindowManager(this);
 
-  /** @type {Keybindings} */
-  keybindings;
+  keybindings = new Keybindings(this);
 
-  /** @type {FeatureIndicator|null} */
-  indicator = null;
+  indicator = new FeatureIndicator(this);
 
-  /** @type {string} */
-  prefsTitle;
+  prefsTitle = `Forge ${_("Settings")} - ${
+    !production ? "DEV" : `${PACKAGE_VERSION}-${this.metadata.version}`
+  }`;
 
   sameSession = false;
 
-  constructor(metadata) {
-    Logger.init(this.settings);
-    Logger.info("init");
-    super(metadata);
-    this.prefsTitle = `Forge ${_("Settings")} - ${
-      !production ? "DEV" : `${PACKAGE_VERSION}-${this.metadata.version}`
-    }`;
-  }
-
   enable() {
+    Logger.init(this.settings);
+    this.indicator ??= new FeatureIndicator(this);
+
     Logger.info("enable");
-    this.configMgr = new ConfigManager(this);
-    this.theme = new ThemeManager(this);
     this.theme.patchCss();
     this.theme.reloadStylesheet();
 
@@ -77,10 +65,6 @@ export default class ForgeExtension extends Extension {
       this.sameSession = false;
       return;
     }
-
-    this.extWm ||= new WindowManager(this);
-    this.keybindings ||= new Keybindings(this);
-    this.indicator ||= new FeatureIndicator(this);
 
     this.extWm.enable();
     this.keybindings.enable();
@@ -96,21 +80,12 @@ export default class ForgeExtension extends Extension {
       return;
     }
 
-    this.extWm?.disable();
-
-    this.keybindings?.disable();
+    this.extWm.disable();
+    this.keybindings.disable();
 
     if (this.indicator) {
       this.indicator.destroy();
       this.indicator = null;
     }
-
-    Logger.info(`disable: cleaning up vars`);
-    this.extWm = null;
-    this.keybindings = null;
-    this.settings = null;
-    this.indicator = null;
-    this.configMgr = null;
-    this.theme = null;
   }
 }

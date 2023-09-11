@@ -23,11 +23,11 @@ patchcss:
 	# TODO: add the script to update css tag when delivering theme.js
 
 metadata:
-	echo "export const developers = Object.entries([" > preferences/metadata.js
-	git shortlog -sne >> preferences/metadata.js
-	awk -i inplace '!/dependabot|noreply/' preferences/metadata.js
-	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' preferences/metadata.js
-	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> preferences/metadata.js
+	echo "export const developers = Object.entries([" > prefs/metadata.js
+	git shortlog -sne >> prefs/metadata.js
+	awk -i inplace '!/dependabot|noreply/' prefs/metadata.js
+	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' prefs/metadata.js
+	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> prefs/metadata.js
 
 build: clean metadata.json schemas compilemsgs metadata
 	rm -rf temp
@@ -69,7 +69,7 @@ compilemsgs: potfile $(MSGSRC:.po=.mo)
 	done;
 
 clean:
-	rm -f preferences/metadata.js
+	rm -f prefs/metadata.js
 	rm "$(UUID).zip" || echo "Nothing to delete"
 	rm -rf temp schemas/gschemas.compiled
 

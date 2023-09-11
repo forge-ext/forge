@@ -25,10 +25,10 @@ import {
   gettext as _,
 } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
-import { KeyboardPage } from "./preferences/keyboard.js";
-import { AppearancePage } from "./preferences/appearance.js";
-import { WorkspacePage } from "./preferences/workspace.js";
-import { SettingsPage } from "./preferences/settings.js";
+import { KeyboardPage } from "./lib/prefs/keyboard.js";
+import { AppearancePage } from "./lib/prefs/appearance.js";
+import { WorkspacePage } from "./lib/prefs/workspace.js";
+import { SettingsPage } from "./lib/prefs/settings.js";
 
 export default class ForgeExtentionPreferences extends ExtensionPreferences {
   init() {
