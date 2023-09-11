@@ -23,7 +23,7 @@ patchcss:
 
 metadata:
 	echo "export const developers = Object.entries([" > lib/prefs/metadata.js
-	git shortlog -sne >> lib/prefs/metadata.js
+	git shortlog -sne || echo "" >> lib/prefs/metadata.js
 	awk -i inplace '!/dependabot|noreply/' lib/prefs/metadata.js
 	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' lib/prefs/metadata.js
 	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> lib/prefs/metadata.js
