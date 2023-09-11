@@ -31,6 +31,10 @@ import { WorkspacePage } from "./lib/prefs/workspace.js";
 import { SettingsPage } from "./lib/prefs/settings.js";
 
 export default class ForgeExtentionPreferences extends ExtensionPreferences {
+  settings = this.getSettings();
+
+  kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
+
   init() {
     const iconPath = this.dir.get_child("resources").get_child("icons").get_path();
     const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
@@ -38,14 +42,13 @@ export default class ForgeExtentionPreferences extends ExtensionPreferences {
   }
 
   fillPreferencesWindow(window) {
-    const settings = this.getSettings();
-    window._settings = settings;
-    const kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
-    window._kbdSettings = kbdSettings;
-    window.add(new SettingsPage({ settings, window }));
-    window.add(new AppearancePage({ settings }));
-    window.add(new WorkspacePage({ settings }));
-    window.add(new KeyboardPage({ settings: kbdSettings }));
+    this.window = window;
+    window._settings = this.settings;
+    window._kbdSettings = this.kbdSettings;
+    window.add(new SettingsPage(this));
+    window.add(new AppearancePage(this));
+    window.add(new WorkspacePage(this));
+    window.add(new KeyboardPage(this));
     window.search_enabled = true;
     window.can_navigate_back = true;
   }
