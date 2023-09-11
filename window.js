@@ -24,12 +24,20 @@ import Meta from "gi://Meta";
 import St from "gi://St";
 
 // Gnome Shell imports
-import * as Overview from "resource:///org/gnome/shell/ui/main/overview.js";
+import { Overview } from "resource:///org/gnome/shell/ui/overview.js";
 
 // App imports
-import { Logger } from './logger.js';
-import * as Keybindings from "./keybindings.js";
-import * as Tree from "./tree.js";
+import { Logger } from "./logger.js";
+import { Keybindings } from "./keybindings.js";
+import {
+  Tree,
+  Queue,
+  Node,
+  POSITION,
+  LAYOUT_TYPES,
+  ORIENTATION_TYPES,
+  NODE_TYPES,
+} from "./tree.js";
 import * as Utils from "./utils.js";
 
 /** @typedef {import('./extension.js').default} ForgeExtension */
@@ -53,8 +61,8 @@ export class WindowManager extends GObject.Object {
     this.ext = ext;
     this.windowProps = this.ext.configMgr.windowProps;
     this._kbd = this.ext.keybindings;
-    this._tree = new Tree.Tree(this);
-    this.eventQueue = new Tree.Queue();
+    this._tree = new Tree(this);
+    this.eventQueue = new Queue();
     this.theme = this.ext.theme;
     Logger.info("forge initialized");
   }
@@ -103,7 +111,7 @@ export class WindowManager extends GObject.Object {
   toggleFloatingMode(action, metaWindow) {
     let nodeWindow = this.findNodeWindow(metaWindow);
     if (!nodeWindow || !(action || action.mode)) return;
-    if (nodeWindow.nodeType !== Tree.NODE_TYPES.WINDOW) return;
+    if (nodeWindow.nodeType !== NODE_TYPES.WINDOW) return;
 
     let floatToggle = action.name === "FloatToggle";
     let floatClassToggle = action.name === "FloatClassToggle";
@@ -274,18 +282,18 @@ export class WindowManager extends GObject.Object {
           break;
         case "stacked-tiling-mode-enabled":
           if (!settings.get_boolean(settingName)) {
-            let stackedNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.STACKED);
+            let stackedNodes = this.tree.getNodeByLayout(LAYOUT_TYPES.STACKED);
             stackedNodes.forEach((node) => {
               node.prevLayout = node.layout;
               node.layout = this.determineSplitLayout();
             });
           } else {
-            let hSplitNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.HSPLIT);
-            let vSplitNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.VSPLIT);
+            let hSplitNodes = this.tree.getNodeByLayout(LAYOUT_TYPES.HSPLIT);
+            let vSplitNodes = this.tree.getNodeByLayout(LAYOUT_TYPES.VSPLIT);
             Array.prototype.push.apply(hSplitNodes, vSplitNodes);
             hSplitNodes.forEach((node) => {
-              if (node.prevLayout && node.prevLayout === Tree.LAYOUT_TYPES.STACKED) {
-                node.layout = Tree.LAYOUT_TYPES.STACKED;
+              if (node.prevLayout && node.prevLayout === LAYOUT_TYPES.STACKED) {
+                node.layout = LAYOUT_TYPES.STACKED;
               }
             });
           }
@@ -293,18 +301,18 @@ export class WindowManager extends GObject.Object {
           break;
         case "tabbed-tiling-mode-enabled":
           if (!settings.get_boolean(settingName)) {
-            let tabbedNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.TABBED);
+            let tabbedNodes = this.tree.getNodeByLayout(LAYOUT_TYPES.TABBED);
             tabbedNodes.forEach((node) => {
               node.prevLayout = node.layout;
               node.layout = this.determineSplitLayout();
             });
           } else {
-            let hSplitNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.HSPLIT);
-            let vSplitNodes = this.tree.getNodeByLayout(Tree.LAYOUT_TYPES.VSPLIT);
+            let hSplitNodes = this.tree.getNodeByLayout(LAYOUT_TYPES.HSPLIT);
+            let vSplitNodes = this.tree.getNodeByLayout(LAYOUT_TYPES.VSPLIT);
             Array.prototype.push.apply(hSplitNodes, vSplitNodes);
             hSplitNodes.forEach((node) => {
-              if (node.prevLayout && node.prevLayout === Tree.LAYOUT_TYPES.TABBED) {
-                node.layout = Tree.LAYOUT_TYPES.TABBED;
+              if (node.prevLayout && node.prevLayout === LAYOUT_TYPES.TABBED) {
+                node.layout = LAYOUT_TYPES.TABBED;
               }
             });
           }
@@ -378,9 +386,9 @@ export class WindowManager extends GObject.Object {
     }
 
     // Search for all the valid windows on the workspace
-    const monWindows = currentWsNode.getNodeByType(Tree.NODE_TYPES.WORKSPACE).flatMap((ws) => {
+    const monWindows = currentWsNode.getNodeByType(NODE_TYPES.WORKSPACE).flatMap((ws) => {
       return ws
-        .getNodeByType(Tree.NODE_TYPES.WINDOW)
+        .getNodeByType(NODE_TYPES.WINDOW)
         .filter(
           (w) =>
             !w.nodeValue.minimized &&
@@ -471,13 +479,13 @@ export class WindowManager extends GObject.Object {
           callback: () => {
             if (this.eventQueue.length <= 0) {
               this.unfreezeRender();
-              if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.STACKED) {
+              if (focusNodeWindow.parentNode.layout === LAYOUT_TYPES.STACKED) {
                 focusNodeWindow.parentNode.appendChild(focusNodeWindow);
                 focusNodeWindow.nodeValue.raise();
                 focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                 this.renderTree("move-stacked-queue");
               }
-              if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED) {
+              if (focusNodeWindow.parentNode.layout === LAYOUT_TYPES.TABBED) {
                 focusNodeWindow.nodeValue.raise();
                 focusNodeWindow.nodeValue.activate(global.display.get_current_time());
                 if (prev) prev.parentNode.lastTabFocus = prev.nodeValue;
@@ -512,25 +520,22 @@ export class WindowManager extends GObject.Object {
       case "Split":
         if (!focusNodeWindow) return;
         currentLayout = focusNodeWindow.parentNode.layout;
-        if (
-          currentLayout === Tree.LAYOUT_TYPES.STACKED ||
-          currentLayout === Tree.LAYOUT_TYPES.TABBED
-        ) {
+        if (currentLayout === LAYOUT_TYPES.STACKED || currentLayout === LAYOUT_TYPES.TABBED) {
           return;
         }
         let orientation = action.orientation
           ? action.orientation.toUpperCase()
-          : Tree.ORIENTATION_TYPES.NONE;
+          : ORIENTATION_TYPES.NONE;
         this.tree.split(focusNodeWindow, orientation);
         this.renderTree("split");
         break;
       case "LayoutToggle":
         if (!focusNodeWindow) return;
         currentLayout = focusNodeWindow.parentNode.layout;
-        if (currentLayout === Tree.LAYOUT_TYPES.HSPLIT) {
-          focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
-        } else if (currentLayout === Tree.LAYOUT_TYPES.VSPLIT) {
-          focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+        if (currentLayout === LAYOUT_TYPES.HSPLIT) {
+          focusNodeWindow.parentNode.layout = LAYOUT_TYPES.VSPLIT;
+        } else if (currentLayout === LAYOUT_TYPES.VSPLIT) {
+          focusNodeWindow.parentNode.layout = LAYOUT_TYPES.HSPLIT;
         }
         this.tree.attachNode = focusNodeWindow.parentNode;
         this.renderTree("layout-split-toggle");
@@ -596,21 +601,21 @@ export class WindowManager extends GObject.Object {
         if (!this.ext.settings.get_boolean("stacked-tiling-mode-enabled")) return;
 
         if (focusNodeWindow.parentNode.isMonitor()) {
-          this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL, true);
+          this.tree.split(focusNodeWindow, ORIENTATION_TYPES.HORIZONTAL, true);
         }
 
         currentLayout = focusNodeWindow.parentNode.layout;
 
-        if (currentLayout === Tree.LAYOUT_TYPES.STACKED) {
+        if (currentLayout === LAYOUT_TYPES.STACKED) {
           focusNodeWindow.parentNode.layout = this.determineSplitLayout();
           this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
         } else {
-          if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
+          if (currentLayout === LAYOUT_TYPES.TABBED) {
             focusNodeWindow.parentNode.lastTabFocus = null;
           }
-          focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.STACKED;
+          focusNodeWindow.parentNode.layout = LAYOUT_TYPES.STACKED;
           let lastChild = focusNodeWindow.parentNode.lastChild;
-          if (lastChild.nodeType === Tree.NODE_TYPES.WINDOW) {
+          if (lastChild.nodeType === NODE_TYPES.WINDOW) {
             lastChild.nodeValue.activate(global.display.get_current_time());
           }
         }
@@ -623,17 +628,17 @@ export class WindowManager extends GObject.Object {
         if (!this.ext.settings.get_boolean("tabbed-tiling-mode-enabled")) return;
 
         if (focusNodeWindow.parentNode.isMonitor()) {
-          this.tree.split(focusNodeWindow, Tree.ORIENTATION_TYPES.HORIZONTAL, true);
+          this.tree.split(focusNodeWindow, ORIENTATION_TYPES.HORIZONTAL, true);
         }
 
         currentLayout = focusNodeWindow.parentNode.layout;
 
-        if (currentLayout === Tree.LAYOUT_TYPES.TABBED) {
+        if (currentLayout === LAYOUT_TYPES.TABBED) {
           focusNodeWindow.parentNode.layout = this.determineSplitLayout();
           this.tree.resetSiblingPercent(focusNodeWindow.parentNode);
           focusNodeWindow.parentNode.lastTabFocus = null;
         } else {
-          focusNodeWindow.parentNode.layout = Tree.LAYOUT_TYPES.TABBED;
+          focusNodeWindow.parentNode.layout = LAYOUT_TYPES.TABBED;
           focusNodeWindow.parentNode.lastTabFocus = focusNodeWindow.nodeValue;
         }
         this.unfreezeRender();
@@ -818,14 +823,14 @@ export class WindowManager extends GObject.Object {
 
   get tree() {
     if (!this._tree) {
-      this._tree = new Tree.Tree(this);
+      this._tree = new Tree(this);
     }
     return this._tree;
   }
 
   get kbd() {
     if (!this._kbd) {
-      this._kbd = new Keybindings.Keybindings(this.ext);
+      this._kbd = new Keybindings(this.ext);
       this.ext.keybindings = this._kbd;
     }
 
@@ -855,7 +860,7 @@ export class WindowManager extends GObject.Object {
 
   getWindowsOnWorkspace(workspaceIndex) {
     const workspaceNode = this.tree.findNode(`ws${workspaceIndex}`);
-    const workspaceWindows = workspaceNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
+    const workspaceWindows = workspaceNode.getNodeByType(NODE_TYPES.WINDOW);
     return workspaceWindows;
   }
 
@@ -863,9 +868,9 @@ export class WindowManager extends GObject.Object {
     // if the monitor width is less than height, the monitor could be vertical orientation;
     let monitorRect = global.display.get_monitor_geometry(global.display.get_current_monitor());
     if (monitorRect.width < monitorRect.height) {
-      return Tree.LAYOUT_TYPES.VSPLIT;
+      return LAYOUT_TYPES.VSPLIT;
     }
-    return Tree.LAYOUT_TYPES.HSPLIT;
+    return LAYOUT_TYPES.HSPLIT;
   }
 
   floatWorkspace(workspaceIndex) {
@@ -944,7 +949,7 @@ export class WindowManager extends GObject.Object {
   }
 
   rectForMonitor(node, targetMonitor) {
-    if (!node || (node && node.nodeType !== Tree.NODE_TYPES.WINDOW)) return null;
+    if (!node || (node && node.nodeType !== NODE_TYPES.WINDOW)) return null;
     if (targetMonitor < 0) return null;
     let currentWorkArea = node.nodeValue.get_work_area_current_monitor();
     let nextWorkArea = node.nodeValue.get_work_area_for_monitor(targetMonitor);
@@ -1132,7 +1137,7 @@ export class WindowManager extends GObject.Object {
   }
 
   get allNodeWindows() {
-    return this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW);
+    return this.tree.getNodeByType(NODE_TYPES.WINDOW);
   }
 
   /**
@@ -1309,7 +1314,7 @@ export class WindowManager extends GObject.Object {
 
     if (!node.isRoot()) {
       let hideGapWhenSingle = settings.get_boolean("window-gap-hidden-on-single");
-      let parentNode = this.tree.findParent(node, Tree.NODE_TYPES.MONITOR);
+      let parentNode = this.tree.findParent(node, NODE_TYPES.MONITOR);
       if (parentNode) {
         let tiled = parentNode
           .getNodeByMode(WINDOW_MODES.TILE)
@@ -1334,7 +1339,7 @@ export class WindowManager extends GObject.Object {
       if (currentFocusNode) {
         let currentParentFocusNode = currentFocusNode.parentNode;
         let layout = currentParentFocusNode.layout;
-        if (layout === Tree.LAYOUT_TYPES.HSPLIT || layout === Tree.LAYOUT_TYPES.VSPLIT) {
+        if (layout === LAYOUT_TYPES.HSPLIT || layout === LAYOUT_TYPES.VSPLIT) {
           let frameRect = this.focusMetaWindow.get_frame_rect();
           let splitHorizontal = frameRect.width > frameRect.height;
           let orientation = splitHorizontal ? "horizontal" : "vertical";
@@ -1345,9 +1350,7 @@ export class WindowManager extends GObject.Object {
     // Make window types configurable
     if (this._validWindow(metaWindow)) {
       let existNodeWindow = this.tree.findNode(metaWindow);
-      Logger.debug(
-        `Meta Window ${metaWindow.get_title()} ${metaWindow.get_window_type()}`
-      );
+      Logger.debug(`Meta Window ${metaWindow.get_title()} ${metaWindow.get_window_type()}`);
       if (!existNodeWindow) {
         let attachTarget;
 
@@ -1363,7 +1366,7 @@ export class WindowManager extends GObject.Object {
           return;
         }
 
-        let windowNodes = metaMonWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
+        let windowNodes = metaMonWsNode.getNodeByType(NODE_TYPES.WINDOW);
         let hasWindows = windowNodes.length > 0;
 
         attachTarget = this.tree.attachNode;
@@ -1386,7 +1389,7 @@ export class WindowManager extends GObject.Object {
 
         let nodeWindow = this.tree.createNode(
           attachTarget.nodeValue,
-          Tree.NODE_TYPES.WINDOW,
+          NODE_TYPES.WINDOW,
           metaWindow,
           WINDOW_MODES.FLOAT
         );
@@ -1491,7 +1494,7 @@ export class WindowManager extends GObject.Object {
   updateStackedFocus(focusNodeWindow) {
     if (!focusNodeWindow) return;
     const parentNode = focusNodeWindow.parentNode;
-    if (parentNode.layout === Tree.LAYOUT_TYPES.STACKED && !this._freezeRender) {
+    if (parentNode.layout === LAYOUT_TYPES.STACKED && !this._freezeRender) {
       parentNode.appendChild(focusNodeWindow);
       parentNode.childNodes
         .filter((child) => child.isWindow())
@@ -1507,7 +1510,7 @@ export class WindowManager extends GObject.Object {
 
   updateTabbedFocus(focusNodeWindow) {
     if (!focusNodeWindow) return;
-    if (focusNodeWindow.parentNode.layout === Tree.LAYOUT_TYPES.TABBED && !this._freezeRender) {
+    if (focusNodeWindow.parentNode.layout === LAYOUT_TYPES.TABBED && !this._freezeRender) {
       const metaWindow = focusNodeWindow.nodeValue;
       metaWindow.raise();
     }
@@ -1688,7 +1691,7 @@ export class WindowManager extends GObject.Object {
   updateDecorationLayout() {
     if (this._freezeRender) return;
     let activeWsNode = this.currentWsNode;
-    let allCons = this.tree.getNodeByType(Tree.NODE_TYPES.CON);
+    let allCons = this.tree.getNodeByType(NODE_TYPES.CON);
 
     // First, hide all decorations:
     allCons.forEach((con) => {
@@ -1699,7 +1702,7 @@ export class WindowManager extends GObject.Object {
 
     // Next, handle showing-desktop usually by Super + D
     if (!activeWsNode) return;
-    let allWindows = activeWsNode.getNodeByType(Tree.NODE_TYPES.WINDOW);
+    let allWindows = activeWsNode.getNodeByType(NODE_TYPES.WINDOW);
     let allHiddenWindows = allWindows.filter((w) => {
       let metaWindow = w.nodeValue;
       return !metaWindow.showing_on_its_workspace() || metaWindow.minimized;
@@ -1712,20 +1715,18 @@ export class WindowManager extends GObject.Object {
     // But not on the monitor where there is a maximized or fullscreen window
     // Note, that when multi-display, user can have multi maximized windows,
     // So it needs to be fully filtered:
-    let monWsNoMaxWindows = activeWsNode
-      .getNodeByType(Tree.NODE_TYPES.MONITOR)
-      .filter((monitor) => {
-        return (
-          monitor.getNodeByType(Tree.NODE_TYPES.WINDOW).filter((w) => {
-            return (
-              w.nodeValue.get_maximized() === Meta.MaximizeFlags.BOTH || w.nodeValue.is_fullscreen()
-            );
-          }).length === 0
-        );
-      });
+    let monWsNoMaxWindows = activeWsNode.getNodeByType(NODE_TYPES.MONITOR).filter((monitor) => {
+      return (
+        monitor.getNodeByType(NODE_TYPES.WINDOW).filter((w) => {
+          return (
+            w.nodeValue.get_maximized() === Meta.MaximizeFlags.BOTH || w.nodeValue.is_fullscreen()
+          );
+        }).length === 0
+      );
+    });
 
     monWsNoMaxWindows.forEach((monitorWs) => {
-      let activeMonWsCons = monitorWs.getNodeByType(Tree.NODE_TYPES.CON);
+      let activeMonWsCons = monitorWs.getNodeByType(NODE_TYPES.CON);
       activeMonWsCons.forEach((con) => {
         let tiled = this.tree.getTiledChildren(con.childNodes);
         let showTabs = this.ext.settings.get_boolean("showtab-decoration-enabled");
@@ -1757,7 +1758,7 @@ export class WindowManager extends GObject.Object {
 
   floatingWindow(node) {
     if (!node) return false;
-    return node.nodeType === Tree.NODE_TYPES.WINDOW && node.mode === WINDOW_MODES.FLOAT;
+    return node.nodeType === NODE_TYPES.WINDOW && node.mode === WINDOW_MODES.FLOAT;
   }
 
   /**
@@ -1784,7 +1785,7 @@ export class WindowManager extends GObject.Object {
 
   minimizedWindow(node) {
     if (!node) return false;
-    return node._type === Tree.NODE_TYPES.WINDOW && node._data && node._data.minimized;
+    return node._type === NODE_TYPES.WINDOW && node._data && node._data.minimized;
   }
 
   swapWindowsUnderPointer(focusNodeWindow) {
@@ -1813,8 +1814,8 @@ export class WindowManager extends GObject.Object {
       const parentNodeTarget = nodeWinAtPointer.parentNode;
       const currPointer = this.getPointer();
       const horizontal = parentNodeTarget.isHSplit() || parentNodeTarget.isTabbed();
-      const isMonParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.MONITOR;
-      const isConParent = parentNodeTarget.nodeType === Tree.NODE_TYPES.CON;
+      const isMonParent = parentNodeTarget.nodeType === NODE_TYPES.MONITOR;
+      const isConParent = parentNodeTarget.nodeType === NODE_TYPES.CON;
       const stacked = parentNodeTarget.isStacked();
       const tabbed = parentNodeTarget.isTabbed();
       const stackedOrTabbed = stacked || tabbed;
@@ -2084,7 +2085,7 @@ export class WindowManager extends GObject.Object {
 
         if (childNode.createCon) {
           const numWin = parentNodeTarget.childNodes.filter(
-            (c) => c.nodeType === Tree.NODE_TYPES.WINDOW
+            (c) => c.nodeType === NODE_TYPES.WINDOW
           ).length;
           const numChild = parentNodeTarget.childNodes.length;
           const sameNumChild = numWin === numChild;
@@ -2096,7 +2097,7 @@ export class WindowManager extends GObject.Object {
           ) {
             childNode = parentNodeTarget;
           } else {
-            childNode = new Tree.Node(Tree.NODE_TYPES.CON, new St.Bin());
+            childNode = new Node(NODE_TYPES.CON, new St.Bin());
             containerNode.insertBefore(childNode, referenceNode);
             childNode.appendChild(nodeWinAtPointer);
           }
@@ -2108,29 +2109,29 @@ export class WindowManager extends GObject.Object {
           }
 
           if (isLeft || isRight) {
-            childNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+            childNode.layout = LAYOUT_TYPES.HSPLIT;
           } else if (isTop || isBottom) {
-            childNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+            childNode.layout = LAYOUT_TYPES.VSPLIT;
           } else if (isCenter) {
             const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
-            childNode.layout = Tree.LAYOUT_TYPES[centerLayout];
+            childNode.layout = LAYOUT_TYPES[centerLayout];
           }
         } else if (childNode.detachWindow) {
           const orientation =
-            isLeft || isRight ? Tree.ORIENTATION_TYPES.HORIZONTAL : Tree.ORIENTATION_TYPES.VERTICAL;
+            isLeft || isRight ? ORIENTATION_TYPES.HORIZONTAL : ORIENTATION_TYPES.VERTICAL;
           this.tree.split(childNode, orientation);
           containerNode.insertBefore(childNode.parentNode, referenceNode);
         } else {
           // Child Node is a WINDOW
           containerNode.insertBefore(childNode, referenceNode);
           if (isLeft || isRight) {
-            containerNode.layout = Tree.LAYOUT_TYPES.HSPLIT;
+            containerNode.layout = LAYOUT_TYPES.HSPLIT;
           } else if (isTop || isBottom) {
-            if (!stackedOrTabbed) containerNode.layout = Tree.LAYOUT_TYPES.VSPLIT;
+            if (!stackedOrTabbed) containerNode.layout = LAYOUT_TYPES.VSPLIT;
           } else if (isCenter) {
             if (containerNode.isHSplit() || containerNode.isVSplit()) {
               const centerLayout = this.ext.settings.get_string("dnd-center-layout").toUpperCase();
-              containerNode.layout = Tree.LAYOUT_TYPES[centerLayout];
+              containerNode.layout = LAYOUT_TYPES[centerLayout];
             }
           }
         }
@@ -2280,7 +2281,7 @@ export class WindowManager extends GObject.Object {
       ? resizePairForWindow.parentNode === focusNodeWindow.parentNode
       : false;
 
-    if (orientation === Tree.ORIENTATION_TYPES.HORIZONTAL) {
+    if (orientation === ORIENTATION_TYPES.HORIZONTAL) {
       if (sameParent) {
         // use the window or con pairs
         if (this.tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
@@ -2317,7 +2318,7 @@ export class WindowManager extends GObject.Object {
           }
           let firstWindowRect = focusNodeWindow.initRect;
           let index = resizePairForWindow.index;
-          if (position === Tree.POSITION.BEFORE) {
+          if (position === POSITION.BEFORE) {
             // Find the opposite node
             index = index + 1;
           } else {
@@ -2338,7 +2339,7 @@ export class WindowManager extends GObject.Object {
           resizePairForWindow.percent = secondPercent;
         }
       }
-    } else if (orientation === Tree.ORIENTATION_TYPES.VERTICAL) {
+    } else if (orientation === ORIENTATION_TYPES.VERTICAL) {
       if (sameParent) {
         // use the window or con pairs
         if (this.tree.getTiledChildren(parentNodeForFocus.childNodes).length <= 1) {
@@ -2372,7 +2373,7 @@ export class WindowManager extends GObject.Object {
           }
           let firstWindowRect = focusNodeWindow.initRect;
           let index = resizePairForWindow.index;
-          if (position === Tree.POSITION.BEFORE) {
+          if (position === POSITION.BEFORE) {
             // Find the opposite node
             index = index + 1;
           } else {
@@ -2511,7 +2512,7 @@ export class WindowManager extends GObject.Object {
   }
 
   floatAllWindows() {
-    this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW).forEach((w) => {
+    this.tree.getNodeByType(NODE_TYPES.WINDOW).forEach((w) => {
       if (w.isFloat()) {
         w.prevFloat = true;
       }
@@ -2520,7 +2521,7 @@ export class WindowManager extends GObject.Object {
   }
 
   unfloatAllWindows() {
-    this.tree.getNodeByType(Tree.NODE_TYPES.WINDOW).forEach((w) => {
+    this.tree.getNodeByType(NODE_TYPES.WINDOW).forEach((w) => {
       if (!w.prevFloat) {
         w.mode = WINDOW_MODES.TILE;
       } else {
