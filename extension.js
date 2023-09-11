@@ -17,12 +17,9 @@
  */
 
 // Gnome imports
-import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
-import * as SessionMode from "resource:///org/gnome/shell/ui/main/sessionMode.js";
-
+import { isLocked } from "resource:///org/gnome/shell/ui/sessionMode.js";
 import { PACKAGE_VERSION } from "resource:///org/gnome/shell/misc/config.js";
-
-import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+import { Extension, gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 // Application imports
 import { ConfigManager } from "./settings.js";
@@ -94,7 +91,7 @@ export default class ForgeExtension extends Extension {
   disable() {
     this.logger.info("disable");
 
-    if (SessionMode.isLocked) {
+    if (isLocked) {
       this.sameSession = true;
       this.logger.debug(`disable: still in same session`);
       return;
