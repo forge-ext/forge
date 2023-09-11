@@ -43,7 +43,7 @@ class FeatureMenuToggle extends QuickSettings.QuickMenuToggle {
     this.extension = extension;
     const title = _("Tiling");
     // TODO: 45?
-    const initSettings = Utils.isGnome(44)
+    const initSettings = Utils.isGnomeGTE(44)
       ? { title, iconName, toggleMode: true }
       : { label: title, iconName, toggleMode: true };
     super(initSettings);

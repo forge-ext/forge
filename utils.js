@@ -25,12 +25,13 @@ import Meta from "gi://Meta.js";
 import St from "gi://St.js";
 
 // Gnome-shell imports
-import Config from "resource:///org/gnome/shell/misc/config.js";
-const [major] = Config.PACKAGE_VERSION.split(".").map((s) => Number(s));
+import { PACKAGE_VERSION } from "resource:///org/gnome/shell/misc/config.js";
 
 // App imports
 import { ORIENTATION_TYPES, LAYOUT_TYPES, POSITION } from "./tree.js";
 import { GRAB_TYPES } from "./window.js";
+
+const [major] = PACKAGE_VERSION.split(".").map((s) => Number(s));
 
 /**
  *
@@ -389,4 +390,8 @@ export function dpi() {
 
 export function isGnome(majorVersion) {
   return major == majorVersion;
+}
+
+export function isGnomeGTE(majorVersion) {
+  return major >= majorVersion;
 }
