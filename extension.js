@@ -27,7 +27,7 @@ import { ConfigManager } from "./lib/shared/settings.js";
 // Application imports
 import { Keybindings } from "./lib/extension/keybindings.js";
 import { WindowManager } from "./lib/extension/window.js";
-import { FeatureIndicator } from "./lib/extension/indicator.js";
+import { FeatureIndicator, FeatureMenuToggle } from "./lib/extension/indicator.js";
 import { ExtensionThemeManager } from "./lib/extension/extension-theme-manager.js";
 
 export default class ForgeExtension extends Extension {
@@ -46,6 +46,8 @@ export default class ForgeExtension extends Extension {
     this.extWm = new WindowManager(this);
     this.keybindings = new Keybindings(this);
     this.indicator ??= new FeatureIndicator(this);
+    this.indicator.quickSettingsItems.push(new FeatureMenuToggle(this));
+    Main.panel.statusArea.quickSettings.addExternalIndicator(this.indicator);
 
     this.theme.patchCss();
     this.theme.reloadStylesheet();
@@ -72,7 +74,7 @@ export default class ForgeExtension extends Extension {
 
     this.extWm.disable();
     this.keybindings.disable();
-
+    this.indicator?.quickSettingsItems.forEach((item) => item.destroy());
     this.indicator?.destroy();
     this.indicator = null;
     this.keybindings = null;
