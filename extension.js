@@ -18,12 +18,11 @@
 
 // Gnome imports
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
-import { PACKAGE_VERSION } from "resource:///org/gnome/shell/misc/config.js";
 import { Extension, gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 // Shared state
 import { Logger } from "./lib/shared/logger.js";
-import { ConfigManager, production } from "./lib/shared/settings.js";
+import { ConfigManager } from "./lib/shared/settings.js";
 
 // Application imports
 import { Keybindings } from "./lib/extension/keybindings.js";
@@ -36,15 +35,12 @@ export default class ForgeExtension extends Extension {
 
   kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
 
-  prefsTitle = `Forge ${_("Settings")} - ${
-    !production ? "DEV" : `${PACKAGE_VERSION}-${this.metadata.version}`
-  }`;
-
   sameSession = false;
 
   enable() {
     Logger.init(this.settings);
     Logger.info("enable");
+
     this.configMgr = new ConfigManager(this);
     this.theme = new ExtensionThemeManager(this);
     this.extWm = new WindowManager(this);
