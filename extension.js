@@ -24,12 +24,12 @@ import { Extension, gettext as _ } from "resource:///org/gnome/shell/extensions/
 // Shared state
 import { Logger } from "./lib/shared/logger.js";
 import { ConfigManager, production } from "./lib/shared/settings.js";
-import { ThemeManager } from "./lib/shared/theme.js";
 
 // Application imports
 import { Keybindings } from "./lib/extension/keybindings.js";
 import { WindowManager } from "./lib/extension/window.js";
 import { FeatureIndicator } from "./lib/extension/indicator.js";
+import { ExtensionThemeManager } from "./lib/extension/extension-theme-manager.js";
 
 export default class ForgeExtension extends Extension {
   settings = this.getSettings();
@@ -38,7 +38,7 @@ export default class ForgeExtension extends Extension {
 
   configMgr = new ConfigManager(this);
 
-  theme = new ThemeManager(this);
+  theme = new ExtensionThemeManager(this);
 
   extWm = new WindowManager(this);
 
