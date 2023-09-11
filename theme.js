@@ -24,7 +24,7 @@ import GObject from "gi://GObject";
 // Application imports
 import { stringify, parse } from "./css/index.js";
 import { production } from "./settings.js";
-import { Logger } from './logger.js';
+import { Logger } from "./logger.js";
 
 /** @typedef {import('./extension.js').default} ForgeExtension */
 

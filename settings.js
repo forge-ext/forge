@@ -21,7 +21,7 @@ import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
 
-import { Logger } from './logger.js';
+import { Logger } from "./logger.js";
 
 /** @typedef {import('./extension.js').default} ForgeExtension */
 

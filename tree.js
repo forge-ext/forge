@@ -23,7 +23,7 @@ import Shell from "gi://Shell";
 import St from "gi://St";
 
 // App imports
-import { Logger } from './logger.js';
+import { Logger } from "./logger.js";
 import * as Utils from "./utils.js";
 import * as Window from "./window.js";
 
