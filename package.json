@@ -20,6 +20,9 @@
     "gnome-shell"
   ],
   "author": "Jose Maranan",
+  "contributors": [
+    "Benny Powers <web@bennypowers.com>"
+  ],
   "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/forge-ext/forge/issues"
