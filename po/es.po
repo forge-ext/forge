@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-30 13:02+0300\n"
+"POT-Creation-Date: 2023-09-18 10:48+0300\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -12,288 +12,262 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: messages.js:37
-msgid "Settings"
-msgstr "Settings ES"
-
-#: messages.js:38
-msgid "Development in Progress..."
-msgstr "Development in Progress ES"
-
-#: messages.js:39
-msgid "About"
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:78
+msgid "Tiling"
 msgstr ""
 
-#: messages.js:40
-msgid "Appearance"
+#: lib/extension/indicator.js:66 lib/prefs/settings.js:23
+msgid "Forge"
 msgstr ""
 
-#: messages.js:41
-msgid "Development"
+#: lib/extension/indicator.js:66
+msgid "Tiling Window Management"
 msgstr ""
 
-#: messages.js:42
-msgid "Experimental"
-msgstr ""
-
-#: messages.js:43
-msgid "Home"
-msgstr ""
-
-#: messages.js:44
-msgid "Keyboard"
-msgstr ""
-
-#: messages.js:46
-msgid "Window"
-msgstr ""
-
-#: messages.js:47
-msgid "Gaps"
-msgstr ""
-
-#: messages.js:48
-msgid "Gaps Size"
-msgstr ""
-
-#: messages.js:49
-msgid "Gaps Size Multiplier"
-msgstr ""
-
-#: messages.js:50
+#: lib/extension/indicator.js:70 lib/prefs/appearance.js:65
 msgid "Gaps Hidden when Single"
 msgstr ""
 
-#: messages.js:52
-msgid "Borders"
-msgstr ""
-
-#: messages.js:53
+#: lib/extension/indicator.js:78 lib/prefs/settings.js:87
 msgid "Show Focus Hint Border"
 msgstr ""
 
-#: messages.js:55
+#: lib/extension/indicator.js:86 lib/extension/window.js:67
+#: lib/prefs/settings.js:54 lib/prefs/settings.js:56
+msgid "Settings"
+msgstr "Settings ES"
+
+#: lib/prefs/appearance.js:29
+msgid "Tiled Focus Hint and Preview"
+msgstr ""
+
+#: lib/prefs/appearance.js:31
+msgid "Floated Focus Hint"
+msgstr ""
+
+#: lib/prefs/appearance.js:33
+msgid "Split Direction Hint"
+msgstr ""
+
+#: lib/prefs/appearance.js:35
+msgid "Stacked Focus Hint and Preview"
+msgstr ""
+
+#: lib/prefs/appearance.js:37
+msgid "Tabbed Focus Hint and Preview"
+msgstr ""
+
+#: lib/prefs/appearance.js:42
+msgid "Appearance"
+msgstr ""
+
+#: lib/prefs/appearance.js:47
+msgid "Gaps"
+msgstr ""
+
+#: lib/prefs/appearance.js:51
+msgid "Gaps Size"
+msgstr ""
+
+#: lib/prefs/appearance.js:58
+msgid "Gaps Size Multiplier"
+msgstr ""
+
+#: lib/prefs/appearance.js:73
 msgid "Color"
 msgstr ""
 
-#: messages.js:56
+#: lib/prefs/appearance.js:95
 msgid "Border Size"
 msgstr ""
 
-#: messages.js:57
+#: lib/prefs/appearance.js:167
 msgid "Border Color"
 msgstr ""
 
-#: messages.js:58
-msgid "Palette Mode"
+#: lib/prefs/keyboard.js:19
+msgid "Keyboard"
 msgstr ""
 
-#: messages.js:59
-msgid "Editor Mode"
+#: lib/prefs/keyboard.js:21
+msgid "Syntax"
 msgstr ""
 
-#: messages.js:60
-msgid "Apply Changes"
+#: lib/prefs/keyboard.js:22
+msgid "Legend"
 msgstr ""
 
-#: messages.js:61 messages.js:62
-msgid "Reset"
+#: lib/prefs/keyboard.js:22
+msgid "Windows  key"
 msgstr ""
 
-#: messages.js:63
-msgid "Layout"
+#: lib/prefs/keyboard.js:22
+msgid "Control key"
 msgstr ""
 
-#: messages.js:64
-msgid "Default Drag-and-Drop Center Layout"
+#: lib/prefs/keyboard.js:23
+msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
 msgstr ""
 
-#: messages.js:65
-msgid "Tabbed"
+#: lib/prefs/keyboard.js:24
+msgid "Resets"
 msgstr ""
 
-#: messages.js:66
-msgid "Stacked"
+#: lib/prefs/keyboard.js:25
+msgid "to previous value when invalid"
 msgstr ""
 
-#: messages.js:68
-msgid "Workspace"
+#: lib/prefs/keyboard.js:28
+msgid "Update Shortcuts"
 msgstr ""
 
-#: messages.js:69
-msgid "Update Workspace Settings"
-msgstr ""
-
-#: messages.js:70
-msgid "Skip Workspace Tiling"
-msgstr ""
-
-#: messages.js:72
-msgid ""
-"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
-"accept"
-msgstr ""
-
-#: messages.js:75
-msgid "Window Shortcuts"
-msgstr ""
-
-#: messages.js:76
-msgid "Workspace Shortcuts"
-msgstr ""
-
-#: messages.js:77
-msgid "Container Shortcuts"
-msgstr ""
-
-#: messages.js:78
-msgid "Focus Shortcuts"
-msgstr ""
-
-#: messages.js:79
-msgid "Other Shortcuts"
-msgstr ""
-
-#: messages.js:80
-msgid "Modifier Keys"
-msgstr ""
-
-#: messages.js:81
+#: lib/prefs/keyboard.js:42
 msgid "Drag-Drop Tiling Modifier Key Options"
 msgstr ""
 
-#: messages.js:83
+#: lib/prefs/keyboard.js:44
 msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
 msgstr ""
 
-#: messages.js:86
+#: lib/prefs/keyboard.js:45
 msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
 msgstr ""
 
-#: messages.js:88
+#: lib/prefs/keyboard.js:48
 msgid "Tile Modifier"
 msgstr ""
 
-#: messages.js:89
-msgid "Ctrl"
-msgstr ""
-
-#: messages.js:90
+#: lib/prefs/keyboard.js:52
 msgid "Super"
 msgstr ""
 
-#: messages.js:91
+#: lib/prefs/keyboard.js:53
+msgid "Ctrl"
+msgstr ""
+
+#: lib/prefs/keyboard.js:54
 msgid "Alt"
 msgstr ""
 
-#: messages.js:92
+#: lib/prefs/keyboard.js:55
 msgid "None"
 msgstr ""
 
-#: messages.js:94
+#: lib/prefs/settings.js:33
+msgid "translator-credits"
+msgstr ""
+
+#: lib/prefs/settings.js:41
+msgid "About"
+msgstr ""
+
+#: lib/prefs/settings.js:57
+msgid "Toggle Forge's high-level features"
+msgstr ""
+
+#: lib/prefs/settings.js:61
+msgid "Stacked Tiling Mode"
+msgstr ""
+
+#: lib/prefs/settings.js:62
+msgid "Stack windows on top of each other while still being tiled"
+msgstr ""
+
+#: lib/prefs/settings.js:68
+msgid "Tabbed Tiling Mode"
+msgstr ""
+
+#: lib/prefs/settings.js:69
+msgid "Group tiles windows as tabs"
+msgstr ""
+
+#: lib/prefs/settings.js:81
+msgid "Preview Hint Toggle"
+msgstr ""
+
+#: lib/prefs/settings.js:88
+msgid "Display a colored border around the focused window"
+msgstr ""
+
+#: lib/prefs/settings.js:93
+msgid "Show Window Split Hint Border"
+msgstr ""
+
+#: lib/prefs/settings.js:94
+msgid "Show split direction border on focused window"
+msgstr ""
+
+#: lib/prefs/settings.js:99
+msgid "Default Drag-and-Drop Center Layout"
+msgstr ""
+
+#: lib/prefs/settings.js:103
+msgid "Tabbed"
+msgstr ""
+
+#: lib/prefs/settings.js:104
+msgid "Stacked"
+msgstr ""
+
+#: lib/prefs/settings.js:108
+msgid "Auto Split"
+msgstr ""
+
+#: lib/prefs/settings.js:109
+msgid "Quarter Tiling"
+msgstr ""
+
+#: lib/prefs/settings.js:115
+msgid "Float Mode Always On Top"
+msgstr ""
+
+#: lib/prefs/settings.js:116
+msgid "Floating windows always above tiling windows"
+msgstr ""
+
+#: lib/prefs/settings.js:122
+msgid "Show Tiling Quick Settings"
+msgstr ""
+
+#: lib/prefs/settings.js:123
+msgid "Toggle showing Forge on quick settings"
+msgstr ""
+
+#: lib/prefs/settings.js:133
+msgid "Logger"
+msgstr ""
+
+#: lib/prefs/settings.js:136
 msgid "Logger Level"
 msgstr ""
 
-#: messages.js:97
+#: lib/prefs/widgets.js:43
 msgid ""
 "<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to "
 "crash"
 msgstr ""
 
-#: messages.js:100
+#: lib/prefs/widgets.js:212
+msgid "Reset"
+msgstr ""
+
+#: lib/prefs/workspace.js:14
+msgid "Workspace"
+msgstr ""
+
+#: lib/prefs/workspace.js:16
+msgid "Update Workspace Settings"
+msgstr ""
+
+#: lib/prefs/workspace.js:18
 msgid ""
-"Stacked Tiling Mode (Stack windows on top of each other while still being "
-"tiled)"
+"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
+"accept"
 msgstr ""
 
-#: messages.js:102
-msgid "Tabbed Tiling Mode (Group tiled windows as tabs)"
+#: lib/prefs/workspace.js:22
+msgid "Skip Workspace Tiling"
 msgstr ""
 
-#: messages.js:104
-msgid "Float Mode Always On Top (Floating windows always above tiling windows)"
-msgstr ""
-
-#: messages.js:106
-msgid "Auto Split (Quarter Tiling)"
-msgstr ""
-
-#: messages.js:107
-msgid "Preview Hint Toggle"
-msgstr ""
-
-#: messages.js:109
-msgid "Update Keybindings"
-msgstr ""
-
-#: messages.js:110
-msgid "Syntax"
-msgstr ""
-
-#: messages.js:111
-msgid "Legend"
-msgstr ""
-
-#: messages.js:112
-msgid "Windows key"
-msgstr ""
-
-#: messages.js:113
-msgid "Control key"
-msgstr ""
-
-#: messages.js:115
-msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
-msgstr ""
-
-#: messages.js:117
-msgid "Resets"
-msgstr ""
-
-#: messages.js:118
-msgid "to previous value when invalid"
-msgstr ""
-
-#: messages.js:119
-msgid "Action"
-msgstr ""
-
-#: messages.js:120
-msgid "Shortcut"
-msgstr ""
-
-#: messages.js:121
-msgid "Notes"
-msgstr ""
-
-#: messages.js:123
-msgid "Forge Panel Settings"
-msgstr ""
-
-#: messages.js:124
-msgid "Tile Mode"
-msgstr ""
-
-#: messages.js:125
-msgid "Open Preferences"
-msgstr ""
-
-#: messages.js:130
-msgid "Tiled Focus Hint and Preview"
-msgstr ""
-
-#: messages.js:132
-msgid "Floated Focus Hint"
-msgstr ""
-
-#: messages.js:134
-msgid "Split Direction Hint"
-msgstr ""
-
-#: messages.js:136
-msgid "Stacked Focus Hint and Preview"
-msgstr ""
-
-#: messages.js:138
-msgid "Tabbed Focus Hint and Preview"
-msgstr ""
+#~ msgid "Development in Progress..."
+#~ msgstr "Development in Progress ES"
