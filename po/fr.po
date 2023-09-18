@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-18 10:48+0300\n"
+"POT-Creation-Date: 2023-09-18 08:07-0400\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: William Roy <wroy@proton.me>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -226,48 +226,48 @@ msgstr ""
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Disposition centrale par défaut du glisser-déposer"
 
-#: lib/prefs/settings.js:103
+#: lib/prefs/settings.js:104
 msgid "Tabbed"
 msgstr "Onglets"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:105
 msgid "Stacked"
 msgstr "Empilés"
 
-#: lib/prefs/settings.js:108
+#: lib/prefs/settings.js:109
 msgid "Auto Split"
 msgstr ""
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:110
 #, fuzzy
 msgid "Quarter Tiling"
 msgstr "Fractionnement automatique (Mosaïque en quart)"
 
-#: lib/prefs/settings.js:115
+#: lib/prefs/settings.js:116
 msgid "Float Mode Always On Top"
 msgstr ""
 
-#: lib/prefs/settings.js:116
+#: lib/prefs/settings.js:117
 #, fuzzy
 msgid "Floating windows always above tiling windows"
 msgstr ""
 "Mode flottant toujours au-dessus (Les fenêtres flottantes toujours au-dessus "
 "des fenêtres en mosaïque)"
 
-#: lib/prefs/settings.js:122
+#: lib/prefs/settings.js:123
 msgid "Show Tiling Quick Settings"
 msgstr ""
 
-#: lib/prefs/settings.js:123
+#: lib/prefs/settings.js:124
 msgid "Toggle showing Forge on quick settings"
 msgstr ""
 
-#: lib/prefs/settings.js:133
+#: lib/prefs/settings.js:134
 #, fuzzy
 msgid "Logger"
 msgstr "Niveau de journalisation"
 
-#: lib/prefs/settings.js:136
+#: lib/prefs/settings.js:137
 msgid "Logger Level"
 msgstr "Niveau de journalisation"
 
@@ -280,7 +280,7 @@ msgstr ""
 "ATTENTION : Ces paramètres, lorsqu'ils sont activés, sont bogués ou peuvent "
 "causer un plantage de l'environnement de bureau"
 
-#: lib/prefs/widgets.js:212
+#: lib/prefs/widgets.js:222
 msgid "Reset"
 msgstr "Réinitialiser"
 

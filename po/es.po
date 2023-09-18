@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-18 10:48+0300\n"
+"POT-Creation-Date: 2023-09-18 08:07-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -201,43 +201,43 @@ msgstr ""
 msgid "Default Drag-and-Drop Center Layout"
 msgstr ""
 
-#: lib/prefs/settings.js:103
+#: lib/prefs/settings.js:104
 msgid "Tabbed"
 msgstr ""
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:105
 msgid "Stacked"
 msgstr ""
 
-#: lib/prefs/settings.js:108
+#: lib/prefs/settings.js:109
 msgid "Auto Split"
 msgstr ""
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:110
 msgid "Quarter Tiling"
 msgstr ""
 
-#: lib/prefs/settings.js:115
+#: lib/prefs/settings.js:116
 msgid "Float Mode Always On Top"
 msgstr ""
 
-#: lib/prefs/settings.js:116
+#: lib/prefs/settings.js:117
 msgid "Floating windows always above tiling windows"
 msgstr ""
 
-#: lib/prefs/settings.js:122
+#: lib/prefs/settings.js:123
 msgid "Show Tiling Quick Settings"
 msgstr ""
 
-#: lib/prefs/settings.js:123
+#: lib/prefs/settings.js:124
 msgid "Toggle showing Forge on quick settings"
 msgstr ""
 
-#: lib/prefs/settings.js:133
+#: lib/prefs/settings.js:134
 msgid "Logger"
 msgstr ""
 
-#: lib/prefs/settings.js:136
+#: lib/prefs/settings.js:137
 msgid "Logger Level"
 msgstr ""
 
@@ -247,7 +247,7 @@ msgid ""
 "crash"
 msgstr ""
 
-#: lib/prefs/widgets.js:212
+#: lib/prefs/widgets.js:222
 msgid "Reset"
 msgstr ""
 
