@@ -51,7 +51,7 @@ build: clean metadata.json schemas compilemsgs metadata
 	msgfmt -c $< -o $@
 
 debug:
-	sed -i 's/export const production = true/export const production = false/' temp/settings.js
+	sed -i 's/export const production = true/export const production = false/' temp/lib/shared/settings.js
 	sed -i 's/1.0-alpha/3999/' temp/metadata.json
 	sed -i 's/1.1-alpha/4999/' temp/metadata.json
 
