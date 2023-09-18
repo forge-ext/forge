@@ -57,7 +57,7 @@ debug:
 
 potfile: ./po/forge.pot
 
-./po/forge.pot: ./prefs.js ./extension.js ./lib/**/*.js
+./po/forge.pot: metadata ./prefs.js ./extension.js ./lib/**/*.js
 	mkdir -p po
 	xgettext --from-code=UTF-8 --output=po/forge.pot --package-name "Forge" ./prefs.js ./extension.js ./lib/**/*.js
 
