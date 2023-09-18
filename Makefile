@@ -57,9 +57,9 @@ debug:
 
 potfile: ./po/forge.pot
 
-./po/forge.pot: ./extension.js
+./po/forge.pot: ./prefs.js ./extension.js ./lib/**/*.js
 	mkdir -p po
-	xgettext --from-code=UTF-8 --output=po/forge.pot --package-name "Forge" ./extension.js
+	xgettext --from-code=UTF-8 --output=po/forge.pot --package-name "Forge" ./prefs.js ./extension.js ./lib/**/*.js
 
 compilemsgs: potfile $(MSGSRC:.po=.mo)
 	for msg in $(MSGSRC); do \
