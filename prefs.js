@@ -17,8 +17,8 @@
  */
 
 // Gnome imports
-import Gdk from "gi://Gdk?version=4.0";
-import Gtk from "gi://Gtk?version=4.0";
+import Gdk from "gi://Gdk";
+import Gtk from "gi://Gtk";
 
 import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
@@ -27,7 +27,7 @@ import { AppearancePage } from "./lib/prefs/appearance.js";
 import { WorkspacePage } from "./lib/prefs/workspace.js";
 import { SettingsPage } from "./lib/prefs/settings.js";
 
-export default class ForgeExtentionPreferences extends ExtensionPreferences {
+export default class ForgeExtensionPreferences extends ExtensionPreferences {
   settings = this.getSettings();
 
   kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");

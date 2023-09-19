@@ -31,13 +31,9 @@ import { FeatureIndicator, FeatureMenuToggle } from "./lib/extension/indicator.j
 import { ExtensionThemeManager } from "./lib/extension/extension-theme-manager.js";
 
 export default class ForgeExtension extends Extension {
-  settings = this.getSettings();
-
-  kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
-
-  sameSession = false;
-
   enable() {
+    this.settings = this.getSettings();
+    this.kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
     Logger.init(this.settings);
     Logger.info("enable");
 
@@ -51,13 +47,6 @@ export default class ForgeExtension extends Extension {
 
     this.theme.patchCss();
     this.theme.reloadStylesheet();
-
-    if (this.sameSession) {
-      Logger.debug(`enable: still in same session`);
-      this.sameSession = false;
-      return;
-    }
-
     this.extWm.enable();
     this.keybindings.enable();
     Logger.info(`enable: finalized vars`);
@@ -65,13 +54,6 @@ export default class ForgeExtension extends Extension {
 
   disable() {
     Logger.info("disable");
-
-    if (Main.sessionMode.isLocked) {
-      this.sameSession = true;
-      Logger.debug(`disable: still in same session`);
-      return;
-    }
-
     this.extWm.disable();
     this.keybindings.disable();
     this.indicator?.quickSettingsItems.forEach((item) => item.destroy());
@@ -81,5 +63,7 @@ export default class ForgeExtension extends Extension {
     this.extWm = null;
     this.themeWm = null;
     this.configMgr = null;
+    this.settings = null;
+    this.kbdSettings = null;
   }
 }
