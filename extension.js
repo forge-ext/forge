@@ -41,10 +41,10 @@ export default class ForgeExtension extends Extension {
     this.theme = new ExtensionThemeManager(this);
     this.extWm = new WindowManager(this);
     this.keybindings = new Keybindings(this);
-    this.indicator ??= new FeatureIndicator(this);
-    this.indicator.quickSettingsItems.push(new FeatureMenuToggle(this));
-    Main.panel.statusArea.quickSettings.addExternalIndicator(this.indicator);
 
+    this._sessionId = Main.sessionMode.connect("updated", this._onSessionModeChanged.bind(this));
+
+    this._addIndicator();
     this.theme.patchCss();
     this.theme.reloadStylesheet();
     this.extWm.enable();
@@ -54,16 +54,48 @@ export default class ForgeExtension extends Extension {
 
   disable() {
     Logger.info("disable");
-    this.extWm.disable();
-    this.keybindings.disable();
-    this.indicator?.quickSettingsItems.forEach((item) => item.destroy());
-    this.indicator?.destroy();
-    this.indicator = null;
+
+    // See session mode unlock-dialog explanation on _onSessionModeChanged()
+    if (this._sessionId) {
+      Main.sessionMode.disconnect(this._sessionId);
+      this._sessionId = null;
+    }
+
+    this.extWm?.disable();
+    this.keybindings?.disable();
     this.keybindings = null;
     this.extWm = null;
     this.themeWm = null;
     this.configMgr = null;
     this.settings = null;
     this.kbdSettings = null;
+  }
+
+  _onSessionModeChanged(session) {
+    if (session.currentMode === "user" || session.parentMode === "user") {
+      this._addIndicator();
+      this.keybindings?.enable();
+    } else if (session.currentMode === "unlock-dialog") {
+      // To the reviewer and maintainer: this extension needs to persist the window data structure in memory so it has to keep running on lock screen.
+      // This is previous feature but was removed during GNOME 45 update due to the session-mode rule review.
+      // The argument is that users will keep re-arranging windows when it times out or locks up.
+      // Intent to serialize/deserialize to disk but that will take a longer time or probably a longer argument during review.
+      // To keep following, added to only disable keybindings() and re-enable them during user session.
+      // https://gjs.guide/extensions/review-guidelines/review-guidelines.html#session-modes
+      this.keybindings?.disable();
+      this._removeIndicator();
+    }
+  }
+
+  _addIndicator() {
+    this.indicator ??= new FeatureIndicator(this);
+    this.indicator.quickSettingsItems.push(new FeatureMenuToggle(this));
+    Main.panel.statusArea.quickSettings.addExternalIndicator(this.indicator);
+  }
+
+  _removeIndicator() {
+    this.indicator?.quickSettingsItems.forEach((item) => item.destroy());
+    this.indicator?.destroy();
+    this.indicator = null;
   }
 }
