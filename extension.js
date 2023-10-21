@@ -61,6 +61,7 @@ export default class ForgeExtension extends Extension {
       this._sessionId = null;
     }
 
+    this._removeIndicator();
     this.extWm?.disable();
     this.keybindings?.disable();
     this.keybindings = null;
