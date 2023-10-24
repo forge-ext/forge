@@ -27,6 +27,7 @@ import { ConfigManager } from "./lib/shared/settings.js";
 // Application imports
 import { Keybindings } from "./lib/extension/keybindings.js";
 import { WindowManager } from "./lib/extension/window.js";
+import { WindowManagement } from "./lib/extension/next/window-management.js";
 import { FeatureIndicator, FeatureMenuToggle } from "./lib/extension/indicator.js";
 import { ExtensionThemeManager } from "./lib/extension/extension-theme-manager.js";
 
@@ -37,17 +38,20 @@ export default class ForgeExtension extends Extension {
     Logger.init(this.settings);
     Logger.info("enable");
 
-    this.configMgr = new ConfigManager(this);
-    this.theme = new ExtensionThemeManager(this);
-    this.extWm = new WindowManager(this);
-    this.keybindings = new Keybindings(this);
-
     this._onSessionModeChanged(Main.sessionMode);
     this._sessionId = Main.sessionMode.connect("updated", this._onSessionModeChanged.bind(this));
-
-    this.theme.patchCss();
-    this.theme.reloadStylesheet();
-    this.extWm.enable();
+    let next = this.settings.get_boolean("forge-next");
+    if (next) {
+      this.windowManagement = new WindowManagement(this);
+    } else {
+      this.configMgr = new ConfigManager(this);
+      this.theme = new ExtensionThemeManager(this);
+      this.extWm = new WindowManager(this);
+      this.keybindings = new Keybindings(this);
+      this.theme.patchCss();
+      this.theme.reloadStylesheet();
+      this.extWm.enable();
+    }
     Logger.info(`enable: finalized vars`);
   }
 
@@ -59,16 +63,21 @@ export default class ForgeExtension extends Extension {
       Main.sessionMode.disconnect(this._sessionId);
       this._sessionId = null;
     }
-
     this._removeIndicator();
-    this.extWm?.disable();
-    this.keybindings?.disable();
-    this.keybindings = null;
-    this.extWm = null;
-    this.themeWm = null;
-    this.configMgr = null;
-    this.settings = null;
-    this.kbdSettings = null;
+
+    let next = this.settings.get_boolean("forge-next");
+
+    if (next) {
+    } else {
+      this.extWm?.disable();
+      this.keybindings?.disable();
+      this.keybindings = null;
+      this.extWm = null;
+      this.themeWm = null;
+      this.configMgr = null;
+      this.settings = null;
+      this.kbdSettings = null;
+    }
   }
 
   _onSessionModeChanged(session) {

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
     <schema id="org.gnome.shell.extensions.forge" path="/org/gnome/shell/extensions/forge/">
+        <key type="b" name="forge-next">
+            <default>true</default>
+            <summary>Next generation of Forge</summary>
+        </key>
+
         <!-- Main Settings -->
         <key type="b" name="focus-border-toggle">
             <default>true</default>
@@ -99,7 +104,7 @@
             </summary>
         </key>
         <key type="b" name="logging-enabled">
-            <default>false</default>
+            <default>true</default>
             <summary>Enable logging</summary>
         </key>
 
