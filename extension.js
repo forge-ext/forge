@@ -42,13 +42,12 @@ export default class ForgeExtension extends Extension {
     this.extWm = new WindowManager(this);
     this.keybindings = new Keybindings(this);
 
+    this._onSessionModeChanged(Main.sessionMode);
     this._sessionId = Main.sessionMode.connect("updated", this._onSessionModeChanged.bind(this));
 
-    this._addIndicator();
     this.theme.patchCss();
     this.theme.reloadStylesheet();
     this.extWm.enable();
-    this.keybindings.enable();
     Logger.info(`enable: finalized vars`);
   }
 
@@ -74,6 +73,7 @@ export default class ForgeExtension extends Extension {
 
   _onSessionModeChanged(session) {
     if (session.currentMode === "user" || session.parentMode === "user") {
+      Logger.info("user on session change");
       this._addIndicator();
       this.keybindings?.enable();
     } else if (session.currentMode === "unlock-dialog") {
@@ -83,6 +83,7 @@ export default class ForgeExtension extends Extension {
       // Intent to serialize/deserialize to disk but that will take a longer time or probably a longer argument during review.
       // To keep following, added to only disable keybindings() and re-enable them during user session.
       // https://gjs.guide/extensions/review-guidelines/review-guidelines.html#session-modes
+      Logger.info("lock-screen on session change");
       this.keybindings?.disable();
       this._removeIndicator();
     }
