@@ -248,6 +248,11 @@
             <summary>Move window right</summary>
         </key>
 
+        <key type="as" name="window-nonpersistent-toggle-float">
+          <default><![CDATA[['<Super><Shift>space']]]></default>
+            <summary>Toggle window float</summary>
+        </key>
+
         <key type="as" name="window-toggle-float">
           <default><![CDATA[['<Super>c']]]></default>
             <summary>Toggle window float</summary>
