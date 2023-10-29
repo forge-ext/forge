@@ -32,6 +32,7 @@ On navigating `Appearance` parent item,
 ## Window Effects
 
 When changing Preferences on Appearance > Colors:
+
 - [ ] - Tiled Focus Hint updates border size and color
 - [ ] - Tiled Focus Hint color updates also updates preview tiled hint
 - [ ] - Tiled Focus Hint color updates also updates overview and workspace thumbnail hints
@@ -46,16 +47,27 @@ When changing Preferences on Appearance > Colors:
 
 ## Tiling Mode
 
-When dragging a window,
+When dragging a window:
+
 - [ ] - Should show a preview hint where the window would be tiled. If Tile Modifier is set, Super or Ctrl or Alt would show preview otherwise shows preview automatically:
-    - [ ] - For split layout, should show preview hint left/right on horizontal, top/bottom on vertical following the mouse pointer.
-    - [ ] - For tabbed layout, should show preview hint same size as the current front window.
-    - [ ] - For stacked layout, should show preview hint same size as the current front window.
-    - [ ] - There should be the following preview hint regions: LEFT, TOP, RIGHT, BOTTOM and CENTER
+  - [ ] - For split layout, should show preview hint left/right on horizontal, top/bottom on vertical following the mouse pointer.
+  - [ ] - For tabbed layout, should show preview hint same size as the current front window.
+  - [ ] - For stacked layout, should show preview hint same size as the current front window.
+  - [ ] - There should be the following preview hint regions: LEFT, TOP, RIGHT, BOTTOM and CENTER
 - [ ] - On dropping, should tile the window on the preview hint position shown before dropping.
 - [ ] - On dropping to a different monitor, should tile based on the preview hint position shown unless empty monitor.
-    - [ ] - Empty monitors will not show a preview hint.
+  - [ ] - Empty monitors will not show a preview hint.
 
 ## Floating Mode
 
 ## Layout Mode
+
+## Focus
+
+While alternating between windows, the mouse cursor position should follow the focus:
+
+- [ ] - when moving the focus to another window with keyboard or mouse.
+- [ ] - when swapping two windows positions.
+- [ ] - when alternating to a new window using `Alt+Tab` or `Super+Tab`.
+- [ ] - when exiting on Overview mode.
+- [ ] - at the same position it was previouly on the window.
