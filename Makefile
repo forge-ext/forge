@@ -98,7 +98,7 @@ restart:
 	fi
 
 log:
-	journalctl -o cat -n 0 -f "$$(which gnome-shell)" | grep -v warning
+	journalctl -o cat -n 0 -f "$$(which gnome-shell)" | grep -v -E 'warning|g_variant'
 
 journal:
 	journalctl -b 0 -r --since "1 hour ago"
@@ -107,7 +107,17 @@ test-shell:
 	env GNOME_SHELL_SLOWDOWN_FACTOR=2 \
 		MUTTER_DEBUG_DUMMY_MODE_SPECS=1500x1000 \
 	  MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1 \
-		dbus-run-session -- gnome-shell --nested --wayland
+		dbus-run-session -- gnome-shell --nested --wayland --wayland-display=wayland-forge
+
+# Usage: 
+#   make test-shell-open &
+#   make test-shell-open CMD=gnome-text-editor
+#   make test-shell-open CMD=gnome-terminal ARGS='--app-id app.x'
+#   make test-shell-open CMD=firefox ARGS='--safe-mode' ENVVARS='MOZ_DBUS_REMOTE=1 MOZ_ENABLE_WAYLAND=1'
+#
+test-shell-open: CMD=nautilus
+test-shell-open:
+	GDK_BACKEND=wayland WAYLAND_DISPLAY=wayland-forge $(ENVVARS) $(CMD) $(ARGS)&
 
 format:
 	npm run format
