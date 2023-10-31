@@ -18,6 +18,6 @@
     { "wmClass": "Guake", "mode": "float" },
     { "wmClass": "zoom", "mode": "float" },
     { "wmClass": "firefox", "wmTitle": "About Mozilla Firefox", "mode": "float" },
-    { "wmClass": "firefox", "wmTitle": "Picture-in-Picture", "mode": "float" }
+    { "wmClass": "firefox", "wmTitle": "!Mozilla Firefox", "mode": "float" }
   ]
 }
