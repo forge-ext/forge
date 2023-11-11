@@ -27,6 +27,7 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 ![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
 
 ## Forge Keybinding Defaults
+See the acceptable key combinations on the [wiki](https://github.com/forge-ext/forge/wiki/Keyboard-Shortcuts)
 
 | Action | Shortcut |
 | --- | --- |
