@@ -41,6 +41,7 @@ export default class ForgeExtension extends Extension {
     this._onSessionModeChanged(Main.sessionMode);
     this._sessionId = Main.sessionMode.connect("updated", this._onSessionModeChanged.bind(this));
     let next = this.settings.get_boolean("forge-next");
+
     if (next) {
       this.windowManagement = new WindowManagement(this);
     } else {
@@ -68,6 +69,8 @@ export default class ForgeExtension extends Extension {
     let next = this.settings.get_boolean("forge-next");
 
     if (next) {
+      this.windowManagement?.destroy();
+      this.windowManagement = null;
     } else {
       this.extWm?.disable();
       this.keybindings?.disable();
