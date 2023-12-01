@@ -123,6 +123,14 @@
   background-color: rgba(247, 162, 43, 0.3);
 }
 
+.window-tilepreview-swap {
+  border-width: 1px;
+  border-color: rgba(162, 247, 43, 0.4);
+  border-style: solid;
+  border-radius: 14px;
+  background-color: rgba(162, 247, 43, 0.4);
+}
+
 .window-tilepreview-tabbed {
   border-width: 1px;
   border-color: rgba(18, 199, 224, 0.4);
