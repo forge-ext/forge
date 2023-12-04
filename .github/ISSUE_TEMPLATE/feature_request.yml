@@ -1,5 +1,5 @@
 name: Feature request
-about: Suggest an idea for this project
+description: Suggest an idea for this project
 title: 'feat: short description'
 labels: enhancement
 body:
