@@ -14,14 +14,14 @@ assignees: ''
 
 **(3) Distribution and Linux version:**
 <!--
-cat /etc/os-release
-uname -a
+cat /etc/os-release && uname -a
 -->
 
-**(4) Journal Logs from the last hour:**
+<details> <summary> <b> (4) Journal Logs from the last hour: </b> </summary>
 <!--
 journalctl --since='1 hour ago' --follow /usr/bin/gnome-shell
 -->
+</details>
 
 **(5) Gnome Shell version:**
 <!--
@@ -38,11 +38,12 @@ Put the extensions.gnome.org version or the commit sha if compiled from source.
 Specifying the monitor/display setup helps a lot for tiling troubleshooting
 -->
 
-**(9) Other Installed/Enabled Extensions:**
+<details> <summary> <b> (9) Other Installed/Enabled Extensions: </b> </summary>
 <!--
 # Other extensions:
 gnome-extensions list --enabled --details
 -->
+</details>
 
 **(10) Other Notes:**
 <!--
