@@ -14,4 +14,4 @@ assignees: ''
 <!-- A clear and concise description of any alternative solutions or features you've considered. -->
 
 **(3) Design / Screenshots / Mockups:**
-<!-- Add any other context or screenshots about the feature request here. -->
+<!-- Any other context or screenshots about the feature request. -->
