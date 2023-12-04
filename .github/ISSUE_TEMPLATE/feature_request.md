@@ -7,10 +7,10 @@ assignees: ''
 
 ---
 
-**(1) Describe your proposal and benefits:**
-<!-- A clear and concise description of what you want to happen. -->
+**(1) Description:**
+<!-- A clear and concise description of what you want to happen and how it benefits the projects. -->
 
-**(2) Describe alternatives you've considered:**
+**(2) Alternatives I've considered:**
 <!-- A clear and concise description of any alternative solutions or features you've considered. -->
 
 **(3) Design / Screenshots / Mockups:**
