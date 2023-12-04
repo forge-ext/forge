@@ -6,8 +6,8 @@ labels: bug
 assignees: ''
 ---
 
-<!-- Please be as descriptive as you can, please do not post any personally identifiable or confidential info on screenshots / video captures -->
-<!-- Tick the checkboxes by clicking them after submitting or by replacing [ ] with [x]-->
+<!-- Please be as descriptive as you can, please do not post any personally identifiable or confidential info on screenshots / video captures.
+Tick the checkboxes by clicking them after submitting or by replacing [ ] with [x]-->
 
 - [ ] **(1) Issue/Bug Description/Video Capture/Screenshots:**
 <!-- Please describe the issue/bug in detail. Screenshots or screen recordings can be very helpful -->
