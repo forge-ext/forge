@@ -20,9 +20,11 @@ cat /etc/os-release && uname -a
 
 - [ ] **(4) Journal Logs from the last hour:**
 <details> <summary> show </summary>
+<pre>
 <!--
 journalctl --since='1 hour ago' --follow /usr/bin/gnome-shell
 -->
+</pre>
 </details>
 
 - [ ] **(5) Gnome Shell version:**
@@ -42,10 +44,12 @@ Specifying the monitor/display setup helps a lot for tiling troubleshooting
 
 - [ ] **(9) Other Installed/Enabled Extensions:**
 <details> <summary> show </summary>
+<pre>
 <!--
 # Other extensions:
 gnome-extensions list --enabled --details
 -->
+</pre>
 </details>
 
 - [ ] **(10) Other Notes:**
