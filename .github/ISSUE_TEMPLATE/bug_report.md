@@ -16,9 +16,13 @@ assignees: ''
 <!-- List the steps to get your problem to happen, if you know them. -->
 
 - [ ] **(3) Distribution and Linux version:**
+<details> <summary> show </summary>
+<pre>
 <!--
 cat /etc/os-release && uname -a
 -->
+</pre>
+</details>
 
 - [ ] **(4) Journal Logs from the last hour:**
 <details> <summary> show </summary>
