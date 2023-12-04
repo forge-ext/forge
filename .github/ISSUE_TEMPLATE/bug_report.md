@@ -27,22 +27,11 @@ journalctl --since='1 hour ago' --follow /usr/bin/gnome-shell
 </pre>
 </details>
 
-- [ ] **(5) Gnome Shell version:**
-<!--
-gnome-shell --version
--->
-
-- [ ] **(6) Forge version and where was Forge installed from:**
-<!--
-Put the extensions.gnome.org version or the commit sha if compiled from source.
--->
-
-- [ ] **(8) Monitor Setup (2 x 1080p, 4K, Primary(Horizontal), Secondary(Vertical), etc):**
-<!--
-Specifying the monitor/display setup helps a lot for tiling troubleshooting
--->
-
-- [ ] **(9) Other Installed/Enabled Extensions:**
+- [ ] **(5) Installation info:**
+	- GNOME Shell version:  <!-- gnome-shell --version -->
+	- Forge version: <!-- Put the extensions.gnome.org version or the commit sha if compiled from source. -->
+	- Forge installed from:
+	- Other installed/enabled extensions:
 <details> <summary> show </summary>
 <pre>
 <!--
@@ -52,7 +41,12 @@ gnome-extensions list --enabled --details
 </pre>
 </details>
 
-- [ ] **(10) Other Notes:**
+- [ ] **(6) Monitor Setup (2 x 1080p, 4K, Primary(Horizontal), Secondary(Vertical), etc):**
+<!--
+Specifying the monitor/display setup helps a lot for tiling troubleshooting
+-->
+
+- [ ] **(7) Other Notes:**
 <!--
 Anything not covered or N/A
 -->
