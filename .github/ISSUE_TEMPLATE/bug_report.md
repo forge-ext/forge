@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve the extension
-title: 'bug: short descript of the issue'
+title: 'bug: short description of the issue'
 labels: bug
 assignees: ''
 ---
