@@ -49,7 +49,7 @@ Specifying the monitor/display setup helps a lot for tiling troubleshooting
 For example: (2 x 1080p, 4K, Primary(Horizontal), Secondary(Vertical), etc)
 -->
 
-- [ ] **(7) Other Notes:**
+- **Other Notes:**
 <!--
 Anything not covered or N/A
 -->
