@@ -259,10 +259,6 @@ msgstr "Habilitar a exibição do Forge nas configurações rápidas"
 msgid "Behavior"
 msgstr "Comportamento"
 
-#: lib/prefs/settings.js:133
-msgid "Behavior"
-msgstr "Comportamento"
-
 #: lib/prefs/settings.js:136
 msgid "Move Pointer to the Focused Window"
 msgstr "Mover o Ponteiro para Janela com Foco"
