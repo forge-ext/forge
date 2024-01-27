@@ -1,7 +1,3 @@
-> [!NOTE]
-> I am [looking for a new maintainer](https://github.com/orgs/forge-ext/discussions/276) of this extension.
-> I will archive this at the end of the year if no one takes it.
-
 # Forge
 
 Forge is a GNOME Shell extension that provides tiling/window management.
