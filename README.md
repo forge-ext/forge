@@ -101,8 +101,8 @@ User is encouraged to bind the following:
 # Compile and override the gnome-shell update repo
 make dev
 
-# Or
-make build debug install
+# Or run below, and restart the shell manually
+make build && make debug && make install
 
 # X11 - build from source and restarts gnome-shell
 make test-x
