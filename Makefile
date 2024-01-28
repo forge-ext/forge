@@ -8,7 +8,10 @@ all: build install enable restart
 
 # When developing locally
 test-x: disable uninstall build debug install enable restart log
+
 test-wayland: clean build debug install test-shell log
+
+dev: build debug install
 
 prod: build install enable restart log
 
@@ -52,8 +55,7 @@ build: clean metadata.json schemas compilemsgs metadata
 
 debug:
 	sed -i 's/export const production = true/export const production = false/' temp/lib/shared/settings.js
-	sed -i 's/1.0-alpha/3999/' temp/metadata.json
-	sed -i 's/1.1-alpha/4999/' temp/metadata.json
+	sed -i 's|1.*-alpha|4999|' temp/metadata.json
 
 potfile: ./po/forge.pot
 
