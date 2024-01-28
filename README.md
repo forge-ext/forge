@@ -98,10 +98,16 @@ User is encouraged to bind the following:
 - Commands:
 
 ```bash
-# X11
+# Compile and override the gnome-shell update repo
+make dev
+
+# Or
+make build debug install
+
+# X11 - build from source and restarts gnome-shell
 make test-x
 
-# Wayland
+# Wayland - build from source and starts a wayland instance (no restart)
 make test-wayland
 
 # Formatting, when you do npm install, 
