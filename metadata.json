@@ -6,6 +6,6 @@
   "settings-schema": "org.gnome.shell.extensions.forge",
   "shell-version": ["45","46"],
   "session-modes": ["user", "unlock-dialog"],
-  "version": "5999",
+  "version": "1.2-alpha",
   "url": "https://github.com/forge-ext/forge"
 }
