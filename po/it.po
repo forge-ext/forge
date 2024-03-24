@@ -1,12 +1,12 @@
 # Forge Italian Translation
-# Albano Battistella <albanobattistella@gmail.com>, 2023.
+# Albano Battistella <albanobattistella@gmail.com>, 2023,2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-11-01 17:36-0400\n"
-"PO-Revision-Date: 2023-06-20 09:16+0100\n"
+"PO-Revision-Date: 2024-03-24 14:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
 "Language: Italian\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #: lib/extension/indicator.js:47 lib/prefs/settings.js:78
 msgid "Tiling"
-msgstr ""
+msgstr "Affiancamento"
 
 #: lib/extension/indicator.js:66 lib/prefs/settings.js:23
 msgid "Forge"
@@ -26,7 +26,7 @@ msgstr ""
 
 #: lib/extension/indicator.js:66
 msgid "Tiling Window Management"
-msgstr ""
+msgstr "Gestione delle finestre di affiancamento"
 
 #: lib/extension/indicator.js:70 lib/prefs/appearance.js:65
 msgid "Gaps Hidden when Single"
@@ -104,7 +104,6 @@ msgid "Legend"
 msgstr "leggenda"
 
 #: lib/prefs/keyboard.js:22
-#, fuzzy
 msgid "Windows  key"
 msgstr "Tasto Windows"
 
@@ -129,9 +128,8 @@ msgid "to previous value when invalid"
 msgstr "al valore precedente in caso di invalidità"
 
 #: lib/prefs/keyboard.js:28
-#, fuzzy
 msgid "Update Shortcuts"
-msgstr "Autres raccourcis"
+msgstr "Aggiorna scorciatoie"
 
 #: lib/prefs/keyboard.js:42
 msgid "Drag-Drop Tiling Modifier Key Options"
@@ -173,7 +171,7 @@ msgstr "Nessuno"
 
 #: lib/prefs/settings.js:33
 msgid "translator-credits"
-msgstr ""
+msgstr "Albano Battistella"
 
 #: lib/prefs/settings.js:41
 msgid "About"
@@ -181,28 +179,23 @@ msgstr "Informazioni"
 
 #: lib/prefs/settings.js:57
 msgid "Toggle Forge's high-level features"
-msgstr ""
+msgstr "Attiva le funzionalità di alto livello di Forge"
 
 #: lib/prefs/settings.js:61
 msgid "Stacked Tiling Mode"
-msgstr ""
+msgstr "Modalità di affiancamento in pila"
 
 #: lib/prefs/settings.js:62
-#, fuzzy
 msgid "Stack windows on top of each other while still being tiled"
-msgstr ""
-"Modalità di affiancamento in pila (impila le finestre una sopra l'altra "
-"mentre pur essendo ancora affiancate)"
+msgstr "Impila le finestre una sopra l'altra pur continuando ad affiancarle"
 
 #: lib/prefs/settings.js:68
 msgid "Tabbed Tiling Mode"
-msgstr ""
+msgstr "Modalità di affiancamento a schede"
 
 #: lib/prefs/settings.js:69
-#, fuzzy
 msgid "Group tiles windows as tabs"
-msgstr ""
-"Modalità affiancata con schede (raggruppa le finestre affiancate come schede)"
+msgstr "Raggruppare le finestre dei riquadri come schede"
 
 #: lib/prefs/settings.js:81
 msgid "Preview Hint Toggle"
@@ -210,16 +203,15 @@ msgstr "Attiva/disattiva l'indice di anteprima"
 
 #: lib/prefs/settings.js:88
 msgid "Display a colored border around the focused window"
-msgstr ""
+msgstr "Visualizza un bordo colorato attorno alla finestra focalizzata"
 
 #: lib/prefs/settings.js:93
-#, fuzzy
 msgid "Show Window Split Hint Border"
-msgstr "Mostra suggerimento del bordo di messa a fuoco"
+msgstr "Mostra suggerimento finestra del bordo di messa a fuoco"
 
 #: lib/prefs/settings.js:94
 msgid "Show split direction border on focused window"
-msgstr ""
+msgstr "Mostra il bordo della direzione di divisione sulla finestra focalizzata"
 
 #: lib/prefs/settings.js:99
 msgid "Default Drag-and-Drop Center Layout"
@@ -235,55 +227,49 @@ msgstr "Impilate"
 
 #: lib/prefs/settings.js:109
 msgid "Auto Split"
-msgstr ""
+msgstr "Divisione automatica"
 
 #: lib/prefs/settings.js:110
-#, fuzzy
-msgid "Quarter Tiling"
-msgstr "Divisione automatica (sezione in quarti)"
+msgid "sezione in quarti"
+msgstr "Sezione in quarti"
 
 #: lib/prefs/settings.js:116
 msgid "Float Mode Always On Top"
-msgstr ""
+msgstr "Modalità flottante sempre in primo piano"
 
 #: lib/prefs/settings.js:117
-#, fuzzy
 msgid "Floating windows always above tiling windows"
-msgstr ""
-"Modalità mobile sempre in primo piano (finestre mobili sempre in primo "
-"pianofinestre affiancate)"
+msgstr "Finestre flottanti sempre sopra le finestre affiancate"
 
 #: lib/prefs/settings.js:123
 msgid "Show Tiling Quick Settings"
-msgstr ""
+msgstr "Mostra le impostazioni rapide di affiancamento"
 
 #: lib/prefs/settings.js:124
 msgid "Toggle showing Forge on quick settings"
-msgstr ""
+msgstr "Attiva la visualizzazione di Forge nelle impostazioni rapide"
 
 #: lib/prefs/settings.js:133
 msgid "Behavior"
-msgstr ""
+msgstr "Comportamento"
 
 #: lib/prefs/settings.js:136
 msgid "Move Pointer to the Focused Window"
-msgstr ""
+msgstr "Sposta il puntatore sulla finestra evidenziata"
 
 #: lib/prefs/settings.js:137
 msgid "Move the pointer when focusing or swapping via keyboard"
-msgstr ""
+msgstr "Muovi il puntatore durante la messa a fuoco o lo scambio tramite tastiera"
 
 #: lib/prefs/settings.js:147
-#, fuzzy
 msgid "Logger"
-msgstr "Livello Log"
+msgstr "Log"
 
 #: lib/prefs/settings.js:150
 msgid "Logger Level"
 msgstr "Livello Log"
 
 #: lib/prefs/widgets.js:43
-#, fuzzy
 msgid ""
 "<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to "
 "crash"
