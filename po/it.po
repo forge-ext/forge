@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-01 17:36-0400\n"
+"POT-Creation-Date: 2024-03-30 15:39-0400\n"
 "PO-Revision-Date: 2024-03-24 14:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -36,7 +36,12 @@ msgstr "Margini nascosti quando c'è una sola finestra"
 msgid "Show Focus Hint Border"
 msgstr "Mostra suggerimento del bordo di messa a fuoco"
 
-#: lib/extension/indicator.js:86 lib/extension/window.js:67
+#: lib/extension/indicator.js:86 lib/prefs/settings.js:137
+#, fuzzy
+msgid "Move Pointer with the Focus"
+msgstr "Sposta il puntatore sulla finestra evidenziata"
+
+#: lib/extension/indicator.js:94 lib/extension/window.js:67
 #: lib/prefs/settings.js:54 lib/prefs/settings.js:56
 msgid "Settings"
 msgstr "Impostazioni"
@@ -211,61 +216,64 @@ msgstr "Mostra suggerimento finestra del bordo di messa a fuoco"
 
 #: lib/prefs/settings.js:94
 msgid "Show split direction border on focused window"
-msgstr "Mostra il bordo della direzione di divisione sulla finestra focalizzata"
+msgstr ""
+"Mostra il bordo della direzione di divisione sulla finestra focalizzata"
 
 #: lib/prefs/settings.js:99
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Layout di trascinamento della selezione centrale predefinito"
 
 #: lib/prefs/settings.js:104
+msgid "Swap"
+msgstr ""
+
+#: lib/prefs/settings.js:105
 msgid "Tabbed"
 msgstr "Schede"
 
-#: lib/prefs/settings.js:105
+#: lib/prefs/settings.js:106
 msgid "Stacked"
 msgstr "Impilate"
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:110
 msgid "Auto Split"
 msgstr "Divisione automatica"
 
-#: lib/prefs/settings.js:110
-msgid "sezione in quarti"
-msgstr "Sezione in quarti"
+#: lib/prefs/settings.js:111
+#, fuzzy
+msgid "Quarter Tiling"
+msgstr "Affiancamento"
 
-#: lib/prefs/settings.js:116
+#: lib/prefs/settings.js:117
 msgid "Float Mode Always On Top"
 msgstr "Modalità flottante sempre in primo piano"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:118
 msgid "Floating windows always above tiling windows"
 msgstr "Finestre flottanti sempre sopra le finestre affiancate"
 
-#: lib/prefs/settings.js:123
+#: lib/prefs/settings.js:124
 msgid "Show Tiling Quick Settings"
 msgstr "Mostra le impostazioni rapide di affiancamento"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:125
 msgid "Toggle showing Forge on quick settings"
 msgstr "Attiva la visualizzazione di Forge nelle impostazioni rapide"
 
-#: lib/prefs/settings.js:133
+#: lib/prefs/settings.js:134
 msgid "Behavior"
 msgstr "Comportamento"
 
-#: lib/prefs/settings.js:136
-msgid "Move Pointer to the Focused Window"
-msgstr "Sposta il puntatore sulla finestra evidenziata"
-
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:138
 msgid "Move the pointer when focusing or swapping via keyboard"
-msgstr "Muovi il puntatore durante la messa a fuoco o lo scambio tramite tastiera"
+msgstr ""
+"Muovi il puntatore durante la messa a fuoco o lo scambio tramite tastiera"
 
-#: lib/prefs/settings.js:147
+#: lib/prefs/settings.js:148
 msgid "Logger"
 msgstr "Log"
 
-#: lib/prefs/settings.js:150
+#: lib/prefs/settings.js:151
 msgid "Logger Level"
 msgstr "Livello Log"
 
@@ -300,6 +308,9 @@ msgstr ""
 #: lib/prefs/workspace.js:22
 msgid "Skip Workspace Tiling"
 msgstr "Disabilita l'affiancamento dell'area di lavoro"
+
+#~ msgid "sezione in quarti"
+#~ msgstr "Sezione in quarti"
 
 #~ msgid "Development in Progress..."
 #~ msgstr "Sviluppo in corso..."

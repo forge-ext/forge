@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-01 17:36-0400\n"
+"POT-Creation-Date: 2024-03-30 15:39-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Juarez Rudsatz <juarezr@gmail.com>\n"
 "Language-Team: \n"
@@ -33,7 +33,7 @@ msgstr "Espaçamento Omitido quando Sozinho"
 msgid "Show Focus Hint Border"
 msgstr "Sinalizador de Foco Flutuante"
 
-#: lib/extension/indicator.js:86 lib/prefs/settings.js:136
+#: lib/extension/indicator.js:86 lib/prefs/settings.js:137
 msgid "Move Pointer with the Focus"
 msgstr "Mover o Ponteiro com o Foco"
 
@@ -220,59 +220,59 @@ msgid "Default Drag-and-Drop Center Layout"
 msgstr "Arranjo de Arrastar/Soltar Padrão"
 
 #: lib/prefs/settings.js:104
+msgid "Swap"
+msgstr ""
+
+#: lib/prefs/settings.js:105
 msgid "Tabbed"
 msgstr "Em Abas"
 
-#: lib/prefs/settings.js:105
+#: lib/prefs/settings.js:106
 msgid "Stacked"
 msgstr "Empilhado"
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:110
 msgid "Auto Split"
 msgstr "Dividir automaticamente"
 
-#: lib/prefs/settings.js:110
+#: lib/prefs/settings.js:111
 #, fuzzy
 msgid "Quarter Tiling"
 msgstr "Divisão Automática (Metade)"
 
-#: lib/prefs/settings.js:116
+#: lib/prefs/settings.js:117
 msgid "Float Mode Always On Top"
 msgstr "Modo Flutuante sempre no topo"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:118
 #, fuzzy
 msgid "Floating windows always above tiling windows"
 msgstr ""
 "Modo Flutuante Sempre no Topo (Janelas flutuantes sempre acima de janelas "
 "emparelhadas)"
 
-#: lib/prefs/settings.js:123
+#: lib/prefs/settings.js:124
 msgid "Show Tiling Quick Settings"
 msgstr "Exibir configurações rápidas"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:125
 msgid "Toggle showing Forge on quick settings"
 msgstr "Habilitar a exibição do Forge nas configurações rápidas"
 
-#: lib/prefs/settings.js:133
+#: lib/prefs/settings.js:134
 msgid "Behavior"
 msgstr "Comportamento"
 
-#: lib/prefs/settings.js:136
-msgid "Move Pointer to the Focused Window"
-msgstr "Mover o Ponteiro para Janela com Foco"
-
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:138
 msgid "Move the pointer when focusing or swapping via keyboard"
 msgstr "Mover o Ponteiro ao focar ou transpor janelas via teclado"
 
-#: lib/prefs/settings.js:147
+#: lib/prefs/settings.js:148
 #, fuzzy
 msgid "Logger"
 msgstr "Nivel de Log"
 
-#: lib/prefs/settings.js:150
+#: lib/prefs/settings.js:151
 msgid "Logger Level"
 msgstr "Nivel de Log"
 
@@ -308,6 +308,9 @@ msgstr ""
 #: lib/prefs/workspace.js:22
 msgid "Skip Workspace Tiling"
 msgstr "Ignorar Emparelhamento de Área de Trabalho"
+
+#~ msgid "Move Pointer to the Focused Window"
+#~ msgstr "Mover o Ponteiro para Janela com Foco"
 
 #~ msgid "Development in Progress..."
 #~ msgstr "Desenvolvimento em andamento..."
