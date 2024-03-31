@@ -120,7 +120,7 @@
             </summary>
         </key>
         <key type="b" name="move-pointer-focus-enabled">
-            <default>true</default>
+            <default>false</default>
             <summary>Move the pointer when focusing or swapping via kbd</summary>
         </key>
         <key type="b" name="float-always-on-top-enabled">
