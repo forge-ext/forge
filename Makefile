@@ -123,3 +123,7 @@ test-shell-open:
 
 format:
 	npm run format
+
+# npx prettier --list-different "./**/*.{js,jsx,ts,tsx,json}"
+lint:
+	npm test
