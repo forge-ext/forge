@@ -1,0 +1,62 @@
+# This workflow builds the gnome extension for release on extensions.gnome.org
+
+# For more information see:
+#@ https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Override git ref"
+        type: string
+        default: ""
+        required: false
+
+jobs:
+  pypi:
+    strategy:
+      matrix:
+        node_version: ["latest"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install linux tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --prefer-binary --no-install-recommends gettext make zip curl
+
+      - name: Set up Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install Node.js project dependencies
+        run: npm ci --verbose
+
+      # - name: Build Node.js project
+      #   run: npm run build --if-present --verbose
+
+      # - name: Test Node.js project
+      #   run: npm test --verbose
+
+      - name: Test Packaging
+        run: make dist
+
+      - name: Archive release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: forge-gnome-extension
+          path: forge@jmmaranan.com.zip
+          # path: temp/
+
+      - name: Upload extension to Goe
+        run: |
+          curl -i -X POST -H "Content-Type: multipart/form-data" -F "source=@forge@jmmaranan.com.zip" -F "tos_compliant=on" -F "shell_license_compliant=on" https://extensions.gnome.org/upload/
