@@ -4,7 +4,7 @@
   "description": "Forge - Tiling Extension for GNOME",
   "main": "extension.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "prettier --list-different \"./**/*.{js,jsx,ts,tsx,json}\"",
     "prepare": "husky install",
     "format": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
   },
