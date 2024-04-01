@@ -1,0 +1,65 @@
+# This workflow will install Node/NPM dependencies, run tests and lint source code
+
+# For more information see:
+#@ https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: testing
+
+on:
+  push:
+    branches: ["master"]
+    paths-ignore:
+      - .git*
+      - .husky/**
+      - *.md
+  pull_request:
+    branches: ["master"]
+    types: [opened, reopened, synchronize, ready_for_review]
+    paths-ignore:
+      - .git*
+      - .husky/**
+      - *.md
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Override git ref'
+        type: string
+        default: ''
+        required: false
+
+jobs:
+  linting:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: ["ubuntu-22.04", "ubuntu-latest"]
+        node_version: ["18.x", "20.x", "latest"]
+
+    runs-on: "${{ matrix.os }}"
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install linux tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --prefer-binary --no-install-recommends gettext make zip
+      
+      - name: Set up Node.js ${{ matrix.node_version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install Node.js project dependencies
+        run: npm ci --verbose
+
+      - name: Build Node.js project
+        run: npm run build --if-present --verbose
+
+      - name: Test Node.js project
+        run: npm test --verbose
+
+      - name: Test Packaging
+        run: make dist
