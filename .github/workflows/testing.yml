@@ -11,14 +11,14 @@ on:
     paths-ignore:
       - .git*
       - .husky/**
-      - *.md
+      - "*.md"
   pull_request:
     branches: ["master"]
     types: [opened, reopened, synchronize, ready_for_review]
     paths-ignore:
       - .git*
       - .husky/**
-      - *.md
+      - "*.md"
   workflow_dispatch:
     inputs:
       ref:
