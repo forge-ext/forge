@@ -45,7 +45,7 @@ jobs:
       - name: Install linux tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --prefer-binary --no-install-recommends gettext make zip
+          sudo apt-get install -y --no-install-recommends gettext make zip
       
       - name: Set up Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@v4
