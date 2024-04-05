@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-30 15:39-0400\n"
+"POT-Creation-Date: 2024-04-05 18:16-0400\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Juarez Rudsatz <juarezr@gmail.com>\n"
 "Language-Team: \n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:78
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:91
 msgid "Tiling"
 msgstr "Emparelhamento"
 
@@ -28,12 +28,12 @@ msgstr "Gerenciamento de Janelas Emparelhadas"
 msgid "Gaps Hidden when Single"
 msgstr "Espaçamento Omitido quando Sozinho"
 
-#: lib/extension/indicator.js:78 lib/prefs/settings.js:87
+#: lib/extension/indicator.js:78 lib/prefs/settings.js:100
 #, fuzzy
 msgid "Show Focus Hint Border"
 msgstr "Sinalizador de Foco Flutuante"
 
-#: lib/extension/indicator.js:86 lib/prefs/settings.js:137
+#: lib/extension/indicator.js:86 lib/prefs/settings.js:81
 msgid "Move Pointer with the Focus"
 msgstr "Mover o Ponteiro com o Foco"
 
@@ -198,74 +198,74 @@ msgstr "Modo em Abas"
 msgid "Group tiles windows as tabs"
 msgstr "Modo de Emparelhamento em Abas (Agrupar janelas emparelhadas em abas)"
 
-#: lib/prefs/settings.js:81
+#: lib/prefs/settings.js:78
+msgid "Behavior"
+msgstr "Comportamento"
+
+#: lib/prefs/settings.js:82
+msgid "Move the pointer when focusing or swapping via keyboard"
+msgstr "Mover o Ponteiro ao focar ou transpor janelas via teclado"
+
+#: lib/prefs/settings.js:94
 msgid "Preview Hint Toggle"
 msgstr "Habilitar Ver Dica"
 
-#: lib/prefs/settings.js:88
+#: lib/prefs/settings.js:101
 msgid "Display a colored border around the focused window"
 msgstr "Exibir uma borda colorida ao redor da janela com foco"
 
-#: lib/prefs/settings.js:93
+#: lib/prefs/settings.js:106
 #, fuzzy
 msgid "Show Window Split Hint Border"
 msgstr "Sinalizador de Foco Flutuante"
 
-#: lib/prefs/settings.js:94
+#: lib/prefs/settings.js:107
 msgid "Show split direction border on focused window"
 msgstr "Exibir a borda de divisão na janela com foco"
 
-#: lib/prefs/settings.js:99
+#: lib/prefs/settings.js:112
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Arranjo de Arrastar/Soltar Padrão"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:117
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:105
+#: lib/prefs/settings.js:118
 msgid "Tabbed"
 msgstr "Em Abas"
 
-#: lib/prefs/settings.js:106
+#: lib/prefs/settings.js:119
 msgid "Stacked"
 msgstr "Empilhado"
 
-#: lib/prefs/settings.js:110
+#: lib/prefs/settings.js:123
 msgid "Auto Split"
 msgstr "Dividir automaticamente"
 
-#: lib/prefs/settings.js:111
+#: lib/prefs/settings.js:124
 #, fuzzy
 msgid "Quarter Tiling"
 msgstr "Divisão Automática (Metade)"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:130
 msgid "Float Mode Always On Top"
 msgstr "Modo Flutuante sempre no topo"
 
-#: lib/prefs/settings.js:118
+#: lib/prefs/settings.js:131
 #, fuzzy
 msgid "Floating windows always above tiling windows"
 msgstr ""
 "Modo Flutuante Sempre no Topo (Janelas flutuantes sempre acima de janelas "
 "emparelhadas)"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:137
 msgid "Show Tiling Quick Settings"
 msgstr "Exibir configurações rápidas"
 
-#: lib/prefs/settings.js:125
+#: lib/prefs/settings.js:138
 msgid "Toggle showing Forge on quick settings"
 msgstr "Habilitar a exibição do Forge nas configurações rápidas"
-
-#: lib/prefs/settings.js:134
-msgid "Behavior"
-msgstr "Comportamento"
-
-#: lib/prefs/settings.js:138
-msgid "Move the pointer when focusing or swapping via keyboard"
-msgstr "Mover o Ponteiro ao focar ou transpor janelas via teclado"
 
 #: lib/prefs/settings.js:148
 #, fuzzy

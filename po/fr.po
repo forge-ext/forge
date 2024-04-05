@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-30 15:39-0400\n"
+"POT-Creation-Date: 2024-04-05 18:16-0400\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: William Roy <wroy@proton.me>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "X-Generator: Gtranslator 42.0\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:78
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:91
 msgid "Tiling"
 msgstr ""
 
@@ -32,12 +32,12 @@ msgstr ""
 msgid "Gaps Hidden when Single"
 msgstr "Marges masquées lorsqu'il y a une seule fenêtre"
 
-#: lib/extension/indicator.js:78 lib/prefs/settings.js:87
+#: lib/extension/indicator.js:78 lib/prefs/settings.js:100
 #, fuzzy
 msgid "Show Focus Hint Border"
 msgstr "Indice de focus flottant"
 
-#: lib/extension/indicator.js:86 lib/prefs/settings.js:137
+#: lib/extension/indicator.js:86 lib/prefs/settings.js:81
 msgid "Move Pointer with the Focus"
 msgstr ""
 
@@ -209,73 +209,73 @@ msgstr ""
 "Mode mosaïque avec onglets (Groupe les fenêtres en mosaïque en tant "
 "qu'onglets)"
 
-#: lib/prefs/settings.js:81
+#: lib/prefs/settings.js:78
+msgid "Behavior"
+msgstr ""
+
+#: lib/prefs/settings.js:82
+msgid "Move the pointer when focusing or swapping via keyboard"
+msgstr ""
+
+#: lib/prefs/settings.js:94
 msgid "Preview Hint Toggle"
 msgstr "Basculer l'indice de prévisualisation"
 
-#: lib/prefs/settings.js:88
+#: lib/prefs/settings.js:101
 msgid "Display a colored border around the focused window"
 msgstr ""
 
-#: lib/prefs/settings.js:93
+#: lib/prefs/settings.js:106
 #, fuzzy
 msgid "Show Window Split Hint Border"
 msgstr "Indice de focus flottant"
 
-#: lib/prefs/settings.js:94
+#: lib/prefs/settings.js:107
 msgid "Show split direction border on focused window"
 msgstr ""
 
-#: lib/prefs/settings.js:99
+#: lib/prefs/settings.js:112
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Disposition centrale par défaut du glisser-déposer"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:117
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:105
+#: lib/prefs/settings.js:118
 msgid "Tabbed"
 msgstr "Onglets"
 
-#: lib/prefs/settings.js:106
+#: lib/prefs/settings.js:119
 msgid "Stacked"
 msgstr "Empilés"
 
-#: lib/prefs/settings.js:110
+#: lib/prefs/settings.js:123
 msgid "Auto Split"
 msgstr ""
 
-#: lib/prefs/settings.js:111
+#: lib/prefs/settings.js:124
 #, fuzzy
 msgid "Quarter Tiling"
 msgstr "Fractionnement automatique (Mosaïque en quart)"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:130
 msgid "Float Mode Always On Top"
 msgstr ""
 
-#: lib/prefs/settings.js:118
+#: lib/prefs/settings.js:131
 #, fuzzy
 msgid "Floating windows always above tiling windows"
 msgstr ""
 "Mode flottant toujours au-dessus (Les fenêtres flottantes toujours au-dessus "
 "des fenêtres en mosaïque)"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:137
 msgid "Show Tiling Quick Settings"
 msgstr ""
 
-#: lib/prefs/settings.js:125
-msgid "Toggle showing Forge on quick settings"
-msgstr ""
-
-#: lib/prefs/settings.js:134
-msgid "Behavior"
-msgstr ""
-
 #: lib/prefs/settings.js:138
-msgid "Move the pointer when focusing or swapping via keyboard"
+msgid "Toggle showing Forge on quick settings"
 msgstr ""
 
 #: lib/prefs/settings.js:148

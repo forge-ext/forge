@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-30 15:39-0400\n"
+"POT-Creation-Date: 2024-04-05 18:16-0400\n"
 "PO-Revision-Date: 2024-03-24 14:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "X-Generator: Gtranslator 42.0\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:78
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:91
 msgid "Tiling"
 msgstr "Affiancamento"
 
@@ -32,11 +32,11 @@ msgstr "Gestione delle finestre di affiancamento"
 msgid "Gaps Hidden when Single"
 msgstr "Margini nascosti quando c'è una sola finestra"
 
-#: lib/extension/indicator.js:78 lib/prefs/settings.js:87
+#: lib/extension/indicator.js:78 lib/prefs/settings.js:100
 msgid "Show Focus Hint Border"
 msgstr "Mostra suggerimento del bordo di messa a fuoco"
 
-#: lib/extension/indicator.js:86 lib/prefs/settings.js:137
+#: lib/extension/indicator.js:86 lib/prefs/settings.js:81
 #, fuzzy
 msgid "Move Pointer with the Focus"
 msgstr "Sposta il puntatore sulla finestra evidenziata"
@@ -202,72 +202,72 @@ msgstr "Modalità di affiancamento a schede"
 msgid "Group tiles windows as tabs"
 msgstr "Raggruppare le finestre dei riquadri come schede"
 
-#: lib/prefs/settings.js:81
+#: lib/prefs/settings.js:78
+msgid "Behavior"
+msgstr "Comportamento"
+
+#: lib/prefs/settings.js:82
+msgid "Move the pointer when focusing or swapping via keyboard"
+msgstr ""
+"Muovi il puntatore durante la messa a fuoco o lo scambio tramite tastiera"
+
+#: lib/prefs/settings.js:94
 msgid "Preview Hint Toggle"
 msgstr "Attiva/disattiva l'indice di anteprima"
 
-#: lib/prefs/settings.js:88
+#: lib/prefs/settings.js:101
 msgid "Display a colored border around the focused window"
 msgstr "Visualizza un bordo colorato attorno alla finestra focalizzata"
 
-#: lib/prefs/settings.js:93
+#: lib/prefs/settings.js:106
 msgid "Show Window Split Hint Border"
 msgstr "Mostra suggerimento finestra del bordo di messa a fuoco"
 
-#: lib/prefs/settings.js:94
+#: lib/prefs/settings.js:107
 msgid "Show split direction border on focused window"
 msgstr ""
 "Mostra il bordo della direzione di divisione sulla finestra focalizzata"
 
-#: lib/prefs/settings.js:99
+#: lib/prefs/settings.js:112
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Layout di trascinamento della selezione centrale predefinito"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:117
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:105
+#: lib/prefs/settings.js:118
 msgid "Tabbed"
 msgstr "Schede"
 
-#: lib/prefs/settings.js:106
+#: lib/prefs/settings.js:119
 msgid "Stacked"
 msgstr "Impilate"
 
-#: lib/prefs/settings.js:110
+#: lib/prefs/settings.js:123
 msgid "Auto Split"
 msgstr "Divisione automatica"
 
-#: lib/prefs/settings.js:111
+#: lib/prefs/settings.js:124
 #, fuzzy
 msgid "Quarter Tiling"
 msgstr "Affiancamento"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:130
 msgid "Float Mode Always On Top"
 msgstr "Modalità flottante sempre in primo piano"
 
-#: lib/prefs/settings.js:118
+#: lib/prefs/settings.js:131
 msgid "Floating windows always above tiling windows"
 msgstr "Finestre flottanti sempre sopra le finestre affiancate"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:137
 msgid "Show Tiling Quick Settings"
 msgstr "Mostra le impostazioni rapide di affiancamento"
 
-#: lib/prefs/settings.js:125
+#: lib/prefs/settings.js:138
 msgid "Toggle showing Forge on quick settings"
 msgstr "Attiva la visualizzazione di Forge nelle impostazioni rapide"
-
-#: lib/prefs/settings.js:134
-msgid "Behavior"
-msgstr "Comportamento"
-
-#: lib/prefs/settings.js:138
-msgid "Move the pointer when focusing or swapping via keyboard"
-msgstr ""
-"Muovi il puntatore durante la messa a fuoco o lo scambio tramite tastiera"
 
 #: lib/prefs/settings.js:148
 msgid "Logger"
