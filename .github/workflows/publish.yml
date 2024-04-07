@@ -17,7 +17,7 @@ on:
         required: false
 
 jobs:
-  pypi:
+  publishing:
     strategy:
       matrix:
         node_version: ["latest"]
@@ -59,4 +59,4 @@ jobs:
 
       - name: Upload extension to Goe
         run: |
-          curl -i -X POST -H "Content-Type: multipart/form-data" -F "source=@forge@jmmaranan.com.zip" -F "tos_compliant=on" -F "shell_license_compliant=on" https://extensions.gnome.org/upload/
+          curl -i -X POST -H "Content-Type: multipart/form-data" -F "source=@forge@jmmaranan.com.zip" -F "tos_compliant=on" -F "shell_license_compliant=on" --referer 'https://extensions.gnome.org/upload/' https://extensions.gnome.org/upload/
