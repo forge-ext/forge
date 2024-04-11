@@ -55,8 +55,62 @@ jobs:
         with:
           name: forge-gnome-extension
           path: forge@jmmaranan.com.zip
-          # path: temp/
 
       - name: Upload extension to Goe
+        shell: bash
+        env:
+          USERNAME: ${{ secrets.GOE_USERNAME }}
+          PASSWORD: ${{ secrets.GOE_PASSWORD }}
         run: |
-          curl -i -X POST -H "Content-Type: multipart/form-data" -F "source=@forge@jmmaranan.com.zip" -F "tos_compliant=on" -F "shell_license_compliant=on" --referer 'https://extensions.gnome.org/upload/' https://extensions.gnome.org/upload/
+          echo "::group::Getting CSRF Midleware Token for accounts/login form";
+          curl 'https://extensions.gnome.org/accounts/login/' \
+              --junk-session-cookies \
+              -b gnome-cookies-jar.txt -c gnome-cookies-jar.txt \
+              --no-progress-meter --verbose \
+              -o 01-get-accounts-login.html;
+          CSRFMIDDLEWARETOKEN="$(grep --color=never 'csrfmiddlewaretoken' < 01-get-accounts-login.html | grep --only-matching --perl-regexp '(?<=value=.)([^\"]+)' | head -n 1)";
+          if test -z "${CSRFMIDDLEWARETOKEN}"; then printf 'Missing CSRFMIDDLEWARETOKEN'; exit 1; fi
+          echo "::endgroup::";
+          
+          echo "::group::Authenticating in extensions.gnome.org";
+          if ! curl 'https://extensions.gnome.org/accounts/login/' \
+            -H 'origin: https://extensions.gnome.org' \
+            -H 'referer: https://extensions.gnome.org/accounts/login/' \
+            -H 'content-type: application/x-www-form-urlencoded' \
+              --data-urlencode 'next=' \
+              --data-urlencode "csrfmiddlewaretoken=${CSRFMIDDLEWARETOKEN}" \
+              --data-urlencode "username=${USERNAME}" \
+              --data-urlencode "password=${PASSWORD}" \
+              --no-progress-meter --verbose \
+              --location \
+              -o 02-post-accounts-login.html;
+          then
+              printf 'Login failed: %s' $?;
+              echo "::endgroup::";
+              exit 2;
+          fi
+          echo "::endgroup::";
+
+          echo "::group::Getting CSRF Midleware Token for upload form";
+          curl 'https://extensions.gnome.org/upload/' \
+              -b gnome-cookies-jar.txt -c gnome-cookies-jar.txt \
+              --no-progress-meter --verbose \
+              --location \
+              -o 03-get-upload.html;
+          CSRFMIDDLEWARETOKEN="$(grep --color=never 'csrfmiddlewaretoken' < 03-get-upload.html | grep --only-matching --perl-regexp '(?<=value=.)([^\"]+)' | head -n 1)";
+          if test -z "${CSRFMIDDLEWARETOKEN}"; then printf 'Missing CSRFMIDDLEWARETOKEN'; exit 1; fi
+          echo "::endgroup::";
+
+          echo "::group::Uploading extension zip";
+          curl 'https://extensions.gnome.org/upload/' \
+            -H 'origin: https://extensions.gnome.org' \
+            -H 'referer: https://extensions.gnome.org/upload/' \
+              -F "csrfmiddlewaretoken=${CSRFMIDDLEWARETOKEN}" \
+              -F 'tos_compliant=on' \
+              -F 'shell_license_compliant=on' \
+              -F 'source=@test-please-ignore.zip' \
+              -b gnome-cookies-jar.txt -c gnome-cookies-jar.txt \
+              --no-progress-meter --verbose \
+              --location \
+              -o 04-post-upload.html;
+          echo "::endgroup::";
