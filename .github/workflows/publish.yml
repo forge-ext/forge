@@ -62,17 +62,21 @@ jobs:
           USERNAME: ${{ secrets.GOE_USERNAME }}
           PASSWORD: ${{ secrets.GOE_PASSWORD }}
         run: |
-          echo "::group::Getting CSRF Midleware Token for accounts/login form";
+          printf '::group::Getting CSRF Midleware Token for accounts/login form\n';
+          if test -z "${USERNAME:-}"; then printf 'Missing USERNAME from environment variable.\n::endgroup::\n'; exit 1; fi
+          if test -z "${PASSWORD:-}"; then printf 'Missing PASSWORD from environment variable\n::endgroup::\n'; exit 1; fi
           curl 'https://extensions.gnome.org/accounts/login/' \
               --junk-session-cookies \
-              -b gnome-cookies-jar.txt -c gnome-cookies-jar.txt \
+              -b 00-cookies-jar.txt -c 00-cookies-jar.txt \
+              --location --fail-with-body \
               --no-progress-meter --verbose \
               -o 01-get-accounts-login.html;
-          CSRFMIDDLEWARETOKEN="$(grep --color=never 'csrfmiddlewaretoken' < 01-get-accounts-login.html | grep --only-matching --perl-regexp '(?<=value=.)([^\"]+)' | head -n 1)";
-          if test -z "${CSRFMIDDLEWARETOKEN}"; then printf 'Missing CSRFMIDDLEWARETOKEN'; exit 1; fi
-          echo "::endgroup::";
-          
-          echo "::group::Authenticating in extensions.gnome.org";
+
+          export CSRFMIDDLEWARETOKEN="$(grep --color=never 'csrfmiddlewaretoken' < 01-get-accounts-login.html | grep --only-matching --perl-regexp '(?<=value=.)([^\"]+)' | head -n 1)";
+          if test -z "${CSRFMIDDLEWARETOKEN:-}"; then printf 'Missing CSRFMIDDLEWARETOKEN from accounts/login form.\n::endgroup::\n'; exit 1; fi
+          printf '::endgroup::\n';
+
+          printf '::group::Authenticating in extensions.gnome.org\n';
           if ! curl 'https://extensions.gnome.org/accounts/login/' \
             -H 'origin: https://extensions.gnome.org' \
             -H 'referer: https://extensions.gnome.org/accounts/login/' \
@@ -81,27 +85,27 @@ jobs:
               --data-urlencode "csrfmiddlewaretoken=${CSRFMIDDLEWARETOKEN}" \
               --data-urlencode "username=${USERNAME}" \
               --data-urlencode "password=${PASSWORD}" \
+              -b 00-cookies-jar.txt -c 00-cookies-jar.txt \
+              --location --fail-with-body \
               --no-progress-meter --verbose \
-              --location \
               -o 02-post-accounts-login.html;
           then
-              printf 'Login failed: %s' $?;
-              echo "::endgroup::";
+              printf 'Login failed with error: %s\n::endgroup::\n' "$?";
               exit 2;
           fi
-          echo "::endgroup::";
+          printf '::endgroup::\n';
 
-          echo "::group::Getting CSRF Midleware Token for upload form";
+          printf '::group::Getting CSRF Midleware Token for upload form\n';
           curl 'https://extensions.gnome.org/upload/' \
-              -b gnome-cookies-jar.txt -c gnome-cookies-jar.txt \
+              -b 00-cookies-jar.txt -c 00-cookies-jar.txt \
+              --location --fail-with-body \
               --no-progress-meter --verbose \
-              --location \
               -o 03-get-upload.html;
-          CSRFMIDDLEWARETOKEN="$(grep --color=never 'csrfmiddlewaretoken' < 03-get-upload.html | grep --only-matching --perl-regexp '(?<=value=.)([^\"]+)' | head -n 1)";
-          if test -z "${CSRFMIDDLEWARETOKEN}"; then printf 'Missing CSRFMIDDLEWARETOKEN'; exit 1; fi
-          echo "::endgroup::";
+          export CSRFMIDDLEWARETOKEN="$(grep --color=never 'csrfmiddlewaretoken' < 03-get-upload.html | grep --only-matching --perl-regexp '(?<=value=.)([^\"]+)' | head -n 1)";
+          if test -z "${CSRFMIDDLEWARETOKEN:-}"; then printf 'Missing CSRFMIDDLEWARETOKEN from upload form.\n::endgroup::\n'; exit 3; fi
+          printf '::endgroup::\n';
 
-          echo "::group::Uploading extension zip";
+          printf '::group::Uploading extension zip\n';
           curl 'https://extensions.gnome.org/upload/' \
             -H 'origin: https://extensions.gnome.org' \
             -H 'referer: https://extensions.gnome.org/upload/' \
@@ -109,8 +113,8 @@ jobs:
               -F 'tos_compliant=on' \
               -F 'shell_license_compliant=on' \
               -F 'source=@forge@jmmaranan.com.zip' \
-              -b gnome-cookies-jar.txt -c gnome-cookies-jar.txt \
+              -b 00-cookies-jar.txt -c 00-cookies-jar.txt \
+              --location --fail-with-body \
               --no-progress-meter --verbose \
-              --location \
               -o 04-post-upload.html;
-          echo "::endgroup::";
+          printf '::endgroup::\n';
