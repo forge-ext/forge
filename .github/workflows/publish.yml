@@ -108,7 +108,7 @@ jobs:
               -F "csrfmiddlewaretoken=${CSRFMIDDLEWARETOKEN}" \
               -F 'tos_compliant=on' \
               -F 'shell_license_compliant=on' \
-              -F 'source=@test-please-ignore.zip' \
+              -F 'source=@forge@jmmaranan.com.zip' \
               -b gnome-cookies-jar.txt -c gnome-cookies-jar.txt \
               --no-progress-meter --verbose \
               --location \
