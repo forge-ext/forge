@@ -1,5 +1,6 @@
 # Forge Sample Translation
 # William Roy <wroy@proton.me>, 2023.
+# Wedone <wedoneofficiel@outlook.fr>, 2024.
 #
 msgid ""
 msgstr ""
@@ -7,7 +8,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-04-05 18:16-0400\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
-"Last-Translator: William Roy <wroy@proton.me>\n"
+"Last-Translator: Wedone <wedoneofficiel@outlook.fr>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
 "Language: fr_CA\n"
 "MIME-Version: 1.0\n"
@@ -18,15 +19,15 @@ msgstr ""
 
 #: lib/extension/indicator.js:47 lib/prefs/settings.js:91
 msgid "Tiling"
-msgstr ""
+msgstr "Mise en mosaîque"
 
 #: lib/extension/indicator.js:66 lib/prefs/settings.js:23
 msgid "Forge"
-msgstr ""
+msgstr "Forge"
 
 #: lib/extension/indicator.js:66
 msgid "Tiling Window Management"
-msgstr ""
+msgstr "Gestion de Fenêtres en Mosaïque"
 
 #: lib/extension/indicator.js:70 lib/prefs/appearance.js:65
 msgid "Gaps Hidden when Single"
@@ -39,7 +40,7 @@ msgstr "Indice de focus flottant"
 
 #: lib/extension/indicator.js:86 lib/prefs/settings.js:81
 msgid "Move Pointer with the Focus"
-msgstr ""
+msgstr "Déplacer le pointeur avec le Focus"
 
 #: lib/extension/indicator.js:94 lib/extension/window.js:67
 #: lib/prefs/settings.js:54 lib/prefs/settings.js:56
@@ -185,11 +186,11 @@ msgstr "À propos de"
 
 #: lib/prefs/settings.js:57
 msgid "Toggle Forge's high-level features"
-msgstr ""
+msgstr "Caractéristiques de haut niveau de Toggle Forge"
 
 #: lib/prefs/settings.js:61
 msgid "Stacked Tiling Mode"
-msgstr ""
+msgstr "Mode de tuiles empilées"
 
 #: lib/prefs/settings.js:62
 #, fuzzy
@@ -200,22 +201,22 @@ msgstr ""
 
 #: lib/prefs/settings.js:68
 msgid "Tabbed Tiling Mode"
-msgstr ""
+msgstr "Mode d'affichage par onglets"
 
 #: lib/prefs/settings.js:69
 #, fuzzy
 msgid "Group tiles windows as tabs"
-msgstr ""
+msgstr "Regrouper les fenêtres en onglets"
 "Mode mosaïque avec onglets (Groupe les fenêtres en mosaïque en tant "
 "qu'onglets)"
 
 #: lib/prefs/settings.js:78
 msgid "Behavior"
-msgstr ""
+msgstr "Comportement"
 
 #: lib/prefs/settings.js:82
 msgid "Move the pointer when focusing or swapping via keyboard"
-msgstr ""
+msgstr "Déplacer le pointeur lors de la mise au point ou de la permutation via le clavier"
 
 #: lib/prefs/settings.js:94
 msgid "Preview Hint Toggle"
@@ -223,7 +224,7 @@ msgstr "Basculer l'indice de prévisualisation"
 
 #: lib/prefs/settings.js:101
 msgid "Display a colored border around the focused window"
-msgstr ""
+msgstr "Afficher une bordure colorée autour de la fenêtre focalisée"
 
 #: lib/prefs/settings.js:106
 #, fuzzy
@@ -232,7 +233,7 @@ msgstr "Indice de focus flottant"
 
 #: lib/prefs/settings.js:107
 msgid "Show split direction border on focused window"
-msgstr ""
+msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
 
 #: lib/prefs/settings.js:112
 msgid "Default Drag-and-Drop Center Layout"
@@ -240,7 +241,7 @@ msgstr "Disposition centrale par défaut du glisser-déposer"
 
 #: lib/prefs/settings.js:117
 msgid "Swap"
-msgstr ""
+msgstr "Échange"
 
 #: lib/prefs/settings.js:118
 msgid "Tabbed"
@@ -252,7 +253,7 @@ msgstr "Empilés"
 
 #: lib/prefs/settings.js:123
 msgid "Auto Split"
-msgstr ""
+msgstr "Séparation automatique"
 
 #: lib/prefs/settings.js:124
 #, fuzzy
@@ -261,22 +262,22 @@ msgstr "Fractionnement automatique (Mosaïque en quart)"
 
 #: lib/prefs/settings.js:130
 msgid "Float Mode Always On Top"
-msgstr ""
+msgstr "Mode flottant Toujours en haut"
 
 #: lib/prefs/settings.js:131
 #, fuzzy
 msgid "Floating windows always above tiling windows"
-msgstr ""
+msgstr "Les fenêtres flottantes sont toujours placées au-dessus des fenêtres en mosaïque"
 "Mode flottant toujours au-dessus (Les fenêtres flottantes toujours au-dessus "
 "des fenêtres en mosaïque)"
 
 #: lib/prefs/settings.js:137
 msgid "Show Tiling Quick Settings"
-msgstr ""
+msgstr "Afficher les paramètres rapides de la mise en mosaïque"
 
 #: lib/prefs/settings.js:138
 msgid "Toggle showing Forge on quick settings"
-msgstr ""
+msgstr "Basculer l'affichage de Forge sur les réglages rapides"
 
 #: lib/prefs/settings.js:148
 #, fuzzy
