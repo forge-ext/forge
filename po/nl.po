@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-05 18:16-0400\n"
+"POT-Creation-Date: 2024-05-31 19:54-0400\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -239,35 +239,43 @@ msgid "Stacked"
 msgstr "Gestapeld"
 
 #: lib/prefs/settings.js:123
-msgid "Auto Split"
+msgid "Auto Exit Tabbed Tiling Mode"
 msgstr ""
 
 #: lib/prefs/settings.js:124
-msgid "Quarter Tiling"
+msgid "Exit tabbed tiling mode when only a single tab remains"
+msgstr ""
+
+#: lib/prefs/settings.js:129
+msgid "Auto Split"
 msgstr ""
 
 #: lib/prefs/settings.js:130
+msgid "Quarter Tiling"
+msgstr ""
+
+#: lib/prefs/settings.js:136
 msgid "Float Mode Always On Top"
 msgstr ""
 
-#: lib/prefs/settings.js:131
+#: lib/prefs/settings.js:137
 msgid "Floating windows always above tiling windows"
 msgstr ""
 
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:143
 msgid "Show Tiling Quick Settings"
 msgstr ""
 
-#: lib/prefs/settings.js:138
+#: lib/prefs/settings.js:144
 msgid "Toggle showing Forge on quick settings"
 msgstr ""
 
-#: lib/prefs/settings.js:148
+#: lib/prefs/settings.js:154
 #, fuzzy
 msgid "Logger"
 msgstr "Logniveau"
 
-#: lib/prefs/settings.js:151
+#: lib/prefs/settings.js:157
 msgid "Logger Level"
 msgstr "Logniveau"
 

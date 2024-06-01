@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-05 18:16-0400\n"
+"POT-Creation-Date: 2024-05-31 19:54-0400\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: Wedone <wedoneofficiel@outlook.fr>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -206,9 +206,9 @@ msgstr "Mode d'affichage par onglets"
 #: lib/prefs/settings.js:69
 #, fuzzy
 msgid "Group tiles windows as tabs"
-msgstr "Regrouper les fenêtres en onglets"
-"Mode mosaïque avec onglets (Groupe les fenêtres en mosaïque en tant "
-"qu'onglets)"
+msgstr ""
+"Regrouper les fenêtres en ongletsMode mosaïque avec onglets (Groupe les "
+"fenêtres en mosaïque en tant qu'onglets)"
 
 #: lib/prefs/settings.js:78
 msgid "Behavior"
@@ -216,7 +216,9 @@ msgstr "Comportement"
 
 #: lib/prefs/settings.js:82
 msgid "Move the pointer when focusing or swapping via keyboard"
-msgstr "Déplacer le pointeur lors de la mise au point ou de la permutation via le clavier"
+msgstr ""
+"Déplacer le pointeur lors de la mise au point ou de la permutation via le "
+"clavier"
 
 #: lib/prefs/settings.js:94
 msgid "Preview Hint Toggle"
@@ -252,39 +254,49 @@ msgid "Stacked"
 msgstr "Empilés"
 
 #: lib/prefs/settings.js:123
+#, fuzzy
+msgid "Auto Exit Tabbed Tiling Mode"
+msgstr "Mode d'affichage par onglets"
+
+#: lib/prefs/settings.js:124
+msgid "Exit tabbed tiling mode when only a single tab remains"
+msgstr ""
+
+#: lib/prefs/settings.js:129
 msgid "Auto Split"
 msgstr "Séparation automatique"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:130
 #, fuzzy
 msgid "Quarter Tiling"
 msgstr "Fractionnement automatique (Mosaïque en quart)"
 
-#: lib/prefs/settings.js:130
+#: lib/prefs/settings.js:136
 msgid "Float Mode Always On Top"
 msgstr "Mode flottant Toujours en haut"
 
-#: lib/prefs/settings.js:131
+#: lib/prefs/settings.js:137
 #, fuzzy
 msgid "Floating windows always above tiling windows"
-msgstr "Les fenêtres flottantes sont toujours placées au-dessus des fenêtres en mosaïque"
-"Mode flottant toujours au-dessus (Les fenêtres flottantes toujours au-dessus "
-"des fenêtres en mosaïque)"
+msgstr ""
+"Les fenêtres flottantes sont toujours placées au-dessus des fenêtres en "
+"mosaïqueMode flottant toujours au-dessus (Les fenêtres flottantes toujours "
+"au-dessus des fenêtres en mosaïque)"
 
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:143
 msgid "Show Tiling Quick Settings"
 msgstr "Afficher les paramètres rapides de la mise en mosaïque"
 
-#: lib/prefs/settings.js:138
+#: lib/prefs/settings.js:144
 msgid "Toggle showing Forge on quick settings"
 msgstr "Basculer l'affichage de Forge sur les réglages rapides"
 
-#: lib/prefs/settings.js:148
+#: lib/prefs/settings.js:154
 #, fuzzy
 msgid "Logger"
 msgstr "Niveau de journalisation"
 
-#: lib/prefs/settings.js:151
+#: lib/prefs/settings.js:157
 msgid "Logger Level"
 msgstr "Niveau de journalisation"
 
