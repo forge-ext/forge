@@ -3,6 +3,7 @@
 Forge is a GNOME Shell extension that provides tiling/window management.
 
 ## Features
+
 - Tree-based tiling with vertical and horizontal split containers similar to i3-wm
 - Vim-like keybindings for navigation/swapping windows/moving windows in the containers
 - Drag and drop tiling
@@ -19,18 +20,21 @@ Forge is a GNOME Shell extension that provides tiling/window management.
 - Window resize using keyboard shortcuts
 
 ## Known Issues / Limitations
+
 - Does not support dynamic workspaces
 - Does not support vertical monitor setup
 
 ## Installation
-- Extensions GNOME site: https://extensions.gnome.org/extension/4481/forge/
-- Download/clone the source and `make install`, restart gnome-shell after or `make dev`.
-- AUR Package: https://aur.archlinux.org/packages/gnome-shell-extension-forge - thanks to [@Radeox](https://github.com/Radeox)
-- Fedora Package: https://packages.fedoraproject.org/pkgs/gnome-shell-extension-forge/gnome-shell-extension-forge/ - thanks to [@carlwgeorge](https://github.com/carlwgeorge)
+
+- Build it yourself via `make install` or `make dev`.
+- Download from [GNOME extensions website](https://extensions.gnome.org/extension/4481/forge/).
+- [AUR Package](https://aur.archlinux.org/packages/gnome-shell-extension-forge) - thanks to [@Radeox](https://github.com/Radeox)
+- [Fedora Package](https://packages.fedoraproject.org/pkgs/gnome-shell-extension-forge/gnome-shell-extension-forge/) - thanks to [@carlwgeorge](https://github.com/carlwgeorge)
 
 ![image](https://user-images.githubusercontent.com/348125/146386593-8f53ea8b-2cf3-4d44-a613-bbcaf89f9d4a.png)
 
 ## Forge Keybinding Defaults
+
 See the acceptable key combinations on the [wiki](https://github.com/forge-ext/forge/wiki/Keyboard-Shortcuts)
 
 | Action | Shortcut |
@@ -80,6 +84,7 @@ For any shortcut conflicts, the user has to manually configure those for now fro
 `GNOME Control Center > Keyboard > Customize Shortcuts`. https://github.com/forge-ext/forge/issues/37
 
 ## Forge Override Paths
+
 - Window Overrides: `$HOME/.config/forge/config/windows.json`
 - Stylesheet Overrides: `$HOME/.config/forge/stylesheet/forge/stylesheet.css`
 
@@ -92,10 +97,12 @@ User is encouraged to bind the following:
 - Switching to numbered, previous or next workspace
 
 ## Development
+
 - The `main` branch contains gnome-4x code.
 - The `legacy` and `gnome-3-36` are the same and is now the source for gnome-3x.
 
 ## Local Development Setup
+
 - Install NodeJS 16+
 - Install `gettext`
 - Run `npm install`
