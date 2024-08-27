@@ -1,6 +1,8 @@
-# Forge
+# Forge is not maintained anymore
 
-Forge is a GNOME Shell extension that provides tiling/window management.
+Forge is a GNOME Shell extension that provides tiling/window management **_AND_** is looking for a new owner or maintainer:
+- https://github.com/orgs/forge-ext/discussions/276
+- https://github.com/forge-ext/forge/issues/336
 
 ## Features
 
