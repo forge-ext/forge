@@ -197,6 +197,11 @@
             <summary>Swap window left</summary>
         </key>
 
+        <key type="as" name="window-close">
+            <default><![CDATA[['<Super>q']]]></default>
+            <summary>Close window</summary>
+        </key>
+
         <key type="as" name="window-swap-down">
             <default><![CDATA[['<Ctrl><Super>j']]]></default>
             <summary>Swap window down</summary>
