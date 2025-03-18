@@ -36,6 +36,18 @@
       "wmClass": "org.mozilla.Thunderbird.desktop",
       "wmTitle": "!Mozilla Thunderbird",
       "mode": "float"
+    },
+    {
+      "wmClass": "evolution-alarm-notify",
+      "mode": "float"
+    },
+    {
+      "wmClass": "variety",
+      "mode": "float"
+    },
+    {
+      "wmClass": "update-manager",
+      "mode": "float"
     }
   ]
 }
