@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-31 19:54-0400\n"
+"POT-Creation-Date: 2024-12-17 16:51-0800\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Juarez Rudsatz <juarezr@gmail.com>\n"
 "Language-Team: \n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:91
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:98
 msgid "Tiling"
 msgstr "Emparelhamento"
 
@@ -28,7 +28,7 @@ msgstr "Gerenciamento de Janelas Emparelhadas"
 msgid "Gaps Hidden when Single"
 msgstr "Espaçamento Omitido quando Sozinho"
 
-#: lib/extension/indicator.js:78 lib/prefs/settings.js:100
+#: lib/extension/indicator.js:78 lib/prefs/settings.js:107
 #, fuzzy
 msgid "Show Focus Hint Border"
 msgstr "Sinalizador de Foco Flutuante"
@@ -37,7 +37,7 @@ msgstr "Sinalizador de Foco Flutuante"
 msgid "Move Pointer with the Focus"
 msgstr "Mover o Ponteiro com o Foco"
 
-#: lib/extension/indicator.js:94 lib/extension/window.js:67
+#: lib/extension/indicator.js:94 lib/extension/window.js:70
 #: lib/prefs/settings.js:54 lib/prefs/settings.js:56
 msgid "Settings"
 msgstr "Configurações"
@@ -206,82 +206,92 @@ msgstr "Comportamento"
 msgid "Move the pointer when focusing or swapping via keyboard"
 msgstr "Mover o Ponteiro ao focar ou transpor janelas via teclado"
 
-#: lib/prefs/settings.js:94
+#: lib/prefs/settings.js:88
+#, fuzzy
+msgid "Focus on Hover"
+msgstr "Sinalizador de Foco Flutuante"
+
+#: lib/prefs/settings.js:89
+#, fuzzy
+msgid "Window focus follows the pointer"
+msgstr "Mover o Ponteiro com o Foco"
+
+#: lib/prefs/settings.js:101
 msgid "Preview Hint Toggle"
 msgstr "Habilitar Ver Dica"
 
-#: lib/prefs/settings.js:101
+#: lib/prefs/settings.js:108
 msgid "Display a colored border around the focused window"
 msgstr "Exibir uma borda colorida ao redor da janela com foco"
 
-#: lib/prefs/settings.js:106
+#: lib/prefs/settings.js:113
 #, fuzzy
 msgid "Show Window Split Hint Border"
 msgstr "Sinalizador de Foco Flutuante"
 
-#: lib/prefs/settings.js:107
+#: lib/prefs/settings.js:114
 msgid "Show split direction border on focused window"
 msgstr "Exibir a borda de divisão na janela com foco"
 
-#: lib/prefs/settings.js:112
+#: lib/prefs/settings.js:119
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Arranjo de Arrastar/Soltar Padrão"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:124
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:118
+#: lib/prefs/settings.js:125
 msgid "Tabbed"
 msgstr "Em Abas"
 
-#: lib/prefs/settings.js:119
+#: lib/prefs/settings.js:126
 msgid "Stacked"
 msgstr "Empilhado"
 
-#: lib/prefs/settings.js:123
+#: lib/prefs/settings.js:130
 #, fuzzy
 msgid "Auto Exit Tabbed Tiling Mode"
 msgstr "Modo em Abas"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:131
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr ""
 
-#: lib/prefs/settings.js:129
+#: lib/prefs/settings.js:136
 msgid "Auto Split"
 msgstr "Dividir automaticamente"
 
-#: lib/prefs/settings.js:130
+#: lib/prefs/settings.js:137
 #, fuzzy
 msgid "Quarter Tiling"
 msgstr "Divisão Automática (Metade)"
 
-#: lib/prefs/settings.js:136
+#: lib/prefs/settings.js:143
 msgid "Float Mode Always On Top"
 msgstr "Modo Flutuante sempre no topo"
 
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:144
 #, fuzzy
 msgid "Floating windows always above tiling windows"
 msgstr ""
 "Modo Flutuante Sempre no Topo (Janelas flutuantes sempre acima de janelas "
 "emparelhadas)"
 
-#: lib/prefs/settings.js:143
+#: lib/prefs/settings.js:150
 msgid "Show Tiling Quick Settings"
 msgstr "Exibir configurações rápidas"
 
-#: lib/prefs/settings.js:144
+#: lib/prefs/settings.js:151
 msgid "Toggle showing Forge on quick settings"
 msgstr "Habilitar a exibição do Forge nas configurações rápidas"
 
-#: lib/prefs/settings.js:154
+#: lib/prefs/settings.js:161
 #, fuzzy
 msgid "Logger"
 msgstr "Nivel de Log"
 
-#: lib/prefs/settings.js:157
+#: lib/prefs/settings.js:164
 msgid "Logger Level"
 msgstr "Nivel de Log"
 

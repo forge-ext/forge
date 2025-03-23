@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-31 19:54-0400\n"
+"POT-Creation-Date: 2024-12-17 16:51-0800\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:91
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:98
 msgid "Tiling"
 msgstr "Mosaico"
 
@@ -30,7 +30,7 @@ msgstr "Gestor de ventanas en mosaico"
 msgid "Gaps Hidden when Single"
 msgstr "Espacios ocultos cuando hay una sola ventana"
 
-#: lib/extension/indicator.js:78 lib/prefs/settings.js:100
+#: lib/extension/indicator.js:78 lib/prefs/settings.js:107
 msgid "Show Focus Hint Border"
 msgstr "Mostrar borde de sugerencia de enfoque"
 
@@ -38,7 +38,7 @@ msgstr "Mostrar borde de sugerencia de enfoque"
 msgid "Move Pointer with the Focus"
 msgstr "Mover el puntero con el enfoque"
 
-#: lib/extension/indicator.js:94 lib/extension/window.js:67
+#: lib/extension/indicator.js:94 lib/extension/window.js:70
 #: lib/prefs/settings.js:54 lib/prefs/settings.js:56
 msgid "Settings"
 msgstr "Configuración"
@@ -113,7 +113,9 @@ msgstr "Tecla Control"
 
 #: lib/prefs/keyboard.js:23
 msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
-msgstr "Borra el texto para desactivar. Pulsa la tecla Intro para aceptar. Sal del enfoque para ignorar."
+msgstr ""
+"Borra el texto para desactivar. Pulsa la tecla Intro para aceptar. Sal del "
+"enfoque para ignorar."
 
 #: lib/prefs/keyboard.js:24
 msgid "Resets"
@@ -133,11 +135,15 @@ msgstr "Opciones de tecla modificadora para mosaico con arrastrar y soltar"
 
 #: lib/prefs/keyboard.js:44
 msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
-msgstr "Cambia la tecla modificadora para <b>organizar en mosaico</b> las ventanas mediante el ratón/arrastrar y soltar"
+msgstr ""
+"Cambia la tecla modificadora para <b>organizar en mosaico</b> las ventanas "
+"mediante el ratón/arrastrar y soltar"
 
 #: lib/prefs/keyboard.js:45
 msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
-msgstr "Selecciona <i>Ninguna</i> para <u>organizar en mosaico inmediatamente</u> por defecto"
+msgstr ""
+"Selecciona <i>Ninguna</i> para <u>organizar en mosaico inmediatamente</u> "
+"por defecto"
 
 #: lib/prefs/keyboard.js:48
 msgid "Tile Modifier"
@@ -177,7 +183,8 @@ msgstr "Modo de mosaico apilado"
 
 #: lib/prefs/settings.js:62
 msgid "Stack windows on top of each other while still being tiled"
-msgstr "Apila las ventanas unas sobre otras mientras siguen organizadas en mosaico"
+msgstr ""
+"Apila las ventanas unas sobre otras mientras siguen organizadas en mosaico"
 
 #: lib/prefs/settings.js:68
 msgid "Tabbed Tiling Mode"
@@ -195,75 +202,85 @@ msgstr "Comportamiento"
 msgid "Move the pointer when focusing or swapping via keyboard"
 msgstr "Mover el puntero al enfocar o intercambiar mediante el teclado"
 
-#: lib/prefs/settings.js:94
+#: lib/prefs/settings.js:88
+#, fuzzy
+msgid "Focus on Hover"
+msgstr "Mostrar borde de sugerencia de enfoque"
+
+#: lib/prefs/settings.js:89
+#, fuzzy
+msgid "Window focus follows the pointer"
+msgstr "Mover el puntero con el enfoque"
+
+#: lib/prefs/settings.js:101
 msgid "Preview Hint Toggle"
 msgstr "Alternar vista previa de sugerencia"
 
-#: lib/prefs/settings.js:101
+#: lib/prefs/settings.js:108
 msgid "Display a colored border around the focused window"
 msgstr "Mostrar un borde de color alrededor de la ventana enfocada"
 
-#: lib/prefs/settings.js:106
+#: lib/prefs/settings.js:113
 msgid "Show Window Split Hint Border"
 msgstr "Mostrar borde de sugerencia de división de ventana"
 
-#: lib/prefs/settings.js:107
+#: lib/prefs/settings.js:114
 msgid "Show split direction border on focused window"
 msgstr "Mostrar borde de dirección de división en la ventana enfocada"
 
-#: lib/prefs/settings.js:112
+#: lib/prefs/settings.js:119
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Distribución central predeterminada de arrastrar y soltar"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:124
 msgid "Swap"
 msgstr "Intercambiar"
 
-#: lib/prefs/settings.js:118
+#: lib/prefs/settings.js:125
 msgid "Tabbed"
 msgstr "En pestañas"
 
-#: lib/prefs/settings.js:119
+#: lib/prefs/settings.js:126
 msgid "Stacked"
 msgstr "Apilado"
 
-#: lib/prefs/settings.js:123
+#: lib/prefs/settings.js:130
 msgid "Auto Exit Tabbed Tiling Mode"
 msgstr "Salir automáticamente del modo de mosaico en pestañas"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:131
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr "Salir del modo de mosaico en pestañas cuando solo queda una pestaña"
 
-#: lib/prefs/settings.js:129
+#: lib/prefs/settings.js:136
 msgid "Auto Split"
 msgstr "División automática"
 
-#: lib/prefs/settings.js:130
+#: lib/prefs/settings.js:137
 msgid "Quarter Tiling"
 msgstr "Mosaico en cuartos"
 
-#: lib/prefs/settings.js:136
+#: lib/prefs/settings.js:143
 msgid "Float Mode Always On Top"
 msgstr "Modo flotante siempre visible"
 
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:144
 msgid "Floating windows always above tiling windows"
 msgstr "Ventanas flotantes siempre encima de las ventanas en mosaico"
 
-#: lib/prefs/settings.js:143
+#: lib/prefs/settings.js:150
 msgid "Show Tiling Quick Settings"
 msgstr "Mostrar ajustes rápidos de mosaico"
 
-#: lib/prefs/settings.js:144
+#: lib/prefs/settings.js:151
 msgid "Toggle showing Forge on quick settings"
 msgstr "Alternar la visualización de Forge en los ajustes rápidos"
 
-#: lib/prefs/settings.js:154
+#: lib/prefs/settings.js:161
 msgid "Logger"
 msgstr "Registro"
 
-#: lib/prefs/settings.js:157
+#: lib/prefs/settings.js:164
 msgid "Logger Level"
 msgstr "Nivel de registro"
 
@@ -272,8 +289,8 @@ msgid ""
 "<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to "
 "crash"
 msgstr ""
-"<b>PRECAUCIÓN</b>: Activar esta configuración puede provocar errores o hacer que el entorno se "
-"bloquee"
+"<b>PRECAUCIÓN</b>: Activar esta configuración puede provocar errores o hacer "
+"que el entorno se bloquee"
 
 #: lib/prefs/widgets.js:222
 msgid "Reset"
@@ -292,8 +309,8 @@ msgid ""
 "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
 "accept"
 msgstr ""
-"Indica los índices de espacios de trabajo a omitir. Ej.: 0,1. Dejar vacío para desactivar. Pulsa Intro para "
-"aceptar"
+"Indica los índices de espacios de trabajo a omitir. Ej.: 0,1. Dejar vacío "
+"para desactivar. Pulsa Intro para aceptar"
 
 #: lib/prefs/workspace.js:22
 msgid "Skip Workspace Tiling"

@@ -123,6 +123,10 @@
             <default>false</default>
             <summary>Move the pointer when focusing or swapping via kbd</summary>
         </key>
+        <key type="b" name="focus-on-hover-enabled">
+            <default>false</default>
+            <summary>Focus switches to the window under the pointer.</summary>
+        </key>
         <key type="b" name="float-always-on-top-enabled">
             <default>true</default>
             <summary>Floating windows toggle always-on-top</summary>

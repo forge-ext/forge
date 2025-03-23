@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-31 19:54-0400\n"
+"POT-Creation-Date: 2024-12-17 16:51-0800\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -14,7 +14,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.0\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:91
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:98
 msgid "Tiling"
 msgstr ""
 
@@ -30,7 +30,7 @@ msgstr ""
 msgid "Gaps Hidden when Single"
 msgstr "Ruimtes verbergen bij één geopend venster"
 
-#: lib/extension/indicator.js:78 lib/prefs/settings.js:100
+#: lib/extension/indicator.js:78 lib/prefs/settings.js:107
 #, fuzzy
 msgid "Show Focus Hint Border"
 msgstr "Focushint bij zwevende vensters"
@@ -39,7 +39,7 @@ msgstr "Focushint bij zwevende vensters"
 msgid "Move Pointer with the Focus"
 msgstr ""
 
-#: lib/extension/indicator.js:94 lib/extension/window.js:67
+#: lib/extension/indicator.js:94 lib/extension/window.js:70
 #: lib/prefs/settings.js:54 lib/prefs/settings.js:56
 msgid "Settings"
 msgstr "Voorkeuren"
@@ -205,77 +205,86 @@ msgstr ""
 msgid "Move the pointer when focusing or swapping via keyboard"
 msgstr ""
 
-#: lib/prefs/settings.js:94
-msgid "Preview Hint Toggle"
+#: lib/prefs/settings.js:88
+#, fuzzy
+msgid "Focus on Hover"
+msgstr "Focushint bij zwevende vensters"
+
+#: lib/prefs/settings.js:89
+msgid "Window focus follows the pointer"
 msgstr ""
 
 #: lib/prefs/settings.js:101
+msgid "Preview Hint Toggle"
+msgstr ""
+
+#: lib/prefs/settings.js:108
 msgid "Display a colored border around the focused window"
 msgstr ""
 
-#: lib/prefs/settings.js:106
+#: lib/prefs/settings.js:113
 #, fuzzy
 msgid "Show Window Split Hint Border"
 msgstr "Focushint bij zwevende vensters"
 
-#: lib/prefs/settings.js:107
+#: lib/prefs/settings.js:114
 msgid "Show split direction border on focused window"
 msgstr ""
 
-#: lib/prefs/settings.js:112
+#: lib/prefs/settings.js:119
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Standaardindeling: gecentreerd slepen-en-neerzetten"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:124
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:118
+#: lib/prefs/settings.js:125
 msgid "Tabbed"
 msgstr "Tabbladen"
 
-#: lib/prefs/settings.js:119
+#: lib/prefs/settings.js:126
 msgid "Stacked"
 msgstr "Gestapeld"
 
-#: lib/prefs/settings.js:123
+#: lib/prefs/settings.js:130
 msgid "Auto Exit Tabbed Tiling Mode"
 msgstr ""
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:131
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr ""
 
-#: lib/prefs/settings.js:129
+#: lib/prefs/settings.js:136
 msgid "Auto Split"
 msgstr ""
 
-#: lib/prefs/settings.js:130
+#: lib/prefs/settings.js:137
 msgid "Quarter Tiling"
 msgstr ""
 
-#: lib/prefs/settings.js:136
+#: lib/prefs/settings.js:143
 msgid "Float Mode Always On Top"
 msgstr ""
 
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:144
 msgid "Floating windows always above tiling windows"
 msgstr ""
 
-#: lib/prefs/settings.js:143
+#: lib/prefs/settings.js:150
 msgid "Show Tiling Quick Settings"
 msgstr ""
 
-#: lib/prefs/settings.js:144
+#: lib/prefs/settings.js:151
 msgid "Toggle showing Forge on quick settings"
 msgstr ""
 
-#: lib/prefs/settings.js:154
+#: lib/prefs/settings.js:161
 #, fuzzy
 msgid "Logger"
 msgstr "Logniveau"
 
-#: lib/prefs/settings.js:157
+#: lib/prefs/settings.js:164
 msgid "Logger Level"
 msgstr "Logniveau"
 

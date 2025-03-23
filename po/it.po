@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-31 19:54-0400\n"
+"POT-Creation-Date: 2024-12-17 16:51-0800\n"
 "PO-Revision-Date: 2024-09-15 20:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "X-Generator: Gtranslator 42.0\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:91
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:98
 msgid "Tiling"
 msgstr "Affiancamento"
 
@@ -32,7 +32,7 @@ msgstr "Gestione delle finestre di affiancamento"
 msgid "Gaps Hidden when Single"
 msgstr "Margini nascosti quando c'è una sola finestra"
 
-#: lib/extension/indicator.js:78 lib/prefs/settings.js:100
+#: lib/extension/indicator.js:78 lib/prefs/settings.js:107
 msgid "Show Focus Hint Border"
 msgstr "Mostra suggerimento del bordo di messa a fuoco"
 
@@ -40,7 +40,7 @@ msgstr "Mostra suggerimento del bordo di messa a fuoco"
 msgid "Move Pointer with the Focus"
 msgstr "Sposta il puntatore con il focus"
 
-#: lib/extension/indicator.js:94 lib/extension/window.js:67
+#: lib/extension/indicator.js:94 lib/extension/window.js:70
 #: lib/prefs/settings.js:54 lib/prefs/settings.js:56
 msgid "Settings"
 msgstr "Impostazioni"
@@ -210,76 +210,87 @@ msgid "Move the pointer when focusing or swapping via keyboard"
 msgstr ""
 "Muovi il puntatore durante la messa a fuoco o lo scambio tramite tastiera"
 
-#: lib/prefs/settings.js:94
+#: lib/prefs/settings.js:88
+#, fuzzy
+msgid "Focus on Hover"
+msgstr "Mostra suggerimento del bordo di messa a fuoco"
+
+#: lib/prefs/settings.js:89
+#, fuzzy
+msgid "Window focus follows the pointer"
+msgstr "Sposta il puntatore con il focus"
+
+#: lib/prefs/settings.js:101
 msgid "Preview Hint Toggle"
 msgstr "Attiva/disattiva l'indice di anteprima"
 
-#: lib/prefs/settings.js:101
+#: lib/prefs/settings.js:108
 msgid "Display a colored border around the focused window"
 msgstr "Visualizza un bordo colorato attorno alla finestra focalizzata"
 
-#: lib/prefs/settings.js:106
+#: lib/prefs/settings.js:113
 msgid "Show Window Split Hint Border"
 msgstr "Mostra suggerimento finestra del bordo di messa a fuoco"
 
-#: lib/prefs/settings.js:107
+#: lib/prefs/settings.js:114
 msgid "Show split direction border on focused window"
 msgstr ""
 "Mostra il bordo della direzione di divisione sulla finestra focalizzata"
 
-#: lib/prefs/settings.js:112
+#: lib/prefs/settings.js:119
 msgid "Default Drag-and-Drop Center Layout"
 msgstr "Layout di trascinamento della selezione centrale predefinito"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:124
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:118
+#: lib/prefs/settings.js:125
 msgid "Tabbed"
 msgstr "Schede"
 
-#: lib/prefs/settings.js:119
+#: lib/prefs/settings.js:126
 msgid "Stacked"
 msgstr "Impilate"
 
-#: lib/prefs/settings.js:123
+#: lib/prefs/settings.js:130
 msgid "Auto Exit Tabbed Tiling Mode"
 msgstr "Uscita automatica dalla modalità di affiancamento a schede"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:131
 msgid "Exit tabbed tiling mode when only a single tab remains"
-msgstr "Esci dalla modalità di affiancamento a schede quando rimane solo una scheda"
+msgstr ""
+"Esci dalla modalità di affiancamento a schede quando rimane solo una scheda"
 
-#: lib/prefs/settings.js:129
+#: lib/prefs/settings.js:136
 msgid "Auto Split"
 msgstr "Divisione automatica"
 
-#: lib/prefs/settings.js:130
+#: lib/prefs/settings.js:137
 msgid "Quarter Tiling"
 msgstr "Affiancamento a quarto"
 
-#: lib/prefs/settings.js:136
+#: lib/prefs/settings.js:143
 msgid "Float Mode Always On Top"
 msgstr "Modalità flottante sempre in primo piano"
 
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:144
 msgid "Floating windows always above tiling windows"
 msgstr "Finestre flottanti sempre sopra le finestre affiancate"
 
-#: lib/prefs/settings.js:143
+#: lib/prefs/settings.js:150
 msgid "Show Tiling Quick Settings"
 msgstr "Mostra le impostazioni rapide di affiancamento"
 
-#: lib/prefs/settings.js:144
+#: lib/prefs/settings.js:151
 msgid "Toggle showing Forge on quick settings"
 msgstr "Attiva la visualizzazione di Forge nelle impostazioni rapide"
 
-#: lib/prefs/settings.js:154
+#: lib/prefs/settings.js:161
 msgid "Logger"
 msgstr "Log"
 
-#: lib/prefs/settings.js:157
+#: lib/prefs/settings.js:164
 msgid "Logger Level"
 msgstr "Livello Log"
 
