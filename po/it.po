@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 15:03+0100\n"
+"POT-Creation-Date: 2025-04-27 15:04+0100\n"
 "PO-Revision-Date: 2024-09-15 20:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -257,74 +257,72 @@ msgstr ""
 
 #: lib/prefs/settings.js:75
 #, fuzzy
+msgid "Quarter tiling"
+msgstr "Affiancamento a quarto"
+
+#: lib/prefs/settings.js:76
+msgid "Places new windows in a clock-wise fashion"
+msgstr ""
+
+#: lib/prefs/settings.js:82
+#, fuzzy
 msgid "Stacked tiling"
 msgstr "Modalità di affiancamento in pila"
 
-#: lib/prefs/settings.js:76
+#: lib/prefs/settings.js:83
 #, fuzzy
 msgid "Stacks windows on top of each other while still tiling them"
 msgstr "Impila le finestre una sopra l'altra pur continuando ad affiancarle"
 
-#: lib/prefs/settings.js:82
+#: lib/prefs/settings.js:89
 #, fuzzy
 msgid "Tabbed tiling"
 msgstr "Modalità di affiancamento a schede"
 
-#: lib/prefs/settings.js:83
+#: lib/prefs/settings.js:90
 #, fuzzy
 msgid "Groups windows as tabs"
 msgstr "Raggruppare le finestre dei riquadri come schede"
 
-#: lib/prefs/settings.js:89
+#: lib/prefs/settings.js:96
 #, fuzzy
 msgid "Auto exit tabbed tiling"
 msgstr "Uscita automatica dalla modalità di affiancamento a schede"
 
-#: lib/prefs/settings.js:90
+#: lib/prefs/settings.js:97
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr ""
 "Esci dalla modalità di affiancamento a schede quando rimane solo una scheda"
 
-#: lib/prefs/settings.js:96
+#: lib/prefs/settings.js:103
 #, fuzzy
 msgid "Drag-and-drop behavior"
 msgstr "Layout di trascinamento della selezione centrale predefinito"
 
-#: lib/prefs/settings.js:97
+#: lib/prefs/settings.js:104
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:102
+#: lib/prefs/settings.js:109
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:103
+#: lib/prefs/settings.js:110
 msgid "Tabbed"
 msgstr "Schede"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:111
 msgid "Stacked"
 msgstr "Impilate"
 
-#: lib/prefs/settings.js:108
+#: lib/prefs/settings.js:115
 msgid "Always on Top mode for floating windows"
 msgstr ""
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:116
 #, fuzzy
 msgid "Makes floating windows appear above tiled windows"
 msgstr "Finestre flottanti sempre sopra le finestre affiancate"
-
-#: lib/prefs/settings.js:115
-#, fuzzy
-msgid "Quarter tiling"
-msgstr "Affiancamento a quarto"
-
-#: lib/prefs/settings.js:116
-msgid ""
-"Places new windows in a clock-wise fashion. If disabled, new windows are "
-"placed under the focused window"
-msgstr ""
 
 #: lib/prefs/settings.js:124
 msgid "Non-tiling workspaces"
@@ -359,25 +357,21 @@ msgstr ""
 msgid "Reset"
 msgstr "Ripristina"
 
-#: lib/prefs/workspace.js:14
-msgid "Workspace"
-msgstr "Spazio di lavoro"
+#~ msgid "Workspace"
+#~ msgstr "Spazio di lavoro"
 
-#: lib/prefs/workspace.js:16
-msgid "Update Workspace Settings"
-msgstr "Aggiorna le impostazioni dell'area di lavoro"
+#~ msgid "Update Workspace Settings"
+#~ msgstr "Aggiorna le impostazioni dell'area di lavoro"
 
-#: lib/prefs/workspace.js:18
-msgid ""
-"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
-"accept"
-msgstr ""
-"Specificare gli indici degli spazi di lavoro da ignorare. Es: 0,1. Lasciare "
-"vuoto per disabilitare. Premi Invio per accettare."
+#~ msgid ""
+#~ "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter "
+#~ "to accept"
+#~ msgstr ""
+#~ "Specificare gli indici degli spazi di lavoro da ignorare. Es: 0,1. "
+#~ "Lasciare vuoto per disabilitare. Premi Invio per accettare."
 
-#: lib/prefs/workspace.js:22
-msgid "Skip Workspace Tiling"
-msgstr "Disabilita l'affiancamento dell'area di lavoro"
+#~ msgid "Skip Workspace Tiling"
+#~ msgstr "Disabilita l'affiancamento dell'area di lavoro"
 
 #, fuzzy
 #~ msgid "Show border around focused window"

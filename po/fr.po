@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 15:03+0100\n"
+"POT-Creation-Date: 2025-04-27 15:04+0100\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: Wedone <wedoneofficiel@outlook.fr>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -255,80 +255,78 @@ msgstr ""
 
 #: lib/prefs/settings.js:75
 #, fuzzy
+msgid "Quarter tiling"
+msgstr "Fractionnement automatique (Mosaïque en quart)"
+
+#: lib/prefs/settings.js:76
+msgid "Places new windows in a clock-wise fashion"
+msgstr ""
+
+#: lib/prefs/settings.js:82
+#, fuzzy
 msgid "Stacked tiling"
 msgstr "Mode de tuiles empilées"
 
-#: lib/prefs/settings.js:76
+#: lib/prefs/settings.js:83
 #, fuzzy
 msgid "Stacks windows on top of each other while still tiling them"
 msgstr ""
 "Mode de mosaïque en pile (empile les fenêtres les unes sur les autres tout "
 "en étant toujours en mosaïque)"
 
-#: lib/prefs/settings.js:82
+#: lib/prefs/settings.js:89
 #, fuzzy
 msgid "Tabbed tiling"
 msgstr "Mode d'affichage par onglets"
 
-#: lib/prefs/settings.js:83
+#: lib/prefs/settings.js:90
 #, fuzzy
 msgid "Groups windows as tabs"
 msgstr ""
 "Regrouper les fenêtres en ongletsMode mosaïque avec onglets (Groupe les "
 "fenêtres en mosaïque en tant qu'onglets)"
 
-#: lib/prefs/settings.js:89
+#: lib/prefs/settings.js:96
 #, fuzzy
 msgid "Auto exit tabbed tiling"
 msgstr "Mode d'affichage par onglets"
 
-#: lib/prefs/settings.js:90
+#: lib/prefs/settings.js:97
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr ""
 
-#: lib/prefs/settings.js:96
+#: lib/prefs/settings.js:103
 #, fuzzy
 msgid "Drag-and-drop behavior"
 msgstr "Disposition centrale par défaut du glisser-déposer"
 
-#: lib/prefs/settings.js:97
+#: lib/prefs/settings.js:104
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:102
+#: lib/prefs/settings.js:109
 msgid "Swap"
 msgstr "Échange"
 
-#: lib/prefs/settings.js:103
+#: lib/prefs/settings.js:110
 msgid "Tabbed"
 msgstr "Onglets"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:111
 msgid "Stacked"
 msgstr "Empilés"
 
-#: lib/prefs/settings.js:108
+#: lib/prefs/settings.js:115
 msgid "Always on Top mode for floating windows"
 msgstr ""
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:116
 #, fuzzy
 msgid "Makes floating windows appear above tiled windows"
 msgstr ""
 "Les fenêtres flottantes sont toujours placées au-dessus des fenêtres en "
 "mosaïqueMode flottant toujours au-dessus (Les fenêtres flottantes toujours "
 "au-dessus des fenêtres en mosaïque)"
-
-#: lib/prefs/settings.js:115
-#, fuzzy
-msgid "Quarter tiling"
-msgstr "Fractionnement automatique (Mosaïque en quart)"
-
-#: lib/prefs/settings.js:116
-msgid ""
-"Places new windows in a clock-wise fashion. If disabled, new windows are "
-"placed under the focused window"
-msgstr ""
 
 #: lib/prefs/settings.js:124
 msgid "Non-tiling workspaces"
@@ -365,25 +363,21 @@ msgstr ""
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: lib/prefs/workspace.js:14
-msgid "Workspace"
-msgstr "Espace de travail"
+#~ msgid "Workspace"
+#~ msgstr "Espace de travail"
 
-#: lib/prefs/workspace.js:16
-msgid "Update Workspace Settings"
-msgstr "Mettre à jour les paramètres de l'espace de travail"
+#~ msgid "Update Workspace Settings"
+#~ msgstr "Mettre à jour les paramètres de l'espace de travail"
 
-#: lib/prefs/workspace.js:18
-msgid ""
-"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
-"accept"
-msgstr ""
-"Indiquez les indices des espaces de travail à ignorer. Ex: 0,1. Laissez vide "
-"pour désactiver. Appuyez sur Entrée pour valider."
+#~ msgid ""
+#~ "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter "
+#~ "to accept"
+#~ msgstr ""
+#~ "Indiquez les indices des espaces de travail à ignorer. Ex: 0,1. Laissez "
+#~ "vide pour désactiver. Appuyez sur Entrée pour valider."
 
-#: lib/prefs/workspace.js:22
-msgid "Skip Workspace Tiling"
-msgstr "Désactiver la disposition en mosaïque de l'espace de travail"
+#~ msgid "Skip Workspace Tiling"
+#~ msgstr "Désactiver la disposition en mosaïque de l'espace de travail"
 
 #, fuzzy
 #~ msgid "Show border around focused window"

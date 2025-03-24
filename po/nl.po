@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 15:03+0100\n"
+"POT-Creation-Date: 2025-04-27 15:04+0100\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -242,71 +242,69 @@ msgstr ""
 
 #: lib/prefs/settings.js:75
 #, fuzzy
+msgid "Quarter tiling"
+msgstr "Tabbladen"
+
+#: lib/prefs/settings.js:76
+msgid "Places new windows in a clock-wise fashion"
+msgstr ""
+
+#: lib/prefs/settings.js:82
+#, fuzzy
 msgid "Stacked tiling"
 msgstr "Gestapeld"
 
-#: lib/prefs/settings.js:76
+#: lib/prefs/settings.js:83
 #, fuzzy
 msgid "Stacks windows on top of each other while still tiling them"
 msgstr "Gestapelde tegelmodus (stapel vensters in de tegelmodus)"
 
-#: lib/prefs/settings.js:82
+#: lib/prefs/settings.js:89
 #, fuzzy
 msgid "Tabbed tiling"
 msgstr "Tabbladen"
 
-#: lib/prefs/settings.js:83
+#: lib/prefs/settings.js:90
 #, fuzzy
 msgid "Groups windows as tabs"
 msgstr "Tabblad-tegelmodus (groepeer getegelde vensters als tabbladen)"
 
-#: lib/prefs/settings.js:89
+#: lib/prefs/settings.js:96
 #, fuzzy
 msgid "Auto exit tabbed tiling"
 msgstr "Tabbladen"
 
-#: lib/prefs/settings.js:90
+#: lib/prefs/settings.js:97
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr ""
 
-#: lib/prefs/settings.js:96
+#: lib/prefs/settings.js:103
 #, fuzzy
 msgid "Drag-and-drop behavior"
 msgstr "Standaardindeling: gecentreerd slepen-en-neerzetten"
 
-#: lib/prefs/settings.js:97
+#: lib/prefs/settings.js:104
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:102
+#: lib/prefs/settings.js:109
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:103
+#: lib/prefs/settings.js:110
 msgid "Tabbed"
 msgstr "Tabbladen"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:111
 msgid "Stacked"
 msgstr "Gestapeld"
 
-#: lib/prefs/settings.js:108
+#: lib/prefs/settings.js:115
 msgid "Always on Top mode for floating windows"
 msgstr ""
 
-#: lib/prefs/settings.js:109
-msgid "Makes floating windows appear above tiled windows"
-msgstr ""
-
-#: lib/prefs/settings.js:115
-#, fuzzy
-msgid "Quarter tiling"
-msgstr "Tabbladen"
-
 #: lib/prefs/settings.js:116
-msgid ""
-"Places new windows in a clock-wise fashion. If disabled, new windows are "
-"placed under the focused window"
+msgid "Makes floating windows appear above tiled windows"
 msgstr ""
 
 #: lib/prefs/settings.js:124
@@ -344,25 +342,21 @@ msgstr ""
 msgid "Reset"
 msgstr "Standaardwaarden"
 
-#: lib/prefs/workspace.js:14
-msgid "Workspace"
-msgstr "Werkblad"
+#~ msgid "Workspace"
+#~ msgstr "Werkblad"
 
-#: lib/prefs/workspace.js:16
-msgid "Update Workspace Settings"
-msgstr "Werkbladvoorkeuren bijwerken"
+#~ msgid "Update Workspace Settings"
+#~ msgstr "Werkbladvoorkeuren bijwerken"
 
-#: lib/prefs/workspace.js:18
-msgid ""
-"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
-"accept"
-msgstr ""
-"Geef op op welke werkbladen er niet dient te worden getegeld, bijv. 0,1. "
-"Laat leeg om uit te schakelen. Druk Enter om toe te passen."
+#~ msgid ""
+#~ "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter "
+#~ "to accept"
+#~ msgstr ""
+#~ "Geef op op welke werkbladen er niet dient te worden getegeld, bijv. 0,1. "
+#~ "Laat leeg om uit te schakelen. Druk Enter om toe te passen."
 
-#: lib/prefs/workspace.js:22
-msgid "Skip Workspace Tiling"
-msgstr "Niet tegelen op werkblad"
+#~ msgid "Skip Workspace Tiling"
+#~ msgstr "Niet tegelen op werkblad"
 
 #~ msgid "Legend"
 #~ msgstr "Legenda"
