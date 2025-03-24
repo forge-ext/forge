@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-24 15:02+0000\n"
+"POT-Creation-Date: 2025-03-24 15:40+0000\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Juarez Rudsatz <juarezr@gmail.com>\n"
 "Language-Team: \n"
@@ -238,77 +238,75 @@ msgstr "Mover o Ponteiro ao focar ou transpor janelas via teclado"
 
 #: lib/prefs/settings.js:68
 #, fuzzy
+msgid "Quarter tiling"
+msgstr "Divisão Automática (Metade)"
+
+#: lib/prefs/settings.js:69
+msgid "Places new windows in a clock-wise fashion"
+msgstr ""
+
+#: lib/prefs/settings.js:75
+#, fuzzy
 msgid "Stacked tiling"
 msgstr "Modo empilhado"
 
-#: lib/prefs/settings.js:69
+#: lib/prefs/settings.js:76
 #, fuzzy
 msgid "Stacks windows on top of each other while still tiling them"
 msgstr ""
 "Modo de Emparelhamento Empilhado (Empilhar janelas um em cima da outra mesmo "
 "ainda sendo emparelhadas)"
 
-#: lib/prefs/settings.js:75
+#: lib/prefs/settings.js:82
 #, fuzzy
 msgid "Tabbed tiling"
 msgstr "Modo em Abas"
 
-#: lib/prefs/settings.js:76
+#: lib/prefs/settings.js:83
 #, fuzzy
 msgid "Groups windows as tabs"
 msgstr "Modo de Emparelhamento em Abas (Agrupar janelas emparelhadas em abas)"
 
-#: lib/prefs/settings.js:82
+#: lib/prefs/settings.js:89
 #, fuzzy
 msgid "Auto exit tabbed tiling"
 msgstr "Modo em Abas"
 
-#: lib/prefs/settings.js:83
+#: lib/prefs/settings.js:90
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr ""
 
-#: lib/prefs/settings.js:88
+#: lib/prefs/settings.js:95
 #, fuzzy
 msgid "Drag-and-drop behavior"
 msgstr "Arranjo de Arrastar/Soltar Padrão"
 
-#: lib/prefs/settings.js:89
+#: lib/prefs/settings.js:96
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:94
+#: lib/prefs/settings.js:101
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:95
+#: lib/prefs/settings.js:102
 msgid "Tabbed"
 msgstr "Em Abas"
 
-#: lib/prefs/settings.js:96
+#: lib/prefs/settings.js:103
 msgid "Stacked"
 msgstr "Empilhado"
 
-#: lib/prefs/settings.js:100
+#: lib/prefs/settings.js:107
 msgid "Always on Top mode for floating windows"
 msgstr ""
 
-#: lib/prefs/settings.js:101
+#: lib/prefs/settings.js:108
 #, fuzzy
 msgid "Makes floating windows appear above tiled windows"
 msgstr ""
 "Modo Flutuante Sempre no Topo (Janelas flutuantes sempre acima de janelas "
 "emparelhadas)"
-
-#: lib/prefs/settings.js:107
-#, fuzzy
-msgid "Quarter tiling"
-msgstr "Divisão Automática (Metade)"
-
-#: lib/prefs/settings.js:108
-msgid ""
-"Places new windows in a clock-wise fashion. If disabled, new windows are "
-"placed under the focused window"
-msgstr ""
 
 #: lib/prefs/settings.js:116
 msgid "Non-tiling workspaces"
@@ -345,25 +343,21 @@ msgstr ""
 msgid "Reset"
 msgstr "Restaurar"
 
-#: lib/prefs/workspace.js:14
-msgid "Workspace"
-msgstr "Área de Trabalho"
+#~ msgid "Workspace"
+#~ msgstr "Área de Trabalho"
 
-#: lib/prefs/workspace.js:16
-msgid "Update Workspace Settings"
-msgstr "Atualizar Configurações de Área de Trabalho"
+#~ msgid "Update Workspace Settings"
+#~ msgstr "Atualizar Configurações de Área de Trabalho"
 
-#: lib/prefs/workspace.js:18
-msgid ""
-"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
-"accept"
-msgstr ""
-"Informe índices para ignorar. Ex: 0,1. Texto em branco para desabilitar. "
-"Enter para aceitar"
+#~ msgid ""
+#~ "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter "
+#~ "to accept"
+#~ msgstr ""
+#~ "Informe índices para ignorar. Ex: 0,1. Texto em branco para desabilitar. "
+#~ "Enter para aceitar"
 
-#: lib/prefs/workspace.js:22
-msgid "Skip Workspace Tiling"
-msgstr "Ignorar Emparelhamento de Área de Trabalho"
+#~ msgid "Skip Workspace Tiling"
+#~ msgstr "Ignorar Emparelhamento de Área de Trabalho"
 
 #, fuzzy
 #~ msgid "Show border around focused window"
