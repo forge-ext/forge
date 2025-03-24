@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-17 16:51-0800\n"
+"POT-Creation-Date: 2025-04-27 15:03+0100\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: Wedone <wedoneofficiel@outlook.fr>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "X-Generator: Gtranslator 42.0\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:98
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:54
 msgid "Tiling"
 msgstr "Mise en mosaîque"
 
@@ -29,152 +29,191 @@ msgstr "Forge"
 msgid "Tiling Window Management"
 msgstr "Gestion de Fenêtres en Mosaïque"
 
-#: lib/extension/indicator.js:70 lib/prefs/appearance.js:65
+#: lib/extension/indicator.js:70
 msgid "Gaps Hidden when Single"
 msgstr "Marges masquées lorsqu'il y a une seule fenêtre"
 
-#: lib/extension/indicator.js:78 lib/prefs/settings.js:107
+#: lib/extension/indicator.js:78
 #, fuzzy
 msgid "Show Focus Hint Border"
 msgstr "Indice de focus flottant"
 
-#: lib/extension/indicator.js:86 lib/prefs/settings.js:81
+#: lib/extension/indicator.js:86
 msgid "Move Pointer with the Focus"
 msgstr "Déplacer le pointeur avec le Focus"
 
 #: lib/extension/indicator.js:94 lib/extension/window.js:70
-#: lib/prefs/settings.js:54 lib/prefs/settings.js:56
 msgid "Settings"
 msgstr "Paramètres"
 
-#: lib/prefs/appearance.js:29
-msgid "Tiled Focus Hint and Preview"
-msgstr "Indice de prévisualisation et aperçu de la mise au point en mosaïque"
+#: lib/prefs/appearance.js:30
+#, fuzzy
+msgid "Tiled window"
+msgstr "Mode d'affichage par onglets"
 
-#: lib/prefs/appearance.js:31
-msgid "Floated Focus Hint"
-msgstr "Indice de focus flottant"
+#: lib/prefs/appearance.js:32
+#, fuzzy
+msgid "Tabbed window"
+msgstr "Mode d'affichage par onglets"
 
-#: lib/prefs/appearance.js:33
-msgid "Split Direction Hint"
+#: lib/prefs/appearance.js:34
+#, fuzzy
+msgid "Stacked window"
+msgstr "Mode de tuiles empilées"
+
+#: lib/prefs/appearance.js:36
+msgid "Floating window"
+msgstr ""
+
+#: lib/prefs/appearance.js:38
+#, fuzzy
+msgid "Split direction hint"
 msgstr "Indicateur pour la direction du fractionnement"
 
-#: lib/prefs/appearance.js:35
-msgid "Stacked Focus Hint and Preview"
-msgstr "Indicateur de focus empilé et prévisualisation"
-
-#: lib/prefs/appearance.js:37
-msgid "Tabbed Focus Hint and Preview"
-msgstr "Indicateur de focus en onglets et prévisualisation"
-
-#: lib/prefs/appearance.js:42
+#: lib/prefs/appearance.js:43
 msgid "Appearance"
 msgstr "Apparence"
 
-#: lib/prefs/appearance.js:47
+#: lib/prefs/appearance.js:48
 msgid "Gaps"
 msgstr "Marges"
 
-# I'm not sure that marges are a correct translation of gaps. There are other possibilities. 
-#: lib/prefs/appearance.js:51
-msgid "Gaps Size"
-msgstr "Taille des marges"
+#: lib/prefs/appearance.js:49
+msgid "Change the gap size between windows"
+msgstr ""
+
+#: lib/prefs/appearance.js:52
+msgid "Gap size"
+msgstr ""
 
 # I'm not sure that marges are a correct translation of gaps. There are other possibilities. 
 #: lib/prefs/appearance.js:58
 #, fuzzy
-msgid "Gaps Size Multiplier"
+msgid "Gap size multiplier"
 msgstr "Taille des marges"
 
+#: lib/prefs/appearance.js:64
+msgid "Disable gaps for single window"
+msgstr ""
+
+#: lib/prefs/appearance.js:65
+msgid "Disables window gaps when only a single window is present"
+msgstr ""
+
+#: lib/prefs/appearance.js:72
+msgid "Style"
+msgstr ""
+
 #: lib/prefs/appearance.js:73
+msgid "Change how the shell looks"
+msgstr ""
+
+#: lib/prefs/appearance.js:76
+#, fuzzy
+msgid "Preview hint"
+msgstr "Basculer l'indice de prévisualisation"
+
+#: lib/prefs/appearance.js:77
+msgid "Shows where the window will be tiled when you let go of it"
+msgstr ""
+
+#: lib/prefs/appearance.js:83
+#, fuzzy
+msgid "Border around focused window"
+msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
+
+#: lib/prefs/appearance.js:84
+msgid "Display a colored border around the focused window"
+msgstr "Afficher une bordure colorée autour de la fenêtre focalisée"
+
+#: lib/prefs/appearance.js:89
+#, fuzzy
+msgid "Window split hint border"
+msgstr "Indice de focus flottant"
+
+#: lib/prefs/appearance.js:90
+msgid "Show split direction border on focused window"
+msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
+
+#: lib/prefs/appearance.js:95
+#, fuzzy
+msgid "Forge in quick settings"
+msgstr "Afficher les paramètres rapides de la mise en mosaïque"
+
+#: lib/prefs/appearance.js:96
+#, fuzzy
+msgid "Toggles the Forge tile in quick settings"
+msgstr "Basculer l'affichage de Forge sur les réglages rapides"
+
+#: lib/prefs/appearance.js:104
 msgid "Color"
 msgstr "Couleur"
 
-#: lib/prefs/appearance.js:95
-msgid "Border Size"
+#: lib/prefs/appearance.js:105
+#, fuzzy
+msgid "Changes the focused window's border and preview hint colors"
+msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
+
+#: lib/prefs/appearance.js:127
+#, fuzzy
+msgid "Border size"
 msgstr "Taille de la bordure"
 
-#: lib/prefs/appearance.js:167
-msgid "Border Color"
+#: lib/prefs/appearance.js:199
+#, fuzzy
+msgid "Border color"
 msgstr "Couleur de la bordure"
 
 #: lib/prefs/keyboard.js:19
 msgid "Keyboard"
 msgstr "Clavier"
 
-#: lib/prefs/keyboard.js:21
-msgid "Syntax"
-msgstr "Syntaxe"
-
-#: lib/prefs/keyboard.js:22
-msgid "Legend"
-msgstr "légende"
-
 #: lib/prefs/keyboard.js:22
 #, fuzzy
-msgid "Windows  key"
-msgstr "Touche Windows"
-
-#: lib/prefs/keyboard.js:22
-msgid "Control key"
-msgstr "Touche contrôle"
-
-#: lib/prefs/keyboard.js:23
-msgid "Delete text to unset. Press Return key to accept. Focus out to ignore."
-msgstr ""
-"Supprimez le texte pour annuler. Appuyez sur la touche Entrée pour accepter. "
-"Cliquez ailleurs pour ignorer."
-
-# Seems to go hand in hand with the next one.
-# e.g. Resets to previous value when invalid.
-#: lib/prefs/keyboard.js:24
-msgid "Resets"
-msgstr "Remise"
-
-#: lib/prefs/keyboard.js:25
-msgid "to previous value when invalid"
-msgstr "à la valeur précédente en cas d'invalidité"
-
-#: lib/prefs/keyboard.js:28
-#, fuzzy
-msgid "Update Shortcuts"
-msgstr "Autres raccourcis"
-
-#: lib/prefs/keyboard.js:42
-msgid "Drag-Drop Tiling Modifier Key Options"
+msgid "Drag-and-drop modifier key"
 msgstr "Options de touche modificateur pour le glisser-déposer en mosaïque"
 
-#: lib/prefs/keyboard.js:44
-msgid "Change the modifier for <b>tiling</b> windows via mouse/drag-drop"
+#: lib/prefs/keyboard.js:23
+#, fuzzy
+msgid ""
+"Change the modifier key for tiling windows via drag-and-drop. Select 'None' "
+"to always tile"
 msgstr ""
 "Modifier la touche de modification pour les fenêtres en <b>mosaïque</b> via "
 "la souris ou le glisser-déposer"
 
-#: lib/prefs/keyboard.js:45
-msgid "Select <i>None</i> to <u>always tile immediately</u> by default"
-msgstr ""
-"Sélectionnez <i>Aucun</i> pour <u>toujours afficher en mosaïque "
-"immédiatement</u> par défaut"
+#: lib/prefs/keyboard.js:26
+#, fuzzy
+msgid "Modifier key"
+msgstr "Touches modificateurs"
 
-#: lib/prefs/keyboard.js:48
-msgid "Tile Modifier"
-msgstr "Touche modificateur pour la mosaïque"
-
-#: lib/prefs/keyboard.js:52
+#: lib/prefs/keyboard.js:30
 msgid "Super"
 msgstr "Super"
 
-#: lib/prefs/keyboard.js:53
+#: lib/prefs/keyboard.js:31
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: lib/prefs/keyboard.js:54
+#: lib/prefs/keyboard.js:32
 msgid "Alt"
 msgstr "Alt"
 
-#: lib/prefs/keyboard.js:55
+#: lib/prefs/keyboard.js:33
 msgid "None"
 msgstr "Aucune"
+
+#: lib/prefs/keyboard.js:39
+#, fuzzy
+msgid "Shortcuts"
+msgstr "Raccourcis"
+
+#: lib/prefs/keyboard.js:40
+msgid ""
+"Change the tiling shortcuts. To clear a shortcut clear the input field. To "
+"apply a shortcut press enter. <a href=\"https://github.com/forge-ext/forge/"
+"wiki/Keyboard-Shortcuts\">Syntax examples</a>"
+msgstr ""
 
 #: lib/prefs/settings.js:33
 msgid "translator-credits"
@@ -184,129 +223,132 @@ msgstr ""
 msgid "About"
 msgstr "À propos de"
 
-#: lib/prefs/settings.js:57
-msgid "Toggle Forge's high-level features"
-msgstr "Caractéristiques de haut niveau de Toggle Forge"
-
-#: lib/prefs/settings.js:61
-msgid "Stacked Tiling Mode"
-msgstr "Mode de tuiles empilées"
-
-#: lib/prefs/settings.js:62
+#: lib/prefs/settings.js:56
 #, fuzzy
-msgid "Stack windows on top of each other while still being tiled"
-msgstr ""
-"Mode de mosaïque en pile (empile les fenêtres les unes sur les autres tout "
-"en étant toujours en mosaïque)"
-
-#: lib/prefs/settings.js:68
-msgid "Tabbed Tiling Mode"
-msgstr "Mode d'affichage par onglets"
-
-#: lib/prefs/settings.js:69
-#, fuzzy
-msgid "Group tiles windows as tabs"
-msgstr ""
-"Regrouper les fenêtres en ongletsMode mosaïque avec onglets (Groupe les "
-"fenêtres en mosaïque en tant qu'onglets)"
-
-#: lib/prefs/settings.js:78
 msgid "Behavior"
 msgstr "Comportement"
 
-#: lib/prefs/settings.js:82
-msgid "Move the pointer when focusing or swapping via keyboard"
+#: lib/prefs/settings.js:57
+msgid "Change how the tiling behaves"
 msgstr ""
-"Déplacer le pointeur lors de la mise au point ou de la permutation via le "
-"clavier"
 
-#: lib/prefs/settings.js:88
+#: lib/prefs/settings.js:61
 #, fuzzy
 msgid "Focus on Hover"
 msgstr "Indice de focus flottant"
 
-#: lib/prefs/settings.js:89
-#, fuzzy
+#: lib/prefs/settings.js:62
 msgid "Window focus follows the pointer"
+msgstr ""
+
+#: lib/prefs/settings.js:68
+#, fuzzy
+msgid "Move pointer with focused window"
 msgstr "Déplacer le pointeur avec le Focus"
 
-#: lib/prefs/settings.js:101
-msgid "Preview Hint Toggle"
-msgstr "Basculer l'indice de prévisualisation"
-
-#: lib/prefs/settings.js:108
-msgid "Display a colored border around the focused window"
-msgstr "Afficher une bordure colorée autour de la fenêtre focalisée"
-
-#: lib/prefs/settings.js:113
+#: lib/prefs/settings.js:69
 #, fuzzy
-msgid "Show Window Split Hint Border"
-msgstr "Indice de focus flottant"
+msgid "Moves the pointer when focusing or swapping via keyboard"
+msgstr ""
+"Déplacer le pointeur lors de la mise au point ou de la permutation via le "
+"clavier"
 
-#: lib/prefs/settings.js:114
-msgid "Show split direction border on focused window"
-msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
-
-#: lib/prefs/settings.js:119
-msgid "Default Drag-and-Drop Center Layout"
-msgstr "Disposition centrale par défaut du glisser-déposer"
-
-#: lib/prefs/settings.js:124
-msgid "Swap"
-msgstr "Échange"
-
-#: lib/prefs/settings.js:125
-msgid "Tabbed"
-msgstr "Onglets"
-
-#: lib/prefs/settings.js:126
-msgid "Stacked"
-msgstr "Empilés"
-
-#: lib/prefs/settings.js:130
+#: lib/prefs/settings.js:75
 #, fuzzy
-msgid "Auto Exit Tabbed Tiling Mode"
+msgid "Stacked tiling"
+msgstr "Mode de tuiles empilées"
+
+#: lib/prefs/settings.js:76
+#, fuzzy
+msgid "Stacks windows on top of each other while still tiling them"
+msgstr ""
+"Mode de mosaïque en pile (empile les fenêtres les unes sur les autres tout "
+"en étant toujours en mosaïque)"
+
+#: lib/prefs/settings.js:82
+#, fuzzy
+msgid "Tabbed tiling"
 msgstr "Mode d'affichage par onglets"
 
-#: lib/prefs/settings.js:131
+#: lib/prefs/settings.js:83
+#, fuzzy
+msgid "Groups windows as tabs"
+msgstr ""
+"Regrouper les fenêtres en ongletsMode mosaïque avec onglets (Groupe les "
+"fenêtres en mosaïque en tant qu'onglets)"
+
+#: lib/prefs/settings.js:89
+#, fuzzy
+msgid "Auto exit tabbed tiling"
+msgstr "Mode d'affichage par onglets"
+
+#: lib/prefs/settings.js:90
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr ""
 
-#: lib/prefs/settings.js:136
-msgid "Auto Split"
-msgstr "Séparation automatique"
-
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:96
 #, fuzzy
-msgid "Quarter Tiling"
-msgstr "Fractionnement automatique (Mosaïque en quart)"
+msgid "Drag-and-drop behavior"
+msgstr "Disposition centrale par défaut du glisser-déposer"
 
-#: lib/prefs/settings.js:143
-msgid "Float Mode Always On Top"
-msgstr "Mode flottant Toujours en haut"
+#: lib/prefs/settings.js:97
+msgid "What to do when dragging one window on top of another"
+msgstr ""
 
-#: lib/prefs/settings.js:144
+#: lib/prefs/settings.js:102
+msgid "Swap"
+msgstr "Échange"
+
+#: lib/prefs/settings.js:103
+msgid "Tabbed"
+msgstr "Onglets"
+
+#: lib/prefs/settings.js:104
+msgid "Stacked"
+msgstr "Empilés"
+
+#: lib/prefs/settings.js:108
+msgid "Always on Top mode for floating windows"
+msgstr ""
+
+#: lib/prefs/settings.js:109
 #, fuzzy
-msgid "Floating windows always above tiling windows"
+msgid "Makes floating windows appear above tiled windows"
 msgstr ""
 "Les fenêtres flottantes sont toujours placées au-dessus des fenêtres en "
 "mosaïqueMode flottant toujours au-dessus (Les fenêtres flottantes toujours "
 "au-dessus des fenêtres en mosaïque)"
 
-#: lib/prefs/settings.js:150
-msgid "Show Tiling Quick Settings"
-msgstr "Afficher les paramètres rapides de la mise en mosaïque"
+#: lib/prefs/settings.js:115
+#, fuzzy
+msgid "Quarter tiling"
+msgstr "Fractionnement automatique (Mosaïque en quart)"
 
-#: lib/prefs/settings.js:151
-msgid "Toggle showing Forge on quick settings"
-msgstr "Basculer l'affichage de Forge sur les réglages rapides"
+#: lib/prefs/settings.js:116
+msgid ""
+"Places new windows in a clock-wise fashion. If disabled, new windows are "
+"placed under the focused window"
+msgstr ""
 
-#: lib/prefs/settings.js:161
+#: lib/prefs/settings.js:124
+msgid "Non-tiling workspaces"
+msgstr ""
+
+#: lib/prefs/settings.js:126
+msgid ""
+"Disables tiling on specified workspaces. Starts from 0, separated by commas"
+msgstr ""
+
+#: lib/prefs/settings.js:130
+msgid "Example: 0,1,2"
+msgstr ""
+
+#: lib/prefs/settings.js:138
 #, fuzzy
 msgid "Logger"
 msgstr "Niveau de journalisation"
 
-#: lib/prefs/settings.js:164
+#: lib/prefs/settings.js:141
 msgid "Logger Level"
 msgstr "Niveau de journalisation"
 
@@ -342,6 +384,113 @@ msgstr ""
 #: lib/prefs/workspace.js:22
 msgid "Skip Workspace Tiling"
 msgstr "Désactiver la disposition en mosaïque de l'espace de travail"
+
+#, fuzzy
+#~ msgid "Show border around focused window"
+#~ msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
+
+#~ msgid "Legend"
+#~ msgstr "légende"
+
+#, fuzzy
+#~ msgid "Windows  key"
+#~ msgstr "Touche Windows"
+
+#~ msgid "Control key"
+#~ msgstr "Touche contrôle"
+
+#~ msgid ""
+#~ "Delete text to unset. Press Return key to accept. Focus out to ignore."
+#~ msgstr ""
+#~ "Supprimez le texte pour annuler. Appuyez sur la touche Entrée pour "
+#~ "accepter. Cliquez ailleurs pour ignorer."
+
+# Seems to go hand in hand with the next one.
+# e.g. Resets to previous value when invalid.
+#~ msgid "Resets"
+#~ msgstr "Remise"
+
+#~ msgid "to previous value when invalid"
+#~ msgstr "à la valeur précédente en cas d'invalidité"
+
+#, fuzzy
+#~ msgid "Border color around tabbed window"
+#~ msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
+
+#, fuzzy
+#~ msgid "Border color around stacked window"
+#~ msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
+
+#, fuzzy
+#~ msgid "Border color around floating window"
+#~ msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
+
+#, fuzzy
+#~ msgid "Change the border colors around focused window"
+#~ msgstr "Afficher la bordure du sens de rotation sur la fenêtre focalisée"
+
+#, fuzzy
+#~ msgid "Stacked focus hint and preview"
+#~ msgstr "Indicateur de focus empilé et prévisualisation"
+
+#, fuzzy
+#~ msgid "Tabbed focus hint and preview"
+#~ msgstr "Indicateur de focus en onglets et prévisualisation"
+
+#, fuzzy
+#~ msgid "Tiled focus hint and preview"
+#~ msgstr ""
+#~ "Indice de prévisualisation et aperçu de la mise au point en mosaïque"
+
+#, fuzzy
+#~ msgid "Floated focus hint"
+#~ msgstr "Indice de focus flottant"
+
+#~ msgid "Syntax"
+#~ msgstr "Syntaxe"
+
+#~ msgid "Tile Modifier"
+#~ msgstr "Touche modificateur pour la mosaïque"
+
+#~ msgid "Auto Split"
+#~ msgstr "Séparation automatique"
+
+#, fuzzy
+#~ msgid "Behaviour"
+#~ msgstr "Comportement"
+
+#, fuzzy
+#~ msgid "Show tiling quick settings"
+#~ msgstr "Afficher les paramètres rapides de la mise en mosaïque"
+
+# I'm not sure that marges are a correct translation of gaps. There are other possibilities. 
+#~ msgid "Gaps Size"
+#~ msgstr "Taille des marges"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "Select <i>None</i> to <u>always tile immediately</u> by default"
+#~ msgstr ""
+#~ "Sélectionnez <i>Aucun</i> pour <u>toujours afficher en mosaïque "
+#~ "immédiatement</u> par défaut"
+
+#, fuzzy
+#~ msgid "Workspaces to skip"
+#~ msgstr "Espace de travail"
+
+#~ msgid "Float Mode Always On Top"
+#~ msgstr "Mode flottant Toujours en haut"
+
+#~ msgid "Toggle Forge's high-level features"
+#~ msgstr "Caractéristiques de haut niveau de Toggle Forge"
+
+#, fuzzy
+#~ msgid "Update Shortcuts"
+#~ msgstr "Autres raccourcis"
+
+#~ msgid "Preview Hint Toggle"
+#~ msgstr "Basculer l'indice de prévisualisation"
 
 #~ msgid "Development in Progress..."
 #~ msgstr "Développement en cours..."
@@ -386,17 +535,11 @@ msgstr "Désactiver la disposition en mosaïque de l'espace de travail"
 #~ msgid "Focus Shortcuts"
 #~ msgstr "Raccourcis de focus"
 
-#~ msgid "Modifier Keys"
-#~ msgstr "Touches modificateurs"
-
 #~ msgid "Update Keybindings"
 #~ msgstr "Mettre à jour les raccourcis clavier"
 
 #~ msgid "Action"
 #~ msgstr "Action"
-
-#~ msgid "Shortcut"
-#~ msgstr "Raccourcis"
 
 #~ msgid "Notes"
 #~ msgstr "Notes"
