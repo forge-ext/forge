@@ -24,7 +24,6 @@ import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/
 
 import { KeyboardPage } from "./lib/prefs/keyboard.js";
 import { AppearancePage } from "./lib/prefs/appearance.js";
-import { WorkspacePage } from "./lib/prefs/workspace.js";
 import { SettingsPage } from "./lib/prefs/settings.js";
 
 export default class ForgeExtensionPreferences extends ExtensionPreferences {
@@ -45,7 +44,6 @@ export default class ForgeExtensionPreferences extends ExtensionPreferences {
     window._kbdSettings = this.kbdSettings;
     window.add(new SettingsPage(this));
     window.add(new AppearancePage(this));
-    window.add(new WorkspacePage(this));
     window.add(new KeyboardPage(this));
     window.search_enabled = true;
     window.can_navigate_back = true;
