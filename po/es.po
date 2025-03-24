@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 15:03+0100\n"
+"POT-Creation-Date: 2025-04-27 15:04+0100\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -248,74 +248,72 @@ msgstr "Mover el puntero al enfocar o intercambiar mediante el teclado"
 
 #: lib/prefs/settings.js:75
 #, fuzzy
+msgid "Quarter tiling"
+msgstr "Mosaico en cuartos"
+
+#: lib/prefs/settings.js:76
+msgid "Places new windows in a clock-wise fashion"
+msgstr ""
+
+#: lib/prefs/settings.js:82
+#, fuzzy
 msgid "Stacked tiling"
 msgstr "Modo de mosaico apilado"
 
-#: lib/prefs/settings.js:76
+#: lib/prefs/settings.js:83
 #, fuzzy
 msgid "Stacks windows on top of each other while still tiling them"
 msgstr ""
 "Apila las ventanas unas sobre otras mientras siguen organizadas en mosaico"
 
-#: lib/prefs/settings.js:82
+#: lib/prefs/settings.js:89
 #, fuzzy
 msgid "Tabbed tiling"
 msgstr "Modo de mosaico en pestañas"
 
-#: lib/prefs/settings.js:83
+#: lib/prefs/settings.js:90
 #, fuzzy
 msgid "Groups windows as tabs"
 msgstr "Agrupa las ventanas en mosaico como pestañas"
 
-#: lib/prefs/settings.js:89
+#: lib/prefs/settings.js:96
 #, fuzzy
 msgid "Auto exit tabbed tiling"
 msgstr "Salir automáticamente del modo de mosaico en pestañas"
 
-#: lib/prefs/settings.js:90
+#: lib/prefs/settings.js:97
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr "Salir del modo de mosaico en pestañas cuando solo queda una pestaña"
 
-#: lib/prefs/settings.js:96
+#: lib/prefs/settings.js:103
 #, fuzzy
 msgid "Drag-and-drop behavior"
 msgstr "Distribución central predeterminada de arrastrar y soltar"
 
-#: lib/prefs/settings.js:97
+#: lib/prefs/settings.js:104
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:102
+#: lib/prefs/settings.js:109
 msgid "Swap"
 msgstr "Intercambiar"
 
-#: lib/prefs/settings.js:103
+#: lib/prefs/settings.js:110
 msgid "Tabbed"
 msgstr "En pestañas"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:111
 msgid "Stacked"
 msgstr "Apilado"
 
-#: lib/prefs/settings.js:108
+#: lib/prefs/settings.js:115
 msgid "Always on Top mode for floating windows"
 msgstr ""
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:116
 #, fuzzy
 msgid "Makes floating windows appear above tiled windows"
 msgstr "Ventanas flotantes siempre encima de las ventanas en mosaico"
-
-#: lib/prefs/settings.js:115
-#, fuzzy
-msgid "Quarter tiling"
-msgstr "Mosaico en cuartos"
-
-#: lib/prefs/settings.js:116
-msgid ""
-"Places new windows in a clock-wise fashion. If disabled, new windows are "
-"placed under the focused window"
-msgstr ""
 
 #: lib/prefs/settings.js:124
 msgid "Non-tiling workspaces"
@@ -350,25 +348,21 @@ msgstr ""
 msgid "Reset"
 msgstr "Restablecer"
 
-#: lib/prefs/workspace.js:14
-msgid "Workspace"
-msgstr "Espacio de trabajo"
+#~ msgid "Workspace"
+#~ msgstr "Espacio de trabajo"
 
-#: lib/prefs/workspace.js:16
-msgid "Update Workspace Settings"
-msgstr "Actualizar ajustes del espacio de trabajo"
+#~ msgid "Update Workspace Settings"
+#~ msgstr "Actualizar ajustes del espacio de trabajo"
 
-#: lib/prefs/workspace.js:18
-msgid ""
-"Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter to "
-"accept"
-msgstr ""
-"Indica los índices de espacios de trabajo a omitir. Ej.: 0,1. Dejar vacío "
-"para desactivar. Pulsa Intro para aceptar"
+#~ msgid ""
+#~ "Provide workspace indices to skip. E.g. 0,1. Empty text to disable. Enter "
+#~ "to accept"
+#~ msgstr ""
+#~ "Indica los índices de espacios de trabajo a omitir. Ej.: 0,1. Dejar vacío "
+#~ "para desactivar. Pulsa Intro para aceptar"
 
-#: lib/prefs/workspace.js:22
-msgid "Skip Workspace Tiling"
-msgstr "Omitir mosaico en espacio de trabajo"
+#~ msgid "Skip Workspace Tiling"
+#~ msgstr "Omitir mosaico en espacio de trabajo"
 
 #, fuzzy
 #~ msgid "Show border around focused window"
