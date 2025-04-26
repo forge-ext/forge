@@ -55,7 +55,7 @@ build: clean metadata.json schemas compilemsgs metadata
 
 debug:
 	sed -i 's/export const production = true/export const production = false/' temp/lib/shared/settings.js
-	sed -i 's|1.*-alpha|4999|' temp/metadata.json
+	#sed -i 's|1.*-alpha|4999|' temp/metadata.json
 
 potfile: ./po/forge.pot
 
