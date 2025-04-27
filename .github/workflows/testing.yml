@@ -4,7 +4,9 @@
 #@ https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
 name: testing
-
+permissions:
+  contents: read
+  pull-requests: write
 on:
   push:
     branches: ["main"]
