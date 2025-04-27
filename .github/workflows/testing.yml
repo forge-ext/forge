@@ -21,13 +21,13 @@ on:
       - .git*
       - .husky/**
       - "*.md"
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Override git ref'
-        type: string
-        default: ''
-        required: false
+  # workflow_dispatch:
+  #   inputs:
+  #     ref:
+  #       description: 'Override git ref'
+  #       type: string
+  #       default: ''
+  #       required: false
 
 jobs:
   linting:
