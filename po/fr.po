@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 15:04+0100\n"
+"POT-Creation-Date: 2025-04-27 16:26-0700\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: Wedone <wedoneofficiel@outlook.fr>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -42,7 +42,7 @@ msgstr "Indice de focus flottant"
 msgid "Move Pointer with the Focus"
 msgstr "Déplacer le pointeur avec le Focus"
 
-#: lib/extension/indicator.js:94 lib/extension/window.js:70
+#: lib/extension/indicator.js:94 lib/extension/window.js:67
 msgid "Settings"
 msgstr "Paramètres"
 

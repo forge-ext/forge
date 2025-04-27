@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 15:04+0100\n"
+"POT-Creation-Date: 2025-04-27 16:26-0700\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -39,7 +39,7 @@ msgstr "Focushint bij zwevende vensters"
 msgid "Move Pointer with the Focus"
 msgstr ""
 
-#: lib/extension/indicator.js:94 lib/extension/window.js:70
+#: lib/extension/indicator.js:94 lib/extension/window.js:67
 msgid "Settings"
 msgstr "Voorkeuren"
 

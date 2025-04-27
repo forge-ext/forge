@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 15:04+0100\n"
+"POT-Creation-Date: 2025-04-27 16:26-0700\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -38,7 +38,7 @@ msgstr "Mostrar borde de sugerencia de enfoque"
 msgid "Move Pointer with the Focus"
 msgstr "Mover el puntero con el enfoque"
 
-#: lib/extension/indicator.js:94 lib/extension/window.js:70
+#: lib/extension/indicator.js:94 lib/extension/window.js:67
 msgid "Settings"
 msgstr "Configuración"
 
