@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: ["ubuntu-22.04", "ubuntu-latest"]
+        os: ["ubuntu-latest"]
         node_version: ["23.x", "latest"]
 
     runs-on: "${{ matrix.os }}"
