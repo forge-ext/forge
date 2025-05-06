@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 16:26-0700\n"
+"POT-Creation-Date: 2025-05-04 16:38-0400\n"
 "PO-Revision-Date: 2024-09-15 20:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -176,7 +176,7 @@ msgstr ""
 "Opzioni del tasto modificatore per affiancare il trascinamento della "
 "selezione"
 
-#: lib/prefs/keyboard.js:23
+#: lib/prefs/keyboard.js:24
 #, fuzzy
 msgid ""
 "Change the modifier key for tiling windows via drag-and-drop. Select 'None' "
@@ -185,33 +185,33 @@ msgstr ""
 "Modifica il tasto modificatore per <b>affiancare</b> le finestre tramite "
 "mouse o trascina e rilascia"
 
-#: lib/prefs/keyboard.js:26
+#: lib/prefs/keyboard.js:28
 #, fuzzy
 msgid "Modifier key"
 msgstr "Tasti di modifica"
 
-#: lib/prefs/keyboard.js:30
+#: lib/prefs/keyboard.js:32
 msgid "Super"
 msgstr "Super"
 
-#: lib/prefs/keyboard.js:31
+#: lib/prefs/keyboard.js:33
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: lib/prefs/keyboard.js:32
+#: lib/prefs/keyboard.js:34
 msgid "Alt"
 msgstr "Alt"
 
-#: lib/prefs/keyboard.js:33
+#: lib/prefs/keyboard.js:35
 msgid "None"
 msgstr "Nessuno"
 
-#: lib/prefs/keyboard.js:39
+#: lib/prefs/keyboard.js:41
 #, fuzzy
 msgid "Shortcuts"
 msgstr "Scorciatoie"
 
-#: lib/prefs/keyboard.js:40
+#: lib/prefs/keyboard.js:43
 msgid ""
 "Change the tiling shortcuts. To clear a shortcut clear the input field. To "
 "apply a shortcut press enter. <a href=\"https://github.com/forge-ext/forge/"
@@ -328,20 +328,20 @@ msgstr "Finestre flottanti sempre sopra le finestre affiancate"
 msgid "Non-tiling workspaces"
 msgstr ""
 
-#: lib/prefs/settings.js:126
+#: lib/prefs/settings.js:125
 msgid ""
 "Disables tiling on specified workspaces. Starts from 0, separated by commas"
 msgstr ""
 
-#: lib/prefs/settings.js:130
+#: lib/prefs/settings.js:128
 msgid "Example: 0,1,2"
 msgstr ""
 
-#: lib/prefs/settings.js:138
+#: lib/prefs/settings.js:136
 msgid "Logger"
 msgstr "Log"
 
-#: lib/prefs/settings.js:141
+#: lib/prefs/settings.js:139
 msgid "Logger Level"
 msgstr "Livello Log"
 

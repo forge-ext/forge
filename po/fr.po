@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-27 16:26-0700\n"
+"POT-Creation-Date: 2025-05-04 16:38-0400\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: Wedone <wedoneofficiel@outlook.fr>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -173,7 +173,7 @@ msgstr "Clavier"
 msgid "Drag-and-drop modifier key"
 msgstr "Options de touche modificateur pour le glisser-déposer en mosaïque"
 
-#: lib/prefs/keyboard.js:23
+#: lib/prefs/keyboard.js:24
 #, fuzzy
 msgid ""
 "Change the modifier key for tiling windows via drag-and-drop. Select 'None' "
@@ -182,33 +182,33 @@ msgstr ""
 "Modifier la touche de modification pour les fenêtres en <b>mosaïque</b> via "
 "la souris ou le glisser-déposer"
 
-#: lib/prefs/keyboard.js:26
+#: lib/prefs/keyboard.js:28
 #, fuzzy
 msgid "Modifier key"
 msgstr "Touches modificateurs"
 
-#: lib/prefs/keyboard.js:30
+#: lib/prefs/keyboard.js:32
 msgid "Super"
 msgstr "Super"
 
-#: lib/prefs/keyboard.js:31
+#: lib/prefs/keyboard.js:33
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: lib/prefs/keyboard.js:32
+#: lib/prefs/keyboard.js:34
 msgid "Alt"
 msgstr "Alt"
 
-#: lib/prefs/keyboard.js:33
+#: lib/prefs/keyboard.js:35
 msgid "None"
 msgstr "Aucune"
 
-#: lib/prefs/keyboard.js:39
+#: lib/prefs/keyboard.js:41
 #, fuzzy
 msgid "Shortcuts"
 msgstr "Raccourcis"
 
-#: lib/prefs/keyboard.js:40
+#: lib/prefs/keyboard.js:43
 msgid ""
 "Change the tiling shortcuts. To clear a shortcut clear the input field. To "
 "apply a shortcut press enter. <a href=\"https://github.com/forge-ext/forge/"
@@ -332,21 +332,21 @@ msgstr ""
 msgid "Non-tiling workspaces"
 msgstr ""
 
-#: lib/prefs/settings.js:126
+#: lib/prefs/settings.js:125
 msgid ""
 "Disables tiling on specified workspaces. Starts from 0, separated by commas"
 msgstr ""
 
-#: lib/prefs/settings.js:130
+#: lib/prefs/settings.js:128
 msgid "Example: 0,1,2"
 msgstr ""
 
-#: lib/prefs/settings.js:138
+#: lib/prefs/settings.js:136
 #, fuzzy
 msgid "Logger"
 msgstr "Niveau de journalisation"
 
-#: lib/prefs/settings.js:141
+#: lib/prefs/settings.js:139
 msgid "Logger Level"
 msgstr "Niveau de journalisation"
 
