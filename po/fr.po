@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 16:38-0400\n"
+"POT-Creation-Date: 2025-05-10 17:37+0100\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: Wedone <wedoneofficiel@outlook.fr>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -359,9 +359,17 @@ msgstr ""
 "ATTENTION : Ces paramètres, lorsqu'ils sont activés, sont bogués ou peuvent "
 "causer un plantage de l'environnement de bureau"
 
-#: lib/prefs/widgets.js:222
-msgid "Reset"
-msgstr "Réinitialiser"
+#: lib/prefs/widgets.js:219
+#, fuzzy
+msgid "Clear shortcut"
+msgstr "Raccourcis pour les conteneurs"
+
+#: lib/prefs/widgets.js:234
+msgid "Reset to default"
+msgstr ""
+
+#~ msgid "Reset"
+#~ msgstr "Réinitialiser"
 
 #~ msgid "Workspace"
 #~ msgstr "Espace de travail"
@@ -522,9 +530,6 @@ msgstr "Réinitialiser"
 
 #~ msgid "Workspace Shortcuts"
 #~ msgstr "Raccourcis de l'espace de travail"
-
-#~ msgid "Container Shortcuts"
-#~ msgstr "Raccourcis pour les conteneurs"
 
 #~ msgid "Focus Shortcuts"
 #~ msgstr "Raccourcis de focus"

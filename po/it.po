@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 16:38-0400\n"
+"POT-Creation-Date: 2025-05-10 17:37+0100\n"
 "PO-Revision-Date: 2024-09-15 20:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -353,9 +353,17 @@ msgstr ""
 "<b>ATTENZIONE</b>: l'attivazione di questa impostazione può portare a bug o "
 "causare il crash della shell"
 
-#: lib/prefs/widgets.js:222
-msgid "Reset"
-msgstr "Ripristina"
+#: lib/prefs/widgets.js:219
+#, fuzzy
+msgid "Clear shortcut"
+msgstr "Scorciatoie per i container"
+
+#: lib/prefs/widgets.js:234
+msgid "Reset to default"
+msgstr ""
+
+#~ msgid "Reset"
+#~ msgstr "Ripristina"
 
 #~ msgid "Workspace"
 #~ msgstr "Spazio di lavoro"
@@ -520,9 +528,6 @@ msgstr "Ripristina"
 
 #~ msgid "Workspace Shortcuts"
 #~ msgstr "Scorciatoie dell'area di lavoro"
-
-#~ msgid "Container Shortcuts"
-#~ msgstr "Scorciatoie per i container"
 
 #~ msgid "Focus Shortcuts"
 #~ msgstr "Scorciatoie per la messa a fuoco"
