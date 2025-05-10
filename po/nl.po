@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 16:38-0400\n"
+"POT-Creation-Date: 2025-05-10 17:37+0100\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -338,9 +338,17 @@ msgstr ""
 "<b>LET OP</b>: deze voorkeuren kunnen instabiliteit veroorzaken of zelfs de "
 "shell laten crashen!"
 
-#: lib/prefs/widgets.js:222
-msgid "Reset"
-msgstr "Standaardwaarden"
+#: lib/prefs/widgets.js:219
+#, fuzzy
+msgid "Clear shortcut"
+msgstr "Containersneltoetsen"
+
+#: lib/prefs/widgets.js:234
+msgid "Reset to default"
+msgstr ""
+
+#~ msgid "Reset"
+#~ msgstr "Standaardwaarden"
 
 #~ msgid "Workspace"
 #~ msgstr "Werkblad"
@@ -455,9 +463,6 @@ msgstr "Standaardwaarden"
 
 #~ msgid "Workspace Shortcuts"
 #~ msgstr "Werkbladsneltoetsen"
-
-#~ msgid "Container Shortcuts"
-#~ msgstr "Containersneltoetsen"
 
 #~ msgid "Focus Shortcuts"
 #~ msgstr "Focussneltoetsen"

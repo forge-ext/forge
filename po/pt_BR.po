@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-04 16:38-0400\n"
+"POT-Creation-Date: 2025-05-10 17:37+0100\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Juarez Rudsatz <juarezr@gmail.com>\n"
 "Language-Team: \n"
@@ -348,9 +348,17 @@ msgstr ""
 "CUIDADO: Estas configurações, quando ativadas, são problemáticas ou podem "
 "causar a queda da interface"
 
-#: lib/prefs/widgets.js:222
-msgid "Reset"
-msgstr "Restaurar"
+#: lib/prefs/widgets.js:219
+#, fuzzy
+msgid "Clear shortcut"
+msgstr "Atalhos de Container"
+
+#: lib/prefs/widgets.js:234
+msgid "Reset to default"
+msgstr ""
+
+#~ msgid "Reset"
+#~ msgstr "Restaurar"
 
 #~ msgid "Workspace"
 #~ msgstr "Área de Trabalho"
@@ -507,9 +515,6 @@ msgstr "Restaurar"
 
 #~ msgid "Workspace Shortcuts"
 #~ msgstr "Atalhos de Área de Trabalho"
-
-#~ msgid "Container Shortcuts"
-#~ msgstr "Atalhos de Container"
 
 #~ msgid "Focus Shortcuts"
 #~ msgstr "Atalhos de Foco"
