@@ -1,19 +1,19 @@
-name: Bug report
-description: File a bug report
-title: 'bug: short description'
-labels: bug
+name: Bug Report
+description: File a bug report. Add a description after "Bug:\ "
+title: "Bug: "
+labels: ["bug"]
 body:
   - type: textarea
     id: issue-description
     attributes:
-      label: (1) Issue/Bug Description/Video Capture/Screenshots
-      description: Please describe the issue/bug in detail. Screenshots or screen recordings can be very helpful
+      label: Issue/Bug Description/Video Capture/Screenshots
+      description: Please describe the issue/bug in detail. Screenshots, screen recordings, and Extension Manager logs can be very helpful.
     validations:
       required: true
   - type: textarea
     id: steps-to-reproduce
     attributes:
-      label: (2) Steps to reproduce
+      label: Steps to reproduce
       description: List the steps to get your problem to happen, if you know them.
       placeholder: "1. Do something\n2. Do something else\n3. Watch your computer go up in flames"
     validations:
@@ -21,17 +21,17 @@ body:
   - type: textarea
     id: distribution-and-linux-version
     attributes:
-      label: (3) Distribution and Linux version
-      description: cat /etc/os-release && uname -a
+      label: Distribution and Linux version
+      description: Run `cat /etc/os-release && uname -a` and paste the output here.
       placeholder: "NAME=\nPRETTY_NAME=\nID=\nBUILD_ID=\nANSI_COLOR=\nHOME_URL=\nDOCUMENTATION_URL=\nSUPPORT_URL=\nBUG_REPORT_URL=\nPRIVACY_POLICY_URL=\nLOGO=\nLinux ..."
       render: shell
     validations:
       required: true
   - type: textarea
-    id: journal-logs
+    id: journal-log
     attributes:
-      label: (4) Journal Logs from the last hour
-      description: journalctl --since='1 hour ago' --follow /usr/bin/gnome-shell
+      label: Journal Logs from the last hour
+      description: Run `journalctl --since='1 hour ago' --follow /usr/bin/gnome-shell` and paste the output here.
       placeholder: "X 00 00:00:00 x gnome-shell[0000]: x"
       render: shell
     validations:
@@ -40,7 +40,7 @@ body:
     id: gnome-shell-version
     attributes:
       label: GNOME Shell version
-      description: gnome-shell --version
+      description: Run `gnome-shell --version` and paste the output here.
       placeholder: GNOME Shell 00.0
     validations:
       required: true
@@ -56,7 +56,7 @@ body:
     id: other-extensions
     attributes:
       label: Other installed/enabled extensions
-      description: gnome-extensions list --enabled --details
+      description: Run `gnome-extensions list --enabled --details` and paste the output here.
       placeholder: "forge@jmmaranan.com\n	Name: Forge\n	Description: Tiling and window manager for GNOME\n\nPlease report bugs/issues on https://github.com/forge-ext/forge/issues\n	Path: /home/x/.local/share/gnome-shell/extensions/forge@jmmaranan.com\n	URL: https://github.com/forge-ext/forge\n	Version: 00\n	State: ENABLED"
       render: shell
     validations:
@@ -64,7 +64,7 @@ body:
   - type: textarea
     id: monitor-setup
     attributes:
-      label: (6) Monitor Setup
+      label: Monitor Setup
       description: Specifying the monitor/display setup helps a lot for tiling troubleshooting.
       placeholder: "Examples: 2 x 1080p, 4K, Primary(Horizontal), Secondary(Vertical)"
     validations:
@@ -73,7 +73,6 @@ body:
     id: other-notes
     attributes:
       label: Other Notes
-      description: Anything not covered or N/A
-      placeholder: n/a
+      description: Anything else you want to add.
     validations:
       required: false
