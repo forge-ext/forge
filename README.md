@@ -6,16 +6,16 @@ Forge is a GNOME Shell extension that provides tiling/window management **_AND_*
 
 ## Features
 
-- Tree-based tiling with vertical and horizontal split containers similar to i3-wm
+- Works on GNOME 3.36+ (feature-freeze) and 40+. X11 and Wayland
+- Tree-based tiling with vertical and horizontal split containers similar to i3-wm and sway-wm
 - Vim-like keybindings for navigation/swapping windows/moving windows in the containers
 - Drag and drop tiling
 - Support for floating windows, smart gaps and focus hint
 - Customizable shortcuts in extension preferences
 - Some support for multi-display
 - Tiling support per workspace
-- Update hint color scheme from Preferences
+- Update hint color scheme from preferences
 - Stacked tiling layout
-- Works on GNOME 3.36+ (feature-freeze) and 40. X11 and Wayland
 - Swap current window with the last active window
 - Auto Split or Quarter Tiling
 - Show/hide tab decoration via keybinding https://github.com/forge-ext/forge/issues/180
@@ -123,7 +123,7 @@ make test-x
 # Wayland - build from source and starts a wayland instance (no restart)
 make test-wayland
 
-# Formatting, when you do npm install, 
+# Formatting, when you do npm install,
 # husky gets installed should force prettier formatting during commit
 
 npm run format
@@ -132,11 +132,11 @@ npm run format
 ## Contributing
 
 - Please be nice, friendly and welcoming on discussions/tickets.
-- See existing [issues](https://github.com/forge-ext/forge/issues) or file a new ticket with title `bug: short description` if it doesn't exist.
+- See existing [issues](https://github.com/forge-ext/forge/issues) or file a new ticket with the bug report format if it doesn't exist.
 
 ## Credits
 
-Thank you to: 
+Thank you to:
 - Forge extension contributors
 - Michael Stapelberg/contributors for i3
 - System76/contributors for pop-shell

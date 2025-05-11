@@ -1,26 +1,26 @@
 name: Feature request
-description: Suggest an idea for this project
-title: 'feat: short description'
-labels: enhancement
+description: Suggest an idea for this project. Add a description after "Feat:\ "
+title: "Feat: "
+labels: ["enhancement"]
 body:
   - type: textarea
     id: issue-description
     attributes:
-      label: (1) Description
-      description: Please describe the issue/bug in detail. Screenshots or screen recordings can be very helpful
+      label: Description
+      description: Please describe the feature you're looking for.
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: (2) Alternatives I've considered
-      description: A clear and concise description of any alternative solutions or features you've considered.
+      label: Alternatives I've considered
+      description: A clear and concise description of any alternative solutions or features you've considered, should you have any.
     validations:
       required: false
   - type: textarea
     id: additional-context
     attributes:
-      label: (3) Design / Screenshots / Mockups
-      description: Any other context or screenshots about the feature request.
+      label: Design / Screenshots / Mockups
+      description: Any other context or screenshots about the feature request. Design concepts are appreciated.
     validations:
       required: false
