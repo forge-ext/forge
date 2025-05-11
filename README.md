@@ -132,7 +132,7 @@ npm run format
 ## Contributing
 
 - Please be nice, friendly and welcoming on discussions/tickets.
-- See existing [issues](https://github.com/forge-ext/forge/issues) or file a new ticket with the bug report format if it doesn't exist.
+- See existing [Issues](https://github.com/forge-ext/forge/issues), or create a new Issue with the "Bug report" format if it doesn't exist.
 
 ## Credits
 
