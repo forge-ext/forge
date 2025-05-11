@@ -1,5 +1,5 @@
 name: Bug Report
-description: File a bug report. Add a description after "Bug: "
+description: File a bug report. Add a description after "Bug:"
 title: "Bug: "
 labels: ["bug"]
 body:
