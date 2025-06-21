@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-21 22:41+0100\n"
+"POT-Creation-Date: 2025-06-21 22:57+0100\n"
 "PO-Revision-Date: 2024-09-15 20:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -342,7 +342,8 @@ msgid "Logger"
 msgstr "Log"
 
 #: lib/prefs/settings.js:139
-msgid "Logger Level"
+#, fuzzy
+msgid "Log level"
 msgstr "Livello Log"
 
 #: lib/prefs/widgets.js:43
