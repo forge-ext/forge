@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-21 22:57+0100\n"
+"POT-Creation-Date: 2025-06-21 23:12+0100\n"
 "PO-Revision-Date: 2024-09-15 20:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -354,12 +354,12 @@ msgstr ""
 "<b>ATTENZIONE</b>: l'attivazione di questa impostazione può portare a bug o "
 "causare il crash della shell"
 
-#: lib/prefs/widgets.js:223
+#: lib/prefs/widgets.js:222
 #, fuzzy
 msgid "Clear shortcut"
 msgstr "Scorciatoie per i container"
 
-#: lib/prefs/widgets.js:240
+#: lib/prefs/widgets.js:239
 msgid "Reset to default"
 msgstr ""
 
