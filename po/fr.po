@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-10 17:37+0100\n"
+"POT-Creation-Date: 2025-06-21 22:41+0100\n"
 "PO-Revision-Date: 2023-02-28 17:16-0500\n"
 "Last-Translator: Wedone <wedoneofficiel@outlook.fr>\n"
 "Language-Team: French - Canada <wroy@proton.me>\n"
@@ -359,12 +359,12 @@ msgstr ""
 "ATTENTION : Ces paramètres, lorsqu'ils sont activés, sont bogués ou peuvent "
 "causer un plantage de l'environnement de bureau"
 
-#: lib/prefs/widgets.js:219
+#: lib/prefs/widgets.js:223
 #, fuzzy
 msgid "Clear shortcut"
 msgstr "Raccourcis pour les conteneurs"
 
-#: lib/prefs/widgets.js:234
+#: lib/prefs/widgets.js:240
 msgid "Reset to default"
 msgstr ""
 
