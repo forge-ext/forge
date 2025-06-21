@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-10 17:37+0100\n"
+"POT-Creation-Date: 2025-06-21 22:41+0100\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -338,12 +338,12 @@ msgstr ""
 "<b>LET OP</b>: deze voorkeuren kunnen instabiliteit veroorzaken of zelfs de "
 "shell laten crashen!"
 
-#: lib/prefs/widgets.js:219
+#: lib/prefs/widgets.js:223
 #, fuzzy
 msgid "Clear shortcut"
 msgstr "Containersneltoetsen"
 
-#: lib/prefs/widgets.js:234
+#: lib/prefs/widgets.js:240
 msgid "Reset to default"
 msgstr ""
 
