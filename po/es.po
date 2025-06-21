@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-21 22:41+0100\n"
+"POT-Creation-Date: 2025-06-21 22:57+0100\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -333,7 +333,8 @@ msgid "Logger"
 msgstr "Registro"
 
 #: lib/prefs/settings.js:139
-msgid "Logger Level"
+#, fuzzy
+msgid "Log level"
 msgstr "Nivel de registro"
 
 #: lib/prefs/widgets.js:43
