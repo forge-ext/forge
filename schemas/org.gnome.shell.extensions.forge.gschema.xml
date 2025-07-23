@@ -37,7 +37,7 @@
         <key type="u" name="resize-amount">
             <default>15</default>
             <summary>
-                The size of the gap between windows in the workarea
+                The window resize increment/decrement in pixels
             </summary>
         </key>
 
