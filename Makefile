@@ -1,4 +1,4 @@
-UUID = "forge@jmmaranan.com"
+UUID = forge@jmmaranan.com
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
 
@@ -26,7 +26,9 @@ patchcss:
 
 metadata:
 	echo "export const developers = Object.entries([" > lib/prefs/metadata.js
-	git shortlog -sne || echo "" >> lib/prefs/metadata.js
+	if git rev-parse HEAD >/dev/null 2>&1; then \
+		git --no-pager shortlog -sne HEAD </dev/null >> lib/prefs/metadata.js; \
+	fi
 	awk -i inplace '!/dependabot|noreply/' lib/prefs/metadata.js
 	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' lib/prefs/metadata.js
 	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> lib/prefs/metadata.js
@@ -70,7 +72,7 @@ compilemsgs: potfile $(MSGSRC:.po=.mo)
 
 clean:
 	rm -f lib/prefs/metadata.js
-	rm "$(UUID).zip" || echo "Nothing to delete"
+	rm -f "$(UUID).zip"
 	rm -rf temp schemas/gschemas.compiled
 
 enable:

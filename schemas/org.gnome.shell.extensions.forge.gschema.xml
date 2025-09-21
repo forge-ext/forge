@@ -148,6 +148,26 @@
             <summary>Whether to show the tab decoration or not</summary>
         </key>
 
+        <key type="u" name="minimum-tiled-windows">
+            <default>3</default>
+            <summary>Minimum number of windows before tiling is enabled</summary>
+        </key>
+
+        <key type="u" name="ultrawide-monitor-width">
+            <default>5160</default>
+            <summary>Monitor width threshold for applying ultrawide window limits</summary>
+        </key>
+
+        <key type="u" name="ultrawide-max-window-width">
+            <default>1720</default>
+            <summary>Maximum width for windows on ultrawide monitors</summary>
+        </key>
+
+        <key type="u" name="ultrawide-max-window-height">
+            <default>1440</default>
+            <summary>Maximum height for windows on ultrawide monitors</summary>
+        </key>
+
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->
