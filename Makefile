@@ -111,7 +111,7 @@ test-shell:
 	  MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1 \
 		dbus-run-session -- gnome-shell --nested --wayland --wayland-display=wayland-forge
 
-# Usage: 
+# Usage:
 #   make test-shell-open &
 #   make test-shell-open CMD=gnome-text-editor
 #   make test-shell-open CMD=gnome-terminal ARGS='--app-id app.x'
