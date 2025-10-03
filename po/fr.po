@@ -164,6 +164,24 @@ msgstr "Taille de la bordure"
 msgid "Border color"
 msgstr "Couleur de la bordure"
 
+#: lib/prefs/floating.js:21
+#, fuzzy
+msgid "Add Window"
+msgstr "Fenêtre"
+
+#: lib/prefs/floating.js:34
+#, fuzzy
+msgid "Windows"
+msgstr "Fenêtre"
+
+#: lib/prefs/floating.js:64
+msgid "Floating Windows"
+msgstr ""
+
+#: lib/prefs/floating.js:65
+msgid "Windows that will not be tiled"
+msgstr ""
+
 #: lib/prefs/keyboard.js:19
 msgid "Keyboard"
 msgstr "Clavier"
@@ -367,6 +385,10 @@ msgstr "Raccourcis pour les conteneurs"
 
 #: lib/prefs/widgets.js:239
 msgid "Reset to default"
+msgstr ""
+
+#: lib/prefs/widgets.js:257
+msgid "Remove Item"
 msgstr ""
 
 #~ msgid "Reset"

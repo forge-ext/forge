@@ -147,6 +147,24 @@ msgstr "Kenarlık boyutu"
 msgid "Border color"
 msgstr "Kenarlık rengi"
 
+#: lib/prefs/floating.js:21
+#, fuzzy
+msgid "Add Window"
+msgstr "Döşenmiş pencere"
+
+#: lib/prefs/floating.js:34
+msgid "Windows"
+msgstr ""
+
+#: lib/prefs/floating.js:64
+#, fuzzy
+msgid "Floating Windows"
+msgstr "Yüzen pencere"
+
+#: lib/prefs/floating.js:65
+msgid "Windows that will not be tiled"
+msgstr ""
+
 #: lib/prefs/keyboard.js:19
 msgid "Keyboard"
 msgstr "Klavye"
@@ -324,3 +342,7 @@ msgstr "Kısayolu temizle"
 #: lib/prefs/widgets.js:239
 msgid "Reset to default"
 msgstr "Varsayılana sıfırla"
+
+#: lib/prefs/widgets.js:257
+msgid "Remove Item"
+msgstr ""
