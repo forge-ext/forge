@@ -148,6 +148,11 @@
             <summary>Whether to show the tab decoration or not</summary>
         </key>
 
+        <key type="u" name="window-overrides-reload-trigger">
+            <default>0</default>
+            <summary>Timestamp to trigger window overrides reload</summary>
+        </key>
+
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->
