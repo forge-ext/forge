@@ -6,11 +6,6 @@ MSGSRC = $(wildcard po/*.po)
 
 all: build install enable restart
 
-# When developing locally
-test-x: disable uninstall build debug install enable restart log
-
-test-wayland: clean build debug install test-shell log
-
 dev: build debug install
 
 prod: build install enable restart log
@@ -77,7 +72,7 @@ enable:
 	gnome-extensions enable "$(UUID)"
 
 disable:
-	gnome-extensions disable "$(UUID)"
+	gnome-extensions disable "$(UUID)" || echo "Nothing to disable"
 
 install:
 	mkdir -p $(INSTALL_PATH)
@@ -85,6 +80,8 @@ install:
 
 uninstall:
 	rm -rf $(INSTALL_PATH)
+
+purge:
 	rm -rf .config/forge
 
 # When releasing
@@ -99,31 +96,47 @@ restart:
 		gnome-session-quit --logout; \
 	fi
 
-log:
-	journalctl -o cat -n 0 -f "$$(which gnome-shell)" | grep -v -E 'warning|g_variant'
+horizontal-line:
+	@printf '%.s─' $$(seq 1 $$(tput cols)) && echo || true # Prints a line of dashes #
+
+log: GNOME_SHELL_CMD=$(shell command -v gnome-shell)
+log: horizontal-line
+	@echo 'HINT: type [Ctrl]+[C] to return to the prompt.'
+	journalctl --user --follow --output=short-iso --lines=10 --since='10 seconds ago' --grep 'warning|g_variant' "$(GNOME_SHELL_CMD)"
 
 journal:
 	journalctl -b 0 -r --since "1 hour ago"
 
-test-shell:
+test-nested: horizontal-line
 	env GNOME_SHELL_SLOWDOWN_FACTOR=2 \
 		MUTTER_DEBUG_DUMMY_MODE_SPECS=1500x1000 \
-	  MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1 \
+		MUTTER_DEBUG_DUMMY_MONITOR_SCALES=1 \
+		GDK_BACKEND=wayland \
+		WAYLAND_DISPLAY=wayland-forge \
 		dbus-run-session -- gnome-shell --nested --wayland --wayland-display=wayland-forge
 
 # Usage: 
-#   make test-shell-open &
-#   make test-shell-open CMD=gnome-text-editor
-#   make test-shell-open CMD=gnome-terminal ARGS='--app-id app.x'
-#   make test-shell-open CMD=firefox ARGS='--safe-mode' ENVVARS='MOZ_DBUS_REMOTE=1 MOZ_ENABLE_WAYLAND=1'
+#   make test-open &
+#   make test-open CMD=gnome-text-editor
+#   make test-open CMD=gnome-terminal ARGS='--app-id app.x'
+#   make test-open CMD=gnome-gnome-www-browser
+#   make test-open CMD=firefox ARGS='--safe-mode' ENVVARS='MOZ_DBUS_REMOTE=1 MOZ_ENABLE_WAYLAND=1'
 #
-test-shell-open: CMD=nautilus
-test-shell-open:
+test-open: CMD=gnome-text-editor
+test-open:
 	GDK_BACKEND=wayland WAYLAND_DISPLAY=wayland-forge $(ENVVARS) $(CMD) $(ARGS)&
+
+# When developing locally
+test: disable uninstall clean build debug install enable test-nested
+
+# X-Window testing need gnome-shell restart
+test-x: disable uninstall purge build debug install enable restart log
 
 format:
 	npm run format
 
-# npx prettier --list-different "./**/*.{js,jsx,ts,tsx,json}"
 lint:
 	npm test
+
+check:
+	npx prettier --check "./**/*.{js,jsx,ts,tsx,json}"
