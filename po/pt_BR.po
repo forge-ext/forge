@@ -58,7 +58,7 @@ msgstr "Modo empilhado"
 
 #: lib/prefs/appearance.js:36
 msgid "Floating window"
-msgstr ""
+msgstr "Janela flutuante"
 
 #: lib/prefs/appearance.js:38
 #, fuzzy
@@ -75,41 +75,41 @@ msgstr "Espaçamento"
 
 #: lib/prefs/appearance.js:49
 msgid "Change the gap size between windows"
-msgstr ""
+msgstr "Mudar o espaçamento entre janelas"
 
 #: lib/prefs/appearance.js:52
 msgid "Gap size"
-msgstr ""
+msgstr "Tamanho do espaço"
 
 #: lib/prefs/appearance.js:58
 #, fuzzy
 msgid "Gap size multiplier"
-msgstr "Tamanho do Espaçamento"
+msgstr "Multiplicador do Espaçamento"
+
+#: lib/prefs/appearance.js:63
+msgid "Disable gaps for single window"
+msgstr "Desabilitar espaço com janela única"
 
 #: lib/prefs/appearance.js:64
-msgid "Disable gaps for single window"
-msgstr ""
-
-#: lib/prefs/appearance.js:65
 msgid "Disables window gaps when only a single window is present"
-msgstr ""
+msgstr "Desabilitar espaçamento quando há uma única janela presente"
+
+#: lib/prefs/appearance.js:71
+msgid "Style"
+msgstr "Estilo"
 
 #: lib/prefs/appearance.js:72
-msgid "Style"
-msgstr ""
-
-#: lib/prefs/appearance.js:73
 msgid "Change how the shell looks"
-msgstr ""
+msgstr "Mudar como a aparência do shell"
 
 #: lib/prefs/appearance.js:76
 #, fuzzy
 msgid "Preview hint"
-msgstr "Habilitar Ver Dica"
+msgstr "Habilitar Dicas"
 
 #: lib/prefs/appearance.js:77
 msgid "Shows where the window will be tiled when you let go of it"
-msgstr ""
+msgstr "Mostrar em que bloco a janela será disposta"
 
 #: lib/prefs/appearance.js:83
 #, fuzzy
@@ -252,7 +252,7 @@ msgstr "Divisão Automática (Metade)"
 
 #: lib/prefs/settings.js:76
 msgid "Places new windows in a clock-wise fashion"
-msgstr ""
+msgstr "Rearranja janelas novas em modo horário"
 
 #: lib/prefs/settings.js:82
 #, fuzzy
@@ -283,7 +283,7 @@ msgstr "Modo em Abas"
 
 #: lib/prefs/settings.js:97
 msgid "Exit tabbed tiling mode when only a single tab remains"
-msgstr ""
+msgstr "Sair do modo de abas quando restar apenas uma janela"
 
 #: lib/prefs/settings.js:103
 #, fuzzy
@@ -294,11 +294,11 @@ msgstr "Arranjo de Arrastar/Soltar Padrão"
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:109
-msgid "Swap"
-msgstr ""
-
 #: lib/prefs/settings.js:110
+msgid "Swap"
+msgstr "Trocar"
+
+#: lib/prefs/settings.js:111
 msgid "Tabbed"
 msgstr "Em Abas"
 
@@ -308,7 +308,7 @@ msgstr "Empilhado"
 
 #: lib/prefs/settings.js:115
 msgid "Always on Top mode for floating windows"
-msgstr ""
+msgstr "Modo sempre no topo par janelas flutuantes"
 
 #: lib/prefs/settings.js:116
 #, fuzzy
@@ -328,7 +328,7 @@ msgstr ""
 
 #: lib/prefs/settings.js:128
 msgid "Example: 0,1,2"
-msgstr ""
+msgstr "Examplo: 0,1,2"
 
 #: lib/prefs/settings.js:136
 #, fuzzy
@@ -491,9 +491,6 @@ msgstr ""
 
 #~ msgid "Home"
 #~ msgstr "Início"
-
-#~ msgid "Window"
-#~ msgstr "Janela"
 
 #, fuzzy
 #~ msgid "Borders"
