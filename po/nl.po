@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-21 23:12+0100\n"
+"POT-Creation-Date: 2025-10-03 18:24-0300\n"
 "PO-Revision-Date: 2021-12-29 19:04+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: \n"
@@ -14,11 +14,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.0\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:54
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:55
 msgid "Tiling"
 msgstr ""
 
-#: lib/extension/indicator.js:66 lib/prefs/settings.js:23
+#: lib/extension/indicator.js:66 lib/prefs/settings.js:24
 msgid "Forge"
 msgstr ""
 
@@ -43,115 +43,115 @@ msgstr ""
 msgid "Settings"
 msgstr "Voorkeuren"
 
-#: lib/prefs/appearance.js:30
+#: lib/prefs/appearance.js:29
 #, fuzzy
 msgid "Tiled window"
 msgstr "Tabbladen"
 
-#: lib/prefs/appearance.js:32
+#: lib/prefs/appearance.js:31
 #, fuzzy
 msgid "Tabbed window"
 msgstr "Tabbladen"
 
-#: lib/prefs/appearance.js:34
+#: lib/prefs/appearance.js:33
 #, fuzzy
 msgid "Stacked window"
 msgstr "Gestapeld"
 
-#: lib/prefs/appearance.js:36
+#: lib/prefs/appearance.js:35
 msgid "Floating window"
 msgstr ""
 
-#: lib/prefs/appearance.js:38
+#: lib/prefs/appearance.js:37
 #, fuzzy
 msgid "Split direction hint"
 msgstr "Hint bij veranderen van richting"
 
-#: lib/prefs/appearance.js:43
+#: lib/prefs/appearance.js:42
 msgid "Appearance"
 msgstr "Vormgeving"
 
-#: lib/prefs/appearance.js:48
+#: lib/prefs/appearance.js:47
 msgid "Gaps"
 msgstr "Ruimtes"
 
-#: lib/prefs/appearance.js:49
+#: lib/prefs/appearance.js:48
 msgid "Change the gap size between windows"
 msgstr ""
 
-#: lib/prefs/appearance.js:52
+#: lib/prefs/appearance.js:51
 msgid "Gap size"
 msgstr ""
 
-#: lib/prefs/appearance.js:58
+#: lib/prefs/appearance.js:57
 #, fuzzy
 msgid "Gap size multiplier"
 msgstr "Ruimte tussen vensters"
 
-#: lib/prefs/appearance.js:64
+#: lib/prefs/appearance.js:63
 msgid "Disable gaps for single window"
 msgstr ""
 
-#: lib/prefs/appearance.js:65
+#: lib/prefs/appearance.js:64
 msgid "Disables window gaps when only a single window is present"
 msgstr ""
 
-#: lib/prefs/appearance.js:72
+#: lib/prefs/appearance.js:71
 msgid "Style"
 msgstr ""
 
-#: lib/prefs/appearance.js:73
+#: lib/prefs/appearance.js:72
 msgid "Change how the shell looks"
 msgstr ""
 
-#: lib/prefs/appearance.js:76
+#: lib/prefs/appearance.js:75
 msgid "Preview hint"
 msgstr ""
 
-#: lib/prefs/appearance.js:77
+#: lib/prefs/appearance.js:76
 msgid "Shows where the window will be tiled when you let go of it"
 msgstr ""
 
-#: lib/prefs/appearance.js:83
+#: lib/prefs/appearance.js:82
 msgid "Border around focused window"
 msgstr ""
 
-#: lib/prefs/appearance.js:84
+#: lib/prefs/appearance.js:83
 msgid "Display a colored border around the focused window"
 msgstr ""
 
-#: lib/prefs/appearance.js:89
+#: lib/prefs/appearance.js:88
 #, fuzzy
 msgid "Window split hint border"
 msgstr "Focushint bij zwevende vensters"
 
-#: lib/prefs/appearance.js:90
+#: lib/prefs/appearance.js:89
 msgid "Show split direction border on focused window"
 msgstr ""
 
-#: lib/prefs/appearance.js:95
+#: lib/prefs/appearance.js:94
 #, fuzzy
 msgid "Forge in quick settings"
 msgstr "Forge-paneelvoorkeuren"
 
-#: lib/prefs/appearance.js:96
+#: lib/prefs/appearance.js:95
 msgid "Toggles the Forge tile in quick settings"
 msgstr ""
 
-#: lib/prefs/appearance.js:104
+#: lib/prefs/appearance.js:103
 msgid "Color"
 msgstr "Kleur"
 
-#: lib/prefs/appearance.js:105
+#: lib/prefs/appearance.js:104
 msgid "Changes the focused window's border and preview hint colors"
 msgstr ""
 
-#: lib/prefs/appearance.js:127
+#: lib/prefs/appearance.js:126
 #, fuzzy
 msgid "Border size"
 msgstr "Randbreedte"
 
-#: lib/prefs/appearance.js:199
+#: lib/prefs/appearance.js:198
 #, fuzzy
 msgid "Border color"
 msgstr "Randkleur"
@@ -225,125 +225,125 @@ msgid ""
 "wiki/Keyboard-Shortcuts\">Syntax examples</a>"
 msgstr ""
 
-#: lib/prefs/settings.js:33
+#: lib/prefs/settings.js:34
 msgid "translator-credits"
 msgstr ""
 
-#: lib/prefs/settings.js:41
+#: lib/prefs/settings.js:42
 msgid "About"
 msgstr "Over"
 
-#: lib/prefs/settings.js:56
+#: lib/prefs/settings.js:57
 msgid "Behavior"
 msgstr ""
 
-#: lib/prefs/settings.js:57
+#: lib/prefs/settings.js:58
 msgid "Change how the tiling behaves"
 msgstr ""
 
-#: lib/prefs/settings.js:61
+#: lib/prefs/settings.js:62
 #, fuzzy
 msgid "Focus on Hover"
 msgstr "Focushint bij zwevende vensters"
 
-#: lib/prefs/settings.js:62
+#: lib/prefs/settings.js:63
 msgid "Window focus follows the pointer"
 msgstr ""
 
-#: lib/prefs/settings.js:68
+#: lib/prefs/settings.js:69
 msgid "Move pointer with focused window"
 msgstr ""
 
-#: lib/prefs/settings.js:69
+#: lib/prefs/settings.js:70
 msgid "Moves the pointer when focusing or swapping via keyboard"
 msgstr ""
 
-#: lib/prefs/settings.js:75
+#: lib/prefs/settings.js:76
 #, fuzzy
 msgid "Quarter tiling"
 msgstr "Tabbladen"
 
-#: lib/prefs/settings.js:76
+#: lib/prefs/settings.js:77
 msgid "Places new windows in a clock-wise fashion"
 msgstr ""
 
-#: lib/prefs/settings.js:82
+#: lib/prefs/settings.js:83
 #, fuzzy
 msgid "Stacked tiling"
 msgstr "Gestapeld"
 
-#: lib/prefs/settings.js:83
+#: lib/prefs/settings.js:84
 #, fuzzy
 msgid "Stacks windows on top of each other while still tiling them"
 msgstr "Gestapelde tegelmodus (stapel vensters in de tegelmodus)"
 
-#: lib/prefs/settings.js:89
+#: lib/prefs/settings.js:90
 #, fuzzy
 msgid "Tabbed tiling"
 msgstr "Tabbladen"
 
-#: lib/prefs/settings.js:90
+#: lib/prefs/settings.js:91
 #, fuzzy
 msgid "Groups windows as tabs"
 msgstr "Tabblad-tegelmodus (groepeer getegelde vensters als tabbladen)"
 
-#: lib/prefs/settings.js:96
+#: lib/prefs/settings.js:97
 #, fuzzy
 msgid "Auto exit tabbed tiling"
 msgstr "Tabbladen"
 
-#: lib/prefs/settings.js:97
+#: lib/prefs/settings.js:98
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr ""
 
-#: lib/prefs/settings.js:103
+#: lib/prefs/settings.js:104
 #, fuzzy
 msgid "Drag-and-drop behavior"
 msgstr "Standaardindeling: gecentreerd slepen-en-neerzetten"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:105
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:110
 msgid "Swap"
 msgstr ""
 
-#: lib/prefs/settings.js:110
+#: lib/prefs/settings.js:111
 msgid "Tabbed"
 msgstr "Tabbladen"
 
-#: lib/prefs/settings.js:111
+#: lib/prefs/settings.js:112
 msgid "Stacked"
 msgstr "Gestapeld"
 
-#: lib/prefs/settings.js:115
+#: lib/prefs/settings.js:116
 msgid "Always on Top mode for floating windows"
 msgstr ""
 
-#: lib/prefs/settings.js:116
+#: lib/prefs/settings.js:117
 msgid "Makes floating windows appear above tiled windows"
 msgstr ""
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:125
 msgid "Non-tiling workspaces"
 msgstr ""
 
-#: lib/prefs/settings.js:125
+#: lib/prefs/settings.js:126
 msgid ""
 "Disables tiling on specified workspaces. Starts from 0, separated by commas"
 msgstr ""
 
-#: lib/prefs/settings.js:128
+#: lib/prefs/settings.js:129
 msgid "Example: 0,1,2"
 msgstr ""
 
-#: lib/prefs/settings.js:136
+#: lib/prefs/settings.js:137
 #, fuzzy
 msgid "Logger"
 msgstr "Logniveau"
 
-#: lib/prefs/settings.js:139
+#: lib/prefs/settings.js:140
 #, fuzzy
 msgid "Log level"
 msgstr "Logniveau"
@@ -461,9 +461,6 @@ msgstr ""
 
 #~ msgid "Home"
 #~ msgstr "Home"
-
-#~ msgid "Window"
-#~ msgstr "Venster"
 
 #, fuzzy
 #~ msgid "Borders"

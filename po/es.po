@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-21 23:12+0100\n"
+"POT-Creation-Date: 2025-10-03 18:24-0300\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -14,11 +14,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/extension/indicator.js:47 lib/prefs/settings.js:54
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:55
 msgid "Tiling"
 msgstr "Mosaico"
 
-#: lib/extension/indicator.js:66 lib/prefs/settings.js:23
+#: lib/extension/indicator.js:66 lib/prefs/settings.js:24
 msgid "Forge"
 msgstr "Forge"
 
@@ -42,119 +42,119 @@ msgstr "Mover el puntero con el enfoque"
 msgid "Settings"
 msgstr "Configuración"
 
-#: lib/prefs/appearance.js:30
+#: lib/prefs/appearance.js:29
 #, fuzzy
 msgid "Tiled window"
 msgstr "Modo de mosaico en pestañas"
 
-#: lib/prefs/appearance.js:32
+#: lib/prefs/appearance.js:31
 #, fuzzy
 msgid "Tabbed window"
 msgstr "Modo de mosaico en pestañas"
 
-#: lib/prefs/appearance.js:34
+#: lib/prefs/appearance.js:33
 #, fuzzy
 msgid "Stacked window"
 msgstr "Modo de mosaico apilado"
 
-#: lib/prefs/appearance.js:36
+#: lib/prefs/appearance.js:35
 msgid "Floating window"
 msgstr ""
 
-#: lib/prefs/appearance.js:38
+#: lib/prefs/appearance.js:37
 #, fuzzy
 msgid "Split direction hint"
 msgstr "Sugerencia de dirección dividida"
 
-#: lib/prefs/appearance.js:43
+#: lib/prefs/appearance.js:42
 msgid "Appearance"
 msgstr "Apariencia"
 
-#: lib/prefs/appearance.js:48
+#: lib/prefs/appearance.js:47
 msgid "Gaps"
 msgstr ""
 
-#: lib/prefs/appearance.js:49
+#: lib/prefs/appearance.js:48
 msgid "Change the gap size between windows"
 msgstr ""
 
-#: lib/prefs/appearance.js:52
+#: lib/prefs/appearance.js:51
 msgid "Gap size"
 msgstr ""
 
-#: lib/prefs/appearance.js:58
+#: lib/prefs/appearance.js:57
 #, fuzzy
 msgid "Gap size multiplier"
 msgstr "Espacios"
 
-#: lib/prefs/appearance.js:64
+#: lib/prefs/appearance.js:63
 msgid "Disable gaps for single window"
 msgstr ""
 
-#: lib/prefs/appearance.js:65
+#: lib/prefs/appearance.js:64
 msgid "Disables window gaps when only a single window is present"
 msgstr ""
 
-#: lib/prefs/appearance.js:72
+#: lib/prefs/appearance.js:71
 msgid "Style"
 msgstr ""
 
-#: lib/prefs/appearance.js:73
+#: lib/prefs/appearance.js:72
 msgid "Change how the shell looks"
 msgstr ""
 
-#: lib/prefs/appearance.js:76
+#: lib/prefs/appearance.js:75
 #, fuzzy
 msgid "Preview hint"
 msgstr "Alternar vista previa de sugerencia"
 
-#: lib/prefs/appearance.js:77
+#: lib/prefs/appearance.js:76
 msgid "Shows where the window will be tiled when you let go of it"
 msgstr ""
 
-#: lib/prefs/appearance.js:83
+#: lib/prefs/appearance.js:82
 #, fuzzy
 msgid "Border around focused window"
 msgstr "Mostrar borde de dirección de división en la ventana enfocada"
 
-#: lib/prefs/appearance.js:84
+#: lib/prefs/appearance.js:83
 msgid "Display a colored border around the focused window"
 msgstr "Mostrar un borde de color alrededor de la ventana enfocada"
 
-#: lib/prefs/appearance.js:89
+#: lib/prefs/appearance.js:88
 #, fuzzy
 msgid "Window split hint border"
 msgstr "Mostrar borde de sugerencia de división de ventana"
 
-#: lib/prefs/appearance.js:90
+#: lib/prefs/appearance.js:89
 msgid "Show split direction border on focused window"
 msgstr "Mostrar borde de dirección de división en la ventana enfocada"
 
-#: lib/prefs/appearance.js:95
+#: lib/prefs/appearance.js:94
 #, fuzzy
 msgid "Forge in quick settings"
 msgstr "Mostrar ajustes rápidos de mosaico"
 
-#: lib/prefs/appearance.js:96
+#: lib/prefs/appearance.js:95
 #, fuzzy
 msgid "Toggles the Forge tile in quick settings"
 msgstr "Alternar la visualización de Forge en los ajustes rápidos"
 
-#: lib/prefs/appearance.js:104
+#: lib/prefs/appearance.js:103
 msgid "Color"
 msgstr "Color"
 
-#: lib/prefs/appearance.js:105
+#: lib/prefs/appearance.js:104
 #, fuzzy
 msgid "Changes the focused window's border and preview hint colors"
 msgstr "Mostrar borde de dirección de división en la ventana enfocada"
 
-#: lib/prefs/appearance.js:127
+#: lib/prefs/appearance.js:126
 #, fuzzy
 msgid "Border size"
 msgstr "Tamaño del borde"
 
-#: lib/prefs/appearance.js:199
+#: lib/prefs/appearance.js:198
 #, fuzzy
 msgid "Border color"
 msgstr "Tamaño del borde"
@@ -228,129 +228,129 @@ msgid ""
 "wiki/Keyboard-Shortcuts\">Syntax examples</a>"
 msgstr ""
 
-#: lib/prefs/settings.js:33
+#: lib/prefs/settings.js:34
 msgid "translator-credits"
 msgstr "Créditos del traductor/a"
 
-#: lib/prefs/settings.js:41
+#: lib/prefs/settings.js:42
 msgid "About"
 msgstr "Acerca de"
 
-#: lib/prefs/settings.js:56
+#: lib/prefs/settings.js:57
 #, fuzzy
 msgid "Behavior"
 msgstr "Comportamiento"
 
-#: lib/prefs/settings.js:57
+#: lib/prefs/settings.js:58
 msgid "Change how the tiling behaves"
 msgstr ""
 
-#: lib/prefs/settings.js:61
+#: lib/prefs/settings.js:62
 #, fuzzy
 msgid "Focus on Hover"
 msgstr "Mostrar borde de sugerencia de enfoque"
 
-#: lib/prefs/settings.js:62
+#: lib/prefs/settings.js:63
 msgid "Window focus follows the pointer"
 msgstr ""
 
-#: lib/prefs/settings.js:68
+#: lib/prefs/settings.js:69
 #, fuzzy
 msgid "Move pointer with focused window"
 msgstr "Mover el puntero con el enfoque"
 
-#: lib/prefs/settings.js:69
+#: lib/prefs/settings.js:70
 #, fuzzy
 msgid "Moves the pointer when focusing or swapping via keyboard"
 msgstr "Mover el puntero al enfocar o intercambiar mediante el teclado"
 
-#: lib/prefs/settings.js:75
+#: lib/prefs/settings.js:76
 #, fuzzy
 msgid "Quarter tiling"
 msgstr "Mosaico en cuartos"
 
-#: lib/prefs/settings.js:76
+#: lib/prefs/settings.js:77
 msgid "Places new windows in a clock-wise fashion"
 msgstr ""
 
-#: lib/prefs/settings.js:82
+#: lib/prefs/settings.js:83
 #, fuzzy
 msgid "Stacked tiling"
 msgstr "Modo de mosaico apilado"
 
-#: lib/prefs/settings.js:83
+#: lib/prefs/settings.js:84
 #, fuzzy
 msgid "Stacks windows on top of each other while still tiling them"
 msgstr ""
 "Apila las ventanas unas sobre otras mientras siguen organizadas en mosaico"
 
-#: lib/prefs/settings.js:89
+#: lib/prefs/settings.js:90
 #, fuzzy
 msgid "Tabbed tiling"
 msgstr "Modo de mosaico en pestañas"
 
-#: lib/prefs/settings.js:90
+#: lib/prefs/settings.js:91
 #, fuzzy
 msgid "Groups windows as tabs"
 msgstr "Agrupa las ventanas en mosaico como pestañas"
 
-#: lib/prefs/settings.js:96
+#: lib/prefs/settings.js:97
 #, fuzzy
 msgid "Auto exit tabbed tiling"
 msgstr "Salir automáticamente del modo de mosaico en pestañas"
 
-#: lib/prefs/settings.js:97
+#: lib/prefs/settings.js:98
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr "Salir del modo de mosaico en pestañas cuando solo queda una pestaña"
 
-#: lib/prefs/settings.js:103
+#: lib/prefs/settings.js:104
 #, fuzzy
 msgid "Drag-and-drop behavior"
 msgstr "Distribución central predeterminada de arrastrar y soltar"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:105
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:109
+#: lib/prefs/settings.js:110
 msgid "Swap"
 msgstr "Intercambiar"
 
-#: lib/prefs/settings.js:110
+#: lib/prefs/settings.js:111
 msgid "Tabbed"
 msgstr "En pestañas"
 
-#: lib/prefs/settings.js:111
+#: lib/prefs/settings.js:112
 msgid "Stacked"
 msgstr "Apilado"
 
-#: lib/prefs/settings.js:115
+#: lib/prefs/settings.js:116
 msgid "Always on Top mode for floating windows"
 msgstr ""
 
-#: lib/prefs/settings.js:116
+#: lib/prefs/settings.js:117
 #, fuzzy
 msgid "Makes floating windows appear above tiled windows"
 msgstr "Ventanas flotantes siempre encima de las ventanas en mosaico"
 
-#: lib/prefs/settings.js:124
+#: lib/prefs/settings.js:125
 msgid "Non-tiling workspaces"
 msgstr ""
 
-#: lib/prefs/settings.js:125
+#: lib/prefs/settings.js:126
 msgid ""
 "Disables tiling on specified workspaces. Starts from 0, separated by commas"
 msgstr ""
 
-#: lib/prefs/settings.js:128
+#: lib/prefs/settings.js:129
 msgid "Example: 0,1,2"
 msgstr ""
 
-#: lib/prefs/settings.js:136
+#: lib/prefs/settings.js:137
 msgid "Logger"
 msgstr "Registro"
 
-#: lib/prefs/settings.js:139
+#: lib/prefs/settings.js:140
 #, fuzzy
 msgid "Log level"
 msgstr "Nivel de registro"
@@ -401,9 +401,6 @@ msgstr "Borrar Item"
 
 #~ msgid "Legend"
 #~ msgstr "Leyenda"
-
-#~ msgid "Windows  key"
-#~ msgstr "Tecla de Windows"
 
 #~ msgid "Control key"
 #~ msgstr "Tecla Control"
