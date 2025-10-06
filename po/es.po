@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-03 18:24-0300\n"
+"POT-Creation-Date: 2025-10-06 13:15-0300\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Jose Maranan <jmmaranan@gmail.com>\n"
 "Language-Team: \n"
@@ -159,21 +159,16 @@ msgstr "Tamaño del borde"
 msgid "Border color"
 msgstr "Tamaño del borde"
 
-#: lib/prefs/floating.js:21
-#, fuzzy
-msgid "Add Window"
-msgstr "Adicionar Ventana"
-
-#: lib/prefs/floating.js:34
+#: lib/prefs/floating.js:18
 #, fuzzy
 msgid "Windows"
 msgstr "Ventanas"
 
-#: lib/prefs/floating.js:64
+#: lib/prefs/floating.js:27
 msgid "Floating Windows"
 msgstr "Ventanas flotantes"
 
-#: lib/prefs/floating.js:65
+#: lib/prefs/floating.js:28
 msgid "Windows that will not be tiled"
 msgstr "Ventans que no van ser organizadas en mosaico"
 
@@ -355,7 +350,7 @@ msgstr "Registro"
 msgid "Log level"
 msgstr "Nivel de registro"
 
-#: lib/prefs/widgets.js:43
+#: lib/prefs/widgets.js:44
 msgid ""
 "<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to "
 "crash"
@@ -363,18 +358,22 @@ msgstr ""
 "<b>PRECAUCIÓN</b>: Activar esta configuración puede provocar errores o hacer "
 "que el entorno se bloquee"
 
-#: lib/prefs/widgets.js:222
+#: lib/prefs/widgets.js:223
 #, fuzzy
 msgid "Clear shortcut"
 msgstr "Actualizar atajos"
 
-#: lib/prefs/widgets.js:239
+#: lib/prefs/widgets.js:240
 msgid "Reset to default"
 msgstr ""
 
-#: lib/prefs/widgets.js:257
+#: lib/prefs/widgets.js:258
 msgid "Remove Item"
 msgstr "Borrar Item"
+
+#, fuzzy
+#~ msgid "Add Window"
+#~ msgstr "Adicionar Ventana"
 
 #~ msgid "Reset"
 #~ msgstr "Restablecer"
