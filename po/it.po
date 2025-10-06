@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-03 18:24-0300\n"
+"POT-Creation-Date: 2025-10-06 13:15-0300\n"
 "PO-Revision-Date: 2024-09-15 20:16+0100\n"
 "Last-Translator: Albano Battistella <albanobattistella@gmail.com>\n"
 "Language-Team: Italian <albanobattistella@gmail.com>\n"
@@ -165,21 +165,16 @@ msgstr "Dimensione del bordo"
 msgid "Border color"
 msgstr "Couleur de la bordure"
 
-#: lib/prefs/floating.js:21
-#, fuzzy
-msgid "Add Window"
-msgstr "Finestra"
-
-#: lib/prefs/floating.js:34
+#: lib/prefs/floating.js:18
 #, fuzzy
 msgid "Windows"
 msgstr "Finestri"
 
-#: lib/prefs/floating.js:64
+#: lib/prefs/floating.js:27
 msgid "Floating Windows"
 msgstr "Finestre flottanti"
 
-#: lib/prefs/floating.js:65
+#: lib/prefs/floating.js:28
 msgid "Windows that will not be tiled"
 msgstr ""
 
@@ -364,7 +359,7 @@ msgstr "Log"
 msgid "Log level"
 msgstr "Livello Log"
 
-#: lib/prefs/widgets.js:43
+#: lib/prefs/widgets.js:44
 msgid ""
 "<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to "
 "crash"
@@ -372,18 +367,22 @@ msgstr ""
 "<b>ATTENZIONE</b>: l'attivazione di questa impostazione può portare a bug o "
 "causare il crash della shell"
 
-#: lib/prefs/widgets.js:222
+#: lib/prefs/widgets.js:223
 #, fuzzy
 msgid "Clear shortcut"
 msgstr "Scorciatoie per i container"
 
-#: lib/prefs/widgets.js:239
+#: lib/prefs/widgets.js:240
 msgid "Reset to default"
 msgstr ""
 
-#: lib/prefs/widgets.js:257
+#: lib/prefs/widgets.js:258
 msgid "Remove Item"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Add Window"
+#~ msgstr "Finestra"
 
 #~ msgid "Reset"
 #~ msgstr "Ripristina"
