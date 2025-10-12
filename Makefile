@@ -1,4 +1,4 @@
-UUID = "forge@jmmaranan.com"
+UUID = forge@jmmaranan.com
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
 
@@ -26,7 +26,9 @@ patchcss:
 
 metadata:
 	echo "export const developers = Object.entries([" > lib/prefs/metadata.js
-	git shortlog -sne || echo "" >> lib/prefs/metadata.js
+	if git rev-parse HEAD >/dev/null 2>&1; then \
+		git --no-pager shortlog -sne HEAD </dev/null >> lib/prefs/metadata.js; \
+	fi
 	awk -i inplace '!/dependabot|noreply/' lib/prefs/metadata.js
 	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' lib/prefs/metadata.js
 	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> lib/prefs/metadata.js
@@ -70,15 +72,22 @@ compilemsgs: potfile $(MSGSRC:.po=.mo)
 
 clean:
 	rm -f lib/prefs/metadata.js
-	rm "$(UUID).zip" || echo "Nothing to delete"
+	rm -f "$(UUID).zip"
 	rm -rf temp schemas/gschemas.compiled
 
 enable:
-	gnome-extensions enable "$(UUID)"
+	if command -v gnome-extensions >/dev/null 2>&1; then \
+		gnome-extensions enable "$(UUID)" || echo "Extension "$(UUID)" could not be enabled"; \
+	else \
+		echo "gnome-extensions CLI is not available; skipping enable"; \
+	fi
 
 disable:
-	gnome-extensions disable "$(UUID)"
-
+	if command -v gnome-extensions >/dev/null 2>&1; then \
+		gnome-extensions disable "$(UUID)" || echo "Extension "$(UUID)" is not installed"; \
+	else \
+		echo "gnome-extensions CLI is not available; skipping disable"; \
+	fi
 install:
 	mkdir -p $(INSTALL_PATH)
 	cp -r temp/* $(INSTALL_PATH)
@@ -93,14 +102,24 @@ dist: build
 	zip -qr "../${UUID}.zip" .
 
 restart:
-	if bash -c 'xprop -root &> /dev/null'; then \
-		killall -HUP gnome-shell; \
-	else \
+	if command -v xprop >/dev/null 2>&1 && bash -c 'xprop -root &> /dev/null'; then \
+		if command -v killall >/dev/null 2>&1; then \
+			killall -HUP gnome-shell || echo "Failed to signal gnome-shell"; \
+		else \
+			echo "killall not available; skipping gnome-shell restart"; \
+		fi; \
+	elif command -v gnome-session-quit >/dev/null 2>&1; then \
 		gnome-session-quit --logout; \
+	else \
+		echo "No GNOME restart command available; skipping restart"; \
 	fi
 
 log:
-	journalctl -o cat -n 0 -f "$$(which gnome-shell)" | grep -v -E 'warning|g_variant'
+	if command -v gnome-shell >/dev/null 2>&1; then \
+		journalctl -o cat -n 0 -f "$$(command -v gnome-shell)" | grep -v -E 'warning|g_variant'; \
+	else \
+		echo "gnome-shell is not available; skipping journal log"; \
+	fi
 
 journal:
 	journalctl -b 0 -r --since "1 hour ago"
