@@ -1,8 +1,16 @@
-UUID = "forge@jmmaranan.com"
+UUID = forge@jmmaranan.com
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
 
-.PHONY: all clean install schemas uninstall enable disable log debug patchcss
+# Shell configuration - explicitly use bash for portability across distros
+SHELL := /bin/bash
+.SHELLFLAGS := -eo pipefail -c
+
+# Tool detection (using bash-specific &> redirect)
+HAS_XGETTEXT := $(shell command -v xgettext &>/dev/null && echo yes || echo no)
+HAS_MSGFMT := $(shell command -v msgfmt &>/dev/null && echo yes || echo no)
+
+.PHONY: all clean install schemas uninstall enable disable log debug patchcss check-deps
 
 all: build install enable restart
 
@@ -19,12 +27,24 @@ schemas/gschemas.compiled: schemas/*.gschema.xml
 patchcss:
 	# TODO: add the script to update css tag when delivering theme.js
 
+
 metadata:
-	echo "export const developers = Object.entries([" > lib/prefs/metadata.js
-	git shortlog -sne || echo "" >> lib/prefs/metadata.js
-	awk -i inplace '!/dependabot|noreply/' lib/prefs/metadata.js
-	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' lib/prefs/metadata.js
-	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> lib/prefs/metadata.js
+	@echo "Generating developer metadata..."
+	@echo "export const developers = [" > lib/prefs/metadata.js
+	@git shortlog -sne --all \
+	| (grep -vE 'dependabot|noreply' || true) \
+	| awk '{ \
+		email = $$NF; \
+		if (email in seen) next; \
+		seen[email] = 1; \
+		name = ""; \
+		for (i = 2; i < NF; i++) { \
+			name = name (i == 2 ? "" : " ") $$i; \
+		} \
+		gsub(/"/, "\\\"", name); \
+		printf "  \"%s %s\",\n", name, email; \
+	}' >> lib/prefs/metadata.js
+	@echo "];" >> lib/prefs/metadata.js
 
 build: clean metadata.json schemas compilemsgs metadata
 	rm -rf temp
@@ -39,10 +59,12 @@ build: clean metadata.json schemas compilemsgs metadata
 	cp LICENSE temp
 	mkdir -p temp/locale
 	for msg in $(MSGSRC:.po=.mo); do \
-		msgf=temp/locale/`basename $$msg .mo`; \
-		mkdir -p $$msgf; \
-		mkdir -p $$msgf/LC_MESSAGES; \
-		cp $$msg $$msgf/LC_MESSAGES/forge.mo; \
+		if [ -f $$msg ]; then \
+			msgf=temp/locale/`basename $$msg .mo`; \
+			mkdir -p $$msgf; \
+			mkdir -p $$msgf/LC_MESSAGES; \
+			cp $$msg $$msgf/LC_MESSAGES/forge.mo; \
+		fi; \
 	done;
 
 ./po/%.mo: ./po/%.po
@@ -54,22 +76,52 @@ debug:
 
 potfile: ./po/forge.pot
 
+# Conditional potfile generation based on xgettext availability
+ifeq ($(HAS_XGETTEXT),yes)
 ./po/forge.pot: metadata ./prefs.js ./extension.js ./lib/**/*.js
 	mkdir -p po
 	xgettext --from-code=UTF-8 --output=po/forge.pot --package-name "Forge" ./prefs.js ./extension.js ./lib/**/*.js
+else
+./po/forge.pot:
+	@echo "WARNING: xgettext not found, skipping pot file generation"
+	@echo "Install gettext package for translation support"
+	@mkdir -p po
+	@touch ./po/forge.pot
+endif
 
+# Conditional compilation of messages based on msgfmt availability
+ifeq ($(HAS_MSGFMT),yes)
 compilemsgs: potfile $(MSGSRC:.po=.mo)
 	for msg in $(MSGSRC); do \
 		msgmerge -U $$msg ./po/forge.pot; \
 	done;
+else
+compilemsgs:
+	@echo "WARNING: msgfmt not found, skipping translation compilation"
+	@echo "Install gettext package for translation support"
+endif
 
 clean:
-	rm -f lib/prefs/metadata.js
-	rm "$(UUID).zip" || echo "Nothing to delete"
+	rm -f lib/prefs/metadata.js "$(UUID).zip"
 	rm -rf temp schemas/gschemas.compiled
 
+check-deps:
+	@echo "Checking build dependencies..."
+	@command -v glib-compile-schemas &>/dev/null || (echo "ERROR: glib-compile-schemas not found. Install glib2-devel or libglib2.0-dev" && exit 1)
+	@command -v git &>/dev/null || (echo "ERROR: git not found" && exit 1)
+	@command -v zip &>/dev/null || echo "WARNING: zip not found, 'make dist' will fail"
+	@command -v xgettext &>/dev/null || echo "WARNING: xgettext not found, translations will be skipped"
+	@command -v msgfmt &>/dev/null || echo "WARNING: msgfmt not found, translations will be skipped"
+	@echo "All required dependencies found!"
+
 enable:
-	gnome-extensions enable "$(UUID)"
+	@if gnome-extensions list | grep -q "^$(UUID)$$"; then \
+		gnome-extensions enable "$(UUID)" && echo "Extension enabled successfully"; \
+	else \
+		echo "WARNING: Extension not detected by GNOME Shell yet"; \
+		echo "On Wayland: Log out and log back in, then run 'make enable'"; \
+		echo "On X11: Press Alt+F2, type 'r', press Enter, then run 'make enable'"; \
+	fi
 
 disable:
 	gnome-extensions disable "$(UUID)" || echo "Nothing to disable"
@@ -115,7 +167,7 @@ test-nested: horizontal-line
 		WAYLAND_DISPLAY=wayland-forge \
 		dbus-run-session -- gnome-shell --nested --wayland --wayland-display=wayland-forge
 
-# Usage: 
+# Usage:
 #   make test-open &
 #   make test-open CMD=gnome-text-editor
 #   make test-open CMD=gnome-terminal ARGS='--app-id app.x'
