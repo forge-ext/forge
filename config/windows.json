@@ -48,6 +48,32 @@
     {
       "wmClass": "update-manager",
       "mode": "float"
+    },
+    {
+      "wmClass": "Anki",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "anki",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "evolution",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "org.gnome.Evolution",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "steam",
+      "wmTitle": "Steam",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "steam",
+      "wmTitle": "!Steam",
+      "mode": "float"
     }
   ]
 }

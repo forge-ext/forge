@@ -19,6 +19,7 @@
 // Gnome imports
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import { Extension, gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+import Gio from "gi://Gio";
 
 // Shared state
 import { Logger } from "./lib/shared/logger.js";
@@ -36,6 +37,16 @@ export default class ForgeExtension extends Extension {
     this.kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
     Logger.init(this.settings);
     Logger.info("enable");
+
+    // Disable GNOME edge-tiling when Forge is active (#461)
+    try {
+      this._mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
+      this._originalEdgeTiling = this._mutterSettings.get_boolean('edge-tiling');
+      this._mutterSettings.set_boolean('edge-tiling', false);
+      Logger.info("Disabled GNOME edge-tiling");
+    } catch (e) {
+      Logger.warn(`Failed to disable edge-tiling: ${e}`);
+    }
 
     this.configMgr = new ConfigManager(this);
     this.theme = new ExtensionThemeManager(this);
@@ -58,6 +69,18 @@ export default class ForgeExtension extends Extension {
     if (this._sessionId) {
       Main.sessionMode.disconnect(this._sessionId);
       this._sessionId = null;
+    }
+
+    // Restore GNOME edge-tiling setting (#461)
+    if (this._mutterSettings && this._originalEdgeTiling !== undefined) {
+      try {
+        this._mutterSettings.set_boolean('edge-tiling', this._originalEdgeTiling);
+        Logger.info("Restored GNOME edge-tiling setting");
+      } catch (e) {
+        Logger.warn(`Failed to restore edge-tiling: ${e}`);
+      }
+      this._mutterSettings = null;
+      this._originalEdgeTiling = undefined;
     }
 
     this._removeIndicator();
