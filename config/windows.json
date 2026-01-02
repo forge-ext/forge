@@ -74,6 +74,22 @@
       "wmClass": "steam",
       "wmTitle": "!Steam",
       "mode": "float"
+    },
+    {
+      "wmClass": "Google-chrome",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "google-chrome",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "chromium",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "Chromium-browser",
+      "mode": "tile"
     }
   ]
 }
