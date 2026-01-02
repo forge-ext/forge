@@ -38,14 +38,21 @@ export default class ForgeExtension extends Extension {
     Logger.init(this.settings);
     Logger.info("enable");
 
-    // Disable GNOME edge-tiling when Forge is active (#461)
+    // Disable GNOME features that conflict with Forge (#461, #288)
     try {
       this._mutterSettings = new Gio.Settings({ schema_id: 'org.gnome.mutter' });
+
+      // Disable edge-tiling (#461)
       this._originalEdgeTiling = this._mutterSettings.get_boolean('edge-tiling');
       this._mutterSettings.set_boolean('edge-tiling', false);
       Logger.info("Disabled GNOME edge-tiling");
+
+      // Disable auto-maximize (#288)
+      this._originalAutoMaximize = this._mutterSettings.get_boolean('auto-maximize');
+      this._mutterSettings.set_boolean('auto-maximize', false);
+      Logger.info("Disabled GNOME auto-maximize");
     } catch (e) {
-      Logger.warn(`Failed to disable edge-tiling: ${e}`);
+      Logger.warn(`Failed to disable GNOME conflicting features: ${e}`);
     }
 
     this.configMgr = new ConfigManager(this);
@@ -71,16 +78,23 @@ export default class ForgeExtension extends Extension {
       this._sessionId = null;
     }
 
-    // Restore GNOME edge-tiling setting (#461)
-    if (this._mutterSettings && this._originalEdgeTiling !== undefined) {
+    // Restore GNOME settings (#461, #288)
+    if (this._mutterSettings) {
       try {
-        this._mutterSettings.set_boolean('edge-tiling', this._originalEdgeTiling);
-        Logger.info("Restored GNOME edge-tiling setting");
+        if (this._originalEdgeTiling !== undefined) {
+          this._mutterSettings.set_boolean('edge-tiling', this._originalEdgeTiling);
+          Logger.info("Restored GNOME edge-tiling setting");
+        }
+        if (this._originalAutoMaximize !== undefined) {
+          this._mutterSettings.set_boolean('auto-maximize', this._originalAutoMaximize);
+          Logger.info("Restored GNOME auto-maximize setting");
+        }
       } catch (e) {
-        Logger.warn(`Failed to restore edge-tiling: ${e}`);
+        Logger.warn(`Failed to restore GNOME settings: ${e}`);
       }
       this._mutterSettings = null;
       this._originalEdgeTiling = undefined;
+      this._originalAutoMaximize = undefined;
     }
 
     this._removeIndicator();
