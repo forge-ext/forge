@@ -1,6 +1,6 @@
 // Helper factory for creating mock windows
 
-import { Window, Rectangle } from '../gnome/Meta.js';
+import { Window, Rectangle, WindowType } from '../gnome/Meta.js';
 
 export function createMockWindow(overrides = {}) {
   return new Window({
@@ -8,6 +8,9 @@ export function createMockWindow(overrides = {}) {
     rect: new Rectangle(overrides.rect || {}),
     wm_class: overrides.wm_class || 'TestApp',
     title: overrides.title || 'Test Window',
+    window_type: overrides.window_type !== undefined ? overrides.window_type : WindowType.NORMAL,
+    transient_for: overrides.transient_for || null,
+    allows_resize: overrides.allows_resize !== undefined ? overrides.allows_resize : true,
     ...overrides
   });
 }

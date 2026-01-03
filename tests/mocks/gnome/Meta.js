@@ -46,6 +46,9 @@ export class Window {
     this.maximized_vertically = params.maximized_vertically || false;
     this.minimized = params.minimized || false;
     this.fullscreen = params.fullscreen || false;
+    this._window_type = params.window_type !== undefined ? params.window_type : WindowType.NORMAL;
+    this._transient_for = params.transient_for || null;
+    this._allows_resize = params.allows_resize !== undefined ? params.allows_resize : true;
     this._signals = {};
     this._workspace = params.workspace || null;
     this._monitor = params.monitor || 0;
@@ -164,6 +167,38 @@ export class Window {
       this._signals[signal].forEach(s => s.callback(...args));
     }
   }
+
+  get_window_type() {
+    return this._window_type;
+  }
+
+  get_transient_for() {
+    return this._transient_for;
+  }
+
+  allows_resize() {
+    return this._allows_resize;
+  }
+
+  get_id() {
+    return this.id;
+  }
+
+  get_compositor_private() {
+    // Return a mock actor object
+    if (!this._actor) {
+      this._actor = {
+        border: null,
+        splitBorder: null,
+        actorSignals: null
+      };
+    }
+    return this._actor;
+  }
+
+  set_unmaximize_flags(flags) {
+    // GNOME 49+ method
+  }
 }
 
 export class Workspace {
@@ -239,6 +274,25 @@ export class Display {
 }
 
 // Enums and constants
+export const WindowType = {
+  NORMAL: 0,
+  DESKTOP: 1,
+  DOCK: 2,
+  DIALOG: 3,
+  MODAL_DIALOG: 4,
+  TOOLBAR: 5,
+  MENU: 6,
+  UTILITY: 7,
+  SPLASHSCREEN: 8,
+  DROPDOWN_MENU: 9,
+  POPUP_MENU: 10,
+  TOOLTIP: 11,
+  NOTIFICATION: 12,
+  COMBO: 13,
+  DND: 14,
+  OVERRIDE_OTHER: 15
+};
+
 export const DisplayCorner = {
   TOPLEFT: 0,
   TOPRIGHT: 1,
@@ -306,6 +360,7 @@ export default {
   Window,
   Workspace,
   Display,
+  WindowType,
   DisplayCorner,
   DisplayDirection,
   MotionDirection,
