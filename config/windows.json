@@ -90,6 +90,14 @@
     {
       "wmClass": "Chromium-browser",
       "mode": "tile"
+    },
+    {
+      "wmClass": "Brave-browser",
+      "mode": "tile"
+    },
+    {
+      "wmClass": "brave-browser",
+      "mode": "tile"
     }
   ]
 }
