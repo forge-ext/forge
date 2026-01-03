@@ -4,7 +4,11 @@
   "description": "Forge - Tiling Extension for GNOME",
   "main": "extension.js",
   "scripts": {
-    "test": "prettier --list-different \"./**/*.{js,jsx,ts,tsx,json}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "lint": "prettier --list-different \"./**/*.{js,jsx,ts,tsx,json}\"",
     "prepare": "husky install",
     "format": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
   },
