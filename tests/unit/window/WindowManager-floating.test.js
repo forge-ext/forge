@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { WindowManager, WINDOW_MODES } from '../../../lib/extension/window.js';
 import { Tree, NODE_TYPES } from '../../../lib/extension/tree.js';
 import { createMockWindow } from '../../mocks/helpers/mockWindow.js';
-import { WindowType } from '../../mocks/gnome/Meta.js';
+import { WindowType, Workspace } from '../../mocks/gnome/Meta.js';
 
 /**
  * WindowManager floating mode tests
@@ -22,18 +22,17 @@ describe('WindowManager - Floating Mode', () => {
       get_n_monitors: vi.fn(() => 1),
       get_focus_window: vi.fn(() => null),
       get_current_monitor: vi.fn(() => 0),
-      get_current_time: vi.fn(() => 12345)
+      get_current_time: vi.fn(() => 12345),
+      get_monitor_geometry: vi.fn(() => ({ x: 0, y: 0, width: 1920, height: 1080 }))
     };
+
+    const workspace0 = new Workspace({ index: 0 });
 
     global.workspace_manager = {
       get_n_workspaces: vi.fn(() => 1),
-      get_workspace_by_index: vi.fn((i) => ({
-        index: () => i
-      })),
+      get_workspace_by_index: vi.fn((i) => i === 0 ? workspace0 : new Workspace({ index: i })),
       get_active_workspace_index: vi.fn(() => 0),
-      get_active_workspace: vi.fn(() => ({
-        index: () => 0
-      }))
+      get_active_workspace: vi.fn(() => workspace0)
     };
 
     global.display.get_workspace_manager.mockReturnValue(global.workspace_manager);

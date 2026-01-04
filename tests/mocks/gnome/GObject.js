@@ -30,7 +30,7 @@ export const SignalFlags = {
   NO_HOOKS: 1 << 6
 };
 
-export class Object {
+class GObjectBase {
   constructor() {
     this._signals = {};
   }
@@ -48,6 +48,8 @@ export class Object {
   }
 }
 
+export { GObjectBase as Object };
+
 // Mock for GObject.registerClass
 export function registerClass(klass) {
   // In real GObject, this would register the class with the type system
@@ -60,6 +62,6 @@ export default {
   signal_disconnect,
   signal_emit,
   SignalFlags,
-  Object,
+  Object: GObjectBase,
   registerClass
 };

@@ -17,6 +17,26 @@ vi.mock('resource:///org/gnome/shell/misc/config.js', () => ({
   PACKAGE_VERSION: '47.0'
 }));
 
+vi.mock('resource:///org/gnome/shell/extensions/extension.js', () => ({
+  Extension: class Extension {
+    constructor() {
+      this.metadata = {};
+      this.dir = { get_path: () => '/mock/path' };
+    }
+    getSettings() { return GnomeMocks.Gio.Settings.new(); }
+  },
+  gettext: (str) => str
+}));
+
+vi.mock('resource:///org/gnome/shell/ui/main.js', () => ({
+  overview: {
+    visible: false,
+    connect: (signal, callback) => Math.random(),
+    disconnect: (id) => {},
+    _signals: {}
+  }
+}));
+
 // Mock Extension class for extension.js
 global.Extension = class Extension {
   constructor() {
@@ -24,4 +44,29 @@ global.Extension = class Extension {
     this.dir = { get_path: () => '/mock/path' };
   }
   getSettings() { return GnomeMocks.Gio.Settings.new(); }
+};
+
+// Mock global.window_group for GNOME Shell
+global.window_group = {
+  _children: [],
+  contains: function(child) {
+    return this._children.includes(child);
+  },
+  add_child: function(child) {
+    if (!this._children.includes(child)) {
+      this._children.push(child);
+    }
+  },
+  remove_child: function(child) {
+    const index = this._children.indexOf(child);
+    if (index !== -1) {
+      this._children.splice(index, 1);
+    }
+  }
+};
+
+// Mock global.stage for GNOME Shell
+global.stage = {
+  get_width: () => 1920,
+  get_height: () => 1080
 };

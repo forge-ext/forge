@@ -1,4 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
+// Mock production mode to false for testing
+vi.mock('../../../lib/shared/settings.js', () => ({
+  production: false
+}));
+
 import { Logger } from '../../../lib/shared/logger.js';
 
 describe('Logger', () => {
@@ -330,12 +336,12 @@ describe('Logger', () => {
 
   describe('without initialization', () => {
     it('should not log when settings is not initialized', () => {
-      // Create a new Logger instance without init
-      const UninitLogger = class extends Logger {};
+      // Re-initialize Logger with null settings
+      Logger.init(null);
 
-      UninitLogger.fatal('test');
-      UninitLogger.error('test');
-      UninitLogger.warn('test');
+      Logger.fatal('test');
+      Logger.error('test');
+      Logger.warn('test');
 
       // Should not throw, just not log
       expect(logSpy).not.toHaveBeenCalled();

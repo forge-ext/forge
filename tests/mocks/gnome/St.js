@@ -38,6 +38,16 @@ export class Widget {
     // Mock destroy
   }
 
+  set_size(width, height) {
+    this.width = width;
+    this.height = height;
+  }
+
+  set_position(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
   connect(signal, callback) {
     if (!this._signals[signal]) this._signals[signal] = [];
     const id = Math.random();
@@ -108,10 +118,50 @@ export class Button extends Widget {
   }
 }
 
+export class ThemeContext {
+  static get_for_stage(stage) {
+    return new ThemeContext();
+  }
+
+  get_theme() {
+    return {
+      load_stylesheet: () => {},
+      unload_stylesheet: () => {}
+    };
+  }
+
+  get scale_factor() {
+    return 1;
+  }
+}
+
+export class Icon extends Widget {
+  constructor(params = {}) {
+    super(params);
+    this.gicon = params.gicon || null;
+    this.icon_name = params.icon_name || '';
+    this.icon_size = params.icon_size || 16;
+  }
+
+  set_gicon(gicon) {
+    this.gicon = gicon;
+  }
+
+  set_icon_name(name) {
+    this.icon_name = name;
+  }
+
+  set_icon_size(size) {
+    this.icon_size = size;
+  }
+}
+
 export default {
   Widget,
   Bin,
   BoxLayout,
   Label,
-  Button
+  Button,
+  ThemeContext,
+  Icon
 };

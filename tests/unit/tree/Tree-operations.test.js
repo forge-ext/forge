@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import St from 'gi://St';
 import { Tree, Node, NODE_TYPES, LAYOUT_TYPES, ORIENTATION_TYPES } from '../../../lib/extension/tree.js';
 import { WINDOW_MODES } from '../../../lib/extension/window.js';
 import { createMockWindow } from '../../mocks/helpers/mockWindow.js';

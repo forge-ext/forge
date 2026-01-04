@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Node, NODE_TYPES, LAYOUT_TYPES } from '../../../lib/extension/tree.js';
 import { WINDOW_MODES } from '../../../lib/extension/window.js';
+import St from 'gi://St';
 
 describe('Node', () => {
   describe('Constructor and Basic Properties', () => {
@@ -58,7 +59,7 @@ describe('Node', () => {
     });
 
     it('should correctly identify CON type', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
 
       expect(node.isCon()).toBe(true);
       expect(node.isRoot()).toBe(false);
@@ -74,7 +75,7 @@ describe('Node', () => {
     });
 
     it('should check type by name', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
 
       expect(node.isType(NODE_TYPES.CON)).toBe(true);
       expect(node.isType(NODE_TYPES.ROOT)).toBe(false);
@@ -116,7 +117,7 @@ describe('Node', () => {
 
   describe('Layout Checking Methods', () => {
     it('should check horizontal split layout', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.layout = LAYOUT_TYPES.HSPLIT;
 
       expect(node.isHSplit()).toBe(true);
@@ -125,7 +126,7 @@ describe('Node', () => {
     });
 
     it('should check vertical split layout', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.layout = LAYOUT_TYPES.VSPLIT;
 
       expect(node.isVSplit()).toBe(true);
@@ -133,7 +134,7 @@ describe('Node', () => {
     });
 
     it('should check stacked layout', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.layout = LAYOUT_TYPES.STACKED;
 
       expect(node.isStacked()).toBe(true);
@@ -141,7 +142,7 @@ describe('Node', () => {
     });
 
     it('should check tabbed layout', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.layout = LAYOUT_TYPES.TABBED;
 
       expect(node.isTabbed()).toBe(true);
@@ -149,7 +150,7 @@ describe('Node', () => {
     });
 
     it('should check layout by name', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.layout = LAYOUT_TYPES.HSPLIT;
 
       expect(node.isLayout(LAYOUT_TYPES.HSPLIT)).toBe(true);
@@ -162,8 +163,8 @@ describe('Node', () => {
 
     beforeEach(() => {
       parent = new Node(NODE_TYPES.ROOT, 'parent');
-      child1 = new Node(NODE_TYPES.CON, 'child1');
-      child2 = new Node(NODE_TYPES.CON, 'child2');
+      child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      child2 = new Node(NODE_TYPES.CON, new St.Bin());
     });
 
     it('should add child to empty parent', () => {
@@ -220,9 +221,9 @@ describe('Node', () => {
 
     beforeEach(() => {
       parent = new Node(NODE_TYPES.ROOT, 'parent');
-      child1 = new Node(NODE_TYPES.CON, 'child1');
-      child2 = new Node(NODE_TYPES.CON, 'child2');
-      child3 = new Node(NODE_TYPES.CON, 'child3');
+      child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      child2 = new Node(NODE_TYPES.CON, new St.Bin());
+      child3 = new Node(NODE_TYPES.CON, new St.Bin());
 
       parent.appendChild(child1);
       parent.appendChild(child2);
@@ -263,7 +264,7 @@ describe('Node', () => {
 
     it('should handle removing only child', () => {
       const singleParent = new Node(NODE_TYPES.ROOT, 'single');
-      const onlyChild = new Node(NODE_TYPES.CON, 'only');
+      const onlyChild = new Node(NODE_TYPES.CON, new St.Bin());
       singleParent.appendChild(onlyChild);
 
       singleParent.removeChild(onlyChild);
@@ -279,9 +280,9 @@ describe('Node', () => {
 
     beforeEach(() => {
       parent = new Node(NODE_TYPES.ROOT, 'parent');
-      child1 = new Node(NODE_TYPES.CON, 'child1');
-      child2 = new Node(NODE_TYPES.CON, 'child2');
-      newChild = new Node(NODE_TYPES.CON, 'new');
+      child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      child2 = new Node(NODE_TYPES.CON, new St.Bin());
+      newChild = new Node(NODE_TYPES.CON, new St.Bin());
 
       parent.appendChild(child1);
       parent.appendChild(child2);
@@ -328,7 +329,7 @@ describe('Node', () => {
 
     it('should return null if childNode parent is not this', () => {
       const otherParent = new Node(NODE_TYPES.ROOT, 'other');
-      const otherChild = new Node(NODE_TYPES.CON, 'other-child');
+      const otherChild = new Node(NODE_TYPES.CON, new St.Bin());
       otherParent.appendChild(otherChild);
 
       const result = parent.insertBefore(newChild, otherChild);
@@ -352,9 +353,9 @@ describe('Node', () => {
 
     beforeEach(() => {
       parent = new Node(NODE_TYPES.ROOT, 'parent');
-      child1 = new Node(NODE_TYPES.CON, 'child1');
-      child2 = new Node(NODE_TYPES.CON, 'child2');
-      child3 = new Node(NODE_TYPES.CON, 'child3');
+      child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      child2 = new Node(NODE_TYPES.CON, new St.Bin());
+      child3 = new Node(NODE_TYPES.CON, new St.Bin());
 
       parent.appendChild(child1);
       parent.appendChild(child2);
@@ -398,7 +399,7 @@ describe('Node', () => {
       });
 
       it('should return null when no parent', () => {
-        const orphan = new Node(NODE_TYPES.CON, 'orphan');
+        const orphan = new Node(NODE_TYPES.CON, new St.Bin());
 
         expect(orphan.nextSibling).toBeNull();
         expect(orphan.previousSibling).toBeNull();
@@ -413,7 +414,7 @@ describe('Node', () => {
       });
 
       it('should return -1 when no parent', () => {
-        const orphan = new Node(NODE_TYPES.CON, 'orphan');
+        const orphan = new Node(NODE_TYPES.CON, new St.Bin());
 
         expect(orphan.index).toBe(-1);
       });
@@ -427,7 +428,7 @@ describe('Node', () => {
       it('should return correct level for nested nodes', () => {
         expect(child1.level).toBe(1);
 
-        const grandchild = new Node(NODE_TYPES.CON, 'grandchild');
+        const grandchild = new Node(NODE_TYPES.CON, new St.Bin());
         child1.appendChild(grandchild);
 
         expect(grandchild.level).toBe(2);
@@ -440,8 +441,8 @@ describe('Node', () => {
 
     beforeEach(() => {
       root = new Node(NODE_TYPES.ROOT, 'root');
-      child = new Node(NODE_TYPES.CON, 'child');
-      grandchild = new Node(NODE_TYPES.CON, 'grandchild');
+      child = new Node(NODE_TYPES.CON, new St.Bin());
+      grandchild = new Node(NODE_TYPES.CON, new St.Bin());
 
       root.appendChild(child);
       child.appendChild(grandchild);
@@ -456,7 +457,7 @@ describe('Node', () => {
     });
 
     it('should return false for unrelated node', () => {
-      const other = new Node(NODE_TYPES.CON, 'other');
+      const other = new Node(NODE_TYPES.CON, new St.Bin());
 
       expect(root.contains(other)).toBe(false);
     });
@@ -471,9 +472,9 @@ describe('Node', () => {
 
     beforeEach(() => {
       root = new Node(NODE_TYPES.ROOT, 'root');
-      child1 = new Node(NODE_TYPES.CON, 'child1');
-      child2 = new Node(NODE_TYPES.CON, 'child2');
-      grandchild = new Node(NODE_TYPES.CON, 'grandchild');
+      child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      child2 = new Node(NODE_TYPES.CON, new St.Bin());
+      grandchild = new Node(NODE_TYPES.CON, new St.Bin());
 
       root.appendChild(child1);
       root.appendChild(child2);
@@ -504,8 +505,8 @@ describe('Node', () => {
 
     beforeEach(() => {
       root = new Node(NODE_TYPES.ROOT, 'root');
-      con1 = new Node(NODE_TYPES.CON, 'con1');
-      con2 = new Node(NODE_TYPES.CON, 'con2');
+      con1 = new Node(NODE_TYPES.CON, new St.Bin());
+      con2 = new Node(NODE_TYPES.CON, new St.Bin());
       workspace = new Node(NODE_TYPES.WORKSPACE, 'ws0');
 
       root.appendChild(con1);

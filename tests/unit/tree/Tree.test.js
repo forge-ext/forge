@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import St from 'gi://St';
 import { Tree, Node, NODE_TYPES, LAYOUT_TYPES } from '../../../lib/extension/tree.js';
 import { WINDOW_MODES } from '../../../lib/extension/window.js';
 import { Bin, BoxLayout } from '../../mocks/gnome/St.js';
@@ -103,7 +104,7 @@ describe('Tree', () => {
     it('should find nested nodes', () => {
       // Create a nested structure
       const workspace = tree.nodeWorkpaces[0];
-      const container = tree.createNode(workspace.nodeValue, NODE_TYPES.CON, 'test-container');
+      const container = tree.createNode(workspace.nodeValue, NODE_TYPES.CON, new St.Bin());
 
       const found = tree.findNode('test-container');
 
@@ -116,7 +117,7 @@ describe('Tree', () => {
       const workspace = tree.nodeWorkpaces[0];
       const parentValue = workspace.nodeValue;
 
-      const newNode = tree.createNode(parentValue, NODE_TYPES.CON, 'new-container');
+      const newNode = tree.createNode(parentValue, NODE_TYPES.CON, new St.Bin());
 
       expect(newNode).toBeDefined();
       expect(newNode.nodeType).toBe(NODE_TYPES.CON);
@@ -131,7 +132,7 @@ describe('Tree', () => {
         const monitor = monitors[0];
         const initialChildCount = monitor.childNodes.length;
 
-        tree.createNode(monitor.nodeValue, NODE_TYPES.CON, 'container-1');
+        tree.createNode(monitor.nodeValue, NODE_TYPES.CON, new St.Bin());
 
         expect(monitor.childNodes.length).toBe(initialChildCount + 1);
       }
@@ -139,7 +140,7 @@ describe('Tree', () => {
 
     it('should set node settings from tree', () => {
       const workspace = tree.nodeWorkpaces[0];
-      const newNode = tree.createNode(workspace.nodeValue, NODE_TYPES.CON, 'container');
+      const newNode = tree.createNode(workspace.nodeValue, NODE_TYPES.CON, new St.Bin());
 
       expect(newNode.settings).toBe(tree.settings);
     });
@@ -151,7 +152,7 @@ describe('Tree', () => {
       if (monitors.length > 0) {
         const monitor = monitors[0];
         // Note: This would work for WINDOW type nodes
-        const newNode = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, 'container');
+        const newNode = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, new St.Bin());
 
         // CON nodes don't have mode set, but WINDOW nodes would
         expect(newNode).toBeDefined();
@@ -159,7 +160,7 @@ describe('Tree', () => {
     });
 
     it('should return undefined if parent not found', () => {
-      const newNode = tree.createNode('nonexistent-parent', NODE_TYPES.CON, 'orphan');
+      const newNode = tree.createNode('nonexistent-parent', NODE_TYPES.CON, new St.Bin());
 
       expect(newNode).toBeUndefined();
     });
@@ -174,8 +175,8 @@ describe('Tree', () => {
         const monitor = monitors[0];
 
         // Create two nodes - second should be sibling to first, not child
-        const node1 = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, 'node1');
-        const node2 = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, 'node2');
+        const node1 = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, new St.Bin());
+        const node2 = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, new St.Bin());
 
         // Both should be children of monitor
         expect(monitor.childNodes).toContain(node1);
@@ -219,7 +220,7 @@ describe('Tree', () => {
 
         // Create mock window node (without actual Meta.Window to avoid UI init)
         // In real usage, windows would be created differently
-        const container = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, 'container');
+        const container = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, new St.Bin());
 
         // We can verify the getter works
         const windows = tree.nodeWindows;
@@ -340,9 +341,9 @@ describe('Tree', () => {
       if (monitors.length > 0) {
         const monitor = monitors[0];
 
-        const container1 = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, 'container1');
-        const container2 = tree.createNode(container1.nodeValue, NODE_TYPES.CON, 'container2');
-        const container3 = tree.createNode(container2.nodeValue, NODE_TYPES.CON, 'container3');
+        const container1 = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, new St.Bin());
+        const container2 = tree.createNode(container1.nodeValue, NODE_TYPES.CON, new St.Bin());
+        const container3 = tree.createNode(container2.nodeValue, NODE_TYPES.CON, new St.Bin());
 
         expect(container3.level).toBe(container1.level + 2);
         expect(tree.findNode('container3')).toBe(container3);
@@ -352,13 +353,13 @@ describe('Tree', () => {
 
   describe('Edge Cases', () => {
     it('should handle empty parent value', () => {
-      const result = tree.createNode('', NODE_TYPES.CON, 'orphan');
+      const result = tree.createNode('', NODE_TYPES.CON, new St.Bin());
 
       expect(result).toBeUndefined();
     });
 
     it('should handle null parent value', () => {
-      const result = tree.createNode(null, NODE_TYPES.CON, 'orphan');
+      const result = tree.createNode(null, NODE_TYPES.CON, new St.Bin());
 
       expect(result).toBeUndefined();
     });
@@ -366,7 +367,7 @@ describe('Tree', () => {
     it('should find nodes case-sensitively', () => {
       const workspace = tree.nodeWorkpaces[0];
       if (workspace) {
-        tree.createNode(workspace.nodeValue, NODE_TYPES.CON, 'TestContainer');
+        tree.createNode(workspace.nodeValue, NODE_TYPES.CON, new St.Bin());
 
         expect(tree.findNode('TestContainer')).toBeDefined();
         expect(tree.findNode('testcontainer')).toBeNull();

@@ -47,6 +47,15 @@ export class App {
   get_windows() {
     return [];
   }
+
+  create_icon_texture(size) {
+    return {
+      width: size,
+      height: size,
+      set_size: () => {},
+      destroy: () => {}
+    };
+  }
 }
 
 export class AppSystem {
@@ -63,8 +72,19 @@ export class AppSystem {
   }
 }
 
+export class WindowTracker {
+  static get_default() {
+    return new WindowTracker();
+  }
+
+  get_window_app(window) {
+    return new App();
+  }
+}
+
 export default {
   Global,
   App,
-  AppSystem
+  AppSystem,
+  WindowTracker
 };

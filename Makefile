@@ -140,3 +140,26 @@ lint:
 
 check:
 	npx prettier --check "./**/*.{js,jsx,ts,tsx,json}"
+
+# Unit tests (local with mocked GNOME APIs)
+unit-test:
+	npm test
+
+unit-test-watch:
+	npm run test:watch
+
+unit-test-coverage:
+	npm run test:coverage
+
+# Docker-based testing (for CI or consistent environments)
+docker-test-build:
+	docker build -f Dockerfile.test -t forge-test .
+
+unit-test-docker: docker-test-build
+	docker run --rm forge-test npm test
+
+unit-test-docker-watch: docker-test-build
+	docker run --rm -it -v $(PWD):/app forge-test npm run test:watch
+
+unit-test-docker-coverage: docker-test-build
+	docker run --rm -v $(PWD)/coverage:/app/coverage forge-test npm run test:coverage

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import St from 'gi://St';
 import { Tree, Node, NODE_TYPES, LAYOUT_TYPES, ORIENTATION_TYPES } from '../../../lib/extension/tree.js';
 import { WINDOW_MODES } from '../../../lib/extension/window.js';
 
@@ -54,12 +55,12 @@ describe('Tree Layout Algorithms', () => {
 
   describe('computeSizes', () => {
     it('should divide space equally for horizontal split', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 0, y: 0, width: 1000, height: 500 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'child1');
-      const child2 = new Node(NODE_TYPES.CON, 'child2');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
 
       const sizes = tree.computeSizes(container, [child1, child2]);
 
@@ -69,12 +70,12 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should divide space equally for vertical split', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.VSPLIT;
       container.rect = { x: 0, y: 0, width: 1000, height: 600 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'child1');
-      const child2 = new Node(NODE_TYPES.CON, 'child2');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
 
       const sizes = tree.computeSizes(container, [child1, child2]);
 
@@ -84,14 +85,14 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should respect custom percent values', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 0, y: 0, width: 1000, height: 500 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'child1');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
       child1.percent = 0.7;  // 70%
 
-      const child2 = new Node(NODE_TYPES.CON, 'child2');
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
       child2.percent = 0.3;  // 30%
 
       const sizes = tree.computeSizes(container, [child1, child2]);
@@ -101,14 +102,14 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should handle three children equally', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 0, y: 0, width: 900, height: 500 };
 
       const children = [
-        new Node(NODE_TYPES.CON, 'c1'),
-        new Node(NODE_TYPES.CON, 'c2'),
-        new Node(NODE_TYPES.CON, 'c3')
+        new Node(NODE_TYPES.CON, new St.Bin()),
+        new Node(NODE_TYPES.CON, new St.Bin()),
+        new Node(NODE_TYPES.CON, new St.Bin())
       ];
 
       const sizes = tree.computeSizes(container, children);
@@ -120,14 +121,14 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should floor the sizes to integers', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 0, y: 0, width: 1000, height: 500 };
 
       const children = [
-        new Node(NODE_TYPES.CON, 'c1'),
-        new Node(NODE_TYPES.CON, 'c2'),
-        new Node(NODE_TYPES.CON, 'c3')
+        new Node(NODE_TYPES.CON, new St.Bin()),
+        new Node(NODE_TYPES.CON, new St.Bin()),
+        new Node(NODE_TYPES.CON, new St.Bin())
       ];
 
       const sizes = tree.computeSizes(container, children);
@@ -139,11 +140,11 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should handle single child', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 0, y: 0, width: 1000, height: 500 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'child1');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
 
       const sizes = tree.computeSizes(container, [child1]);
 
@@ -154,12 +155,12 @@ describe('Tree Layout Algorithms', () => {
 
   describe('processSplit - Horizontal', () => {
     it('should split two windows horizontally', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 0, y: 0, width: 1000, height: 500 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'child1');
-      const child2 = new Node(NODE_TYPES.CON, 'child2');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
 
       const params = { sizes: [500, 500] };
 
@@ -180,13 +181,13 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should split three windows with custom sizes', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 100, y: 50, width: 1200, height: 600 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'c1');
-      const child2 = new Node(NODE_TYPES.CON, 'c2');
-      const child3 = new Node(NODE_TYPES.CON, 'c3');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child3 = new Node(NODE_TYPES.CON, new St.Bin());
 
       const params = { sizes: [300, 500, 400] };
 
@@ -211,11 +212,11 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should handle offset container position', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 200, y: 100, width: 800, height: 400 };
 
-      const child = new Node(NODE_TYPES.CON, 'child');
+      const child = new Node(NODE_TYPES.CON, new St.Bin());
       const params = { sizes: [800] };
 
       tree.processSplit(container, child, params, 0);
@@ -228,12 +229,12 @@ describe('Tree Layout Algorithms', () => {
 
   describe('processSplit - Vertical', () => {
     it('should split two windows vertically', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.VSPLIT;
       container.rect = { x: 0, y: 0, width: 1000, height: 800 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'child1');
-      const child2 = new Node(NODE_TYPES.CON, 'child2');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
 
       const params = { sizes: [400, 400] };
 
@@ -254,13 +255,13 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should split three windows vertically', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.VSPLIT;
       container.rect = { x: 0, y: 0, width: 1000, height: 900 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'c1');
-      const child2 = new Node(NODE_TYPES.CON, 'c2');
-      const child3 = new Node(NODE_TYPES.CON, 'c3');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child3 = new Node(NODE_TYPES.CON, new St.Bin());
 
       const params = { sizes: [300, 300, 300] };
 
@@ -282,12 +283,12 @@ describe('Tree Layout Algorithms', () => {
 
   describe('processStacked', () => {
     it('should stack single window with full container size', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.STACKED;
       container.rect = { x: 0, y: 0, width: 1000, height: 800 };
-      container.childNodes = [new Node(NODE_TYPES.CON, 'child1')];
+      container.childNodes = [new Node(NODE_TYPES.CON, new St.Bin())];
 
-      const child = new Node(NODE_TYPES.CON, 'child1');
+      const child = new Node(NODE_TYPES.CON, new St.Bin());
       const params = {};
 
       tree.processStacked(container, child, params, 0);
@@ -300,13 +301,13 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should stack multiple windows with tabs', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.STACKED;
       container.rect = { x: 0, y: 0, width: 1000, height: 800 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'c1');
-      const child2 = new Node(NODE_TYPES.CON, 'c2');
-      const child3 = new Node(NODE_TYPES.CON, 'c3');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child3 = new Node(NODE_TYPES.CON, new St.Bin());
 
       container.childNodes = [child1, child2, child3];
 
@@ -337,15 +338,15 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should respect container offset', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.STACKED;
       container.rect = { x: 100, y: 50, width: 800, height: 600 };
       container.childNodes = [
-        new Node(NODE_TYPES.CON, 'c1'),
-        new Node(NODE_TYPES.CON, 'c2')
+        new Node(NODE_TYPES.CON, new St.Bin()),
+        new Node(NODE_TYPES.CON, new St.Bin())
       ];
 
-      const child = new Node(NODE_TYPES.CON, 'c1');
+      const child = new Node(NODE_TYPES.CON, new St.Bin());
       const params = {};
 
       tree.processStacked(container, child, params, 0);
@@ -357,12 +358,12 @@ describe('Tree Layout Algorithms', () => {
 
   describe('processTabbed', () => {
     it('should show single tab with full container', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.TABBED;
       container.rect = { x: 0, y: 0, width: 1000, height: 800 };
-      container.childNodes = [new Node(NODE_TYPES.CON, 'child1')];
+      container.childNodes = [new Node(NODE_TYPES.CON, new St.Bin())];
 
-      const child = new Node(NODE_TYPES.CON, 'child1');
+      const child = new Node(NODE_TYPES.CON, new St.Bin());
       const params = { stackedHeight: 0 };
 
       tree.processTabbed(container, child, params, 0);
@@ -375,15 +376,15 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should account for tab decoration height', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.TABBED;
       container.rect = { x: 0, y: 0, width: 1000, height: 800 };
       container.childNodes = [
-        new Node(NODE_TYPES.CON, 'c1'),
-        new Node(NODE_TYPES.CON, 'c2')
+        new Node(NODE_TYPES.CON, new St.Bin()),
+        new Node(NODE_TYPES.CON, new St.Bin())
       ];
 
-      const child = new Node(NODE_TYPES.CON, 'c1');
+      const child = new Node(NODE_TYPES.CON, new St.Bin());
       const stackedHeight = 35;  // Tab bar height
       const params = { stackedHeight };
 
@@ -399,13 +400,13 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should show all tabs at same position (only one visible)', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.TABBED;
       container.rect = { x: 0, y: 0, width: 1000, height: 800 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'c1');
-      const child2 = new Node(NODE_TYPES.CON, 'c2');
-      const child3 = new Node(NODE_TYPES.CON, 'c3');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
+      const child3 = new Node(NODE_TYPES.CON, new St.Bin());
 
       container.childNodes = [child1, child2, child3];
 
@@ -426,12 +427,12 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should respect container offset', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.TABBED;
       container.rect = { x: 200, y: 100, width: 800, height: 600 };
-      container.childNodes = [new Node(NODE_TYPES.CON, 'c1')];
+      container.childNodes = [new Node(NODE_TYPES.CON, new St.Bin())];
 
-      const child = new Node(NODE_TYPES.CON, 'c1');
+      const child = new Node(NODE_TYPES.CON, new St.Bin());
       const params = { stackedHeight: 0 };
 
       tree.processTabbed(container, child, params, 0);
@@ -443,7 +444,7 @@ describe('Tree Layout Algorithms', () => {
 
   describe('processGap', () => {
     it('should add gaps to all sides', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.rect = { x: 0, y: 0, width: 1000, height: 800 };
 
       const gap = 10;
@@ -461,7 +462,7 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should handle larger gaps', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.rect = { x: 100, y: 50, width: 1000, height: 800 };
 
       const gap = 20;
@@ -476,7 +477,7 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should not add gap if rect too small', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.rect = { x: 0, y: 0, width: 15, height: 15 };
 
       const gap = 10;
@@ -492,7 +493,7 @@ describe('Tree Layout Algorithms', () => {
     });
 
     it('should handle zero gap', () => {
-      const node = new Node(NODE_TYPES.CON, 'container');
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       node.rect = { x: 10, y: 20, width: 1000, height: 800 };
 
       mockWindowManager.calculateGaps.mockReturnValue(0);
@@ -506,13 +507,13 @@ describe('Tree Layout Algorithms', () => {
 
   describe('Layout Integration', () => {
     it('should compute sizes and apply split layout', () => {
-      const container = new Node(NODE_TYPES.CON, 'container');
+      const container = new Node(NODE_TYPES.CON, new St.Bin());
       container.layout = LAYOUT_TYPES.HSPLIT;
       container.rect = { x: 0, y: 0, width: 1200, height: 600 };
 
-      const child1 = new Node(NODE_TYPES.CON, 'c1');
+      const child1 = new Node(NODE_TYPES.CON, new St.Bin());
       child1.percent = 0.6;
-      const child2 = new Node(NODE_TYPES.CON, 'c2');
+      const child2 = new Node(NODE_TYPES.CON, new St.Bin());
       child2.percent = 0.4;
 
       const children = [child1, child2];

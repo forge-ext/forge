@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (use install to update lock file with new vitest deps)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Default command runs tests
+CMD ["npm", "test"]
