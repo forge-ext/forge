@@ -66,6 +66,11 @@ export class Window {
     return new Rectangle({ x: 0, y: 0, width: 1920, height: 1080 });
   }
 
+  get_work_area_for_monitor(monitorIndex) {
+    // Default implementation, tests can override this
+    return new Rectangle({ x: monitorIndex * 1920, y: 0, width: 1920, height: 1080 });
+  }
+
   move_resize_frame(interactive, x, y, width, height) {
     this._rect = new Rectangle({ x, y, width, height });
   }
@@ -190,7 +195,10 @@ export class Window {
       this._actor = {
         border: null,
         splitBorder: null,
-        actorSignals: null
+        actorSignals: null,
+        remove_all_transitions: () => {
+          // Mock method for removing window transitions
+        }
       };
     }
     return this._actor;
