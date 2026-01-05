@@ -48,6 +48,14 @@ export function timeout_add(priority, interval, callback) {
   return Math.random();
 }
 
+export function idle_add(priority, callback) {
+  // Mock idle_add - execute callback immediately in tests
+  if (typeof callback === 'function') {
+    callback();
+  }
+  return Math.random();
+}
+
 export function source_remove(id) {
   // Mock source removal
   return true;
@@ -65,5 +73,6 @@ export default {
   PRIORITY_HIGH,
   PRIORITY_LOW,
   timeout_add,
+  idle_add,
   source_remove
 };

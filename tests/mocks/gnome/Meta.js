@@ -126,6 +126,18 @@ export class Window {
     this.fullscreen = false;
   }
 
+  is_above() {
+    return this.above || false;
+  }
+
+  make_above() {
+    this.above = true;
+  }
+
+  unmake_above() {
+    this.above = false;
+  }
+
   minimize() {
     this.minimized = true;
   }
@@ -198,6 +210,13 @@ export class Window {
         actorSignals: null,
         remove_all_transitions: () => {
           // Mock method for removing window transitions
+        },
+        connect: (signal, callback) => {
+          // Mock signal connection
+          return Math.random();
+        },
+        disconnect: (id) => {
+          // Mock signal disconnection
         }
       };
     }
@@ -237,6 +256,15 @@ export class Workspace {
       this._windows.splice(index, 1);
       window._workspace = null;
     }
+  }
+
+  get_work_area_for_monitor(monitorIndex) {
+    // Return default work area for monitor
+    return new Rectangle({ x: monitorIndex * 1920, y: 0, width: 1920, height: 1080 });
+  }
+
+  activate_with_focus(window, timestamp) {
+    // Mock activation
   }
 
   connect(signal, callback) {
