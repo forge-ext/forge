@@ -100,6 +100,10 @@ export class Window {
     return false;
   }
 
+  showing_on_its_workspace() {
+    return !this.minimized;
+  }
+
   change_workspace(workspace) {
     this._workspace = workspace;
   }
@@ -112,6 +116,16 @@ export class Window {
   unmaximize(directions) {
     this.maximized_horizontally = false;
     this.maximized_vertically = false;
+  }
+
+  get_maximized() {
+    // Return maximization state as flags
+    if (this.maximized_horizontally && this.maximized_vertically) {
+      return 3; // BOTH
+    }
+    if (this.maximized_horizontally) return 1; // HORIZONTAL
+    if (this.maximized_vertically) return 2; // VERTICAL
+    return 0; // NONE
   }
 
   is_fullscreen() {
@@ -230,13 +244,13 @@ export class Window {
 
 export class Workspace {
   constructor(params = {}) {
-    this.index = params.index || 0;
+    this._index = params.index || 0;
     this._windows = [];
     this._signals = {};
   }
 
   index() {
-    return this.index;
+    return this._index;
   }
 
   list_windows() {
