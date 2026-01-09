@@ -1,14 +1,14 @@
-UUID = forge@jmmaranan.com
+UUID = "forge@jmmaranan.com"
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
 
-# Shell configuration - explicitly use bash for portability across distros
-SHELL := /bin/bash
-.SHELLFLAGS := -eo pipefail -c
+# Shell configuration - use POSIX /bin/sh for better portability
+SHELL := /bin/sh
+.SHELLFLAGS := -ec
 
-# Tool detection (using bash-specific &> redirect)
-HAS_XGETTEXT := $(shell command -v xgettext &>/dev/null && echo yes || echo no)
-HAS_MSGFMT := $(shell command -v msgfmt &>/dev/null && echo yes || echo no)
+# Tool detection (using POSIX redirection)
+HAS_XGETTEXT := $(shell command -v xgettext >/dev/null 2>&1 && echo yes || echo no)
+HAS_MSGFMT := $(shell command -v msgfmt >/dev/null 2>&1 && echo yes || echo no)
 
 .PHONY: all clean install schemas uninstall enable disable log debug patchcss check-deps
 
@@ -33,16 +33,17 @@ metadata:
 	@echo "export const developers = [" > lib/prefs/metadata.js
 	@git shortlog -sne --all \
 	| (grep -vE 'dependabot|noreply' || true) \
-	| awk '{ \
-		email = $$NF; \
-		if (email in seen) next; \
-		seen[email] = 1; \
-		name = ""; \
-		for (i = 2; i < NF; i++) { \
-			name = name (i == 2 ? "" : " ") $$i; \
-		} \
+	| awk -F'\t' '{ \
+		rest = $$2; \
+		n = index(rest, " <"); \
+		if (n == 0) next; \
+		name = substr(rest, 1, n - 1); \
+		email_part = substr(rest, n + 2); \
+		gsub(/>$$/, "", email_part); \
+		if (email_part in seen) next; \
+		seen[email_part] = 1; \
 		gsub(/"/, "\\\"", name); \
-		printf "  \"%s %s\",\n", name, email; \
+		printf "  \"%s <%s>\",\n", name, email_part; \
 	}' >> lib/prefs/metadata.js
 	@echo "];" >> lib/prefs/metadata.js
 
@@ -59,16 +60,14 @@ build: clean metadata.json schemas compilemsgs metadata
 	cp LICENSE temp
 	mkdir -p temp/locale
 	for msg in $(MSGSRC:.po=.mo); do \
-		if [ -f $$msg ]; then \
-			msgf=temp/locale/`basename $$msg .mo`; \
-			mkdir -p $$msgf; \
-			mkdir -p $$msgf/LC_MESSAGES; \
-			cp $$msg $$msgf/LC_MESSAGES/forge.mo; \
+		if [ -f "$$msg" ]; then \
+			msg_base="$$(basename "$$msg" .mo)"; \
+			msgf="temp/locale/$$msg_base"; \
+			mkdir -p "$$msgf"; \
+			mkdir -p "$$msgf/LC_MESSAGES"; \
+			cp "$$msg" "$$msgf/LC_MESSAGES/forge.mo"; \
 		fi; \
 	done;
-
-./po/%.mo: ./po/%.po
-	msgfmt -c $< -o $@
 
 debug:
 	sed -i 's/export const production = true/export const production = false/' temp/lib/shared/settings.js
@@ -91,9 +90,12 @@ endif
 
 # Conditional compilation of messages based on msgfmt availability
 ifeq ($(HAS_MSGFMT),yes)
+./po/%.mo: ./po/%.po
+	msgfmt -c $< -o $@
+
 compilemsgs: potfile $(MSGSRC:.po=.mo)
 	for msg in $(MSGSRC); do \
-		msgmerge -U $$msg ./po/forge.pot; \
+		msgmerge -U "$$msg" ./po/forge.pot; \
 	done;
 else
 compilemsgs:
@@ -107,15 +109,15 @@ clean:
 
 check-deps:
 	@echo "Checking build dependencies..."
-	@command -v glib-compile-schemas &>/dev/null || (echo "ERROR: glib-compile-schemas not found. Install glib2-devel or libglib2.0-dev" && exit 1)
-	@command -v git &>/dev/null || (echo "ERROR: git not found" && exit 1)
-	@command -v zip &>/dev/null || echo "WARNING: zip not found, 'make dist' will fail"
-	@command -v xgettext &>/dev/null || echo "WARNING: xgettext not found, translations will be skipped"
-	@command -v msgfmt &>/dev/null || echo "WARNING: msgfmt not found, translations will be skipped"
-	@echo "All required dependencies found!"
+	@command -v glib-compile-schemas >/dev/null 2>&1 || (echo "ERROR: glib-compile-schemas not found. Install glib2-devel or libglib2.0-dev" && exit 1)
+	@command -v git >/dev/null 2>&1 || (echo "ERROR: git not found" && exit 1)
+	@command -v zip >/dev/null 2>&1 || echo "WARNING: zip not found, 'make dist' will fail"
+	@command -v xgettext >/dev/null 2>&1 || echo "WARNING: xgettext not found, translations will be skipped"
+	@command -v msgfmt >/dev/null 2>&1 || echo "WARNING: msgfmt not found, translations will be skipped"
+	@echo "All required dependencies found. Optional tools may be missing; see any warnings above."
 
 enable:
-	@if gnome-extensions list | grep -q "^$(UUID)$$"; then \
+	@if gnome-extensions list | grep -Fqx "$(UUID)"; then \
 		gnome-extensions enable "$(UUID)" && echo "Extension enabled successfully"; \
 	else \
 		echo "WARNING: Extension not detected by GNOME Shell yet"; \
@@ -142,7 +144,7 @@ dist: build
 	zip -qr "../${UUID}.zip" .
 
 restart:
-	if bash -c 'xprop -root &> /dev/null'; then \
+	if xprop -root >/dev/null 2>&1; then \
 		killall -HUP gnome-shell; \
 	else \
 		gnome-session-quit --logout; \
