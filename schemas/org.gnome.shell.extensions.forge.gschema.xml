@@ -53,6 +53,11 @@
             <summary>Hide gap when single window toggle</summary>
         </key>
 
+        <key type="b" name="focus-border-hidden-on-single">
+            <default>false</default>
+            <summary>Hide focus border when single window toggle</summary>
+        </key>
+
         <key type="s" name="primary-layout-mode">
             <default>'tiling'</default>
             <summary>Layout modes: stacking, tiling</summary>
@@ -66,6 +71,11 @@
         <key type="b" name="quick-settings-enabled">
             <default>true</default>
             <summary>Forge quick settings toggle</summary>
+        </key>
+
+        <key type="b" name="tray-icon-enabled">
+            <default>true</default>
+            <summary>Show tray icon in top bar</summary>
         </key>
 
         <key type="s" name="workspace-skip-tile">
@@ -349,6 +359,11 @@
 
         <key type="as" name="window-resize-right-decrease">
             <default><![CDATA[['<Ctrl><Shift><Super>y']]]></default>
+        </key>
+
+        <key type="as" name="window-reset-sizes">
+            <default><![CDATA[['<Super>equal']]]></default>
+            <summary>Reset window sizes to equal distribution</summary>
         </key>
     </schema>
 </schemalist>
