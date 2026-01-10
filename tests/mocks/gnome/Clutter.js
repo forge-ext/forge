@@ -92,8 +92,42 @@ export const Orientation = {
   VERTICAL: 1
 };
 
+// Import vi from vitest for spying
+import { vi } from 'vitest';
+
+// Mock Clutter backend and seat for pointer warping
+export class Seat {
+  constructor() {
+    this.warp_pointer = vi.fn();
+  }
+}
+
+export class Backend {
+  constructor() {
+    this._seat = new Seat();
+  }
+
+  get_default_seat() {
+    return this._seat;
+  }
+}
+
+const _defaultBackend = new Backend();
+const _defaultSeat = _defaultBackend.get_default_seat();
+
+export function get_default_backend() {
+  return _defaultBackend;
+}
+
+// Export the default seat so tests can access and verify calls
+export { _defaultSeat as mockSeat };
+
 export default {
   Actor,
   ActorAlign,
-  Orientation
+  Orientation,
+  Seat,
+  Backend,
+  get_default_backend,
+  mockSeat: _defaultSeat
 };
