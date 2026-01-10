@@ -528,4 +528,278 @@ describe('WindowManager - Floating Mode', () => {
       expect(tree1).toBe(tree2);
     });
   });
+
+  describe('Override Management', () => {
+    describe('addFloatOverride', () => {
+      it('should add new float override by wmClass', () => {
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        const initialLength = mockConfigMgr.windowProps.overrides.length;
+
+        windowManager.addFloatOverride(metaWindow, false);
+
+        const overrides = mockConfigMgr.windowProps.overrides;
+        expect(overrides.length).toBe(initialLength + 1);
+        expect(overrides[overrides.length - 1]).toEqual({
+          wmClass: 'TestApp',
+          wmId: undefined,
+          mode: 'float'
+        });
+      });
+
+      it('should add new float override with wmId when requested', () => {
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.addFloatOverride(metaWindow, true);
+
+        const overrides = mockConfigMgr.windowProps.overrides;
+        const addedOverride = overrides[overrides.length - 1];
+        expect(addedOverride.wmClass).toBe('TestApp');
+        expect(addedOverride.wmId).toBe(123);
+        expect(addedOverride.mode).toBe('float');
+      });
+
+      it('should not add duplicate override for same wmClass without wmId', () => {
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.addFloatOverride(metaWindow, false);
+        const lengthAfterFirst = mockConfigMgr.windowProps.overrides.length;
+
+        windowManager.addFloatOverride(metaWindow, false);
+        const lengthAfterSecond = mockConfigMgr.windowProps.overrides.length;
+
+        expect(lengthAfterSecond).toBe(lengthAfterFirst);
+      });
+
+      it('should allow multiple instances with different wmIds', () => {
+        const metaWindow1 = createMockWindow({ wm_class: 'TestApp', id: 123 });
+        const metaWindow2 = createMockWindow({ wm_class: 'TestApp', id: 456 });
+
+        windowManager.addFloatOverride(metaWindow1, true);
+        const lengthAfterFirst = mockConfigMgr.windowProps.overrides.length;
+
+        windowManager.addFloatOverride(metaWindow2, true);
+        const lengthAfterSecond = mockConfigMgr.windowProps.overrides.length;
+
+        expect(lengthAfterSecond).toBe(lengthAfterFirst + 1);
+      });
+
+      it('should not add duplicate when wmId matches existing override', () => {
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.addFloatOverride(metaWindow, true);
+        const lengthAfterFirst = mockConfigMgr.windowProps.overrides.length;
+
+        windowManager.addFloatOverride(metaWindow, true);
+        const lengthAfterSecond = mockConfigMgr.windowProps.overrides.length;
+
+        expect(lengthAfterSecond).toBe(lengthAfterFirst);
+      });
+
+      it('should ignore overrides with wmTitle when checking duplicates', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'TestApp', wmTitle: 'Something', mode: 'float' }
+        ];
+
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.addFloatOverride(metaWindow, false);
+
+        const overrides = mockConfigMgr.windowProps.overrides;
+        expect(overrides.length).toBe(2); // Both should exist
+      });
+
+      it('should update windowProps on WindowManager instance', () => {
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.addFloatOverride(metaWindow, false);
+
+        expect(windowManager.windowProps).toBe(mockConfigMgr.windowProps);
+      });
+    });
+
+    describe('removeFloatOverride', () => {
+      beforeEach(() => {
+        // Reset overrides before each test
+        mockConfigMgr.windowProps.overrides = [];
+      });
+
+      it('should remove float override by wmClass', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'TestApp', mode: 'float' },
+          { wmClass: 'OtherApp', mode: 'float' }
+        ];
+
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.removeFloatOverride(metaWindow, false);
+
+        const overrides = mockConfigMgr.windowProps.overrides;
+        expect(overrides.length).toBe(1);
+        expect(overrides[0].wmClass).toBe('OtherApp');
+      });
+
+      it('should remove float override by wmClass and wmId when requested', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'TestApp', wmId: 123, mode: 'float' },
+          { wmClass: 'TestApp', wmId: 456, mode: 'float' }
+        ];
+
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.removeFloatOverride(metaWindow, true);
+
+        const overrides = mockConfigMgr.windowProps.overrides;
+        expect(overrides.length).toBe(1);
+        expect(overrides[0].wmId).toBe(456);
+      });
+
+      it('should not remove overrides with wmTitle (user-defined)', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'TestApp', wmTitle: 'UserRule', mode: 'float' },
+          { wmClass: 'TestApp', mode: 'float' }
+        ];
+
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.removeFloatOverride(metaWindow, false);
+
+        const overrides = mockConfigMgr.windowProps.overrides;
+        expect(overrides.length).toBe(1);
+        expect(overrides[0].wmTitle).toBe('UserRule');
+      });
+
+      it('should handle non-existent override gracefully', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'OtherApp', mode: 'float' }
+        ];
+
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        expect(() => {
+          windowManager.removeFloatOverride(metaWindow, false);
+        }).not.toThrow();
+
+        expect(mockConfigMgr.windowProps.overrides.length).toBe(1);
+      });
+
+      it('should remove all matching overrides without wmId filter', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'TestApp', mode: 'float' },
+          { wmClass: 'TestApp', wmId: 123, mode: 'float' },
+          { wmClass: 'TestApp', wmId: 456, mode: 'float' }
+        ];
+
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.removeFloatOverride(metaWindow, false);
+
+        const overrides = mockConfigMgr.windowProps.overrides;
+        expect(overrides.length).toBe(0);
+      });
+
+      it('should only remove matching wmId when wmId filter enabled', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'TestApp', mode: 'float' },
+          { wmClass: 'TestApp', wmId: 123, mode: 'float' },
+          { wmClass: 'TestApp', wmId: 456, mode: 'float' }
+        ];
+
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.removeFloatOverride(metaWindow, true);
+
+        const overrides = mockConfigMgr.windowProps.overrides;
+        expect(overrides.length).toBe(2);
+        expect(overrides.some(o => o.wmId === 123)).toBe(false);
+      });
+
+      it('should update windowProps on WindowManager instance', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'TestApp', mode: 'float' }
+        ];
+
+        const metaWindow = createMockWindow({ wm_class: 'TestApp', id: 123 });
+
+        windowManager.removeFloatOverride(metaWindow, false);
+
+        expect(windowManager.windowProps).toBe(mockConfigMgr.windowProps);
+      });
+    });
+
+    describe('reloadWindowOverrides', () => {
+      it('should reload overrides from ConfigManager', () => {
+        const newOverrides = [
+          { wmClass: 'App1', mode: 'float' },
+          { wmClass: 'App2', mode: 'tile' }
+        ];
+
+        mockConfigMgr.windowProps.overrides = newOverrides;
+
+        windowManager.reloadWindowOverrides();
+
+        expect(windowManager.windowProps.overrides.length).toBe(2);
+      });
+
+      it('should filter out wmId-based overrides', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'App1', mode: 'float' },
+          { wmClass: 'App2', wmId: 123, mode: 'float' },
+          { wmClass: 'App3', mode: 'tile' }
+        ];
+
+        windowManager.reloadWindowOverrides();
+
+        const overrides = windowManager.windowProps.overrides;
+        expect(overrides.length).toBe(2);
+        expect(overrides.some(o => o.wmId !== undefined)).toBe(false);
+      });
+
+      it('should preserve wmTitle-based overrides', () => {
+        mockConfigMgr.windowProps.overrides = [
+          { wmClass: 'App1', wmTitle: 'Test', mode: 'float' },
+          { wmClass: 'App2', wmId: 123, mode: 'float' }
+        ];
+
+        windowManager.reloadWindowOverrides();
+
+        const overrides = windowManager.windowProps.overrides;
+        expect(overrides.length).toBe(1);
+        expect(overrides[0].wmTitle).toBe('Test');
+      });
+
+      it('should handle null windowProps gracefully', () => {
+        mockConfigMgr.windowProps = null;
+
+        expect(() => {
+          windowManager.reloadWindowOverrides();
+        }).not.toThrow();
+      });
+
+      it('should handle undefined windowProps gracefully', () => {
+        mockConfigMgr.windowProps = undefined;
+
+        expect(() => {
+          windowManager.reloadWindowOverrides();
+        }).not.toThrow();
+      });
+
+      it('should handle empty overrides array', () => {
+        mockConfigMgr.windowProps.overrides = [];
+
+        windowManager.reloadWindowOverrides();
+
+        expect(windowManager.windowProps.overrides.length).toBe(0);
+      });
+
+      it('should update windowProps reference', () => {
+        const freshProps = { overrides: [{ wmClass: 'Test', mode: 'float' }] };
+        mockConfigMgr.windowProps = freshProps;
+
+        windowManager.reloadWindowOverrides();
+
+        expect(windowManager.windowProps).toBe(freshProps);
+      });
+    });
+  });
 });
