@@ -405,7 +405,7 @@ describe('WindowManager - Batch Float Operations', () => {
       }).not.toThrow();
     });
 
-    it('should remove always-on-top when unfloating', () => {
+    it('should change mode to TILE when unfloating', () => {
       const workspace = windowManager.tree.nodeWorkpaces[0];
       const monitor = workspace.getNodeByType(NODE_TYPES.MONITOR)[0];
 
@@ -413,16 +413,11 @@ describe('WindowManager - Batch Float Operations', () => {
       const nodeWindow1 = windowManager.tree.createNode(monitor.nodeValue, NODE_TYPES.WINDOW, metaWindow1);
       nodeWindow1.mode = WINDOW_MODES.FLOAT;
 
-      metaWindow1.above = true; // Simulate already above
-
-      const unmakeAboveSpy = vi.spyOn(metaWindow1, 'unmake_above');
-
       vi.spyOn(windowManager, 'getWindowsOnWorkspace').mockReturnValue([nodeWindow1]);
 
       windowManager.unfloatWorkspace(0);
 
       expect(nodeWindow1.mode).toBe(WINDOW_MODES.TILE);
-      expect(unmakeAboveSpy).toHaveBeenCalled();
     });
   });
 

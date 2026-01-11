@@ -513,23 +513,23 @@ describe('WindowManager - Command System', () => {
       expect(mockSettings.set_uint).toHaveBeenCalledWith('window-gap-size-increment', 0);
     });
 
-    it('should not go above 8', () => {
-      mockSettings.get_uint.mockReturnValue(8);
+    it('should not go above 32', () => {
+      mockSettings.get_uint.mockReturnValue(32);
       const action = { name: 'GapSize', amount: 1 };
 
       windowManager.command(action);
 
-      expect(mockSettings.set_uint).toHaveBeenCalledWith('window-gap-size-increment', 8);
+      expect(mockSettings.set_uint).toHaveBeenCalledWith('window-gap-size-increment', 32);
     });
 
     it('should handle large increment', () => {
       mockSettings.get_uint.mockReturnValue(0);
-      const action = { name: 'GapSize', amount: 10 };
+      const action = { name: 'GapSize', amount: 50 };
 
       windowManager.command(action);
 
-      // Should cap at 8
-      expect(mockSettings.set_uint).toHaveBeenCalledWith('window-gap-size-increment', 8);
+      // Should cap at 32
+      expect(mockSettings.set_uint).toHaveBeenCalledWith('window-gap-size-increment', 32);
     });
 
     it('should handle large decrement', () => {

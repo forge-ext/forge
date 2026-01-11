@@ -262,10 +262,10 @@ describe('ThemeManagerBase', () => {
       expect(prop).toEqual({});
     });
 
-    it('should throw for non-existent selector (code bug - no null check)', () => {
-      // Note: This exposes a bug in the code - getCssRule returns {} which is truthy,
-      // then getCssProperty tries to access .declarations on it
-      expect(() => themeManager.getCssProperty('.nonexistent', 'color')).toThrow();
+    it('should return empty object for non-existent selector', () => {
+      // Bug #448 fix: Now properly checks for cssRule.declarations
+      const prop = themeManager.getCssProperty('.nonexistent', 'color');
+      expect(prop).toEqual({});
     });
   });
 
@@ -289,11 +289,9 @@ describe('ThemeManagerBase', () => {
     });
 
     it('should return false for non-existent property', () => {
-      // getCssProperty returns {} for non-existent property, which is truthy
-      // so setCssProperty sets .value on it but returns true
+      // Bug #312 fix: Now properly checks for cssProperty.value !== undefined
       const result = themeManager.setCssProperty('.tiled', 'nonexistent', 'value');
-      // The code returns true because cssProperty is {} which is truthy
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
 
     it('should write updated CSS to file', () => {
