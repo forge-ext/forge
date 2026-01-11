@@ -47,6 +47,17 @@ export class File {
     // Mock file copy
     return true;
   }
+
+  create(flags, cancellable) {
+    // Mock file creation - return a mock output stream
+    return {
+      write_all: (contents, cancellable) => {
+        // Mock write operation
+        return [true, contents.length];
+      },
+      close: (cancellable) => true
+    };
+  }
 }
 
 export class Settings {

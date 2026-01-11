@@ -83,3 +83,15 @@ global.stage = {
   get_width: () => 1920,
   get_height: () => 1080
 };
+
+// Mock imports.byteArray for GNOME Shell (used in settings.js)
+global.imports = {
+  byteArray: {
+    toString: (bytes) => {
+      if (bytes instanceof Uint8Array) {
+        return new TextDecoder().decode(bytes);
+      }
+      return String(bytes);
+    }
+  }
+};
