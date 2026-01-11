@@ -93,6 +93,11 @@
             <summary>Skips tiling on the provided workspace indices</summary>
         </key>
 
+        <key type="s" name="monitor-skip-tile">
+            <default>''</default>
+            <summary>Skips tiling on the provided monitor indices</summary>
+        </key>
+
         <key type="b" name="stacked-tiling-mode-enabled">
             <default>true</default>
             <summary>Stacked tiling mode on/off</summary>
