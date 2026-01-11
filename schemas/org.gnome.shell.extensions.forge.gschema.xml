@@ -163,6 +163,11 @@
             <summary>Timestamp to trigger window overrides reload</summary>
         </key>
 
+        <key type="u" name="focus-border-radius">
+            <default>14</default>
+            <summary>The border radius of focus borders in pixels</summary>
+        </key>
+
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->
@@ -364,6 +369,11 @@
         <key type="as" name="window-reset-sizes">
             <default><![CDATA[['<Super>equal']]]></default>
             <summary>Reset window sizes to equal distribution</summary>
+        </key>
+
+        <key type="as" name="prefs-config-reload">
+            <default><![CDATA[['<Shift><Super>r']]]></default>
+            <summary>Reload configuration from files</summary>
         </key>
     </schema>
 </schemalist>
