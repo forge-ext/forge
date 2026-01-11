@@ -38,20 +38,21 @@ export class Rectangle {
 
 export class Window {
   constructor(params = {}) {
-    this.id = params.id || Math.random();
-    this._rect = params.rect || new Rectangle();
-    this.wm_class = params.wm_class || 'MockApp';
-    this.title = params.title || 'Mock Window';
-    this.maximized_horizontally = params.maximized_horizontally || false;
-    this.maximized_vertically = params.maximized_vertically || false;
-    this.minimized = params.minimized || false;
-    this.fullscreen = params.fullscreen || false;
-    this._window_type = params.window_type !== undefined ? params.window_type : WindowType.NORMAL;
-    this._transient_for = params.transient_for || null;
-    this._allows_resize = params.allows_resize !== undefined ? params.allows_resize : true;
+    this.id = params.id ?? Math.random();
+    this._rect = params.rect ?? new Rectangle();
+    // Use 'in' operator to allow null/empty values to be explicitly set
+    this.wm_class = 'wm_class' in params ? params.wm_class : 'MockApp';
+    this.title = 'title' in params ? params.title : 'Mock Window';
+    this.maximized_horizontally = params.maximized_horizontally ?? false;
+    this.maximized_vertically = params.maximized_vertically ?? false;
+    this.minimized = params.minimized ?? false;
+    this.fullscreen = params.fullscreen ?? false;
+    this._window_type = 'window_type' in params ? params.window_type : WindowType.NORMAL;
+    this._transient_for = 'transient_for' in params ? params.transient_for : null;
+    this._allows_resize = 'allows_resize' in params ? params.allows_resize : true;
     this._signals = {};
-    this._workspace = params.workspace || null;
-    this._monitor = params.monitor || 0;
+    this._workspace = params.workspace ?? null;
+    this._monitor = params.monitor ?? 0;
   }
 
   get_frame_rect() {

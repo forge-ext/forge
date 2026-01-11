@@ -4,13 +4,14 @@ import { Window, Rectangle, WindowType } from '../gnome/Meta.js';
 
 export function createMockWindow(overrides = {}) {
   return new Window({
-    id: overrides.id || `win-${Date.now()}-${Math.random()}`,
-    rect: new Rectangle(overrides.rect || {}),
-    wm_class: overrides.wm_class || 'TestApp',
-    title: overrides.title || 'Test Window',
-    window_type: overrides.window_type !== undefined ? overrides.window_type : WindowType.NORMAL,
-    transient_for: overrides.transient_for || null,
-    allows_resize: overrides.allows_resize !== undefined ? overrides.allows_resize : true,
+    id: overrides.id ?? `win-${Date.now()}-${Math.random()}`,
+    rect: new Rectangle(overrides.rect ?? {}),
+    // Use 'in' operator to check if key exists, allowing null/empty values
+    wm_class: 'wm_class' in overrides ? overrides.wm_class : 'TestApp',
+    title: 'title' in overrides ? overrides.title : 'Test Window',
+    window_type: 'window_type' in overrides ? overrides.window_type : WindowType.NORMAL,
+    transient_for: 'transient_for' in overrides ? overrides.transient_for : null,
+    allows_resize: 'allows_resize' in overrides ? overrides.allows_resize : true,
     ...overrides
   });
 }

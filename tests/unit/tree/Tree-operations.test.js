@@ -22,7 +22,8 @@ describe('Tree Operations', () => {
       get_workspace_manager: vi.fn(),
       get_n_monitors: vi.fn(() => 1),
       get_monitor_neighbor_index: vi.fn(() => -1),
-      get_current_time: vi.fn(() => 12345)
+      get_current_time: vi.fn(() => 12345),
+      get_focus_window: vi.fn(() => null)
     };
 
     global.window_group = {
@@ -721,7 +722,9 @@ describe('Tree Operations', () => {
       expect(node1.parentNode).toBe(container);
     });
 
-    it('should reset sibling percent after move', () => {
+    it('should NOT reset sibling percent when swapping adjacent siblings', () => {
+      // When swapping adjacent siblings, resetSiblingPercent should NOT be called
+      // because the percents are already correct after a swap
       const workspace = tree.nodeWorkpaces[0];
       const monitor = workspace.getNodeByType(NODE_TYPES.MONITOR)[0];
       monitor.layout = LAYOUT_TYPES.HSPLIT;
@@ -738,7 +741,8 @@ describe('Tree Operations', () => {
 
       tree.move(node1, MotionDirection.RIGHT);
 
-      expect(resetSpy).toHaveBeenCalled();
+      // Siblings were swapped, so resetSiblingPercent should NOT be called
+      expect(resetSpy).not.toHaveBeenCalled();
     });
 
     it('should return false if no next node', () => {

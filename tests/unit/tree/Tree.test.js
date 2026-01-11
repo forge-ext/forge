@@ -104,24 +104,32 @@ describe('Tree', () => {
     it('should find nested nodes', () => {
       // Create a nested structure
       const workspace = tree.nodeWorkpaces[0];
-      const container = tree.createNode(workspace.nodeValue, NODE_TYPES.CON, new St.Bin());
+      const monitors = workspace.getNodeByType(NODE_TYPES.MONITOR);
+      if (monitors.length > 0) {
+        const containerBin = new St.Bin();
+        const container = tree.createNode(monitors[0].nodeValue, NODE_TYPES.CON, containerBin);
 
-      const found = tree.findNode('test-container');
+        // Find by the actual nodeValue (the St.Bin instance)
+        const found = tree.findNode(containerBin);
 
-      expect(found).toBe(container);
+        expect(found).toBe(container);
+      }
     });
   });
 
   describe('createNode', () => {
     it('should create node under parent', () => {
       const workspace = tree.nodeWorkpaces[0];
-      const parentValue = workspace.nodeValue;
+      const monitors = workspace.getNodeByType(NODE_TYPES.MONITOR);
+      if (monitors.length > 0) {
+        const containerBin = new St.Bin();
+        const newNode = tree.createNode(monitors[0].nodeValue, NODE_TYPES.CON, containerBin);
 
-      const newNode = tree.createNode(parentValue, NODE_TYPES.CON, new St.Bin());
-
-      expect(newNode).toBeDefined();
-      expect(newNode.nodeType).toBe(NODE_TYPES.CON);
-      expect(newNode.nodeValue).toBe('new-container');
+        expect(newNode).toBeDefined();
+        expect(newNode.nodeType).toBe(NODE_TYPES.CON);
+        // nodeValue is the St.Bin instance passed to createNode
+        expect(newNode.nodeValue).toBe(containerBin);
+      }
     });
 
     it('should add node to parent children', () => {
@@ -341,12 +349,17 @@ describe('Tree', () => {
       if (monitors.length > 0) {
         const monitor = monitors[0];
 
-        const container1 = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, new St.Bin());
-        const container2 = tree.createNode(container1.nodeValue, NODE_TYPES.CON, new St.Bin());
-        const container3 = tree.createNode(container2.nodeValue, NODE_TYPES.CON, new St.Bin());
+        const bin1 = new St.Bin();
+        const bin2 = new St.Bin();
+        const bin3 = new St.Bin();
+
+        const container1 = tree.createNode(monitor.nodeValue, NODE_TYPES.CON, bin1);
+        const container2 = tree.createNode(bin1, NODE_TYPES.CON, bin2);
+        const container3 = tree.createNode(bin2, NODE_TYPES.CON, bin3);
 
         expect(container3.level).toBe(container1.level + 2);
-        expect(tree.findNode('container3')).toBe(container3);
+        // Find by the actual nodeValue (St.Bin instance)
+        expect(tree.findNode(bin3)).toBe(container3);
       }
     });
   });

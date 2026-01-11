@@ -413,10 +413,10 @@ describe('Node', () => {
         expect(child3.index).toBe(2);
       });
 
-      it('should return -1 when no parent', () => {
+      it('should return null when no parent', () => {
         const orphan = new Node(NODE_TYPES.CON, new St.Bin());
 
-        expect(orphan.index).toBe(-1);
+        expect(orphan.index).toBeNull();
       });
     });
 
@@ -469,12 +469,18 @@ describe('Node', () => {
 
   describe('getNodeByValue', () => {
     let root, child1, child2, grandchild;
+    let child1Bin, child2Bin, grandchildBin;
 
     beforeEach(() => {
+      // Store Bin references so we can search by them
+      child1Bin = new St.Bin();
+      child2Bin = new St.Bin();
+      grandchildBin = new St.Bin();
+
       root = new Node(NODE_TYPES.ROOT, 'root');
-      child1 = new Node(NODE_TYPES.CON, new St.Bin());
-      child2 = new Node(NODE_TYPES.CON, new St.Bin());
-      grandchild = new Node(NODE_TYPES.CON, new St.Bin());
+      child1 = new Node(NODE_TYPES.CON, child1Bin);
+      child2 = new Node(NODE_TYPES.CON, child2Bin);
+      grandchild = new Node(NODE_TYPES.CON, grandchildBin);
 
       root.appendChild(child1);
       root.appendChild(child2);
@@ -482,13 +488,15 @@ describe('Node', () => {
     });
 
     it('should find direct child by value', () => {
-      const found = root.getNodeByValue('child1');
+      // Search by the actual nodeValue (the St.Bin instance)
+      const found = root.getNodeByValue(child1Bin);
 
       expect(found).toBe(child1);
     });
 
     it('should find grandchild by value', () => {
-      const found = root.getNodeByValue('grandchild');
+      // Search by the actual nodeValue (the St.Bin instance)
+      const found = root.getNodeByValue(grandchildBin);
 
       expect(found).toBe(grandchild);
     });
@@ -538,7 +546,8 @@ describe('Node', () => {
 
   describe('rect property', () => {
     it('should get and set rect', () => {
-      const node = new Node(NODE_TYPES.ROOT, 'root');
+      // Use St.Bin for ROOT type since actor getter returns nodeValue for ROOT/CON types
+      const node = new Node(NODE_TYPES.CON, new St.Bin());
       const rect = { x: 10, y: 20, width: 100, height: 200 };
 
       node.rect = rect;

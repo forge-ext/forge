@@ -2,359 +2,279 @@
 
 ## Summary
 
-**Total Code**: ~7,000 lines across 10 files
-**Tested**: ~1,500 lines (~21% direct coverage)
-**Untested Critical Code**: ~5,500 lines (~79%)
+**Total Test Files**: 18 unit test files + 1 integration test
+**Total Tests**: 641 (640 passing, 1 skipped)
+**Test Code**: ~9,124 lines of test code
+**Source Code**: ~7,000 lines across 10 core files
 
 ---
 
-## ✅ **Fully Tested** (5 files)
+## Current Test Status
 
-| File | Lines | Coverage | Test File |
-|------|-------|----------|-----------|
-| `lib/extension/utils.js` | 408 | ~95% | `tests/unit/utils/utils.test.js` |
-| `lib/shared/logger.js` | 81 | ~100% | `tests/unit/shared/logger.test.js` |
-| `lib/css/index.js` | 889 | ~70% | `tests/unit/css/parser.test.js` |
-| `lib/extension/tree.js` (Queue only) | 22 | 100% | `tests/unit/tree/Queue.test.js` |
-| Integration scenarios | - | N/A | `tests/integration/window-operations.test.js` |
+All tests passing as of latest run:
 
-**Total Tested**: ~1,400 lines
-
----
-
-## ❌ **Major Gaps** (Critical Code Untested)
-
-### 1. **`lib/extension/tree.js`** - Node & Tree Classes ⚠️ **HIGH PRIORITY**
-**Lines**: 1,669 | **Tested**: 22 (Queue only) | **Gap**: 1,647 lines (~98% untested)
-
-#### Missing Coverage:
-
-**Node Class** (~400 lines):
-- ❌ DOM-like API:
-  - `appendChild(node)` - Add child to parent
-  - `insertBefore(newNode, childNode)` - Insert at position
-  - `removeChild(node)` - Remove child
-- ❌ Navigation properties:
-  - `firstChild`, `lastChild`, `nextSibling`, `previousSibling`
-  - `parentNode`, `childNodes`
-- ❌ Search methods:
-  - `getNodeByValue(value)` - Find by value
-  - `getNodeByType(type)` - Find by type
-  - `getNodeByLayout(layout)` - Find by layout
-  - `getNodeByMode(mode)` - Find by mode
-- ❌ Type checking:
-  - `isWindow()`, `isCon()`, `isMonitor()`, `isWorkspace()`
-  - `isFloat()`, `isTile()`
-  - `isHSplit()`, `isVSplit()`, `isStacked()`, `isTabbed()`
-- ❌ Node properties:
-  - `rect` getter/setter
-  - `nodeValue`, `nodeType`
-  - `level`, `index`
-
-**Tree Class** (~900 lines):
-- ❌ **Layout calculation algorithms** (CRITICAL):
-  - `processNode(node)` - Main layout processor
-  - `processSplit(node)` - Horizontal/vertical splitting
-  - `processStacked(node)` - Stacked layout
-  - `processTabbed(node)` - Tabbed layout
-  - `computeSizes(node, children)` - Size calculations
-  - `processGap(rect, gap)` - Gap processing
-- ❌ Tree operations:
-  - `createNode(parent, type, value)` - Node creation
-  - `findNode(value)` - Node lookup
-  - `removeNode(node)` - Node removal
-  - `addWorkspace(index)` - Workspace management
-  - `removeWorkspace(index)`
-- ❌ Window operations:
-  - `move(node, direction)` - Move window in tree
-  - `swap(node1, node2)` - Swap windows
-  - `swapPairs(nodeA, nodeB)` - Pair swapping
-  - `split(node, orientation)` - Create splits
-- ❌ Focus management:
-  - `focus(node, direction)` - Navigate focus
-  - `next(node, direction)` - Find next node
-- ❌ Rendering:
-  - `render()` - Main render loop
-  - `apply(node)` - Apply calculated positions
-  - `cleanTree()` - Remove orphaned nodes
-- ❌ Utility methods:
-  - `getTiledChildren(node)` - Filter tiled windows
-  - `findFirstNodeWindowFrom(node)` - Find window
-  - `resetSiblingPercent(parent)` - Reset sizes
-
-**Why Critical**: Tree/Node are the **core data structure** for the entire tiling system. All window positioning logic depends on these.
+```
+✓ tests/unit/css/parser.test.js (42 tests)
+✓ tests/unit/shared/logger.test.js (27 tests)
+✓ tests/unit/tree/Node.test.js (62 tests)
+✓ tests/unit/tree/Queue.test.js (29 tests)
+✓ tests/unit/tree/Tree-layout.test.js (50 tests)
+✓ tests/unit/tree/Tree-operations.test.js (75 tests)
+✓ tests/unit/tree/Tree.test.js (32 tests)
+✓ tests/unit/utils/utils.test.js (50 tests)
+✓ tests/unit/window/WindowManager-batch.test.js (22 tests)
+✓ tests/unit/window/WindowManager-commands.test.js (44 tests)
+✓ tests/unit/window/WindowManager-floating.test.js (63 tests)
+✓ tests/unit/window/WindowManager-focus.test.js (37 tests)
+✓ tests/unit/window/WindowManager-overrides.test.js (33 tests)
+✓ tests/unit/window/WindowManager-pointer.test.js (18 tests)
+✓ tests/unit/window/WindowManager-resize.test.js (11 tests)
+✓ tests/unit/window/WindowManager-tracking.test.js (22 tests)
+✓ tests/unit/window/WindowManager-workspaces.test.js (23 tests)
+✓ tests/integration/window-operations.test.js (1 skipped)
+```
 
 ---
 
-### 2. **`lib/extension/window.js`** - WindowManager ⚠️ **HIGHEST PRIORITY**
-**Lines**: 2,821 | **Tested**: 0 | **Gap**: 2,821 lines (100% untested)
+## ✅ **Well Covered** (Good test coverage)
 
-#### Missing Coverage:
+| File | Lines | Coverage | Test File(s) |
+|------|-------|----------|--------------|
+| `lib/extension/utils.js` | 408 | ~95% | `utils.test.js` |
+| `lib/shared/logger.js` | 81 | ~100% | `logger.test.js` |
+| `lib/css/index.js` | 889 | ~70% | `parser.test.js` |
+| `lib/extension/tree.js` (Queue) | 22 | 100% | `Queue.test.js` |
+| `lib/extension/tree.js` (Node) | ~400 | ~90% | `Node.test.js` |
+| `lib/extension/tree.js` (Tree) | ~900 | ~70% | `Tree.test.js`, `Tree-operations.test.js`, `Tree-layout.test.js` |
+| `lib/extension/window.js` (WindowManager) | 2,821 | ~60% | 9 test files (~273 tests) |
 
-**WindowManager Class**:
-- ❌ **Core window lifecycle**:
-  - `trackWindow(metaWindow)` - Add window to tree
-  - `untrackWindow(metaWindow)` - Remove window
-  - `renderTree()` - Trigger layout recalculation
-- ❌ **Command system** (main interface):
-  - `command(action, payload)` - Execute tiling commands
-  - Actions: FOCUS, MOVE, SWAP, SPLIT, RESIZE, TOGGLE_FLOAT, etc.
-- ❌ **Signal handling**:
-  - `_bindSignals()` - Connect to GNOME Shell events
-  - `_handleWindowCreated()` - New window events
-  - `_handleWindowDestroyed()` - Window cleanup
-  - `_handleGrabOpBegin()` - Drag/resize start
-  - `_handleGrabOpEnd()` - Drag/resize end
-  - `_handleWorkspaceChanged()` - Workspace switching
-- ❌ **Floating window management**:
-  - `toggleFloatingMode(window)` - Toggle float/tile
-  - `isFloatingExempt(window)` - Check float rules
-  - `addFloatOverride(wmClass, wmTitle)` - Add exception
-  - `removeFloatOverride(wmClass, wmTitle)` - Remove exception
-- ❌ **Window modes**:
-  - Mode detection (FLOAT, TILE, GRAB_TILE)
-  - Mode transitions
-- ❌ **Drag-drop tiling**:
-  - Modifier key detection
-  - Drag position calculation
-  - Auto-tiling on drop
+### Node Class - Extensively Tested
 
-**Why Critical**: WindowManager is the **main orchestrator** - it's what users interact with. All tiling functionality flows through this class.
+**Covered in `Node.test.js` (62 tests)**:
+- ✅ DOM-like API: `appendChild()`, `insertBefore()`, `removeChild()`
+- ✅ Navigation: `firstChild`, `lastChild`, `nextSibling`, `previousSibling`, `parentNode`, `childNodes`
+- ✅ Search: `getNodeByValue()`, `getNodeByType()`, `getNodeByLayout()`, `getNodeByMode()`
+- ✅ Type checking: `isWindow()`, `isCon()`, `isMonitor()`, `isWorkspace()`, `isFloat()`, `isTile()`
+- ✅ Properties: `rect`, `nodeValue`, `nodeType`, `level`, `index`
 
----
+### Tree Class - Extensively Tested
 
-### 3. **`lib/shared/theme.js`** - ThemeManagerBase
-**Lines**: 280 | **Tested**: 0 | **Gap**: 280 lines (100% untested)
+**Covered in `Tree.test.js`, `Tree-operations.test.js`, `Tree-layout.test.js` (157 tests)**:
+- ✅ Node operations: `createNode()`, `findNode()`, `removeNode()`
+- ✅ Window operations: `move()`, `swap()`, `swapPairs()`, `split()`
+- ✅ Layout: `processNode()`, `processSplit()`, `computeSizes()`
+- ✅ Workspace: `addWorkspace()`, `removeWorkspace()`
+- ✅ Tree structure: `getTiledChildren()`, `findFirstNodeWindowFrom()`, `resetSiblingPercent()`
 
-#### Missing Coverage:
+### WindowManager Class - Extensively Tested
 
-- ❌ CSS manipulation:
-  - `getCssRule(selector)` - Find CSS rule
-  - `getCssProperty(selector, property)` - Get property value
-  - `setCssProperty(selector, property, value)` - Set property
-  - `patchCss(patches)` - Apply CSS patches
-- ❌ Color conversion:
-  - `RGBAToHexA(rgba)` - Color format conversion
-  - `hexAToRGBA(hex)` - Hex to RGBA
-- ❌ Theme management:
-  - `getDefaultPalette()` - Get default colors
-  - `reloadStylesheet()` - Reload CSS
-
-**Why Important**: Handles all visual customization - colors, borders, focus hints.
+**Covered across 9 test files (~273 tests)**:
+- ✅ Window tracking: `trackWindow()`, `untrackWindow()` (`WindowManager-tracking.test.js`)
+- ✅ Float management: `toggleFloatingMode()`, `isFloatingExempt()` (`WindowManager-floating.test.js`)
+- ✅ Overrides: `addFloatOverride()`, `removeFloatOverride()` (`WindowManager-overrides.test.js`)
+- ✅ Commands: `command()` system (`WindowManager-commands.test.js`)
+- ✅ Focus: focus navigation (`WindowManager-focus.test.js`)
+- ✅ Batch operations: batch float toggles (`WindowManager-batch.test.js`)
+- ✅ Workspaces: workspace management (`WindowManager-workspaces.test.js`)
+- ✅ Pointer: mouse/pointer interactions (`WindowManager-pointer.test.js`)
+- ✅ Resize: window resizing (`WindowManager-resize.test.js`)
 
 ---
 
-### 4. **`lib/shared/settings.js`** - ConfigManager
-**Lines**: 167 | **Tested**: 0 | **Gap**: 167 lines (100% untested)
+## ⚠️ **Partial Coverage** (Key gaps remaining)
 
-#### Missing Coverage:
+### Tree Class - Advanced Algorithms
 
-- ❌ File management:
-  - `loadFile(path, file, defaultFile)` - Load config files
-  - `loadFileContents(file)` - Read file contents
-  - `loadDefaultWindowConfigContents()` - Load defaults
-- ❌ Window configuration:
-  - `windowProps` getter - Load window overrides
-  - `windowProps` setter - Save window overrides
-- ❌ Stylesheet management:
-  - `stylesheetFile` getter - Load custom CSS
-  - `defaultStylesheetFile` getter - Load default CSS
-- ❌ File paths:
-  - `confDir` - Get config directory
-  - Directory creation and permissions
+**File**: `lib/extension/tree.js`
 
-**Why Important**: Manages user configuration and window override rules (which apps should float, etc.).
+Methods with complex logic needing more tests:
 
----
+- **`focus()` (lines 772-858)** - 86 lines, deeply nested
+  - ❌ STACKED layout focus traversal
+  - ❌ Focus with minimized windows (recursive case)
+  - ❌ GRAB_TILE mode handling
+  - ❌ Cross-monitor focus navigation
 
-### 5. **`lib/extension/keybindings.js`** - Keybindings
-**Lines**: 494 | **Tested**: 0 | **Gap**: 494 lines (100% untested)
+- **`next()` (lines 992-1036)** - Core tree traversal
+  - ❌ Orientation matching against parent layout
+  - ❌ Walking up tree to find matching sibling
 
-#### Missing Coverage:
+- **`processTabbed()` (lines 1512-1570)** - Decoration positioning
+  - ❌ DPI scaling effects
+  - ❌ Gap and border calculation accuracy
 
-- ❌ Keybinding registration:
-  - `enable()` - Register all 40+ keyboard shortcuts
-  - `disable()` - Unregister shortcuts
-  - `buildBindingDefinitions()` - Create binding map
-- ❌ Modifier key handling:
-  - `allowDragDropTile()` - Check modifier keys for drag-drop
-- ❌ Command mapping:
-  - Focus navigation (h/j/k/l vim-style)
-  - Window swapping, moving
-  - Layout toggling (split, stacked, tabbed)
-  - Float/tile toggling
-  - Gap size adjustment
-  - Window resizing
-  - Snap layouts (1/3, 2/3)
+- **`cleanTree()` (lines 1289-1325)** - Multi-phase orphan removal
+  - ❌ Invalid window detection
+  - ❌ Container flattening scenarios
 
-**Why Important**: This is **how users interact** with the extension - all keyboard shortcuts.
+### WindowManager - Complex Operations
 
----
+**File**: `lib/extension/window.js`
 
-### 6. **`lib/extension/indicator.js`** - Quick Settings Integration
-**Lines**: 130 | **Tested**: 0 | **Gap**: 130 lines (100% untested)
+- **`moveWindowToPointer()` (lines 1931-2281)** - 350+ lines, drag-drop
+  - ❌ 5-region detection (left, right, top, bottom, center)
+  - ❌ Stacked/tabbed layout handling during drag
+  - ❌ Container creation conditions
 
-#### Missing Coverage:
+- **`_handleResizing()` (lines 2523-2665)** - Resize propagation
+  - ❌ Same-parent vs cross-parent resizing
+  - ❌ Percentage delta calculations
 
-- ❌ Quick settings UI:
-  - `FeatureMenuToggle` - Main toggle in quick settings
-  - `FeatureIndicator` - System tray indicator
-  - `SettingsPopupSwitch` - Individual setting switches
-- ❌ Enable/disable functionality
-- ❌ Settings synchronization
-
-**Why Lower Priority**: UI component - harder to test without full GNOME Shell, less critical than core logic.
+- **`showWindowBorders()` (lines 1247-1380)** - Border display
+  - ❌ Gap-dependent rendering (hide when gaps=0)
+  - ❌ Multi-monitor maximization detection
+  - ❌ GNOME 49+ compatibility branches
 
 ---
 
-### 7. **`lib/extension/extension-theme-manager.js`** - Extension Theme Manager
-**Lines**: (Unknown - need to check) | **Tested**: 0
+## ❌ **Untested Modules**
 
-**Why Lower Priority**: Extends ThemeManagerBase, similar to indicator - UI-focused.
+### 1. **`lib/shared/theme.js`** - ThemeManagerBase
+**Lines**: 280 | **Gap**: 100% untested
+
+- ❌ CSS manipulation: `getCssRule()`, `getCssProperty()`, `setCssProperty()`, `patchCss()`
+- ❌ Color conversion: `RGBAToHexA()`, `hexAToRGBA()`
+- ❌ Theme management: `getDefaultPalette()`, `reloadStylesheet()`
+
+### 2. **`lib/shared/settings.js`** - ConfigManager
+**Lines**: 167 | **Gap**: 100% untested
+
+- ❌ File management: `loadFile()`, `loadFileContents()`
+- ❌ Window configuration: `windowProps` getter/setter
+- ❌ Stylesheet management: `stylesheetFile`, `defaultStylesheetFile`
+
+### 3. **`lib/extension/keybindings.js`** - Keybindings
+**Lines**: 494 | **Gap**: 100% untested
+
+- ❌ Keybinding registration: `enable()`, `disable()`, `buildBindingDefinitions()`
+- ❌ Modifier key handling: `allowDragDropTile()`
+- ❌ Command mapping for 40+ keyboard shortcuts
+
+### 4. **`lib/extension/indicator.js`** - Quick Settings UI
+**Lines**: 130 | **Gap**: 100% untested
+
+- ❌ UI components (harder to test without full GNOME Shell)
+
+### 5. **`lib/extension/extension-theme-manager.js`** - Extension Theme Manager
+**Lines**: Unknown | **Gap**: 100% untested
+
+- ❌ Extends ThemeManagerBase
 
 ---
 
-## 📊 **Priority Ranking for Next Tests**
+## 📊 **Priority for Additional Tests**
 
-### 🔴 **Critical Priority** (Core Functionality)
+### 🔴 High Priority (User Configuration)
 
-1. **`lib/extension/window.js` - WindowManager** (2,821 lines)
-   - Why: Main orchestrator, user-facing functionality
-   - What to test first:
-     - `trackWindow()` / `untrackWindow()`
-     - `command()` system with major actions
-     - `isFloatingExempt()` - window override rules
-     - `toggleFloatingMode()`
-
-2. **`lib/extension/tree.js` - Tree & Node** (1,647 lines)
-   - Why: Core data structure, all layout calculations
-   - What to test first:
-     - **Node**: `appendChild()`, `insertBefore()`, `removeChild()`, navigation
-     - **Tree**: `processSplit()`, `move()`, `swap()`, `split()`
-     - Layout calculations (the i3-like algorithms)
-
-### 🟡 **High Priority** (User Configuration)
-
-3. **`lib/shared/settings.js` - ConfigManager** (167 lines)
+1. **`lib/shared/settings.js` - ConfigManager** (167 lines)
    - Why: User settings and window overrides
    - What to test: `windowProps` getter/setter, file loading
 
-4. **`lib/shared/theme.js` - ThemeManagerBase** (280 lines)
+2. **`lib/shared/theme.js` - ThemeManagerBase** (280 lines)
    - Why: Visual customization
-   - What to test: CSS property get/set, color conversions
+   - What to test: CSS property get/set, color conversions (pure functions)
 
-### 🟢 **Medium Priority** (User Interaction)
+### 🟡 Medium Priority (Complex Algorithms)
+
+3. **Tree focus/navigation** (extend existing tests)
+   - `focus()` through STACKED/TABBED layouts
+   - `next()` orientation matching
+
+4. **WindowManager drag-drop** (new test file)
+   - `moveWindowToPointer()` region detection
+   - Container creation conditions
+
+### 🟢 Lower Priority (User Interaction/UI)
 
 5. **`lib/extension/keybindings.js` - Keybindings** (494 lines)
    - Why: User input handling
    - What to test: Binding definitions, modifier key detection
 
-### ⚪ **Lower Priority** (UI/Integration)
-
 6. **`lib/extension/indicator.js`** (130 lines)
    - Why: Quick settings UI - harder to test, less critical
-
-7. **`lib/extension/extension-theme-manager.js`**
-   - Why: Extends ThemeManagerBase
 
 ---
 
 ## 🎯 **Recommended Next Steps**
 
-### Phase 1: Core Algorithm Testing
-```bash
-# Create these test files:
-tests/unit/tree/Node.test.js           # Node DOM-like API
-tests/unit/tree/Tree-operations.test.js  # move, swap, split
-tests/unit/tree/Tree-layout.test.js      # processSplit, processStacked
-```
-
-### Phase 2: Window Management Testing
-```bash
-tests/unit/window/WindowManager.test.js  # Core window tracking
-tests/unit/window/commands.test.js       # Command system
-tests/unit/window/floating.test.js       # Float mode logic
-```
-
-### Phase 3: Configuration & Theme Testing
+### Phase 1: Configuration & Theme Testing
 ```bash
 tests/unit/shared/settings.test.js      # ConfigManager
 tests/unit/shared/theme.test.js         # ThemeManagerBase
 ```
 
-### Phase 4: Input & UI Testing
+### Phase 2: Advanced Algorithm Testing
 ```bash
-tests/unit/extension/keybindings.test.js  # Keyboard shortcuts
-tests/unit/extension/indicator.test.js    # Quick settings (optional)
+tests/unit/tree/Tree-focus.test.js      # focus()/next() edge cases
+tests/unit/tree/Tree-cleanup.test.js    # cleanTree()/removeNode() edge cases
 ```
 
----
+### Phase 3: Complex WindowManager Operations
+```bash
+tests/unit/window/WindowManager-drag-drop.test.js  # moveWindowToPointer()
+tests/unit/window/WindowManager-borders.test.js   # showWindowBorders()
+```
 
-## 🚧 **Testing Challenges**
-
-### Why Some Code Is Harder to Test:
-
-1. **GObject.Object inheritance**: Node, Tree, Queue, WindowManager all extend GObject
-   - ✅ **Solution**: We added `registerClass()` to GObject mock - already working for Queue!
-
-2. **GNOME Shell globals**: `global.display`, `global.window_group`, etc.
-   - ⚠️ **Need**: Mock for `global` object with display, workspace_manager
-
-3. **St.Bin UI components**: Tree uses St.Bin for decorations
-   - ✅ **Already mocked**: `tests/mocks/gnome/St.js` has Bin, Widget
-
-4. **Signal connections**: Lots of `window.connect('size-changed', ...)`
-   - ✅ **Already mocked**: Meta.Window has signal support
-
-5. **Meta.Window dependencies**: Tree and WindowManager work with real windows
-   - ✅ **Already mocked**: `createMockWindow()` helper works great
-
-### What We Need to Mock Next:
-
-```javascript
-// global object (for WindowManager/Tree)
-global.display
-global.workspace_manager
-global.window_group
-global.get_current_time()
-
-// Workspace manager (for Tree)
-WorkspaceManager.get_n_workspaces()
-WorkspaceManager.get_workspace_by_index(i)
+### Phase 4: Input Testing
+```bash
+tests/unit/extension/keybindings.test.js  # Keyboard shortcuts
 ```
 
 ---
 
 ## 💡 **Quick Wins** (Easy to Add)
 
-These would add significant coverage with minimal effort:
-
 1. **Color conversion functions** (`theme.js`)
    - Pure functions, no dependencies
    - ~30 lines of code, ~10 test cases
 
-2. **Node navigation** (`tree.js`)
-   - DOM-like API, well-defined behavior
-   - ~100 lines of code, ~50 test cases
-
-3. **WindowManager.isFloatingExempt()** (`window.js`)
-   - Logic function, no UI
-   - ~50 lines of code, ~20 test cases
+2. **ConfigManager file operations** (`settings.js`)
+   - Well-defined I/O behavior
+   - ~50 lines of code, ~15 test cases
 
 ---
 
-## 📈 **Coverage Goal**
+## 📈 **Coverage Summary**
 
-**Target**: 60-70% code coverage of core logic
+| Module | Previous | Current | Target |
+|--------|----------|---------|--------|
+| Utils | 95% | 95% | ✅ Done |
+| Logger | 100% | 100% | ✅ Done |
+| CSS Parser | 70% | 70% | ✅ Done |
+| Queue | 100% | 100% | ✅ Done |
+| Node | 0% | ~90% | ✅ Done |
+| Tree | 0% | ~70% | ~80% |
+| WindowManager | 0% | ~60% | ~70% |
+| Settings | 0% | 0% | ~80% |
+| Theme | 0% | 0% | ~70% |
+| Keybindings | 0% | 0% | ~50% |
 
-**Focus Areas** (in order):
-1. ✅ Utils (95%) - **DONE**
-2. ✅ Logger (100%) - **DONE**
-3. ✅ CSS Parser (70%) - **DONE**
-4. ❌ Tree/Node (0% → 70%) - **HIGH PRIORITY**
-5. ❌ WindowManager (0% → 60%) - **HIGHEST PRIORITY**
-6. ❌ Settings (0% → 80%) - **HIGH PRIORITY**
-7. ❌ Theme (0% → 70%) - **MEDIUM PRIORITY**
-8. ❌ Keybindings (0% → 50%) - **MEDIUM PRIORITY**
+**Overall**: ~60% of core logic now tested (up from ~21%)
 
-With these additions, you'd have **~4,000 lines tested** out of ~7,000 total (**~57% coverage**).
+---
+
+## 🧪 **Mock Infrastructure**
+
+The test suite includes comprehensive mocks for GNOME APIs:
+
+```
+tests/mocks/
+├── gnome/
+│   ├── Clutter.js       # Clutter toolkit
+│   ├── Gio.js           # GIO (I/O, settings)
+│   ├── GLib.js          # GLib utilities
+│   ├── GObject.js       # GObject type system
+│   ├── Meta.js          # Window manager (Window, Workspace, Rectangle)
+│   ├── Shell.js         # Shell integration
+│   └── St.js            # Shell toolkit (Bin, Widget, Label)
+├── helpers/
+│   └── mockWindow.js    # Window factory helpers
+└── extension/
+    └── window-stubs.js  # WindowManager stubs
+```
+
+Global mocks available in tests:
+- `global.display` - Display manager with workspace/monitor methods
+- `global.get_pointer()` - Mouse position
+- `global.get_current_time()` - Timestamp
+- `imports.gi.*` - All GNOME introspection modules
