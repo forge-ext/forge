@@ -4,34 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Forge is a GNOME Shell extension providing tiling/window management with i3-wm/sway-wm style workflow. It supports GNOME Shell versions 45-49 on both X11 and Wayland.
+Forge is a GNOME Shell extension providing i3/sway-style tiling window management. It supports GNOME 40+ on both X11 and Wayland, featuring tree-based tiling with horizontal/vertical split containers, stacked/tabbed layouts, vim-like keybindings, drag-and-drop tiling, and multi-monitor support.
 
-## Development Commands
+## Build & Development Commands
 
 ```bash
-# Quick development cycle (build + debug mode + install)
+# Install dependencies (Node.js 16+ and gettext required)
+npm install
+
+# Development build: compile, set debug mode, install to ~/.local/share/gnome-shell/extensions/
 make dev
 
-# Full test cycle (disable, uninstall, build, install, enable, nested shell)
+# Production build: compile, install, enable extension, restart shell
+make prod
+
+# Testing in nested Wayland session (no shell restart needed)
 make test
 
-# X11 testing with shell restart
+# Testing on X11 (restarts gnome-shell)
 make test-x
 
-# Wayland testing with nested GNOME Shell
-make test-wayland
+# Unit tests (mocked GNOME APIs via Vitest)
+npm test                    # Run all tests
+npm run test:watch          # Watch mode
+npm run test:coverage       # With coverage report
 
-# Build only
-make build
+# Code formatting
+npm run format              # Format code with Prettier
+npm run lint                # Check formatting
 
 # View extension logs
 make log
-
-# Format code
-npm run format
-
-# Check formatting
-npm test
 ```
 
 For Wayland nested testing, use `make test-open` to launch apps in the nested session.
@@ -39,38 +42,90 @@ For Wayland nested testing, use `make test-open` to launch apps in the nested se
 ## Architecture
 
 ### Entry Points
-- `extension.js` - Main extension class with `enable()`/`disable()` lifecycle
-- `prefs.js` - Preferences UI entry point (separate process from extension)
+
+- `extension.js` - Main extension entry point, creates ForgeExtension class that manages lifecycle
+- `prefs.js` - Preferences window entry point (GTK4/Adwaita)
 
 ### Core Components (lib/extension/)
-- `window.js` - **WindowManager**: Central tiling logic, window placement, focus management, workspace handling. This is the largest and most critical file (~3000 lines).
-- `tree.js` - **Tree/Node**: Binary tree data structure for window hierarchy. Defines NODE_TYPES (ROOT, MONITOR, CON, WINDOW, WORKSPACE), LAYOUT_TYPES (STACKED, TABBED, HSPLIT, VSPLIT), and POSITION enum.
-- `keybindings.js` - Keyboard shortcut handling (vim-like hjkl navigation)
-- `indicator.js` - Quick settings panel integration
 
-### Shared Utilities (lib/shared/)
-- `settings.js` - ConfigManager for GSettings and file-based config
-- `logger.js` - Debug logging (controlled by `production` flag)
-- `theme.js` - Theme/CSS utilities
+- **tree.js** - Tree data structure for window layout (central to tiling logic)
+  - `Node` class: Represents monitors, workspaces, containers, and windows in a tree hierarchy
+  - `Tree` class: Manages the entire tree structure, handles layout calculations
+  - `Queue` class: Event queue for window operations
+  - Node types: ROOT, MONITOR, WORKSPACE, CON (container), WINDOW
+  - Layout types: HSPLIT, VSPLIT, STACKED, TABBED, PRESET
 
-### Configuration
+- **window.js** - WindowManager class, handles window signals, grab operations, tiling logic, and focus management (~3000 lines)
+
+- **keybindings.js** - Keyboard shortcut management (vim-like hjkl navigation)
+
+- **utils.js** - Utility functions for geometry calculations, window operations
+
+- **enum.js** - `createEnum()` helper for creating frozen enum objects
+
+- **indicator.js** - Quick settings panel integration
+
+### Shared Modules (lib/shared/)
+
+- **settings.js** - ConfigManager for loading window overrides from `~/.config/forge/config/windows.json`
+- **logger.js** - Debug logging (controlled by settings)
+- **theme.js** - ThemeManagerBase for CSS parsing and stylesheet management
+
+### Preferences UI (lib/prefs/)
+
+GTK4/Adwaita preference pages - not covered by unit tests.
+
+### GSettings Schemas
+
+Located in `schemas/org.gnome.shell.extensions.forge.gschema.xml`. Compiled during build.
+
+## Testing Infrastructure
+
+Tests use Vitest with mocked GNOME APIs (tests/mocks/gnome/). The mocks simulate Meta, Gio, GLib, Shell, St, Clutter, and GObject APIs so tests can run in Node.js without GNOME Shell.
+
+**Always run tests in Docker** to ensure consistent environment:
+
+```bash
+# Run all tests in Docker (preferred)
+make unit-test-docker
+
+# Run with coverage report
+make unit-test-docker-coverage
+
+# Watch mode for development
+make unit-test-docker-watch
+
+# Run locally (if Node.js environment matches)
+npm test
+npm run test:coverage
+```
+
+**Coverage**: 60.5% overall, 728 tests. See `tests/COVERAGE-GAPS.md` for detailed breakdown.
+
+Test structure:
+- `tests/setup.js` - Global test setup, loads mocks
+- `tests/mocks/gnome/` - GNOME API mocks (Meta.js, GLib.js, etc.)
+- `tests/mocks/helpers/` - Test helpers like `createMockWindow()`
+- `tests/unit/` - Unit tests organized by module
+- `tests/COVERAGE-GAPS.md` - Coverage analysis and gaps documentation
+
+## Key Concepts
+
+- **Tiling tree**: Windows are organized in a tree structure similar to i3/sway. Containers can split horizontally or vertically, or display children in stacked/tabbed mode.
+
+- **Window modes**: TILE (managed by tree), FLOAT (unmanaged), GRAB_TILE (being dragged), DEFAULT
+
+- **Session modes**: Extension disables keybindings on lock screen but keeps tree in memory to preserve layout
+
+- **GObject Classes**: All core classes extend GObject with `static { GObject.registerClass(this); }` pattern.
+
+- **Signal Connections**: Track signal IDs for proper cleanup in disable().
+
+## Configuration Files
+
 - GSettings schema: `org.gnome.shell.extensions.forge`
 - Window overrides: `~/.config/forge/config/windows.json`
-- User CSS: `~/.config/forge/stylesheet/forge/stylesheet.css`
-
-## Key Patterns
-
-**Session Modes**: Extension persists window data in `unlock-dialog` mode but disables keybindings. This is intentional to preserve window arrangement across lock/unlock.
-
-**GObject Classes**: All core classes extend GObject with `static { GObject.registerClass(this); }` pattern.
-
-**Window Classification**: Windows are classified as FLOAT, TILE, GRAB_TILE, or DEFAULT based on wmClass/wmTitle matching in windows.json.
-
-**Signal Connections**: Track signal IDs for proper cleanup in disable().
-
-## Build Output
-
-The `make build` command compiles to `temp/` directory. The `make debug` command patches `lib/shared/settings.js` to set `production = false` for development logging.
+- Stylesheet overrides: `~/.config/forge/stylesheet/forge/stylesheet.css`
 
 ## Code Style
 

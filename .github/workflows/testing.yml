@@ -60,8 +60,22 @@ jobs:
       - name: Build Node.js project
         run: npm run build --if-present --verbose
 
-      - name: Test Node.js project
+      - name: Run linter (prettier)
+        run: npm run lint --verbose
+
+      - name: Run unit tests
         run: npm test --verbose
+
+      - name: Generate coverage report
+        run: npm run test:coverage --verbose
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report-node-${{ matrix.node_version }}
+          path: coverage/
+          retention-days: 30
 
       - name: Test Packaging
         run: make dist
