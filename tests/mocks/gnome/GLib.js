@@ -61,6 +61,11 @@ export function source_remove(id) {
   return true;
 }
 
+export function mkdir_with_parents(path, mode) {
+  // Mock directory creation - return 0 for success
+  return 0;
+}
+
 export default {
   getenv,
   get_home_dir,
@@ -74,5 +79,6 @@ export default {
   PRIORITY_LOW,
   timeout_add,
   idle_add,
-  source_remove
+  source_remove,
+  mkdir_with_parents
 };

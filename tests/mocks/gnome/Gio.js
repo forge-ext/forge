@@ -42,6 +42,11 @@ export class File {
     // Mock file writing
     return [true, null];
   }
+
+  copy(destination, flags, cancellable, progressCallback) {
+    // Mock file copy
+    return true;
+  }
 }
 
 export class Settings {
@@ -87,6 +92,14 @@ export class Settings {
     this._settings.set(key, value);
   }
 
+  get_uint(key) {
+    return this._settings.get(key) || 0;
+  }
+
+  set_uint(key, value) {
+    this._settings.set(key, value);
+  }
+
   get_value(key) {
     return this._settings.get(key);
   }
@@ -115,8 +128,19 @@ export const FileCreateFlags = {
   REPLACE_DESTINATION: 1 << 1
 };
 
+export const FileCopyFlags = {
+  NONE: 0,
+  OVERWRITE: 1 << 0,
+  BACKUP: 1 << 1,
+  NOFOLLOW_SYMLINKS: 1 << 2,
+  ALL_METADATA: 1 << 3,
+  NO_FALLBACK_FOR_MOVE: 1 << 4,
+  TARGET_DEFAULT_PERMS: 1 << 5
+};
+
 export default {
   File,
   Settings,
-  FileCreateFlags
+  FileCreateFlags,
+  FileCopyFlags
 };
