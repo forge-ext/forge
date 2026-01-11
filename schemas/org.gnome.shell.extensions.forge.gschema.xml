@@ -63,6 +63,11 @@
             <summary>Layout modes: stacking, tiling</summary>
         </key>
 
+        <key type="s" name="default-window-layout">
+            <default>'tiled'</default>
+            <summary>Default layout for new containers: tiled, tabbed, stacked</summary>
+        </key>
+
         <key type="b" name="tiling-mode-enabled">
             <default>true</default>
             <summary>Tiling mode on/off</summary>
@@ -374,6 +379,16 @@
         <key type="as" name="prefs-config-reload">
             <default><![CDATA[['<Shift><Super>r']]]></default>
             <summary>Reload configuration from files</summary>
+        </key>
+
+        <key type="as" name="window-pointer-to-focus">
+            <default><![CDATA[[]]]></default>
+            <summary>Move pointer to the focused window</summary>
+        </key>
+
+        <key type="as" name="workspace-monocle-toggle">
+            <default><![CDATA[[]]]></default>
+            <summary>Toggle monocle mode (tab all windows on workspace)</summary>
         </key>
     </schema>
 </schemalist>
