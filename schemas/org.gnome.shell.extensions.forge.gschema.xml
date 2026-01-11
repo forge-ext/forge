@@ -58,6 +58,11 @@
             <summary>Hide focus border when single window toggle</summary>
         </key>
 
+        <key type="b" name="window-maximize-on-single">
+            <default>false</default>
+            <summary>Maximize window when it is the only one on workspace</summary>
+        </key>
+
         <key type="s" name="primary-layout-mode">
             <default>'tiling'</default>
             <summary>Layout modes: stacking, tiling</summary>
@@ -171,6 +176,11 @@
         <key type="u" name="focus-border-radius">
             <default>14</default>
             <summary>The border radius of focus borders in pixels</summary>
+        </key>
+
+        <key type="u" name="tabbed-tab-margin">
+            <default>1</default>
+            <summary>The margin between tabs in tabbed mode (pixels)</summary>
         </key>
 
     </schema>
@@ -389,6 +399,16 @@
         <key type="as" name="workspace-monocle-toggle">
             <default><![CDATA[[]]]></default>
             <summary>Toggle monocle mode (tab all windows on workspace)</summary>
+        </key>
+
+        <key type="as" name="window-expand">
+            <default><![CDATA[['<Super>bracketright']]]></default>
+            <summary>Expand focused window in all directions</summary>
+        </key>
+
+        <key type="as" name="window-shrink">
+            <default><![CDATA[['<Super>bracketleft']]]></default>
+            <summary>Shrink focused window in all directions</summary>
         </key>
     </schema>
 </schemalist>
