@@ -2,9 +2,9 @@
 
 ## Summary
 
-**Total Test Files**: 18 unit test files + 1 integration test
-**Total Tests**: 641 (640 passing, 1 skipped)
-**Test Code**: ~9,124 lines of test code
+**Total Test Files**: 20 unit test files + 1 integration test
+**Total Tests**: 728 (727 passing, 1 skipped)
+**Overall Coverage**: 60.5% statements
 **Source Code**: ~7,000 lines across 10 core files
 
 ---
@@ -14,242 +14,127 @@
 All tests passing as of latest run:
 
 ```
-✓ tests/unit/css/parser.test.js (42 tests)
-✓ tests/unit/shared/logger.test.js (27 tests)
+✓ tests/unit/css/parser.test.js (32 tests)
+✓ tests/unit/shared/logger.test.js (35 tests)
+✓ tests/unit/shared/settings.test.js (31 tests)
+✓ tests/unit/shared/theme.test.js (56 tests)
 ✓ tests/unit/tree/Node.test.js (62 tests)
-✓ tests/unit/tree/Queue.test.js (29 tests)
-✓ tests/unit/tree/Tree-layout.test.js (50 tests)
-✓ tests/unit/tree/Tree-operations.test.js (75 tests)
+✓ tests/unit/tree/Queue.test.js (26 tests)
+✓ tests/unit/tree/Tree-layout.test.js (23 tests)
+✓ tests/unit/tree/Tree-operations.test.js (51 tests)
 ✓ tests/unit/tree/Tree.test.js (32 tests)
-✓ tests/unit/utils/utils.test.js (50 tests)
-✓ tests/unit/window/WindowManager-batch.test.js (22 tests)
+✓ tests/unit/utils/utils.test.js (55 tests)
+✓ tests/unit/window/WindowManager-batch-float.test.js (29 tests)
 ✓ tests/unit/window/WindowManager-commands.test.js (44 tests)
 ✓ tests/unit/window/WindowManager-floating.test.js (63 tests)
-✓ tests/unit/window/WindowManager-focus.test.js (37 tests)
-✓ tests/unit/window/WindowManager-overrides.test.js (33 tests)
-✓ tests/unit/window/WindowManager-pointer.test.js (18 tests)
-✓ tests/unit/window/WindowManager-resize.test.js (11 tests)
-✓ tests/unit/window/WindowManager-tracking.test.js (22 tests)
-✓ tests/unit/window/WindowManager-workspaces.test.js (23 tests)
-✓ tests/integration/window-operations.test.js (1 skipped)
+✓ tests/unit/window/WindowManager-focus.test.js (37 tests | 1 skipped)
+✓ tests/unit/window/WindowManager-gaps.test.js (24 tests)
+✓ tests/unit/window/WindowManager-lifecycle.test.js (30 tests)
+✓ tests/unit/window/WindowManager-movement.test.js (27 tests)
+✓ tests/unit/window/WindowManager-resize.test.js (22 tests)
+✓ tests/unit/window/WindowManager-workspace.test.js (31 tests)
+✓ tests/integration/window-operations.test.js (18 tests)
 ```
 
 ---
 
-## ✅ **Well Covered** (Good test coverage)
+## Coverage by File
 
-| File | Lines | Coverage | Test File(s) |
-|------|-------|----------|--------------|
-| `lib/extension/utils.js` | 408 | ~95% | `utils.test.js` |
-| `lib/shared/logger.js` | 81 | ~100% | `logger.test.js` |
-| `lib/css/index.js` | 889 | ~70% | `parser.test.js` |
-| `lib/extension/tree.js` (Queue) | 22 | 100% | `Queue.test.js` |
-| `lib/extension/tree.js` (Node) | ~400 | ~90% | `Node.test.js` |
-| `lib/extension/tree.js` (Tree) | ~900 | ~70% | `Tree.test.js`, `Tree-operations.test.js`, `Tree-layout.test.js` |
-| `lib/extension/window.js` (WindowManager) | 2,821 | ~60% | 9 test files (~273 tests) |
+| File | Coverage | Status |
+|------|----------|--------|
+| `lib/shared/logger.js` | **100%** | ✅ Complete |
+| `lib/shared/settings.js` | **100%** | ✅ Complete |
+| `lib/shared/theme.js` | **97.5%** | ✅ Complete |
+| `lib/extension/enum.js` | **100%** | ✅ Complete |
+| `lib/extension/utils.js` | **85%** | ✅ Good |
+| `lib/extension/tree.js` | **84%** | ✅ Good |
+| `lib/css/index.js` | **80%** | ✅ Good |
+| `lib/extension/window.js` | **44%** | ⚠️ Partial |
+| `lib/extension/keybindings.js` | **5%** | ⚪ Glue code |
+| `lib/extension/indicator.js` | **0%** | ⚪ UI only |
+| `lib/extension/extension-theme-manager.js` | **0%** | ⚪ UI only |
 
-### Node Class - Extensively Tested
+---
 
-**Covered in `Node.test.js` (62 tests)**:
-- ✅ DOM-like API: `appendChild()`, `insertBefore()`, `removeChild()`
-- ✅ Navigation: `firstChild`, `lastChild`, `nextSibling`, `previousSibling`, `parentNode`, `childNodes`
-- ✅ Search: `getNodeByValue()`, `getNodeByType()`, `getNodeByLayout()`, `getNodeByMode()`
-- ✅ Type checking: `isWindow()`, `isCon()`, `isMonitor()`, `isWorkspace()`, `isFloat()`, `isTile()`
-- ✅ Properties: `rect`, `nodeValue`, `nodeType`, `level`, `index`
+## ✅ **Well Covered Modules**
 
-### Tree Class - Extensively Tested
+### Shared Module (98.6% coverage)
 
-**Covered in `Tree.test.js`, `Tree-operations.test.js`, `Tree-layout.test.js` (157 tests)**:
-- ✅ Node operations: `createNode()`, `findNode()`, `removeNode()`
+| File | Coverage | Tests |
+|------|----------|-------|
+| `logger.js` | 100% | 35 tests |
+| `settings.js` | 100% | 31 tests |
+| `theme.js` | 97.5% | 56 tests |
+
+### Tree Module (84% coverage)
+
+**Covered in `Node.test.js`, `Tree.test.js`, `Tree-operations.test.js`, `Tree-layout.test.js` (194 tests)**:
+- ✅ Node DOM-like API: `appendChild()`, `insertBefore()`, `removeChild()`
+- ✅ Node navigation: `firstChild`, `lastChild`, `nextSibling`, `previousSibling`
+- ✅ Node search: `getNodeByValue()`, `getNodeByType()`, `getNodeByLayout()`
+- ✅ Tree operations: `createNode()`, `findNode()`, `removeNode()`
 - ✅ Window operations: `move()`, `swap()`, `swapPairs()`, `split()`
 - ✅ Layout: `processNode()`, `processSplit()`, `computeSizes()`
 - ✅ Workspace: `addWorkspace()`, `removeWorkspace()`
-- ✅ Tree structure: `getTiledChildren()`, `findFirstNodeWindowFrom()`, `resetSiblingPercent()`
 
-### WindowManager Class - Extensively Tested
+### WindowManager (44% coverage)
 
-**Covered across 9 test files (~273 tests)**:
-- ✅ Window tracking: `trackWindow()`, `untrackWindow()` (`WindowManager-tracking.test.js`)
-- ✅ Float management: `toggleFloatingMode()`, `isFloatingExempt()` (`WindowManager-floating.test.js`)
-- ✅ Overrides: `addFloatOverride()`, `removeFloatOverride()` (`WindowManager-overrides.test.js`)
-- ✅ Commands: `command()` system (`WindowManager-commands.test.js`)
-- ✅ Focus: focus navigation (`WindowManager-focus.test.js`)
-- ✅ Batch operations: batch float toggles (`WindowManager-batch.test.js`)
-- ✅ Workspaces: workspace management (`WindowManager-workspaces.test.js`)
-- ✅ Pointer: mouse/pointer interactions (`WindowManager-pointer.test.js`)
-- ✅ Resize: window resizing (`WindowManager-resize.test.js`)
+**Covered across 10 test files (~307 tests)**:
+- ✅ Window tracking: `trackWindow()`, `untrackWindow()`
+- ✅ Float management: `toggleFloatingMode()`, `isFloatingExempt()`
+- ✅ Float overrides: `addFloatOverride()`, `removeFloatOverride()`
+- ✅ Commands: `command()` dispatcher
+- ✅ Focus navigation
+- ✅ Batch operations
+- ✅ Workspace management
+- ✅ Pointer/mouse interactions
+- ✅ Gap management
+- ✅ Basic resize operations
 
 ---
 
-## ⚠️ **Partial Coverage** (Key gaps remaining)
-
-### Tree Class - Advanced Algorithms
-
-**File**: `lib/extension/tree.js`
-
-Methods with complex logic needing more tests:
-
-- **`focus()` (lines 772-858)** - 86 lines, deeply nested
-  - ❌ STACKED layout focus traversal
-  - ❌ Focus with minimized windows (recursive case)
-  - ❌ GRAB_TILE mode handling
-  - ❌ Cross-monitor focus navigation
-
-- **`next()` (lines 992-1036)** - Core tree traversal
-  - ❌ Orientation matching against parent layout
-  - ❌ Walking up tree to find matching sibling
-
-- **`processTabbed()` (lines 1512-1570)** - Decoration positioning
-  - ❌ DPI scaling effects
-  - ❌ Gap and border calculation accuracy
-
-- **`cleanTree()` (lines 1289-1325)** - Multi-phase orphan removal
-  - ❌ Invalid window detection
-  - ❌ Container flattening scenarios
+## ⚠️ **Partial Coverage** (Optional improvements)
 
 ### WindowManager - Complex Operations
 
-**File**: `lib/extension/window.js`
+**File**: `lib/extension/window.js` (44% covered)
 
-- **`moveWindowToPointer()` (lines 1931-2281)** - 350+ lines, drag-drop
-  - ❌ 5-region detection (left, right, top, bottom, center)
-  - ❌ Stacked/tabbed layout handling during drag
-  - ❌ Container creation conditions
+Methods with complex logic that could benefit from more tests:
 
-- **`_handleResizing()` (lines 2523-2665)** - Resize propagation
-  - ❌ Same-parent vs cross-parent resizing
-  - ❌ Percentage delta calculations
+- **`moveWindowToPointer()`** - 350+ lines, drag-drop tiling
+  - 5-region detection (left, right, top, bottom, center)
+  - Stacked/tabbed layout handling during drag
+  - Container creation conditions
 
-- **`showWindowBorders()` (lines 1247-1380)** - Border display
-  - ❌ Gap-dependent rendering (hide when gaps=0)
-  - ❌ Multi-monitor maximization detection
-  - ❌ GNOME 49+ compatibility branches
+- **`_handleResizing()`** - Resize propagation
+  - Same-parent vs cross-parent resizing
+  - Percentage delta calculations
 
----
+- **`showWindowBorders()`** - Border display logic
+  - Gap-dependent rendering
+  - Multi-monitor maximization detection
 
-## ❌ **Untested Modules**
+### Tree - Advanced Algorithms
 
-### 1. **`lib/shared/theme.js`** - ThemeManagerBase
-**Lines**: 280 | **Gap**: 100% untested
+**File**: `lib/extension/tree.js` (84% covered)
 
-- ❌ CSS manipulation: `getCssRule()`, `getCssProperty()`, `setCssProperty()`, `patchCss()`
-- ❌ Color conversion: `RGBAToHexA()`, `hexAToRGBA()`
-- ❌ Theme management: `getDefaultPalette()`, `reloadStylesheet()`
-
-### 2. **`lib/shared/settings.js`** - ConfigManager
-**Lines**: 167 | **Gap**: 100% untested
-
-- ❌ File management: `loadFile()`, `loadFileContents()`
-- ❌ Window configuration: `windowProps` getter/setter
-- ❌ Stylesheet management: `stylesheetFile`, `defaultStylesheetFile`
-
-### 3. **`lib/extension/keybindings.js`** - Keybindings
-**Lines**: 494 | **Gap**: 100% untested
-
-- ❌ Keybinding registration: `enable()`, `disable()`, `buildBindingDefinitions()`
-- ❌ Modifier key handling: `allowDragDropTile()`
-- ❌ Command mapping for 40+ keyboard shortcuts
-
-### 4. **`lib/extension/indicator.js`** - Quick Settings UI
-**Lines**: 130 | **Gap**: 100% untested
-
-- ❌ UI components (harder to test without full GNOME Shell)
-
-### 5. **`lib/extension/extension-theme-manager.js`** - Extension Theme Manager
-**Lines**: Unknown | **Gap**: 100% untested
-
-- ❌ Extends ThemeManagerBase
+- **`focus()`** - STACKED/TABBED layout traversal edge cases
+- **`next()`** - Complex tree walking scenarios
+- **`cleanTree()`** - Orphan removal edge cases
 
 ---
 
-## 📊 **Priority for Additional Tests**
+## ⚪ **Not Worth Testing**
 
-### 🔴 High Priority (User Configuration)
+### Keybindings (5% coverage)
+**File**: `lib/extension/keybindings.js`
 
-1. **`lib/shared/settings.js` - ConfigManager** (167 lines)
-   - Why: User settings and window overrides
-   - What to test: `windowProps` getter/setter, file loading
+Mostly glue code mapping keybindings to `windowManager.command()` calls. No significant logic to test.
 
-2. **`lib/shared/theme.js` - ThemeManagerBase** (280 lines)
-   - Why: Visual customization
-   - What to test: CSS property get/set, color conversions (pure functions)
+### UI Components (0% coverage)
+**Files**: `indicator.js`, `extension-theme-manager.js`
 
-### 🟡 Medium Priority (Complex Algorithms)
-
-3. **Tree focus/navigation** (extend existing tests)
-   - `focus()` through STACKED/TABBED layouts
-   - `next()` orientation matching
-
-4. **WindowManager drag-drop** (new test file)
-   - `moveWindowToPointer()` region detection
-   - Container creation conditions
-
-### 🟢 Lower Priority (User Interaction/UI)
-
-5. **`lib/extension/keybindings.js` - Keybindings** (494 lines)
-   - Why: User input handling
-   - What to test: Binding definitions, modifier key detection
-
-6. **`lib/extension/indicator.js`** (130 lines)
-   - Why: Quick settings UI - harder to test, less critical
-
----
-
-## 🎯 **Recommended Next Steps**
-
-### Phase 1: Configuration & Theme Testing
-```bash
-tests/unit/shared/settings.test.js      # ConfigManager
-tests/unit/shared/theme.test.js         # ThemeManagerBase
-```
-
-### Phase 2: Advanced Algorithm Testing
-```bash
-tests/unit/tree/Tree-focus.test.js      # focus()/next() edge cases
-tests/unit/tree/Tree-cleanup.test.js    # cleanTree()/removeNode() edge cases
-```
-
-### Phase 3: Complex WindowManager Operations
-```bash
-tests/unit/window/WindowManager-drag-drop.test.js  # moveWindowToPointer()
-tests/unit/window/WindowManager-borders.test.js   # showWindowBorders()
-```
-
-### Phase 4: Input Testing
-```bash
-tests/unit/extension/keybindings.test.js  # Keyboard shortcuts
-```
-
----
-
-## 💡 **Quick Wins** (Easy to Add)
-
-1. **Color conversion functions** (`theme.js`)
-   - Pure functions, no dependencies
-   - ~30 lines of code, ~10 test cases
-
-2. **ConfigManager file operations** (`settings.js`)
-   - Well-defined I/O behavior
-   - ~50 lines of code, ~15 test cases
-
----
-
-## 📈 **Coverage Summary**
-
-| Module | Previous | Current | Target |
-|--------|----------|---------|--------|
-| Utils | 95% | 95% | ✅ Done |
-| Logger | 100% | 100% | ✅ Done |
-| CSS Parser | 70% | 70% | ✅ Done |
-| Queue | 100% | 100% | ✅ Done |
-| Node | 0% | ~90% | ✅ Done |
-| Tree | 0% | ~70% | ~80% |
-| WindowManager | 0% | ~60% | ~70% |
-| Settings | 0% | 0% | ~80% |
-| Theme | 0% | 0% | ~70% |
-| Keybindings | 0% | 0% | ~50% |
-
-**Overall**: ~60% of core logic now tested (up from ~21%)
+GNOME Shell UI integration code. Would require full Shell mocking with minimal benefit.
 
 ---
 
@@ -261,7 +146,7 @@ The test suite includes comprehensive mocks for GNOME APIs:
 tests/mocks/
 ├── gnome/
 │   ├── Clutter.js       # Clutter toolkit
-│   ├── Gio.js           # GIO (I/O, settings)
+│   ├── Gio.js           # GIO (I/O, settings, files)
 │   ├── GLib.js          # GLib utilities
 │   ├── GObject.js       # GObject type system
 │   ├── Meta.js          # Window manager (Window, Workspace, Rectangle)
@@ -277,4 +162,32 @@ Global mocks available in tests:
 - `global.display` - Display manager with workspace/monitor methods
 - `global.get_pointer()` - Mouse position
 - `global.get_current_time()` - Timestamp
-- `imports.gi.*` - All GNOME introspection modules
+- `global.window_group` - Window container
+- `global.stage` - Stage dimensions
+- `imports.byteArray` - Byte array utilities
+
+---
+
+## 📈 **Coverage History**
+
+| Date | Tests | Coverage | Notes |
+|------|-------|----------|-------|
+| Initial | 576/641 | ~21% | 64 failing tests |
+| After fixes | 640/641 | 54.8% | All tests passing |
+| +theme.js | 696/697 | 58.6% | Added theme tests |
+| +settings.js | 727/728 | 60.5% | Added settings tests |
+
+---
+
+## Running Tests
+
+```bash
+# Run all tests in Docker
+make unit-test-docker
+
+# Run with coverage report
+make unit-test-docker-coverage
+
+# Run in watch mode (development)
+make unit-test-docker-watch
+```
