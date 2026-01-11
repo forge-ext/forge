@@ -183,6 +183,16 @@
             <summary>The margin between tabs in tabbed mode (pixels)</summary>
         </key>
 
+        <key type="b" name="auto-unmaximize-for-tiling">
+            <default>true</default>
+            <summary>Automatically unmaximize windows when a new window is tiled alongside</summary>
+        </key>
+
+        <key type="b" name="focus-on-hover-tiling-only">
+            <default>false</default>
+            <summary>Only enable hover-to-focus when tiling mode is active</summary>
+        </key>
+
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->
