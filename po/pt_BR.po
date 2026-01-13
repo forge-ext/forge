@@ -321,13 +321,13 @@ msgstr "Empilhado"
 
 #: lib/prefs/settings.js:116
 msgid "Always on Top mode for floating windows"
-msgstr "Modo sempre no topo par janelas flutuantes"
+msgstr "Modo sempre no topo para janelas flutuantes"
 
 #: lib/prefs/settings.js:117
 #, fuzzy
 msgid "Makes floating windows appear above tiled windows"
 msgstr ""
-"Modo Flutuante Sempre no Topo (Janelas flutuantes sempre acima de janelas "
+"Modo Flutuante Sempre no Topo (Janelas flutuantes sempre acima das janelas "
 "emparelhadas)"
 
 #: lib/prefs/settings.js:125
@@ -341,7 +341,7 @@ msgstr ""
 
 #: lib/prefs/settings.js:129
 msgid "Example: 0,1,2"
-msgstr "Examplo: 0,1,2"
+msgstr "Exemplo: 0,1,2"
 
 #: lib/prefs/settings.js:137
 #, fuzzy
