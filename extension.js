@@ -65,7 +65,9 @@ export default class ForgeExtension extends Extension {
     this.keybindings?.disable();
     this.keybindings = null;
     this.extWm = null;
-    this.themeWm = null;
+    // The field assigned in enable() is `this.theme`, not `this.themeWm`,
+    // so the previous statement was a no-op leaving `this.theme` dangling.
+    this.theme = null;
     this.configMgr = null;
     this.settings = null;
     this.kbdSettings = null;
