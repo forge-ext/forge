@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Forge\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-06 13:15-0300\n"
+"POT-Creation-Date: 2026-09-11 15:54-0300\n"
 "PO-Revision-Date: 2021-09-18 16:25-0400\n"
 "Last-Translator: Juarez Rudsatz <juarezr@gmail.com>\n"
 "Language-Team: \n"
@@ -94,66 +94,75 @@ msgstr "Desabilitar espaço com janela única"
 msgid "Disables window gaps when only a single window is present"
 msgstr "Desabilitar espaçamento quando há uma única janela presente"
 
-#: lib/prefs/appearance.js:71
+#: lib/prefs/appearance.js:89
+#, fuzzy
+msgid "Border radius"
+msgstr "Tamanho de Borda"
+
+#: lib/prefs/appearance.js:90
+msgid "Set to 0 for square corners"
+msgstr ""
+
+#: lib/prefs/appearance.js:115
 msgid "Style"
 msgstr "Estilo"
 
-#: lib/prefs/appearance.js:72
+#: lib/prefs/appearance.js:116
 msgid "Change how the shell looks"
 msgstr "Mudar como a aparência do shell"
 
-#: lib/prefs/appearance.js:75
+#: lib/prefs/appearance.js:119
 #, fuzzy
 msgid "Preview hint"
 msgstr "Habilitar Dicas"
 
-#: lib/prefs/appearance.js:76
+#: lib/prefs/appearance.js:120
 msgid "Shows where the window will be tiled when you let go of it"
 msgstr "Mostrar em que bloco a janela será disposta"
 
-#: lib/prefs/appearance.js:82
+#: lib/prefs/appearance.js:126
 #, fuzzy
 msgid "Border around focused window"
 msgstr "Exibir a borda de divisão na janela com foco"
 
-#: lib/prefs/appearance.js:83
+#: lib/prefs/appearance.js:127
 msgid "Display a colored border around the focused window"
 msgstr "Exibir uma borda colorida ao redor da janela com foco"
 
-#: lib/prefs/appearance.js:88
+#: lib/prefs/appearance.js:132
 #, fuzzy
 msgid "Window split hint border"
 msgstr "Sinalizador de Foco Flutuante"
 
-#: lib/prefs/appearance.js:89
+#: lib/prefs/appearance.js:133
 msgid "Show split direction border on focused window"
 msgstr "Exibir a borda de divisão na janela com foco"
 
-#: lib/prefs/appearance.js:94
+#: lib/prefs/appearance.js:138
 #, fuzzy
 msgid "Forge in quick settings"
 msgstr "Exibir configurações rápidas"
 
-#: lib/prefs/appearance.js:95
+#: lib/prefs/appearance.js:139
 #, fuzzy
 msgid "Toggles the Forge tile in quick settings"
 msgstr "Habilitar a exibição do Forge nas configurações rápidas"
 
-#: lib/prefs/appearance.js:103
+#: lib/prefs/appearance.js:148
 msgid "Color"
 msgstr "Cor"
 
-#: lib/prefs/appearance.js:104
+#: lib/prefs/appearance.js:149
 #, fuzzy
 msgid "Changes the focused window's border and preview hint colors"
 msgstr "Exibir a borda de divisão na janela com foco"
 
-#: lib/prefs/appearance.js:126
+#: lib/prefs/appearance.js:171
 #, fuzzy
 msgid "Border size"
 msgstr "Tamanho de Borda"
 
-#: lib/prefs/appearance.js:198
+#: lib/prefs/appearance.js:243
 #, fuzzy
 msgid "Border color"
 msgstr "Cor da Borda"
@@ -298,57 +307,57 @@ msgstr "Modo em Abas"
 msgid "Exit tabbed tiling mode when only a single tab remains"
 msgstr "Sair do modo de abas quando restar apenas uma janela"
 
-#: lib/prefs/settings.js:104
+#: lib/prefs/settings.js:103
 #, fuzzy
 msgid "Drag-and-drop behavior"
 msgstr "Arranjo de Arrastar/Soltar Padrão"
 
-#: lib/prefs/settings.js:105
+#: lib/prefs/settings.js:104
 msgid "What to do when dragging one window on top of another"
 msgstr ""
 
-#: lib/prefs/settings.js:110
+#: lib/prefs/settings.js:109
 msgid "Swap"
 msgstr "Trocar"
 
-#: lib/prefs/settings.js:111
+#: lib/prefs/settings.js:110
 msgid "Tabbed"
 msgstr "Em Abas"
 
-#: lib/prefs/settings.js:112
+#: lib/prefs/settings.js:111
 msgid "Stacked"
 msgstr "Empilhado"
 
-#: lib/prefs/settings.js:116
+#: lib/prefs/settings.js:115
 msgid "Always on Top mode for floating windows"
 msgstr "Modo sempre no topo para janelas flutuantes"
 
-#: lib/prefs/settings.js:117
+#: lib/prefs/settings.js:116
 #, fuzzy
 msgid "Makes floating windows appear above tiled windows"
 msgstr ""
 "Modo Flutuante Sempre no Topo (Janelas flutuantes sempre acima das janelas "
 "emparelhadas)"
 
-#: lib/prefs/settings.js:125
+#: lib/prefs/settings.js:124
 msgid "Non-tiling workspaces"
 msgstr ""
 
-#: lib/prefs/settings.js:126
+#: lib/prefs/settings.js:125
 msgid ""
 "Disables tiling on specified workspaces. Starts from 0, separated by commas"
 msgstr ""
 
-#: lib/prefs/settings.js:129
+#: lib/prefs/settings.js:128
 msgid "Example: 0,1,2"
 msgstr "Exemplo: 0,1,2"
 
-#: lib/prefs/settings.js:137
+#: lib/prefs/settings.js:136
 #, fuzzy
 msgid "Logger"
 msgstr "Nivel de Log"
 
-#: lib/prefs/settings.js:140
+#: lib/prefs/settings.js:139
 #, fuzzy
 msgid "Log level"
 msgstr "Nivel de Log"
@@ -512,10 +521,6 @@ msgstr "Remover Item"
 
 #~ msgid "Home"
 #~ msgstr "Início"
-
-#, fuzzy
-#~ msgid "Borders"
-#~ msgstr "Tamanho de Borda"
 
 #~ msgid "Palette Mode"
 #~ msgstr "Modo de Paleta"
