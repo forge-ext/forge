@@ -2,7 +2,7 @@ UUID = "forge@jmmaranan.com"
 INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
 
-.PHONY: all clean install schemas uninstall enable disable log debug patchcss
+.PHONY: all clean install schemas uninstall enable disable log debug patchcss test-sandbox
 
 all: build install enable restart
 
@@ -95,6 +95,10 @@ restart:
 	else \
 		gnome-session-quit --logout; \
 	fi
+
+# Automated tests in a nested, isolated GNOME Shell (see tests/README.md). Never restarts your shell.
+test-sandbox:
+	cd tests && sandbox/run-suite.sh
 
 horizontal-line:
 	@printf '%.s─' $$(seq 1 $$(tput cols)) && echo || true # Prints a line of dashes #
