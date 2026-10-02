@@ -1,0 +1,355 @@
+# Georgian translation for Forge.
+# Copyright (C) 2026 Forge's authors.
+# This file is distributed under the same license as the Forge package.
+# Ekaterine Papava <papava.e@gtu.ge>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Forge\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-03 14:56+0200\n"
+"PO-Revision-Date: 2026-10-02 09:34+0200\n"
+"Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
+"Language-Team: Georgian <(nothing)>\n"
+"Language: ka\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.9\n"
+
+#: lib/extension/indicator.js:47 lib/prefs/settings.js:55
+msgid "Tiling"
+msgstr "მოზაიკური"
+
+#: lib/extension/indicator.js:66 lib/prefs/settings.js:24
+msgid "Forge"
+msgstr "Forge"
+
+#: lib/extension/indicator.js:66
+msgid "Tiling Window Management"
+msgstr "მოზაიკური ფანჯრების მართვა"
+
+#: lib/extension/indicator.js:70
+msgid "Gaps Hidden when Single"
+msgstr "დაშორებები დამალულია ერთი ფანჯრის დროს"
+
+#: lib/extension/indicator.js:78
+msgid "Show Focus Hint Border"
+msgstr "ფოკუსის მინიშნების საზღვრის ჩვენება"
+
+#: lib/extension/indicator.js:86
+msgid "Move Pointer with the Focus"
+msgstr "მაჩვენებლის გადატანა ფოკუსთან ერთად"
+
+#: lib/extension/indicator.js:94 lib/extension/window.js:67
+msgid "Settings"
+msgstr "მორგება"
+
+#: lib/prefs/appearance.js:29
+msgid "Tiled window"
+msgstr "მოზაიკური ფანჯარა"
+
+#: lib/prefs/appearance.js:31
+msgid "Tabbed window"
+msgstr "ჩანართებიანი ფანჯარა"
+
+#: lib/prefs/appearance.js:33
+msgid "Stacked window"
+msgstr "ჩალაგებული ფანჯარა"
+
+#: lib/prefs/appearance.js:35
+msgid "Floating window"
+msgstr "მოლივლივე ფანჯარა"
+
+#: lib/prefs/appearance.js:37
+msgid "Split direction hint"
+msgstr "გაყოფის მიმართულების მინიშნება"
+
+#: lib/prefs/appearance.js:42
+msgid "Appearance"
+msgstr "გარეგნობა"
+
+#: lib/prefs/appearance.js:47
+msgid "Gaps"
+msgstr "პაუზები"
+
+#: lib/prefs/appearance.js:48
+msgid "Change the gap size between windows"
+msgstr "ფანჯრების შორის დაშორების ზომის შეცვლა"
+
+#: lib/prefs/appearance.js:51
+msgid "Gap size"
+msgstr "დაშორების ზომა"
+
+#: lib/prefs/appearance.js:57
+msgid "Gap size multiplier"
+msgstr "დაშორების ზომის მამრავლი"
+
+#: lib/prefs/appearance.js:63
+msgid "Disable gaps for single window"
+msgstr "დაშორებების გათიშვა ერთი ფანჯრისთვის"
+
+#: lib/prefs/appearance.js:64
+msgid "Disables window gaps when only a single window is present"
+msgstr "ფანჯრის დაშორებების დამალვა, როცა არსებობს, მხოლოდ, ერთი ფანჯარა"
+
+#: lib/prefs/appearance.js:89
+msgid "Border radius"
+msgstr "საზღვრის რადიუსი"
+
+#: lib/prefs/appearance.js:90
+msgid "Set to 0 for square corners"
+msgstr "დააყენეთ 0 კვადრატული კუთხეებისთვის"
+
+#: lib/prefs/appearance.js:115
+msgid "Style"
+msgstr "სტილი"
+
+#: lib/prefs/appearance.js:116
+msgid "Change how the shell looks"
+msgstr "შეცვალეთ, როგორ გამოიყურება გარსი"
+
+#: lib/prefs/appearance.js:119
+msgid "Preview hint"
+msgstr "მინიშნების მინიატურა"
+
+#: lib/prefs/appearance.js:120
+msgid "Shows where the window will be tiled when you let go of it"
+msgstr "აჩვენებს, სად გადაიქცევა ფანჯარა ფილად, როცა მას ხელს გაუშვებთ"
+
+#: lib/prefs/appearance.js:126
+msgid "Border around focused window"
+msgstr "საზღვარი ფოკუსის მქონე ფანჯრის გარშემო"
+
+#: lib/prefs/appearance.js:127
+msgid "Display a colored border around the focused window"
+msgstr "ფერადი საზღვრის ჩვენება ფოკუსის მქონე ფანჯრის გარშემო"
+
+#: lib/prefs/appearance.js:132
+msgid "Window split hint border"
+msgstr "ფანჯრის გაყოფის მინიშნების საზღვარი"
+
+#: lib/prefs/appearance.js:133
+msgid "Show split direction border on focused window"
+msgstr "გაყოფის მიმართულების საზღვრის ჩვენება ფოკუსის მქონე ფანჯარაზე"
+
+#: lib/prefs/appearance.js:138
+msgid "Forge in quick settings"
+msgstr "Forge სწრაფი მორგების ფანჯარაში"
+
+#: lib/prefs/appearance.js:139
+msgid "Toggles the Forge tile in quick settings"
+msgstr "გადართავს Forge-ის ფილას სწრაფი მორგების ფანჯარაში"
+
+#: lib/prefs/appearance.js:148
+msgid "Color"
+msgstr "ფერი"
+
+#: lib/prefs/appearance.js:149
+msgid "Changes the focused window's border and preview hint colors"
+msgstr "ცვლის ფოკუსის მქონე ფანჯრის საზღვრისა და მინიატურის ფერებს"
+
+#: lib/prefs/appearance.js:171
+msgid "Border size"
+msgstr "საზღვრის ზომა"
+
+#: lib/prefs/appearance.js:243
+msgid "Border color"
+msgstr "საზღვრის ფერი"
+
+#: lib/prefs/floating.js:18
+msgid "Windows"
+msgstr "ფანჯრები"
+
+#: lib/prefs/floating.js:27
+msgid "Floating Windows"
+msgstr "მოლივლივე ფანჯრები"
+
+#: lib/prefs/floating.js:28
+msgid "Windows that will not be tiled"
+msgstr "ფანჯრები, რომლების მოზაიკაში ჩასმაც არ მოხდება"
+
+#: lib/prefs/keyboard.js:19
+msgid "Keyboard"
+msgstr "კლავიატურა"
+
+#: lib/prefs/keyboard.js:22
+msgid "Drag-and-drop modifier key"
+msgstr "გადათრევა-დაგდების მოდიფიკატორი ღილაკი"
+
+#: lib/prefs/keyboard.js:24
+msgid ""
+"Change the modifier key for tiling windows via drag-and-drop. Select 'None' "
+"to always tile"
+msgstr ""
+"გადათრევა-დაგდებით ფანჯრების მოზაიკად დალაგების მოდიფიკატორი ღილაკის შეცვლა. "
+"აირჩიეთ 'არცერთი' ყოველთვის მოზაიკის ფორმით დასალაგებლად"
+
+#: lib/prefs/keyboard.js:28
+msgid "Modifier key"
+msgstr "მოდიფიკატორი ღილაკი"
+
+#: lib/prefs/keyboard.js:32
+msgid "Super"
+msgstr "Super"
+
+#: lib/prefs/keyboard.js:33
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: lib/prefs/keyboard.js:34
+msgid "Alt"
+msgstr "Alt"
+
+#: lib/prefs/keyboard.js:35
+msgid "None"
+msgstr "არცერთი"
+
+#: lib/prefs/keyboard.js:41
+msgid "Shortcuts"
+msgstr "მალსახმობები"
+
+#: lib/prefs/keyboard.js:43
+msgid ""
+"Change the tiling shortcuts. To clear a shortcut clear the input field. To "
+"apply a shortcut press enter. <a href=\"https://github.com/forge-ext/forge/"
+"wiki/Keyboard-Shortcuts\">Syntax examples</a>"
+msgstr ""
+"მოზაიკის მალსახმობების შეცვლა. მალსახმობის წასაშლელად გაასუფთავეთ შეყვანის "
+"ველი. მალსახმობის გამოსაყენებლად დააჭირეთ ღილაკს 'Enter'. <a href=\"https://"
+"github.com/forge-ext/forge/wiki/Keyboard-Shortcuts\">სინტაქსის მაგალითები</a>"
+
+#: lib/prefs/settings.js:34
+msgid "translator-credits"
+msgstr "თემური დოღონაძე"
+
+#: lib/prefs/settings.js:42
+msgid "About"
+msgstr "შესახებ"
+
+#: lib/prefs/settings.js:57
+msgid "Behavior"
+msgstr "ქცევა"
+
+#: lib/prefs/settings.js:58
+msgid "Change how the tiling behaves"
+msgstr "მოზაიკის ქცევის შეცვლა"
+
+#: lib/prefs/settings.js:62
+msgid "Focus on Hover"
+msgstr "ფოკუსი გადატარებსას"
+
+#: lib/prefs/settings.js:63
+msgid "Window focus follows the pointer"
+msgstr "ფანჯრის ფოკუსი თაგუნას მაჩვენებელს მიჰყვება"
+
+#: lib/prefs/settings.js:69
+msgid "Move pointer with focused window"
+msgstr "მაჩვენებლის გადაადგილება ფოკუსის მქონე ფანჯარასთან ერთად"
+
+#: lib/prefs/settings.js:70
+msgid "Moves the pointer when focusing or swapping via keyboard"
+msgstr "გადაადგილებს მაჩვენებელს ფოკუსის კლავიატურით მინიჭების, ან გადართვისას"
+
+#: lib/prefs/settings.js:76
+msgid "Quarter tiling"
+msgstr "მეოთხედი ფილა"
+
+#: lib/prefs/settings.js:77
+msgid "Places new windows in a clock-wise fashion"
+msgstr "მოათავსებს ახალ ფანჯრებს საათის მსგავსად"
+
+#: lib/prefs/settings.js:83
+msgid "Stacked tiling"
+msgstr "ჩალაგებული ფილები"
+
+#: lib/prefs/settings.js:84
+msgid "Stacks windows on top of each other while still tiling them"
+msgstr "ალაგებს ფანჯრებს ერთმანეთის თავზე მოზაიკის სახით"
+
+#: lib/prefs/settings.js:90
+msgid "Tabbed tiling"
+msgstr "ჩანართებიანი ფილები"
+
+#: lib/prefs/settings.js:91
+msgid "Groups windows as tabs"
+msgstr "აჯგუფებს ფანჯრებს ჩანართის სახით"
+
+#: lib/prefs/settings.js:97
+msgid "Auto exit tabbed tiling"
+msgstr "ჩანართებიანი ფილებიდან ავტომატური გასვლა"
+
+#: lib/prefs/settings.js:98
+msgid "Exit tabbed tiling mode when only a single tab remains"
+msgstr "ჩანართებიანი მოზაინის რეჟიმიდან გასვლა ერთი ფანჯრის დარჩენისას"
+
+#: lib/prefs/settings.js:103
+msgid "Drag-and-drop behavior"
+msgstr "გადატანა-დაგდების ქცევა"
+
+#: lib/prefs/settings.js:104
+msgid "What to do when dragging one window on top of another"
+msgstr "რა მოხდება, როცა ერთი ფანჯრის გადათრევა მეორეს თავზე ხდება"
+
+#: lib/prefs/settings.js:109
+msgid "Swap"
+msgstr "სვოპი"
+
+#: lib/prefs/settings.js:110
+msgid "Tabbed"
+msgstr "ჩანართებით"
+
+#: lib/prefs/settings.js:111
+msgid "Stacked"
+msgstr "ჩალაგებული"
+
+#: lib/prefs/settings.js:115
+msgid "Always on Top mode for floating windows"
+msgstr "'ყოველთვის ყველაზე ზემოთ' რეჟიმი მოლივლივე ფანჯრებისთვის"
+
+#: lib/prefs/settings.js:116
+msgid "Makes floating windows appear above tiled windows"
+msgstr "მოლივლივე ფანჯრების მოზაიკის ფანჯრების ზემოთ გამოჩენა"
+
+#: lib/prefs/settings.js:124
+msgid "Non-tiling workspaces"
+msgstr "არამოზაიკური სამუშაო სივრცეები"
+
+#: lib/prefs/settings.js:125
+msgid ""
+"Disables tiling on specified workspaces. Starts from 0, separated by commas"
+msgstr ""
+"გამორთავს მოზაიკას მითითებულ სამუშაო სივრცეებზე. იწყება 0-დან, გამოყოფილია "
+"მძიმით"
+
+#: lib/prefs/settings.js:128
+msgid "Example: 0,1,2"
+msgstr "მაგ: 0,1,2"
+
+#: lib/prefs/settings.js:136
+msgid "Logger"
+msgstr "ჟურნალი"
+
+#: lib/prefs/settings.js:139
+msgid "Log level"
+msgstr "ჟურნალის დონე"
+
+#: lib/prefs/widgets.js:44
+msgid ""
+"<b>CAUTION</b>: Enabling this setting can lead to bugs or cause the shell to "
+"crash"
+msgstr ""
+"<b>ფრთხილად</b>: ამ პარამეტრის ჩართვამ, შეიძლება, მიგიყვანოთ შეცდომებამდე, "
+"რომლებიც გარსის ავარიულ დასრულებას გამოიწვევენ"
+
+#: lib/prefs/widgets.js:223
+msgid "Clear shortcut"
+msgstr "მალსახმობის გასუფთავება"
+
+#: lib/prefs/widgets.js:240
+msgid "Reset to default"
+msgstr "ნაგულისხმევ მნიშვნელობაზე დაბრუნება"
+
+#: lib/prefs/widgets.js:258
+msgid "Remove Item"
+msgstr "ჩანაწერისწაშლა"
