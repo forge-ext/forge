@@ -1,0 +1,6 @@
+{
+  "uuid": "sandbox-unsafe@local",
+  "name": "Sandbox unsafe mode",
+  "description": "SANDBOX ONLY: enables GNOME Shell unsafe mode (org.gnome.Shell.Eval) in the nested test shell. Never install in a real session.",
+  "shell-version": ["50"]
+}
