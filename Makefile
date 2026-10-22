@@ -4,6 +4,10 @@ MSGSRC = $(wildcard po/*.po)
 
 .PHONY: all clean install schemas uninstall enable disable log debug patchcss
 
+# Targets like "build: clean ..." rely on prerequisite order; with -j the
+# clean step races and deletes freshly compiled schemas.
+.NOTPARALLEL:
+
 all: build install enable restart
 
 dev: build debug install
