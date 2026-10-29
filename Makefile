@@ -78,7 +78,7 @@ enable:
 disable:
 	gnome-extensions disable "$(UUID)" || echo "Nothing to disable"
 
-install:
+install: build
 	mkdir -p $(INSTALL_PATH)
 	cp -r temp/* $(INSTALL_PATH)
 
