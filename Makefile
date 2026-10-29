@@ -34,7 +34,13 @@ patchcss:
 
 metadata:
 	echo "export const developers = Object.entries([" > lib/prefs/metadata.js
-	git shortlog -sne >> lib/prefs/metadata.js || echo "" >> lib/prefs/metadata.js
+	# In a ZIP/tarball checkout there is no .git, and a bare `git shortlog`
+	# reads stdin forever. Pass HEAD so git fails fast, and keep a fallback entry.
+	@if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then \
+		git shortlog -sne HEAD >> lib/prefs/metadata.js 2>/dev/null || true; \
+	else \
+		echo '  { name: "Forge contributors", email: "forge@jmmaranan.com" },' >> lib/prefs/metadata.js; \
+	fi
 	awk '!/dependabot|noreply/' lib/prefs/metadata.js > lib/prefs/metadata.js.tmp && mv lib/prefs/metadata.js.tmp lib/prefs/metadata.js
 	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' lib/prefs/metadata.js
 	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> lib/prefs/metadata.js
