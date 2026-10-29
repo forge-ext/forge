@@ -32,6 +32,22 @@ import { ExtensionThemeManager } from "./lib/extension/extension-theme-manager.j
 
 export default class ForgeExtension extends Extension {
   enable() {
+    try {
+      this._enable();
+    } catch (e) {
+      // GNOME Shell reports an enable() exception as an extension error and does
+      // not call disable(). Tear down anything initialized before the failure so
+      // keybindings, indicators, session handlers, or stylesheets aren't stranded.
+      try {
+        this.disable();
+      } catch (cleanupError) {
+        Logger.error(`enable: cleanup after failed enable also failed: ${cleanupError}`);
+      }
+      throw e;
+    }
+  }
+
+  _enable() {
     this.settings = this.getSettings();
     this.kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
     Logger.init(this.settings);
@@ -98,8 +114,11 @@ export default class ForgeExtension extends Extension {
   _setKeybindingsEnabled(enabled) {
     if (this._keybindingsEnabled === enabled) return;
     if (enabled) {
-      this.keybindings?.enable();
+      // Mark the attempt before registering individual bindings. If enable()
+      // throws partway through, the outer enable() cleanup must still call
+      // disable() to remove the subset that was already installed.
       this._keybindingsEnabled = true;
+      this.keybindings?.enable();
     } else {
       this.keybindings?.disable();
       this._keybindingsEnabled = false;
