@@ -1,5 +1,7 @@
 UUID = forge@jmmaranan.com
-INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
+# gnome-extensions reads the user data dir from XDG_DATA_HOME when it is set.
+USER_DATA_HOME = $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)
+INSTALL_PATH = $(USER_DATA_HOME)/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
 
 # gettext is only needed to refresh translations, not to run the extension.
