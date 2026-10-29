@@ -118,6 +118,9 @@ make dev
 # Or run below, and restart the shell manually
 make build && make debug && make install
 
+# Disable, install, and re-enable the extension in one step
+make reinstall
+
 # X11 - build from source and restarts gnome-shell
 make test-x
 

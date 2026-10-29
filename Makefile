@@ -7,7 +7,7 @@ HAVE_MSGFMT := $(shell command -v msgfmt 2>/dev/null)
 HAVE_MSGMERGE := $(shell command -v msgmerge 2>/dev/null)
 HAVE_XGETTEXT := $(shell command -v xgettext 2>/dev/null)
 
-.PHONY: all clean install schemas uninstall enable disable log debug patchcss metadata potfile compilemsgs
+.PHONY: all clean install reinstall schemas uninstall enable disable log debug patchcss metadata potfile compilemsgs
 
 # Targets like "build: clean ..." rely on prerequisite order; with -j the
 # clean step races and deletes freshly compiled schemas.
@@ -106,6 +106,10 @@ install: build
 	rm -rf "$(INSTALL_PATH)"
 	mkdir -p "$(INSTALL_PATH)"
 	cp -r temp/. "$(INSTALL_PATH)/"
+
+# Disable first so GNOME is not loading modules from a directory that is about
+# to be replaced, then re-enable after the new files are in place.
+reinstall: disable install enable
 
 uninstall:
 	rm -rf $(INSTALL_PATH)
