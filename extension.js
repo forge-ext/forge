@@ -31,6 +31,36 @@ import { FeatureIndicator, FeatureMenuToggle } from "./lib/extension/indicator.j
 import { ExtensionThemeManager } from "./lib/extension/extension-theme-manager.js";
 
 export default class ForgeExtension extends Extension {
+  /**
+   * Services created in `_enable()`.
+   *
+   * They are deliberately non-nullable: every consumer (session signal,
+   * keybindings, indicator, window-manager signals) is unbound before
+   * `disable()` clears them, so a read can only happen while they are live.
+   * `disable()` breaks the type once, on purpose, so a callback that outlives
+   * teardown fails loudly instead of walking a torn-down tree.
+   */
+  /** @type {import("gi://Gio").default.Settings} */
+  settings;
+
+  /** @type {import("gi://Gio").default.Settings} */
+  kbdSettings;
+
+  /** @type {ConfigManager} */
+  configMgr;
+
+  /** @type {ExtensionThemeManager} */
+  theme;
+
+  /** @type {WindowManager} */
+  extWm;
+
+  /** @type {Keybindings} */
+  keybindings;
+
+  /** @type {FeatureIndicator | null} */
+  indicator = null;
+
   enable() {
     try {
       this._enable();
@@ -81,12 +111,17 @@ export default class ForgeExtension extends Extension {
     this.extWm?.disable();
     this._setKeybindingsEnabled(false);
     this.theme?.unloadStylesheet();
-    this.keybindings = null;
-    this.extWm = null;
-    this.theme = null;
-    this.configMgr = null;
-    this.settings = null;
-    this.kbdSettings = null;
+
+    // Cleared last, once every consumer above is unbound. This is the only
+    // place the non-null service types are violated on purpose; see the field
+    // declarations for why.
+    const torn = /** @type {any} */ (this);
+    torn.keybindings = null;
+    torn.extWm = null;
+    torn.theme = null;
+    torn.configMgr = null;
+    torn.settings = null;
+    torn.kbdSettings = null;
     this._keybindingsEnabled = false;
   }
 
