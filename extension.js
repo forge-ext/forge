@@ -122,6 +122,9 @@ export default class ForgeExtension extends Extension {
     torn.configMgr = null;
     torn.settings = null;
     torn.kbdSettings = null;
+    // Last, because every Logger call above still needs the settings ref.
+    // Counterpart to Logger.init() in _enable().
+    Logger.destroy();
     this._keybindingsEnabled = false;
   }
 
