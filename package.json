@@ -3,8 +3,10 @@
   "version": "22.51.0",
   "description": "Forge - Tiling Extension for GNOME",
   "main": "extension.js",
+  "type": "module",
   "scripts": {
     "test": "prettier --list-different \"./**/*.{js,jsx,ts,tsx,json}\"",
+    "test:unit": "node --test",
     "prepare": "husky install",
     "format": "prettier --write \"./**/*.{js,jsx,ts,tsx,json}\""
   },
