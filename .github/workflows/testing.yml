@@ -63,5 +63,13 @@ jobs:
       - name: Test Node.js project
         run: npm test --verbose
 
+      - name: Unit tests
+        run: npm run test:unit
+
+      # Forge still has known type errors (see types/typecheck-baseline.json).
+      # This fails on new errors, not on the recorded ones.
+      - name: Type check
+        run: npm run typecheck:ci
+
       - name: Test Packaging
         run: make dist
