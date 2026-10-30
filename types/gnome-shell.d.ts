@@ -183,6 +183,7 @@ declare module "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js" {
     };
     dir: Gio.File;
     path: string;
+    constructor(...args: any[]);
     getSettings(schema?: string | null): Gio.Settings;
     fillPreferencesWindow(window: Adw.PreferencesWindow): void | Promise<void>;
   }
