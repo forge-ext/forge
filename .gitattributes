@@ -27,8 +27,8 @@ TODO              text
 .editorconfig     text
 .gitattributes    text
 .gitconfig        text
-Makefile          text
-makefile          text
+Makefile          text eol=lf
+makefile          text eol=lf
 
 # Graphics
 *.gif             binary

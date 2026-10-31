@@ -1,8 +1,19 @@
-UUID = "forge@jmmaranan.com"
-INSTALL_PATH = $(HOME)/.local/share/gnome-shell/extensions/$(UUID)
+UUID = forge@jmmaranan.com
+# gnome-extensions reads the user data dir from XDG_DATA_HOME when it is set.
+USER_DATA_HOME = $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)
+INSTALL_PATH = $(USER_DATA_HOME)/gnome-shell/extensions/$(UUID)
 MSGSRC = $(wildcard po/*.po)
 
-.PHONY: all clean install schemas uninstall enable disable log debug patchcss
+# gettext is only needed to refresh translations, not to run the extension.
+HAVE_MSGFMT := $(shell command -v msgfmt 2>/dev/null)
+HAVE_MSGMERGE := $(shell command -v msgmerge 2>/dev/null)
+HAVE_XGETTEXT := $(shell command -v xgettext 2>/dev/null)
+
+.PHONY: all clean install reinstall schemas uninstall enable disable log debug patchcss metadata potfile compilemsgs
+
+# Targets like "build: clean ..." rely on prerequisite order; with -j the
+# clean step races and deletes freshly compiled schemas.
+.NOTPARALLEL:
 
 all: build install enable restart
 
@@ -14,6 +25,10 @@ schemas: schemas/gschemas.compiled
 	touch $@
 
 schemas/gschemas.compiled: schemas/*.gschema.xml
+	@command -v glib-compile-schemas >/dev/null 2>&1 || { \
+		echo "glib-compile-schemas not found; install glib2-devel (Fedora) or libglib2.0-dev (Debian)"; \
+		exit 1; \
+	}
 	glib-compile-schemas schemas
 
 patchcss:
@@ -21,7 +36,13 @@ patchcss:
 
 metadata:
 	echo "export const developers = Object.entries([" > lib/prefs/metadata.js
-	git shortlog -sne >> lib/prefs/metadata.js || echo "" >> lib/prefs/metadata.js
+	# In a ZIP/tarball checkout there is no .git, and a bare `git shortlog`
+	# reads stdin forever. Pass HEAD so git fails fast, and keep a fallback entry.
+	@if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then \
+		git shortlog -sne HEAD >> lib/prefs/metadata.js 2>/dev/null || true; \
+	else \
+		echo '  { name: "Forge contributors", email: "forge@jmmaranan.com" },' >> lib/prefs/metadata.js; \
+	fi
 	awk '!/dependabot|noreply/' lib/prefs/metadata.js > lib/prefs/metadata.js.tmp && mv lib/prefs/metadata.js.tmp lib/prefs/metadata.js
 	sed -i 's/^[[:space:]]*[0-9]*[[:space:]]*\(.*\) <\(.*\)>/  {name:"\1", email:"\2"},/g' lib/prefs/metadata.js
 	echo "].reduce((acc, x) => ({ ...acc, [x.email]: acc[x.email] ?? x.name }), {})).map(([email, name]) => name + ' <' + email + '>')" >> lib/prefs/metadata.js
@@ -39,10 +60,11 @@ build: clean metadata.json schemas compilemsgs metadata
 	cp LICENSE temp
 	mkdir -p temp/locale
 	for msg in $(MSGSRC:.po=.mo); do \
-		msgf=temp/locale/`basename $$msg .mo`; \
-		mkdir -p $$msgf; \
-		mkdir -p $$msgf/LC_MESSAGES; \
-		cp $$msg $$msgf/LC_MESSAGES/forge.mo; \
+		if [ -f "$$msg" ]; then \
+			msgf=temp/locale/`basename $$msg .mo`; \
+			mkdir -p $$msgf/LC_MESSAGES; \
+			cp $$msg $$msgf/LC_MESSAGES/forge.mo; \
+		fi; \
 	done;
 
 ./po/%.mo: ./po/%.po
@@ -52,20 +74,33 @@ debug:
 	sed -i 's/export const production = true/export const production = false/' temp/lib/shared/settings.js
 	#sed -i 's|1.*-alpha|4999|' temp/metadata.json
 
+ifeq ($(strip $(HAVE_XGETTEXT)),)
+potfile:
+	@echo "xgettext not found; keeping the existing po/forge.pot"
+else
 potfile: ./po/forge.pot
 
 ./po/forge.pot: metadata ./prefs.js ./extension.js ./lib/**/*.js
 	mkdir -p po
 	xgettext --from-code=UTF-8 --output=po/forge.pot --package-name "Forge" ./prefs.js ./extension.js ./lib/**/*.js
+endif
 
+ifeq ($(strip $(HAVE_MSGFMT)),)
+compilemsgs:
+	@echo "msgfmt not found; building without compiled translations"
+else ifeq ($(strip $(HAVE_MSGMERGE)),)
+compilemsgs: $(MSGSRC:.po=.mo)
+	@echo "msgmerge not found; compiling the existing translations only"
+else
 compilemsgs: potfile $(MSGSRC:.po=.mo)
 	for msg in $(MSGSRC); do \
 		msgmerge -U $$msg ./po/forge.pot; \
 	done;
+endif
 
 clean:
 	rm -f lib/prefs/metadata.js
-	rm "$(UUID).zip" || echo "Nothing to delete"
+	rm -f "$(UUID).zip"
 	rm -rf temp schemas/gschemas.compiled
 
 enable:
@@ -74,9 +109,15 @@ enable:
 disable:
 	gnome-extensions disable "$(UUID)" || echo "Nothing to disable"
 
-install:
-	mkdir -p $(INSTALL_PATH)
-	cp -r temp/* $(INSTALL_PATH)
+install: build
+	@test -n "$(INSTALL_PATH)" || { echo "INSTALL_PATH is empty"; exit 1; }
+	rm -rf "$(INSTALL_PATH)"
+	mkdir -p "$(INSTALL_PATH)"
+	cp -r temp/. "$(INSTALL_PATH)/"
+
+# Disable first so GNOME is not loading modules from a directory that is about
+# to be replaced, then re-enable after the new files are in place.
+reinstall: disable install enable
 
 uninstall:
 	rm -rf $(INSTALL_PATH)

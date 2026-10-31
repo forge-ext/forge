@@ -153,6 +153,17 @@
             <summary>Timestamp to trigger window overrides reload</summary>
         </key>
 
+        <key type="u" name="stacked-tab-bar-height">
+            <default>35</default>
+            <range min="1" max="200"/>
+            <summary>Height of each stacked/tabbed title bar, in logical pixels</summary>
+        </key>
+
+        <key type="s" name="tab-position">
+            <default>'top'</default>
+            <summary>Where the stacked/tabbed title bar sits: 'top' or 'bottom'</summary>
+        </key>
+
     </schema>
     <schema id="org.gnome.shell.extensions.forge.keybindings" path="/org/gnome/shell/extensions/forge/keybindings/">
         <!-- Keybinding Settings -->

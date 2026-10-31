@@ -33,10 +33,16 @@ export default class ForgeExtensionPreferences extends ExtensionPreferences {
   kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
 
   constructor(...args) {
-    super(...args);
+    // GJS constructs this class with the extension metadata; the base class
+    // signature is not visible to the checker for a rest-argument spread.
+    const ctorArgs = /** @type {[any, ...any[]]} */ (args);
+    super(...ctorArgs);
     const iconPath = this.dir.get_child("resources").get_child("icons").get_path();
-    const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
-    iconTheme.add_search_path(iconPath);
+    const display = Gdk.Display.get_default();
+    if (iconPath && display) {
+      const iconTheme = Gtk.IconTheme.get_for_display(display);
+      iconTheme.add_search_path(iconPath);
+    }
   }
 
   fillPreferencesWindow(window) {

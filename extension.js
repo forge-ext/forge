@@ -31,7 +31,53 @@ import { FeatureIndicator, FeatureMenuToggle } from "./lib/extension/indicator.j
 import { ExtensionThemeManager } from "./lib/extension/extension-theme-manager.js";
 
 export default class ForgeExtension extends Extension {
+  /**
+   * Services created in `_enable()`.
+   *
+   * They are deliberately non-nullable: every consumer (session signal,
+   * keybindings, indicator, window-manager signals) is unbound before
+   * `disable()` clears them, so a read can only happen while they are live.
+   * `disable()` breaks the type once, on purpose, so a callback that outlives
+   * teardown fails loudly instead of walking a torn-down tree.
+   */
+  /** @type {import("gi://Gio").default.Settings} */
+  settings;
+
+  /** @type {import("gi://Gio").default.Settings} */
+  kbdSettings;
+
+  /** @type {ConfigManager} */
+  configMgr;
+
+  /** @type {ExtensionThemeManager} */
+  theme;
+
+  /** @type {WindowManager} */
+  extWm;
+
+  /** @type {Keybindings} */
+  keybindings;
+
+  /** @type {FeatureIndicator | null} */
+  indicator = null;
+
   enable() {
+    try {
+      this._enable();
+    } catch (e) {
+      // GNOME Shell reports an enable() exception as an extension error and does
+      // not call disable(). Tear down anything initialized before the failure so
+      // keybindings, indicators, session handlers, or stylesheets aren't stranded.
+      try {
+        this.disable();
+      } catch (cleanupError) {
+        Logger.error(`enable: cleanup after failed enable also failed: ${cleanupError}`);
+      }
+      throw e;
+    }
+  }
+
+  _enable() {
     this.settings = this.getSettings();
     this.kbdSettings = this.getSettings("org.gnome.shell.extensions.forge.keybindings");
     Logger.init(this.settings);
@@ -41,6 +87,7 @@ export default class ForgeExtension extends Extension {
     this.theme = new ExtensionThemeManager(this);
     this.extWm = new WindowManager(this);
     this.keybindings = new Keybindings(this);
+    this._keybindingsEnabled = false;
 
     this._onSessionModeChanged(Main.sessionMode);
     this._sessionId = Main.sessionMode.connect("updated", this._onSessionModeChanged.bind(this));
@@ -62,35 +109,63 @@ export default class ForgeExtension extends Extension {
 
     this._removeIndicator();
     this.extWm?.disable();
-    this.keybindings?.disable();
-    this.keybindings = null;
-    this.extWm = null;
-    this.themeWm = null;
-    this.configMgr = null;
-    this.settings = null;
-    this.kbdSettings = null;
+    this._setKeybindingsEnabled(false);
+    this.theme?.unloadStylesheet();
+
+    // Cleared last, once every consumer above is unbound. This is the only
+    // place the non-null service types are violated on purpose; see the field
+    // declarations for why.
+    const torn = /** @type {any} */ (this);
+    torn.keybindings = null;
+    torn.extWm = null;
+    torn.theme = null;
+    torn.configMgr = null;
+    torn.settings = null;
+    torn.kbdSettings = null;
+    // Last, because every Logger call above still needs the settings ref.
+    // Counterpart to Logger.init() in _enable().
+    Logger.destroy();
+    this._keybindingsEnabled = false;
   }
 
   _onSessionModeChanged(session) {
+    // unlock-dialog inherits parentMode "user"; handle it first or the user
+    // branch below re-enables keybindings on the lock screen.
+    if (session.currentMode === "unlock-dialog") {
+      Logger.info("lock-screen on session change");
+      this._setKeybindingsEnabled(false);
+      this._removeIndicator();
+      return;
+    }
+
     if (session.currentMode === "user" || session.parentMode === "user") {
       Logger.info("user on session change");
       this._addIndicator();
+      this._setKeybindingsEnabled(true);
+      return;
+    }
+
+    this._setKeybindingsEnabled(false);
+    this._removeIndicator();
+  }
+
+  _setKeybindingsEnabled(enabled) {
+    if (this._keybindingsEnabled === enabled) return;
+    if (enabled) {
+      // Mark the attempt before registering individual bindings. If enable()
+      // throws partway through, the outer enable() cleanup must still call
+      // disable() to remove the subset that was already installed.
+      this._keybindingsEnabled = true;
       this.keybindings?.enable();
-    } else if (session.currentMode === "unlock-dialog") {
-      // To the reviewer and maintainer: this extension needs to persist the window data structure in memory so it has to keep running on lock screen.
-      // This is previous feature but was removed during GNOME 45 update due to the session-mode rule review.
-      // The argument is that users will keep re-arranging windows when it times out or locks up.
-      // Intent to serialize/deserialize to disk but that will take a longer time or probably a longer argument during review.
-      // To keep following, added to only disable keybindings() and re-enable them during user session.
-      // https://gjs.guide/extensions/review-guidelines/review-guidelines.html#session-modes
-      Logger.info("lock-screen on session change");
+    } else {
       this.keybindings?.disable();
-      this._removeIndicator();
+      this._keybindingsEnabled = false;
     }
   }
 
   _addIndicator() {
-    this.indicator ??= new FeatureIndicator(this);
+    if (this.indicator) return;
+    this.indicator = new FeatureIndicator(this);
     this.indicator.quickSettingsItems.push(new FeatureMenuToggle(this));
     Main.panel.statusArea.quickSettings.addExternalIndicator(this.indicator);
   }
