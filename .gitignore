@@ -9,3 +9,4 @@ po/forge.pot
 .vscode
 node_modules
 lib/prefs/metadata.js
+__pycache__/
